@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Главная — Навигация по страницам</title>
+  <style>
+    /* Базовые стили страницы */
+    :root{
+      --gap: 10px;
+      --btn-padding: 10px 14px;
+      --btn-radius: 8px;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --accent: #2563eb;
+      --accent-contrast: #ffffff;
+      --muted: #6b7280;
+      --max-width: 1200px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg,#eef2ff 0%,var(--bg) 100%);
+      color:#111827;
+    }
+
+    .wrap{
+      max-width:var(--max-width);
+      margin:24px auto;
+      padding:18px;
+    }
+
+    header {
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:16px;
+    }
+
+    header h1{
+      font-size:18px;
+      margin:0;
+      font-weight:600;
+    }
+
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    /* Поиск/переход */
+    .goto {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      background:var(--card);
+      padding:8px;
+      border-radius:10px;
+      box-shadow:0 1px 2px rgba(15,23,42,0.04);
+    }
+
+    .goto input[type="number"]{
+      width:86px;
+      padding:8px;
+      border:1px solid #e6e9ee;
+      border-radius:6px;
+      font-size:14px;
+    }
+
+    .goto button{
+      padding:8px 10px;
+      border:0;
+      background:var(--accent);
+      color:var(--accent-contrast);
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    /* Плитка ссылок */
+    .grid {
+      display:grid;
+      gap:var(--gap);
+      /* адаптивная сетка: минимум 120px, автоматически число колонок */
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      align-items:stretch;
+    }
+
+    .card {
+      background:var(--card);
+      padding:10px;
+      border-radius:10px;
+      box-shadow:0 1px 3px rgba(15,23,42,0.04);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      justify-content:space-between;
+      min-height:56px;
+    }
+
+    .link-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+      padding:var(--btn-padding);
+      border-radius:var(--btn-radius);
+      border:1px solid rgba(15,23,42,0.06);
+      background:transparent;
+      color:var(--accent);
+      font-weight:600;
+      transition:all .12s ease;
+      user-select:none;
+    }
+
+    .link-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 18px rgba(15,23,42,0.06);
+    }
+
+    .link-btn.small{
+      padding:6px 8px;
+      font-size:13px;
+      border-radius:6px;
+    }
+
+    footer {
+      margin-top:18px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    /* Мобильная адаптация */
+    @media (max-width:520px){
+      header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+      }
+
+      .goto input[type="number"]{ width:68px; }
+      .wrap{ padding:12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Навигация: страницы index2.html — index130.html</h1>
+      <div class="controls">
+        <div class="goto" title="Перейти на страницу по номеру">
+          <label for="page-num" style="font-size:13px;color:var(--muted);">Перейти:</label>
+          <input id="page-num" type="number" min="2" max="130" value="2" aria-label="Номер страницы" />
+          <button id="goto-btn" type="button">Открыть</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Дополнительные варианты размещения:
+         1) Сетка (grid) — позволяет компактно разместить 130 кнопок с адаптацией по ширине.
+         2) Dropdown (select) — быстрый переход, пригоден при большом числе ссылок (ниже реализован через JS как альтернатива).
+         3) Постраничная навигация / пагинация — при желании можно дополнить для UX.
+    -->
+
+    <main>
+      <section style="margin-bottom:12px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label for="jump">Быстрый выбор:</label>
+          <select id="jump" style="padding:8px;border-radius:8px;border:1px solid #e6e9ee;">
+            <!-- опции будут добавлены JS -->
+          </select>
+          <button id="jump-open" style="padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:var(--accent-contrast);cursor:pointer;">Открыть</button>
+          <button id="copy-list" style="padding:8px 10px;border-radius:8px;border:1px solid #e6e9ee;background:#fff;cursor:pointer;">Копировать все ссылки</button>
+        </div>
+      </section>
+
+      <section class="grid" id="links-container" aria-label="Список ссылок">
+        <!-- JS динамически вставит 129 карточек (index2..index130) -->
+      </section>
+    </main>
+
+    <footer>
+      <div>Способ размещения: адаптивная сетка + select для быстрого перехода. (130 ссылок сгенерированы динамически)</div>
+    </footer>
+  </div>
+
+  <script>
+    // Скрипт генерирует ссылки index2.html ... index130.html
+    (function(){
+      const container = document.getElementById('links-container');
+      const select = document.getElementById('jump');
+      const copyBtn = document.getElementById('copy-list');
+      const gotoInput = document.getElementById('page-num');
+      const gotoBtn = document.getElementById('goto-btn');
+      const jumpOpen = document.getElementById('jump-open');
+
+      const first = 2;
+      const last = 130;
+
+      // Генерация элементов
+      const links = [];
+      for (let i = first; i <= last; i++){
+        const filename = `index${i}.html`;
+        links.push(filename);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const title = document.createElement('div');
+        title.style.fontSize = '13px';
+        title.style.color = '#374151';
+        title.textContent = filename;
+
+        const a = document.createElement('a');
+        a.className = 'link-btn small';
+        a.href = filename;
+        a.textContent = `Открыть ${i}`;
+        a.setAttribute('aria-label', `Открыть страницу ${filename}`);
+
+        // При клике открывать в том же окне (по умолчанию) — можно изменить target
+        card.appendChild(title);
+        card.appendChild(a);
+        container.appendChild(card);
+
+        // добавляем в select
+        const opt = document.createElement('option');
+        opt.value = filename;
+        opt.textContent = `${i} — ${filename}`;
+        select.appendChild(opt);
+      }
+
+      // Переход по полю ввода (число)
+      gotoBtn.addEventListener('click', () => {
+        const v = Number(gotoInput.value);
+        if (!Number.isInteger(v) || v < first || v > last) {
+          alert(`Введите целое число от ${first} до ${last}.`);
+          gotoInput.focus();
+          return;
+        }
+        const url = `index${v}.html`;
+        location.href = url;
+      });
+
+      // Быстрый выбор из select
+      jumpOpen.addEventListener('click', () => {
+        const val = select.value;
+        if (!val) return;
+        location.href = val;
+      });
+
+      // Копировать список всех ссылок (как текст, каждая на новой строке)
+      copyBtn.addEventListener('click', async () => {
+        const text = links.join('\n');
+        // попытка использовать буфер обмена
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = 'Скопировано';
+          setTimeout(()=> copyBtn.textContent = 'Копировать все ссылки', 1200);
+        } catch(e){
+          // fallback: выделить и показать пользователю
+          const area = document.createElement('textarea');
+          area.value = text;
+          document.body.appendChild(area);
+          area.select();
+          try { document.execCommand('copy'); alert('Список скопирован в буфер обмена.'); }
+          catch(err) { alert('Не удалось скопировать автоматически — текст показан в поле.'); }
+          document.body.removeChild(area);
+        }
+      });
+
+      // Улучшение UX: ENTER в поле номера откроет страницу
+      gotoInput.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') gotoBtn.click();
+      });
+
+    })();
+  </script>
+</body>
+</html>
