@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Демо — элемент "1" (a) — варианты и live CSS</title>
+  <style>
+    :root{
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --accent: #0b63ff;
+      --muted: #6b7280;
+      --radius: 10px;
+      --gap: 12px;
+    }
+
+    html,body{height:100%;margin:0;font-family:Inter, Roboto, Arial, sans-serif;background:var(--bg);color:#111827;}
+    .container{max-width:1100px;margin:20px auto;padding:18px;}
+    h1{font-size:18px;margin:0 0 12px 0;}
+    .intro{color:var(--muted);margin-bottom:18px;font-size:14px;}
+
+    /* Панель демонстрации */
+    .demo-wrap{
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:0 6px 20px rgba(12,18,36,0.04);
+    }
+
+    /* Левая панель — варианты ссылок */
+    .variants{display:flex;flex-direction:column;gap:12px;}
+    .variant-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:8px;border-radius:8px;border:1px dashed rgba(15,23,42,0.04);background:linear-gradient(180deg,#fff, #fbfdff);}
+    .variant-row p{margin:0;font-size:13px;color:#374151;}
+    .variant-row small{color:var(--muted);font-size:12px;margin-left:6px;}
+
+    .link-sample{font-weight:600;text-decoration:underline;cursor:pointer;}
+    .link-button-like{display:inline-block;padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);text-decoration:none;}
+    .link-block{display:block;padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,0.04);text-decoration:none;}
+    .muted{color:var(--muted);font-size:13px}
+    .row-title{font-weight:700;color:#0f172a;font-size:13px;margin-bottom:8px}
+
+    /* Правая панель — поле для CSS и таблица стилей */
+    .controls{display:flex;flex-direction:column;gap:10px;}
+    textarea#css-input{width:100%;min-height:220px;padding:10px;border:1px solid #e6e9ee;border-radius:8px;font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:13px;resize:vertical;background:#fafbff;}
+    .controls .buttons{display:flex;gap:8px;align-items:center;}
+    button{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;}
+    button.secondary{background:#fff;color:var(--accent);border:1px solid #e6e9ee;}
+    .info{font-size:13px;color:var(--muted);}
+
+    /* Таблица свойств */
+    .table-wrap{max-height:320px;overflow:auto;border-radius:8px;border:1px solid #eef2ff;background:#fff;}
+    table{border-collapse:collapse;width:100%;min-width:320px;}
+    th,td{padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:left;font-size:13px;}
+    th{background:#fbfdff;font-weight:700;position:sticky;top:0;}
+    td.prop{width:40%;}
+    td.value{white-space:pre-wrap;font-family:Menlo,monospace;}
+
+    /* Небольшая инструкция */
+    .hint{font-size:13px;color:var(--muted);margin-top:8px}
+
+    @media (max-width:980px){
+      .demo-wrap{grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Демонстрация элемента "1" — &lt;a&gt; (ссылки) — разные контексты и live-редактор CSS</h1>
+    <div class="intro">
+      На левой панели — множество вариантов использования тега <code>&lt;a&gt;</code>. На правой — поле для ввода стилей (как в CSS-файле).
+      Нажмите <strong>Применить</strong>, чтобы стили вступили в действие. Под полем — таблица пар "свойство / значение", извлечённая из введённых правил (для селектора <code>a</code> внутри демо-контейнера).
+    </div>
+
+    <div class="demo-wrap">
+      <!-- ЛЕВАЯ ПАНЕЛЬ: ВАРИАНТЫ -->
+      <section class="panel" id="demo">
+        <div class="row-title">Варианты использования &lt;a&gt; (внутри контейнера #demo)</div>
+
+        <div class="variants">
+          <div class="variant-row">
+            <p>1) Обычная ссылка: <a class="link-sample" href="index2.html">Обычная ссылка (index2.html)</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>2) Ссылка с атрибутом <code>target="_blank"</code>: <a class="link-sample" href="https://example.com" target="_blank" rel="noopener noreferrer">Открыть в новой вкладке</a></p>
+            <small class="muted">rel="noopener noreferrer" для безопасности</small>
+          </div>
+
+          <div class="variant-row">
+            <p>3) Ссылка mailto: <a class="link-sample" href="mailto:info@example.com">Написать письмо</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>4) Ссылка-закладка (hash): <a class="link-sample" href="#anchor">Переход к якорю (внизу)</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>5) Ссылка-иконка (внешняя): <a class="link-sample" href="https://example.com" aria-label="Внешняя ссылка">🌐 Внешняя</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>6) Ссылка как кнопка: <a class="link-button-like" href="index2.html">Кнопка-ссылка</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>7) Блочная ссылка: <a class="link-block" href="index2.html">Блочная ссылка (display:block)</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>8) Ссылка внутри текста: <p style="margin:0">Параграф с <a class="link-sample" href="index2.html">вставленной ссылкой</a> и продолжением текста.</p></p>
+          </div>
+
+          <div class="variant-row">
+            <p>9) Ссылка в списке: <ul style="margin:0;padding-left:18px;"><li><a href="index2.html">Пункт списка — ссылка</a></li></ul></p>
+          </div>
+
+          <div class="variant-row">
+            <p>10) Деактивированная ссылка (aria-disabled): <a class="link-sample" href="#" aria-disabled="true" onclick="return false;">aria-disabled="true"</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>11) Ссылка с ролью кнопки: <a class="link-button-like" href="#" role="button" onclick="alert('role=button clicked'); return false;">role="button"</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>12) Ссылка с tabindex: <a class="link-sample" href="index2.html" tabindex="0">tabindex="0"</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>13) Ссылка для скачивания (download): <a class="link-sample" href="#" download="sample.txt">Скачать (атрибут download)</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>14) Ссылка с rel="nofollow": <a class="link-sample" href="https://external.example" rel="nofollow">rel="nofollow"</a></p>
+          </div>
+
+          <div class="variant-row">
+            <p>15) Активная / hover состояния — наведите курсор и кликните по любым примерам выше.</p>
+          </div>
+
+          <div class="variant-row" id="anchor" style="border-style:solid;border-color:transparent;">
+            <p class="muted">Якорь (нужен для примера hash-ссылки): это место назначения якоря.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ПРАВАЯ ПАНЕЛЬ: CSS INPUT + ТАБЛИЦА -->
+      <aside class="panel">
+        <div class="row-title">Live CSS (ввод стилей как в .css)</div>
+
+        <div class="controls">
+          <label class="info">Введите CSS. Правила будут автоматически применены к контейнеру <code>#demo</code>. Пример:
+<pre style="background:#f6f9ff;padding:8px;border-radius:6px;margin:6px 0;font-family:Menlo,monospace;font-size:12px;">
+a { color: crimson; text-decoration: none; }
+a:hover { text-decoration: underline; color: darkred; }
+.link-button-like { background: #0b63ff; color: #fff; }
+</pre>
+          </label>
+
+          <textarea id="css-input" placeholder="Напишите CSS здесь...">/* Пример стартовых стилей для демонстрации */
+a { color: #0b63ff; text-decoration: underline; }
+a:hover { color: #063bb5; text-decoration: none; }
+.link-button-like { background: #e6f0ff; color: #0b63ff; border:1px solid rgba(11,99,255,0.12); }
+.link-block { border-color: rgba(11,99,255,0.06); }</textarea>
+
+          <div class="buttons">
+            <button id="apply-btn">Применить</button>
+            <button id="reset-btn" class="secondary">Сбросить</button>
+            <button id="export-btn" class="secondary">Скопировать CSS</button>
+          </div>
+
+          <div class="hint">После нажатия <strong>Применить</strong> таблица ниже покажет пары "свойство: значение" для селекторов, относящихся к тегу <code>a</code> внутри <code>#demo</code> (парсинг простого вида селекторов).</div>
+
+          <div style="margin-top:10px;font-weight:700">Таблица стилей для селекторов <code>a</code> внутри <code>#demo</code> (парсинг правил)</div>
+          <div class="table-wrap" id="table-wrap">
+            <table id="props-table" aria-label="Таблица свойств">
+              <thead>
+                <tr><th>Свойство</th><th>Значение</th></tr>
+              </thead>
+              <tbody>
+                <!-- заполнится JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="hint" style="margin-top:8px">Можно добавлять / править CSS в поле слева. Если нужно — вручную добавьте пары в таблицу (через кнопку "Добавить строку").</div>
+
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button id="add-row" class="secondary">Добавить строку</button>
+            <button id="clear-table" class="secondary">Очистить таблицу</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Элементы
+      const cssInput = document.getElementById('css-input');
+      const applyBtn = document.getElementById('apply-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const exportBtn = document.getElementById('export-btn');
+      const propsTableBody = document.querySelector('#props-table tbody');
+      const addRowBtn = document.getElementById('add-row');
+      const clearTableBtn = document.getElementById('clear-table');
+
+      // Стартовый CSS (тот же, что в textarea по умолчанию)
+      const defaultCSS = cssInput.value;
+
+      // Создаём <style id="user-live"> в head, куда будем вставлять преобразованный CSS
+      let styleEl = document.getElementById('user-live');
+      if (!styleEl){
+        styleEl = document.createElement('style');
+        styleEl.id = 'user-live';
+        document.head.appendChild(styleEl);
+      }
+
+      // Функция: префикс для scoping — добавляем "#demo " перед каждым селектор, кроме @rules
+      function scopeCSS(cssText, scopeSelector = '#demo') {
+        // Простейшая обработка: разбить на блоки по "}"
+        const parts = cssText.split('}');
+        const out = parts.map(part => {
+          const idx = part.indexOf('{');
+          if (idx === -1) return ''; // пустой или некорректный блок
+          const rawSelector = part.slice(0, idx).trim();
+          const body = part.slice(idx + 1).trim();
+          if (!rawSelector) return '';
+          // Если селектор начинается с @ (например, @media), вернуть как есть вместе с телом (внутри media может быть css — простейшая поддержка)
+          if (rawSelector.startsWith('@')) {
+            // Попытка аккуратно обработать @-блок: в этом простом варианте оставим блок как есть и не префиксуем внутренние селекторы.
+            return rawSelector + ' {' + body + '}'; // возможно без scoping внутри @
+          }
+          // Разбиваем селекторы по запятым и префиксим каждый
+          const selectors = rawSelector.split(',').map(s => s.trim()).filter(Boolean).map(s => {
+            // Если селектор уже содержит scopeSelector — не дублируем
+            if (s.startsWith(scopeSelector) || s.indexOf(scopeSelector + ' ') !== -1) return s;
+            // :root или html/body оставляем не префиксированными
+            if (s === ':root' || s === 'html' || s === 'body') return s;
+            return scopeSelector + ' ' + s;
+          });
+          return selectors.join(', ') + ' {' + body + '}';
+        });
+        return out.join('\n');
+      }
+
+      // Функция: извлечь декларации для селекторов, которые таргетят "a" внутри #demo
+      // Простой парсер: ищет блоки, где селектор (после удаления префикса) содержит 'a' или '.link' с 'a'
+      function extractADeclarations(cssText) {
+        const declarations = {}; // property -> value (последнее правило перезаписывает)
+        // Разбиваем на блоки
+        const blocks = cssText.split('}');
+        blocks.forEach(block => {
+          const i = block.indexOf('{');
+          if (i === -1) return;
+          const selRaw = block.slice(0, i).trim();
+          const body = block.slice(i + 1).trim();
+          if (!selRaw) return;
+          // Нормализуем селектор для проверки на вхождение 'a'
+          // Удаляем scope prefix если есть (#demo)
+          const selectors = selRaw.split(',').map(s => s.trim());
+          const appliesToA = selectors.some(s => {
+            const s0 = s.replace(/#demo\s*/g,'').trim();
+            // простая проверка: содержит 'a' как одиночный селектор или заканчивается на ' a' или включает 'a:' (псевдосостояния)
+            // либо сам селектор равен 'a' или 'a:hover' и т.д.
+            return /\b(a|a[.:#[\s>+~])/i.test(s0) || /\ba\b/.test(s0) || s0.startsWith('a') || s0.includes(' a') || s0.includes('a:') || s0.endsWith('a');
+          });
+          if (appliesToA) {
+            // Разбиваем тело на декларации
+            const decls = body.split(';').map(d => d.trim()).filter(Boolean);
+            decls.forEach(d => {
+              const sep = d.indexOf(':');
+              if (sep === -1) return;
+              const prop = d.slice(0, sep).trim();
+              const val = d.slice(sep + 1).trim();
+              if (prop) declarations[prop] = val;
+            });
+          }
+        });
+        return declarations;
+      }
+
+      // Рисуем таблицу по объекту declarations
+      function renderTable(decls) {
+        propsTableBody.innerHTML = '';
+        const keys = Object.keys(decls);
+        if (keys.length === 0) {
+          propsTableBody.innerHTML = '<tr><td class="prop" style="color:var(--muted)">— нет свойств для селектора a —</td><td class="value"></td></tr>';
+          return;
+        }
+        keys.forEach(k => {
+          const tr = document.createElement('tr');
+          const tdProp = document.createElement('td');
+          tdProp.className = 'prop';
+          tdProp.textContent = k;
+          const tdVal = document.createElement('td');
+          tdVal.className = 'value';
+          tdVal.textContent = decls[k];
+          tr.appendChild(tdProp);
+          tr.appendChild(tdVal);
+          propsTableBody.appendChild(tr);
+        });
+      }
+
+      // Применить стили: scope + вставить в styleEl, затем обновить таблицу
+      function applyStyles() {
+        const raw = cssInput.value || '';
+        const scoped = scopeCSS(raw, '#demo');
+        styleEl.textContent = '/* scoped styles for #demo */\n' + scoped;
+        // извлекаем декларации для a
+        const decls = extractADeclarations(scoped);
+        renderTable(decls);
+      }
+
+      // Reset
+      function resetStyles() {
+        cssInput.value = defaultCSS;
+        applyStyles();
+      }
+
+      // Экспорт (скопировать CSS в буфер)
+      async function exportCSS() {
+        const text = cssInput.value;
+        try {
+          await navigator.clipboard.writeText(text);
+          exportBtn.textContent = 'Скопировано';
+          setTimeout(()=> exportBtn.textContent = 'Скопировать CSS', 1200);
+        } catch (e) {
+          // fallback
+          const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select();
+          try { document.execCommand('copy'); alert('CSS скопирован'); } catch (err) { alert('Не удалось скопировать автоматически'); }
+          document.body.removeChild(t);
+        }
+      }
+
+      // Добавить пустую строку в таблицу вручную (пользовательская правка)
+      function addRowManual() {
+        const tr = document.createElement('tr');
+        const tdProp = document.createElement('td'); tdProp.className='prop';
+        const inpProp = document.createElement('input'); inpProp.type='text'; inpProp.placeholder='property'; inpProp.style.width='100%'; inpProp.style.border='0';
+        tdProp.appendChild(inpProp);
+        const tdVal = document.createElement('td'); tdVal.className='value';
+        const inpVal = document.createElement('input'); inpVal.type='text'; inpVal.placeholder='value'; inpVal.style.width='100%'; inpVal.style.border='0';
+        tdVal.appendChild(inpVal);
+        tr.appendChild(tdProp); tr.appendChild(tdVal);
+        propsTableBody.appendChild(tr);
+      }
+
+      function clearTable() {
+        propsTableBody.innerHTML = '';
+      }
+
+      // Инициализация — применить стартовые стили
+      applyStyles();
+
+      // События
+      applyBtn.addEventListener('click', applyStyles);
+      resetBtn.addEventListener('click', resetStyles);
+      exportBtn.addEventListener('click', exportCSS);
+      addRowBtn.addEventListener('click', addRowManual);
+      clearTableBtn.addEventListener('click', clearTable);
+
+      // ENTER в textarea с Ctrl+Enter применяет стили
+      cssInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          applyStyles();
+        }
+      });
+
+      // Обновление таблицы при потере фокуса (опционально)
+      cssInput.addEventListener('blur', () => {
+        // не применяем автоматически — оставляем нажатие кнопки, но можно парсить для превью:
+        // applyStyles();
+      });
+
+    })();
+  </script>
+</body>
+</html>
