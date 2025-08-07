@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Торговый Терминал 1984</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      font-family: 'Courier New', monospace;
+    }
+    body {
+      background: #000;
+      color: #0f0;
+      height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+      position: relative;
+    }
+    #screen {
+      border: 2px solid #333;
+      height: calc(100vh - 20px);
+      padding: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;
+    }
+    .typed {
+      border-right: 2px solid #0f0;
+      animation: blink 0.5s infinite;
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+    .btn {
+      background: #000;
+      color: #0f0;
+      border: none;
+      margin: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      position: relative;
+    }
+    .btn::before, .btn::after {
+      content: '|';
+      color: #0f0;
+      position: absolute;
+      top: 0;
+    }
+    .btn::before { left: -5px; }
+    .btn::after { right: -5px; }
+    .btn:hover { color: #fff; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="screen">> Загрузка терминала...</div>
+
+  <script>
+    // Игровые переменные
+    let money = 1000;
+    let day = 1;
+    let assets = { usd: 0, eur: 0, gold: 0, oil: 0 };
+    let prices = { usd: 60, eur: 70, gold: 4500, oil: 80 };
+    let trends = { usd: 0, eur: 0, gold: 0, oil: 0 };
+    let gameActive = false;
+
+    // DOM элементы
+    const screen = document.getElementById('screen');
+    let currentText = '';
+
+    // Печатаем текст с эффектом машинки
+    function typeText(text, callback = null, speed = 50) {
+      let i = 0;
+      currentText = screen.innerHTML.replace('<span class="typed"></span>', '');
+      screen.innerHTML = currentText;
+      
+      function typing() {
+        if (i < text.length) {
+          currentText += text.charAt(i);
+          screen.innerHTML = currentText + '<span class="typed"></span>';
+          i++;
+          setTimeout(typing, speed);
+        } else if (callback) {
+          callback();
+        }
+      }
+      typing();
+    }
+
+    // Обновляем цены (случайно + тренд)
+    function updatePrices() {
+      Object.keys(prices).forEach(key => {
+        const change = (Math.random() - 0.5) * 10 + trends[key];
+        prices[key] = Math.max(1, prices[key] + change);
+        trends[key] = (Math.random() - 0.5) * 2;
+      });
+    }
+
+    // Главное меню
+    function showMenu() {
+      screen.innerHTML = '';
+      typeText(
+        '> ТОРГОВЫЙ ТЕРМИНАЛ 1984\n' +
+        '> День: ' + day + '\n' +
+        '> Баланс: $' + money.toFixed(2) + '\n\n' +
+        '|_ ТОВАРЫ _|\n' +
+        '1. Доллар ($): ' + prices.usd.toFixed(2) + '₽\n' +
+        '2. Евро (€): ' + prices.eur.toFixed(2) + '₽\n' +
+        '3. Золото: ' + prices.gold.toFixed(2) + '₽/унция\n' +
+        '4. Нефть: ' + prices.oil.toFixed(2) + '₽/баррель\n\n' +
+        '|_ ДЕЙСТВИЯ _|\n' +
+        '[1] Купить\n' +
+        '[2] Продать\n' +
+        '[3] Следующий день\n' +
+        '[4] Статистика\n\n' +
+        '> Введите номер: ', 
+        () => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.style.opacity = '0';
+          input.style.position = 'absolute';
+          screen.appendChild(input);
+          input.focus();
+          
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              handleMenu(input.value);
+              input.remove();
+            }
+          });
+        }
+      );
+    }
+
+    // Обработчик меню
+    function handleMenu(choice) {
+      switch (choice) {
+        case '1': buyAsset(); break;
+        case '2': sellAsset(); break;
+        case '3': nextDay(); break;
+        case '4': showStats(); break;
+        default: typeText('\n> Ошибка! Попробуйте снова.\n\n', showMenu);
+      }
+    }
+
+    // Покупка актива
+    function buyAsset() {
+      typeText('\n> Выберите товар (1-4): ', () => {
+        const input = document.createElement('input');
+        screen.appendChild(input);
+        input.focus();
+        
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const asset = ['usd', 'eur', 'gold', 'oil'][parseInt(input.value) - 1];
+            if (asset) {
+              typeText('\n> Сколько купить? ', () => {
+                const qtyInput = document.createElement('input');
+                screen.appendChild(qtyInput);
+                qtyInput.focus();
+                
+                qtyInput.addEventListener('keydown', (e) => {
+                  if (e.key === 'Enter') {
+                    const qty = parseFloat(qtyInput.value);
+                    const cost = qty * prices[asset];
+                    if (cost <= money) {
+                      money -= cost;
+                      assets[asset] += qty;
+                      typeText(`\n> Куплено: ${qty} ${asset} за ${cost.toFixed(2)}₽\n\n`, showMenu);
+                    } else {
+                      typeText('\n> Недостаточно средств!\n\n', showMenu);
+                    }
+                    qtyInput.remove();
+                  }
+                });
+              });
+            } else {
+              typeText('\n> Неверный выбор!\n\n', showMenu);
+            }
+            input.remove();
+          }
+        });
+      });
+    }
+
+    // Продажа актива (аналогично покупке)
+    function sellAsset() { /* ... */ }
+
+    // Следующий день
+    function nextDay() {
+      day++;
+      updatePrices();
+      
+      // Случайные события
+      if (Math.random() < 0.3) {
+        const events = [
+          "> НОВОСТИ: Война на Ближнем Востоке! Цены на нефть растут.\n",
+          "> НОВОСТИ: Кризис в ЕС! Евро падает.\n",
+          "> НОВОСТИ: Новые санкции! Доллар дорожает.\n"
+        ];
+        typeText(events[Math.floor(Math.random() * events.length)], showMenu);
+      } else {
+        showMenu();
+      }
+    }
+
+    // Статистика
+    function showStats() {
+      let total = money;
+      Object.keys(assets).forEach(key => {
+        total += assets[key] * prices[key];
+      });
+      
+      typeText(
+        `\n> ВАШ КАПИТАЛ: ${total.toFixed(2)}₽\n` +
+        `> Налчиные: ${money.toFixed(2)}₽\n` +
+        `> Активы:\n` +
+        `- Доллар: ${assets.usd} ($${(assets.usd * prices.usd).toFixed(2)})\n` +
+        `- Евро: ${assets.eur} (€${(assets.eur * prices.eur).toFixed(2)})\n` +
+        `- Золото: ${assets.gold} (${(assets.gold * prices.gold).toFixed(2)}₽)\n` +
+        `- Нефть: ${assets.oil} (${(assets.oil * prices.oil).toFixed(2)}₽)\n\n`,
+        showMenu
+      );
+    }
+
+    // Запуск игры
+    typeText('> Инициализация системы...\n', () => {
+      setTimeout(() => {
+        typeText('> Подключение к бирже...\n', () => {
+          setTimeout(() => {
+            typeText('> Готово!\n\n', showMenu);
+            gameActive = true;
+          }, 1000);
+        });
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
