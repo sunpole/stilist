@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Буквомёт</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            overflow: hidden;
+            touch-action: none;
+            background: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        #letters-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px;
+            max-width: 100%;
+        }
+        .letter {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: #4CAF50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .letter:active {
+            transform: scale(0.9);
+        }
+        #gun {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            border-radius: 50% 50% 0 0;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        #gun::after {
+            content: "🔫";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+        }
+        #collected-letters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px;
+            min-height: 50px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            width: 100%;
+        }
+        #controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #cccccc;
+        }
+        #score {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        @media (max-width: 400px) {
+            .letter {
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="letters-top"></div>
+    <div id="gun"></div>
+    <div id="collected-letters"></div>
+    <div id="controls">
+        <button id="shoot-btn">Выстрел (Осталось: 15)</button>
+        <button id="collect-btn" disabled>Собрать слово</button>
+    </div>
+    <div id="score">Очки: 0</div>
+
+    <script>
+        const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+        const dictionary = ["СОН", "КОТ", "РОТ", "МАК", "ЛУК", "ДОМ", "СОК", "НОС", "МОСТ", "ЛИСА", "ПАРК", "СНЕГ", "ВОДА", "РЕКА", "ЛЕС", "МОРЕ", "ГОРА", "САД", "ЧАС", "ДЕНЬ", "НОЧЬ", "ЗИМА", "ЛЕТО", "ВЕСНА", "ОСЕНЬ", "ДРУГ", "МАТЬ", "ОТЕЦ", "СЕСТРА", "БРАТ", "РУКА", "НОГА", "ГОЛОВА", "ГЛАЗ", "УХО", "РОТ", "НОС", "ЗУБ", "СЕРДЦЕ", "ПЕС", "КОШКА", "ПТИЦА", "РЫБА", "ХЛЕБ", "МЯСО", "СЫР", "МОЛОКО", "САХАР", "СОЛЬ", "ЧАЙ", "СУП", "СОК", "САД", "ДОМ", "СТОЛ", "СТУЛ", "ДВЕРЬ", "ОКНО", "КНИГА", "РУЧКА", "ТЕТРАДЬ", "ШКОЛА", "УЧИТЕЛЬ", "УЧЕНИК", "ДОСКА", "МЕЛ", "ПАЛЕЦ"];
+
+        let bulletsLeft = 15;
+        let score = 0;
+        let collectedLetters = [];
+        const lettersTop = document.getElementById("letters-top");
+        const collectedLettersDiv = document.getElementById("collected-letters");
+        const shootBtn = document.getElementById("shoot-btn");
+        const collectBtn = document.getElementById("collect-btn");
+        const scoreDisplay = document.getElementById("score");
+
+        // Стрельба
+        shootBtn.addEventListener("click", () => {
+            if (bulletsLeft <= 0) return;
+            
+            bulletsLeft--;
+            shootBtn.textContent = `Выстрел (Осталось: ${bulletsLeft})`;
+            
+            const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+            const letterElement = document.createElement("div");
+            letterElement.className = "letter";
+            letterElement.textContent = randomLetter;
+            
+            letterElement.addEventListener("click", () => {
+                if (collectedLetters.length < bulletsLeft) {
+                    collectedLetters.push(randomLetter);
+                    collectedLettersDiv.textContent = collectedLetters.join("");
+                    collectBtn.disabled = false;
+                }
+            });
+            
+            lettersTop.appendChild(letterElement);
+        });
+
+        // Сбор слова
+        collectBtn.addEventListener("click", () => {
+            const word = collectedLetters.join("");
+            
+            if (dictionary.includes(word)) {
+                score += word.length;
+                scoreDisplay.textContent = `Очки: ${score}`;
+                
+                // Возвращаем патроны
+                bulletsLeft += word.length;
+                shootBtn.textContent = `Выстрел (Осталось: ${bulletsLeft})`;
+                
+                // Очищаем собранные буквы
+                collectedLetters = [];
+                collectedLettersDiv.textContent = "";
+                collectBtn.disabled = true;
+                
+                // Удаляем буквы сверху
+                lettersTop.innerHTML = "";
+            } else {
+                alert("Такого слова нет в словаре!");
+            }
+        });
+    </script>
+</body>
+</html>
