@@ -1128,17 +1128,7 @@
             const eqElement = document.getElementById(equipmentId);
             eqElement.classList.remove('unlocked');
             eqElement.classList.add('busy');
-            eqElement.querySelector('.equipment-status 
-
-
-
-
-
-
-
-
-
-		            eqElement.querySelector('.equipment-status').textContent = `Готовит: ${gameState.currentRecipe.name}`;
+            eqElement.querySelector('.equipment-status').textContent = `Готовит: ${gameState.currentRecipe.name}`;
             
             // Запускаем таймер приготовления
             equipment.interval = setInterval(() => {
