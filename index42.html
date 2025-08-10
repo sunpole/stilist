@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Кухня Хаоса - Кафе-симулятор</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* [Все CSS стили остаются такими же, как в предыдущей версии] */
+        /* Добавим только новые стили для ингредиентов: */
+        
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .ingredient {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .ingredient.selected {
+            background-color: #e3f2fd;
+            border-color: #64b5f6;
+        }
+        
+        .recipe-display {
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 50px;
+        }
+        
+        .recipe-step {
+            display: inline-block;
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 15px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <!-- [Весь HTML остаётся таким же, только меняем содержимое экранов] -->
+    
+    <script>
+        // Обновлённый игровой код с системой ингредиентов и рецептов
+        let gameState = {
+            money: 100,
+            day: 1,
+            timeLeft: 120, // 2 минуты на день в секундах
+            reputation: 100,
+            activeOrders: [],
+            completedOrders: 0,
+            selectedIngredients: [],
+            currentRecipe: [],
+            
+            equipment: {
+                'stove-1': { busy: false, cookingTime: 0, currentTime: 0, orderId: null },
+                'stove-2': { busy: false, cookingTime: 0, currentTime: 0, orderId: null }
+            },
+            
+            upgrades: {
+                'stove-3': { name: 'Доп. плита', description: 'Открывает третью плиту', price: 300, purchased: false },
+                'fridge': { name: 'Холодильник', description: 'Добавляет 2 новых ингредиента', price: 200, purchased: false },
+                'blender': { name: 'Блендер', description: 'Позволяет готовить сложные блюда', price: 400, purchased: false },
+                'auto-chopper': { name: 'Авто-нарезка', description: 'Ускоряет подготовку на 30%', price: 350, purchased: false }
+            },
+            
+            ingredients: [
+                { id: 'bread', name: 'Хлеб', unlocked: true },
+                { id: 'cheese', name: 'Сыр', unlocked: true },
+                { id: 'tomato', name: 'Помидор', unlocked: true },
+                { id: 'lettuce', name: 'Салат', unlocked: false },
+                { id: 'meat', name: 'Мясо', unlocked: false },
+                { id: 'fish', name: 'Рыба', unlocked: false },
+                { id: 'rice', name: 'Рис', unlocked: false },
+                { id: 'eggs', name: 'Яйца', unlocked: false }
+            ],
+            
+            dishes: [
+                { 
+                    id: 1, 
+                    name: 'Сэндвич', 
+                    recipe: ['bread', 'cheese', 'bread'], 
+                    baseTime: 25, 
+                    baseReward: 30,
+                    unlocked: true 
+                },
+                { 
+                    id: 2, 
+                    name: 'Салат', 
+                    recipe: ['lettuce', 'tomato', 'cheese'], 
+                    baseTime: 20, 
+                    baseReward: 40,
+                    unlocked: false 
+                },
+                { 
+                    id: 3, 
+                    name: 'Яичница', 
+                    recipe: ['eggs', 'eggs'], 
+                    baseTime: 15, 
+                    baseReward: 25,
+                    unlocked: false 
+                },
+                { 
+                    id: 4, 
+                    name: 'Суши', 
+                    recipe: ['rice', 'fish'], 
+                    baseTime: 35, 
+                    baseReward: 60,
+                    unlocked: false 
+                }
+            ],
+            
+            customers: ['Анна', 'Иван', 'Мария', 'Дмитрий', 'Ольга', 'Сергей']
+        };
+        
+        // Инициализация игры
+        function initGame() {
+            updateMoneyDisplay();
+            renderUpgrades();
+            startDay();
+            updateDayTimer();
+        }
+        
+        // Начать день
+        function startDay() {
+            gameState.activeOrders = [];
+            gameState.timeLeft = 120;
+            document.getElementById('orders-list').innerHTML = '';
+            
+            // Генерация начальных заказов
+            generateOrder();
+            generateOrder();
+            
+            // Запуск таймера дня
+            gameState.dayInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateDayTimer();
+                
+                if (gameState.timeLeft <= 0) {
+                    endDay();
+                }
+            }, 1000);
+            
+            // Генерация новых заказов
+            gameState.orderInterval = setInterval(generateOrder, 20000);
+            
+            // Проверка терпения клиентов
+            gameState.patienceInterval = setInterval(checkPatience, 1000);
+        }
+        
+        // Завершить день
+        function endDay() {
+            clearInterval(gameState.dayInterval);
+            clearInterval(gameState.orderInterval);
+            clearInterval(gameState.patienceInterval);
+            
+            // Освобождаем оборудование
+            for (let eqId in gameState.equipment) {
+                if (gameState.equipment[eqId].busy) {
+                    stopCooking(eqId);
+                }
+            }
+            
+            // Бонус за репутацию
+            let bonus = Math.floor(gameState.reputation / 10) * gameState.completedOrders;
+            gameState.money += bonus;
+            
+            showToast(`День ${gameState.day} завершён! Бонус за репутацию: +$${bonus}`);
+            gameState.day++;
+            gameState.completedOrders = 0;
+            
+            // Показываем экран улучшений
+            showScreen('upgrade-screen');
+        }
+        
+        // Выбор ингредиента
+        function selectIngredient(ingredientId) {
+            const ingr = gameState.ingredients.find(i => i.id === ingredientId);
+            if (!ingr || !ingr.unlocked) return;
+            
+            gameState.selectedIngredients.push(ingredientId);
+            renderSelectedIngredients();
+            
+            // Проверяем, соответствует ли выбранное рецепту
+            checkRecipe();
+        }
+        
+        // Проверка рецепта
+        function checkRecipe() {
+            for (let dish of gameState.dishes) {
+                if (!dish.unlocked) continue;
+                
+                if (arraysEqual(gameState.selectedIngredients, dish.recipe)) {
+                    // Нашли совпадение с рецептом!
+                    gameState.currentRecipe = dish.recipe;
+                    renderRecipeDisplay();
+                    return;
+                }
+            }
+            
+            // Если выбранных ингредиентов слишком много - сбрасываем
+            if (gameState.selectedIngredients.length > 4) {
+                gameState.selectedIngredients = [];
+                renderSelectedIngredients();
+                showToast("Неверный рецепт! Попробуйте ещё раз.");
+            }
+        }
+        
+        // Начать приготовление блюда
+        function startCooking(equipmentId) {
+            if (gameState.currentRecipe.length === 0) {
+                showToast("Сначала соберите рецепт!");
+                return;
+            }
+            
+            const equipment = gameState.equipment[equipmentId];
+            if (equipment.busy) return;
+            
+            // Находим заказ для этого рецепта
+            const dish = gameState.dishes.find(d => 
+                arraysEqual(d.recipe, gameState.currentRecipe)
+            );
+            
+            const orderIndex = gameState.activeOrders.findIndex(o => 
+                o.dishId === dish.id && !o.inProgress
+            );
+            
+            if (orderIndex === -1) {
+                showToast("Нет заказа на это блюдо!");
+                return;
+            }
+            
+            const order = gameState.activeOrders[orderIndex];
+            order.inProgress = true;
+            
+            // Устанавливаем параметры приготовления
+            equipment.busy = true;
+            equipment.orderId = order.id;
+            
+            let cookingTime = dish.baseTime;
+            if (gameState.upgrades['auto-chopper'].purchased) {
+                cookingTime = Math.floor(cookingTime * 0.7);
+            }
+            
+            equipment.cookingTime = cookingTime;
+            equipment.currentTime = 0;
+            
+            // Обновляем UI
+            const eqElement = document.getElementById(equipmentId);
+            eqElement.classList.add('active');
+            eqElement.querySelector('.status').textContent = `Готовит: ${dish.name}`;
+            
+            // Запускаем таймер приготовления
+            equipment.interval = setInterval(() => {
+                equipment.currentTime++;
+                const progress = (equipment.currentTime / equipment.cookingTime) * 100;
+                eqElement.querySelector('.progress-bar').style.width = `${progress}%`;
+                
+                if (equipment.currentTime >= equipment.cookingTime) {
+                    finishCooking(equipmentId);
+                }
+            }, 1000);
+            
+            // Сбрасываем выбранные ингредиенты
+            gameState.selectedIngredients = [];
+            gameState.currentRecipe = [];
+            renderSelectedIngredients();
+            renderRecipeDisplay();
+            renderOrders();
+        }
+        
+        // Покупка улучшения
+        function buyUpgrade(upgradeId) {
+            const upgrade = gameState.upgrades[upgradeId];
+            if (upgrade.purchased || gameState.money < upgrade.price) return;
+            
+            gameState.money -= upgrade.price;
+            upgrade.purchased = true;
+            
+            // Применяем эффекты улучшений
+            switch (upgradeId) {
+                case 'stove-3':
+                    gameState.equipment['stove-3'] = { 
+                        busy: false, cookingTime: 0, currentTime: 0, orderId: null 
+                    };
+                    
+                    const equipmentDiv = document.querySelector('.equipment');
+                    const newStove = document.createElement('div');
+                    newStove.className = 'equipment-item';
+                    newStove.id = 'stove-3';
+                    newStove.onclick = function() { startCooking('stove-3'); };
+                    newStove.innerHTML = `
+                        <div class="name">Плита 3</div>
+                        <div class="status">Готова</div>
+                        <div class="progress"><div class="progress-bar"></div></div>
+                    `;
+                    equipmentDiv.appendChild(newStove);
+                    break;
+                    
+                case 'fridge':
+                    // Разблокируем 2 случайных ингредиента
+                    const lockedIngredients = gameState.ingredients.filter(i => !i.unlocked);
+                    if (lockedIngredients.length > 0) {
+                        const toUnlock = Math.min(2, lockedIngredients.length);
+                        for (let i = 0; i < toUnlock; i++) {
+                            const randomIndex = Math.floor(Math.random() * lockedIngredients.length);
+                            lockedIngredients[randomIndex].unlocked = true;
+                        }
+                    }
+                    
+                    // Разблокируем блюда, если теперь есть ингредиенты
+                    gameState.dishes.forEach(dish => {
+                        if (dish.recipe.every(ing => 
+                            gameState.ingredients.some(i => i.id === ing && i.unlocked)
+                        )) {
+                            dish.unlocked = true;
+                        }
+                    });
+                    break;
+                    
+                case 'blender':
+                    // Разблокируем все блюда
+                    gameState.dishes.forEach(dish => dish.unlocked = true);
+                    break;
+            }
+            
+            updateMoneyDisplay();
+            renderUpgrades();
+            showToast(`Приобретено: ${upgrade.name}`);
+        }
+        
+        // Отображение выбранных ингредиентов
+        function renderSelectedIngredients() {
+            const ingredientsGrid = document.getElementById('ingredients-grid');
+            ingredientsGrid.innerHTML = '';
+            
+            gameState.ingredients.forEach(ing => {
+                if (!ing.unlocked) return;
+                
+                const ingElement = document.createElement('div');
+                ingElement.className = 'ingredient';
+                if (gameState.selectedIngredients.includes(ing.id)) {
+                    ingElement.classList.add('selected');
+                }
+                ingElement.textContent = ing.name;
+                ingElement.onclick = () => selectIngredient(ing.id);
+                ingredientsGrid.appendChild(ingElement);
+            });
+        }
+        
+        // Отображение текущего рецепта
+        function renderRecipeDisplay() {
+            const recipeDisplay = document.getElementById('recipe-display');
+            recipeDisplay.innerHTML = '';
+            
+            if (gameState.currentRecipe.length > 0) {
+                const dish = gameState.dishes.find(d => 
+                    arraysEqual(d.recipe, gameState.currentRecipe)
+                );
+                
+                recipeDisplay.innerHTML = `<strong>Готовим: ${dish.name}</strong><br>`;
+                
+                gameState.currentRecipe.forEach(ingId => {
+                    const ing = gameState.ingredients.find(i => i.id === ingId);
+                    const step = document.createElement('span');
+                    step.className = 'recipe-step';
+                    step.textContent = ing.name;
+                    recipeDisplay.appendChild(step);
+                });
+            } else if (gameState.selectedIngredients.length > 0) {
+                recipeDisplay.textContent = "Продолжайте выбирать ингредиенты...";
+            } else {
+                recipeDisplay.textContent = "Выберите ингредиенты для начала готовки";
+            }
+        }
+        
+        // Обновление таймера дня
+        function updateDayTimer() {
+            document.getElementById('day-timer').textContent = 
+                `День ${gameState.day} | ${formatTime(gameState.timeLeft)}`;
+        }
+        
+        // Вспомогательная функция для сравнения массивов
+        function arraysEqual(a, b) {
+            return a.length === b.length && a.every((val, index) => val === b[index]);
+        }
+        
+        // [Остальные функции (renderOrders, showToast и т.д.) остаются без изменений]
+        
+        // Запуск игры при загрузке
+        window.onload = initGame;
+    </script>
+</body>
+</html>
