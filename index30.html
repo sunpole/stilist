@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Семейная игра: 5 элементов</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      overflow: hidden;
+      touch-action: manipulation;
+      font-family: 'Comic Sans MS', cursive;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      height: 100vh;
+    }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 10px;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .choice-btn {
+      background: white;
+      border: 3px solid #4a69bd;
+      border-radius: 15px;
+      padding: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .choice-btn:active {
+      transform: scale(0.95);
+      background: #4a69bd;
+      color: white;
+    }
+    .history-btn {
+      background: #4a69bd;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 5px 0;
+    }
+    .modal-content {
+      border-radius: 15px;
+    }
+    @media (orientation: portrait) {
+      .choices {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 400px) {
+      .choice-btn {
+        font-size: 18px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body class="d-flex justify-content-center align-items-center">
+  <div class="game-container text-center">
+    <h1 class="mb-4">5 Элементов</h1>
+    
+    <!-- Текущий игрок -->
+    <div id="currentPlayer" class="fs-4 mb-3 fw-bold text-primary">Игрок 1</div>
+    
+    <!-- Выбор элементов -->
+    <div class="choices">
+      <button class="choice-btn" data-choice="камень">🪨 Камень</button>
+      <button class="choice-btn" data-choice="ножницы">✂️ Ножницы</button>
+      <button class="choice-btn" data-choice="бумага">📄 Бумага</button>
+      <button class="choice-btn" data-choice="ящерица">🦎 Ящерица</button>
+      <button class="choice-btn" data-choice="спок">🖖 Спок</button>
+    </div>
+    
+    <!-- Результат раунда -->
+    <div id="roundResult" class="fs-5 mb-3" style="min-height: 24px;"></div>
+    
+    <!-- Кнопки управления -->
+    <button id="historyBtn" class="history-btn">История ходов</button>
+    <button id="restartBtn" class="btn btn-warning mt-2">Начать заново</button>
+    
+    <!-- История ходов (модальное окно) -->
+    <div class="modal fade" id="historyModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">История игры</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="historyList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Правила игры (кто кого побеждает)
+    const rules = {
+      'камень': ['ножницы', 'ящерица'],
+      'ножницы': ['бумага', 'ящерица'],
+      'бумага': ['камень', 'спок'],
+      'ящерица': ['бумага', 'спок'],
+      'спок': ['камень', 'ножницы']
+    };
+
+    // Состояние игры
+    let gameState = {
+      currentPlayer: 1,
+      player1Choice: null,
+      player2Choice: null,
+      history: [],
+      gameActive: true
+    };
+
+    // Элементы DOM
+    const elements = {
+      currentPlayer: document.getElementById('currentPlayer'),
+      roundResult: document.getElementById('roundResult'),
+      historyBtn: document.getElementById('historyBtn'),
+      restartBtn: document.getElementById('restartBtn'),
+      historyModal: new bootstrap.Modal('#historyModal'),
+      historyList: document.getElementById('historyList'),
+      choiceBtns: document.querySelectorAll('.choice-btn')
+    };
+
+    // Обработчики событий
+    elements.choiceBtns.forEach(btn => {
+      btn.addEventListener('click', () => handleChoice(btn.dataset.choice));
+    });
+
+    elements.historyBtn.addEventListener('click', () => {
+      updateHistoryList();
+      elements.historyModal.show();
+    });
+
+    elements.restartBtn.addEventListener('click', resetGame);
+
+    // Логика выбора игрока
+    function handleChoice(choice) {
+      if (!gameState.gameActive) return;
+
+      if (gameState.currentPlayer === 1) {
+        gameState.player1Choice = choice;
+        gameState.currentPlayer = 2;
+        elements.currentPlayer.textContent = 'Игрок 2';
+        elements.roundResult.textContent = 'Игрок 1 выбрал ' + choice;
+      } else {
+        gameState.player2Choice = choice;
+        gameState.currentPlayer = 1;
+        elements.currentPlayer.textContent = 'Игрок 1';
+        resolveRound();
+      }
+    }
+
+    // Определение победителя раунда
+    function resolveRound() {
+      const p1 = gameState.player1Choice;
+      const p2 = gameState.player2Choice;
+      let result;
+
+      if (p1 === p2) {
+        result = 'Ничья!';
+      } else if (rules[p1].includes(p2)) {
+        result = 'Игрок 1 побеждает!';
+      } else {
+        result = 'Игрок 2 побеждает!';
+      }
+
+      // Запись в историю
+      gameState.history.push({
+        round: gameState.history.length + 1,
+        player1: p1,
+        player2: p2,
+        result: result
+      });
+
+      elements.roundResult.innerHTML = `
+        Игрок 1: ${getEmoji(p1)} vs Игрок 2: ${getEmoji(p2)}<br>
+        <strong>${result}</strong>
+      `;
+    }
+
+    // Сброс игры
+    function resetGame() {
+      gameState = {
+        currentPlayer: 1,
+        player1Choice: null,
+        player2Choice: null,
+        history: [],
+        gameActive: true
+      };
+      elements.currentPlayer.textContent = 'Игрок 1';
+      elements.roundResult.textContent = '';
+    }
+
+    // Обновление списка истории
+    function updateHistoryList() {
+      elements.historyList.innerHTML = gameState.history.map(entry => `
+        <div class="border-bottom pb-2 mb-2">
+          Раунд ${entry.round}:<br>
+          ${getEmoji(entry.player1)} vs ${getEmoji(entry.player2)} → ${entry.result}
+        </div>
+      `).join('');
+    }
+
+    // Получение emoji для элемента
+    function getEmoji(choice) {
+      const emojis = {
+        'камень': '🪨',
+        'ножницы': '✂️',
+        'бумага': '📄',
+        'ящерица': '🦎',
+        'спок': '🖖'
+      };
+      return emojis[choice] || choice;
+    }
+
+    // Запрет контекстного меню
+    document.addEventListener('contextmenu', e => e.preventDefault());
+  </script>
+</body>
+</html>
