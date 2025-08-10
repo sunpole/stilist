@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Космический выживальщик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: white;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+        }
+        
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        #game-screen {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        
+        #player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><polygon points="15,0 5,30 15,20 25,30" fill="%23ffffff"/></svg>') no-repeat center;
+            background-size: contain;
+            left: 50%;
+            bottom: 20%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        .meteor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="%23ff5555"/></svg>') no-repeat center;
+            background-size: contain;
+            z-index: 5;
+        }
+        
+        #abilities {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-top: 1px solid #444;
+        }
+        
+        .ability {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #555;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            text-align: center;
+            background-color: #222;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ability.cooldown::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        #hud {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-bottom: 1px solid #444;
+        }
+        
+        #health-bar {
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        #health-fill {
+            height: 100%;
+            background-color: #e74c3c;
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        #round-timer {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        #menu-screen, #skill-tree-screen, #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .menu-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #3498db;
+            text-align: center;
+        }
+        
+        .menu-button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .menu-button:hover {
+            background-color: #2980b9;
+        }
+        
+        #skill-tree {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .skill {
+            padding: 10px;
+            border: 2px solid #555;
+            border-radius: 5px;
+            text-align: center;
+            background-color: #222;
+            cursor: pointer;
+        }
+        
+        .skill.unlocked {
+            border-color: #3498db;
+        }
+        
+        .skill.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .skill.active {
+            background-color: #2c3e50;
+            border-color: #e74c3c;
+        }
+        
+        .skill-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .skill-desc {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .skill-level {
+            font-size: 0.7rem;
+            color: #f1c40f;
+        }
+        
+        .tunnel-effect {
+            position: absolute;
+            width: 200vw;
+            height: 200vh;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            z-index: 8;
+            pointer-events: none;
+            left: -50vw;
+            top: -50vh;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .heal-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0,255,0,0.2) 0%, rgba(0,255,0,0) 70%);
+            z-index: 7;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .shield-effect {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 150, 255, 0.7);
+            z-index: 9;
+            pointer-events: none;
+            left: 50%;
+            bottom: calc(20% - 10px);
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        #skill-points {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #f1c40f;
+        }
+        
+        #current-round {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        #game-over-message {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #e74c3c;
+            text-align: center;
+        }
+        
+        #stats {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="hud">
+            <div id="health-bar">
+                <div id="health-fill"></div>
+            </div>
+            <div id="round-timer">45</div>
+        </div>
+        
+        <div id="game-screen">
+            <div id="player"></div>
+            <div class="tunnel-effect"></div>
+            <div class="heal-effect"></div>
+            <div class="shield-effect"></div>
+        </div>
+        
+        <div id="abilities">
+            <div class="ability" id="ability-1">Туннель</div>
+            <div class="ability" id="ability-2">-</div>
+            <div class="ability" id="ability-3">-</div>
+            <div class="ability" id="ability-4">-</div>
+        </div>
+        
+        <div id="menu-screen">
+            <h1 class="menu-title">КОСМИЧЕСКИЙ ВЫЖИВАЛЬЩИК</h1>
+            <button class="menu-button" id="start-button">НАЧАТЬ ИГРУ</button>
+            <button class="menu-button" id="how-to-play-button">КАК ИГРАТЬ</button>
+        </div>
+        
+        <div id="skill-tree-screen" style="display: none;">
+            <h2 class="menu-title">ВЫБОР СПОСОБНОСТЕЙ</h2>
+            <div id="skill-points">Очки навыков: 0</div>
+            <div id="current-round">Раунд: 1</div>
+            <div id="skill-tree"></div>
+            <button class="menu-button" id="start-round-button">НАЧАТЬ РАУНД</button>
+        </div>
+        
+        <div id="game-over-screen" style="display: none;">
+            <h1 class="menu-title">ИГРА ОКОНЧЕНА</h1>
+            <div id="game-over-message"></div>
+            <div id="stats">
+                <p>Прожито раундов: <span id="rounds-survived">0</span></p>
+                <p>Открыто способностей: <span id="skills-unlocked">0</span></p>
+            </div>
+            <button class="menu-button" id="restart-button">ЗАНОВО</button>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        let gameState = {
+            player: {
+                health: 500,
+                maxHealth: 500,
+                skills: {},
+                activeAbilities: [null, null, null, null],
+                abilityCooldowns: [0, 0, 0, 0]
+            },
+            round: 1,
+            skillPoints: 0,
+            meteorSpeed: 2,
+            meteorSpawnRate: 1000,
+            meteors: [],
+            gameTime: 0,
+            roundTimer: 45,
+            roundInterval: null,
+            gameInterval: null,
+            isGameRunning: false,
+            unlockedSkills: 0
+        };
+
+        // Определение всех способностей
+        const allSkills = {
+            'tunnel': {
+                name: 'Туннель',
+                description: 'Уничтожает все цели в конусе перед игроком',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 0,
+                unlockRequirement: null,
+                effect: function(level) {
+                    const tunnel = document.querySelector('.tunnel-effect');
+                    tunnel.style.opacity = '0.7';
+                    
+                    // Уничтожаем все метеориты
+                    gameState.meteors.forEach(meteor => {
+                        document.getElementById(meteor.id).remove();
+                    });
+                    gameState.meteors = [];
+                    
+                    setTimeout(() => {
+                        tunnel.style.opacity = '0';
+                    }, 200 + (level * 280)); // 0.2сек + 28мс за уровень
+                },
+                cooldown: function(level) {
+                    return 10000 - (level * 300); // 10сек - 0.3сек за уровень
+                },
+                nextSkills: ['prayer', 'jacob', 'sickle']
+            },
+            // Ветка лечения
+            'prayer': {
+                name: 'Молитва',
+                description: 'Мгновенно восстанавливает 5% HP + еще 5% в течение 5 сек',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 1,
+                unlockRequirement: {skill: 'tunnel', level: 5},
+                effect: function(level) {
+                    const healAmount = gameState.player.maxHealth * (0.05 + (level * 0.07));
+                    gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healAmount);
+                    updateHealthBar();
+                    
+                    const healEffect = document.querySelector('.heal-effect');
+                    healEffect.style.opacity = '0.3';
+                    
+                    let ticks = 5;
+                    const tickInterval = setInterval(() => {
+                        if (ticks <= 0) {
+                            clearInterval(tickInterval);
+                            healEffect.style.opacity = '0';
+                            return;
+                        }
+                        
+                        const tickHeal = gameState.player.maxHealth * (0.05 + (level * 0.07));
+                        gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + tickHeal);
+                        updateHealthBar();
+                        ticks--;
+                    }, 1000);
+                },
+                cooldown: function(level) {
+                    return 15000 - (level * 500); // 15сек - 0.5сек за уровень
+                },
+                nextSkills: ['psalm', 'grace']
+            },
+            'psalm': {
+                name: 'Псалом',
+                description: 'Мгновенно восстанавливает 10% HP',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 1,
+                unlockRequirement: {skill: 'prayer', level: 3},
+                effect: function(level) {
+                    const healAmount = gameState.player.maxHealth * (0.1 + (level * 0.04));
+                    gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healAmount);
+                    updateHealthBar();
+                    
+                    const healEffect = document.querySelector('.heal-effect');
+                    healEffect.style.opacity = '0.3';
+                    setTimeout(() => {
+                        healEffect.style.opacity = '0';
+                    }, 500);
+                },
+                cooldown: function(level) {
+                    return 10000 - (level * 500); // 10сек - 0.5сек за уровень
+                },
+                nextSkills: ['divine-protection']
+            },
+            'grace': {
+                name: 'Благодать',
+                description: 'Восстанавливает 2.5% HP каждые 3 сек (3 раза)',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 1,
+                unlockRequirement: {skill: 'prayer', level: 3},
+                effect: function(level) {
+                    const healEffect = document.querySelector('.heal-effect');
+                    healEffect.style.opacity = '0.2';
+                    
+                    let ticks = 3 + (level * 0.6);
+                    const tickInterval = setInterval(() => {
+                        if (ticks <= 0) {
+                            clearInterval(tickInterval);
+                            healEffect.style.opacity = '0';
+                            return;
+                        }
+                        
+                        const tickHeal = gameState.player.maxHealth * (0.025 + (level * 0.0125));
+                        gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + tickHeal);
+                        updateHealthBar();
+                        ticks--;
+                    }, 3000);
+                },
+                cooldown: function(level) {
+                    return 35000 - (level * 500); // 35сек - 0.5сек за уровень
+                },
+                nextSkills: ['divine-protection']
+            },
+            'divine-protection': {
+                name: 'Божий Покров',
+                description: 'Лечит 0.1% от недостающего HP каждые 0.1 сек (5 сек)',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 1,
+                unlockRequirement: {skill: 'psalm', level: 5},
+                effect: function(level) {
+                    const healEffect = document.querySelector('.heal-effect');
+                    healEffect.style.opacity = '0.1';
+                    
+                    const duration = 5000 + (level * 500); // 5сек + 0.5сек за уровень
+                    const startTime = Date.now();
+                    
+                    const healInterval = setInterval(() => {
+                        if (Date.now() - startTime >= duration) {
+                            clearInterval(healInterval);
+                            healEffect.style.opacity = '0';
+                            
+                            // Финальное исцеление
+                            const missingHealth = gameState.player.maxHealth - gameState.player.health;
+                            const finalHeal = missingHealth * (0.2 + (level * 0.03));
+                            gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + finalHeal);
+                            updateHealthBar();
+                            return;
+                        }
+                        
+                        const missingHealth = gameState.player.maxHealth - gameState.player.health;
+                        const healAmount = missingHealth * (0.001 + (level * 0.0004));
+                        gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healAmount);
+                        updateHealthBar();
+                    }, 100);
+                },
+                cooldown: function(level) {
+                    return 60000 - (level * 1000); // 60сек - 1сек за уровень
+                },
+                nextSkills: []
+            },
+            // Ветка защиты
+            'jacob': {
+                name: 'Иаков',
+                description: 'Щит на 2 сек, уменьшает урон на 30%',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 2,
+                unlockRequirement: {skill: 'tunnel', level: 5},
+                effect: function(level) {
+                    const shield = document.querySelector('.shield-effect');
+                    shield.style.opacity = '0.7';
+                    
+                    const duration = 2000 + (level * 300); // 2сек + 0.3сек за уровень
+                    const reduction = 0.3 + (level * 0.05); // 30% + 5% за уровень
+                    
+                    gameState.player.shield = {
+                        active: true,
+                        reduction: reduction,
+                        endTime: Date.now() + duration
+                    };
+                    
+                    setTimeout(() => {
+                        shield.style.opacity = '0';
+                        gameState.player.shield.active = false;
+                    }, duration);
+                },
+                cooldown: function(level) {
+                    return 20000 - (level * 500); // 20сек - 0.5сек за уровень
+                },
+                nextSkills: ['abraham', 'isaac']
+            },
+            'abraham': {
+                name: 'Авраам',
+                description: 'Не позволяет здоровью упасть ниже 5% на 2 сек',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 2,
+                unlockRequirement: {skill: 'jacob', level: 3},
+                effect: function(level) {
+                    const duration = 2000 + (level * 300); // 2сек + 0.3сек за уровень
+                    const minHealth = 0.05 + (level * 0.005); // 5% + 0.5% за уровень
+                    
+                    gameState.player.minHealthProtection = {
+                        active: true,
+                        minHealth: minHealth,
+                        endTime: Date.now() + duration
+                    };
+                    
+                    setTimeout(() => {
+                        gameState.player.minHealthProtection.active = false;
+                    }, duration);
+                },
+                cooldown: function(level) {
+                    return 20000 - (level * 500); // 20сек - 0.5сек за уровень
+                },
+                nextSkills: ['lamb']
+            },
+            'isaac': {
+                name: 'Исаак',
+                description: 'Щит, поглощающий 300 урона на 10 сек',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 2,
+                unlockRequirement: {skill: 'jacob', level: 3},
+                effect: function(level) {
+                    const shield = document.querySelector('.shield-effect');
+                    shield.style.opacity = '0.5';
+                    
+                    const duration = 10000 + (level * 500); // 10сек + 0.5сек за уровень
+                    const capacity = 300 + (level * 45); // 300 + 45 за уровень
+                    
+                    gameState.player.absorbShield = {
+                        active: true,
+                        capacity: capacity,
+                        current: capacity,
+                        endTime: Date.now() + duration
+                    };
+                    
+                    setTimeout(() => {
+                        shield.style.opacity = '0';
+                        gameState.player.absorbShield.active = false;
+                    }, duration);
+                },
+                cooldown: function(level) {
+                    return 20000 - (level * 500); // 20сек - 0.5сек за уровень
+                },
+                nextSkills: ['lamb']
+            },
+            'lamb': {
+                name: 'Агнец',
+                description: 'Через 5 сек меняет текущее HP (10% ↔ 90%)',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 2,
+                unlockRequirement: {skill: 'abraham', level: 5},
+                effect: function(level) {
+                    const chargeTime = 5000 - (level * 300); // 5сек - 0.3сек за уровень
+                    const ratio = 1 + (level * 0.1); // 1:1 → 1:2 на 10 уровне
+                    
+                    setTimeout(() => {
+                        const currentPercent = gameState.player.health / gameState.player.maxHealth;
+                        let newPercent;
+                        
+                        if (currentPercent < 0.5) {
+                            newPercent = Math.min(0.9, currentPercent * ratio);
+                        } else {
+                            newPercent = Math.max(0.1, currentPercent / ratio);
+                        }
+                        
+                        gameState.player.health = gameState.player.maxHealth * newPercent;
+                        updateHealthBar();
+                    }, chargeTime);
+                },
+                cooldown: function(level) {
+                    return 20000 - (level * 500); // 20сек - 0.5сек за уровень
+                },
+                nextSkills: []
+            },
+            // Ветка атаки
+            'sickle': {
+                name: 'Серп',
+                description: 'Уничтожает все объекты 2 раза через 3 сек',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 3,
+                unlockRequirement: {skill: 'tunnel', level: 5},
+                effect: function(level) {
+                    const times = 2 + Math.floor(level * 0.3); // 2 + 0.3 за уровень
+                    const delay = 3000 - (level * 100); // 3сек - 0.1сек за уровень
+                    
+                    for (let i = 0; i < times; i++) {
+                        setTimeout(() => {
+                            gameState.meteors.forEach(meteor => {
+                                document.getElementById(meteor.id).remove();
+                            });
+                            gameState.meteors = [];
+                        }, i * delay);
+                    }
+                },
+                cooldown: function(level) {
+                    return 15000 - (level * 300); // 15сек - 0.3сек за уровень
+                },
+                nextSkills: ['hammer', 'scythe']
+            },
+            'hammer': {
+                name: 'Молот',
+                description: 'На 1 сек метеориты не появляются',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 3,
+                unlockRequirement: {skill: 'sickle', level: 3},
+                effect: function(level) {
+                    const duration = 1000 + (level * 200); // 1сек + 0.2сек за уровень
+                    
+                    gameState.meteorPause = {
+                        active: true,
+                        endTime: Date.now() + duration
+                    };
+                    
+                    setTimeout(() => {
+                        gameState.meteorPause.active = false;
+                    }, duration);
+                },
+                cooldown: function(level) {
+                    return 15000 - (level * 300); // 15сек - 0.3сек за уровень
+                },
+                nextSkills: ['mace']
+            },
+            'scythe': {
+                name: 'Коса',
+                description: 'Снижает урон метеоритов на 10% на 3 сек',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 3,
+                unlockRequirement: {skill: 'sickle', level: 3},
+                effect: function(level) {
+                    const duration = 3000 + (level * 200); // 3сек + 0.2сек за уровень
+                    const reduction = 0.1 + (level * 0.02); // 10% + 2% за уровень
+                    
+                    gameState.meteorDamageReduction = {
+                        active: true,
+                        reduction: reduction,
+                        endTime: Date.now() + duration
+                    };
+                    
+                    setTimeout(() => {
+                        gameState.meteorDamageReduction.active = false;
+                    }, duration);
+                },
+                cooldown: function(level) {
+                    return 15000 - (level * 300); // 15сек - 0.3сек за уровень
+                },
+                nextSkills: ['mace']
+            },
+            'mace': {
+                name: 'Булава',
+                description: 'На 2 сек столкновения лечат вместо урона',
+                maxLevel: 10,
+                currentLevel: 0,
+                branch: 3,
+                unlockRequirement: {skill: 'hammer', level: 5},
+                effect: function(level) {
+                    const duration = 2000 + (level * 300); // 2сек + 0.3сек за уровень
+                    const healBonus = 0 + (level * 0.02); // 0% + 2% за уровень
+                    
+                    gameState.reverseDamage = {
+                        active: true,
+                        healBonus: healBonus,
+                        endTime: Date.now() + duration
+                    };
+                    
+                    setTimeout(() => {
+                        gameState.reverseDamage.active = false;
+                    }, duration);
+                },
+                cooldown: function(level) {
+                    return 15000 - (level * 300); // 15сек - 0.3сек за уровень
+                },
+                nextSkills: []
+            }
+        };
+
+        // Инициализация игры
+        function initGame() {
+            // Начинаем с туннеля
+            allSkills['tunnel'].currentLevel = 1;
+            gameState.player.skills['tunnel'] = allSkills['tunnel'];
+            gameState.player.activeAbilities[0] = 'tunnel';
+            
+            updateAbilityButtons();
+            updateHealthBar();
+            
+            document.getElementById('menu-screen').style.display = 'flex';
+            document.getElementById('skill-tree-screen').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'none';
+            
+            // Очищаем игровое поле
+            gameState.meteors.forEach(meteor => {
+                document.getElementById(meteor.id)?.remove();
+            });
+            gameState.meteors = [];
+            
+            // Назначаем обработчики событий
+            document.getElementById('start-button').addEventListener('click', startGame);
+            document.getElementById('how-to-play-button').addEventListener('click', showHowToPlay);
+            document.getElementById('restart-button').addEventListener('click', restartGame);
+            document.getElementById('start-round-button').addEventListener('click', startRound);
+            
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`ability-${i}`).addEventListener('click', () => useAbility(i));
+            }
+        }
+
+        // Начало игры
+        function startGame() {
+            document.getElementById('menu-screen').style.display = 'none';
+            showSkillTree();
+        }
+
+        // Показать дерево навыков
+        function showSkillTree() {
+            document.getElementById('skill-tree-screen').style.display = 'flex';
+            document.getElementById('skill-points').textContent = `Очки навыков: ${gameState.skillPoints}`;
+            document.getElementById('current-round').textContent = `Раунд: ${gameState.round}`;
+            
+            renderSkillTree();
+        }
+
+        // Отрисовка дерева навыков
+        function renderSkillTree() {
+            const skillTree = document.getElementById('skill-tree');
+            skillTree.innerHTML = '';
+            
+            // Сортируем навыки по веткам
+            const skillsByBranch = {
+                0: [],
+                1: [],
+                2: [],
+                3: []
+            };
+            
+            Object.keys(allSkills).forEach(skillId => {
+                const skill = allSkills[skillId];
+                skillsByBranch[skill.branch].push(skill);
+            });
+            
+            // Отрисовываем ветки
+            for (let branch = 0; branch <= 3; branch++) {
+                skillsByBranch[branch].forEach(skill => {
+                    const skillElement = document.createElement('div');
+                    skillElement.className = 'skill';
+                    
+                    if (skill.currentLevel > 0) {
+                        skillElement.classList.add('unlocked');
+                    }
+                    
+                    if (isSkillLocked(skill)) {
+                        skillElement.classList.add('locked');
+                    }
+                    
+                    // Проверяем, активен ли этот навык (выбран в одну из способностей)
+                    const isActive = gameState.player.activeAbilities.includes(skill.name.toLowerCase());
+                    if (isActive) {
+                        skillElement.classList.add('active');
+                    }
+                    
+                    skillElement.innerHTML = `
+                        <div class="skill-title">${skill.name}</div>
+                        <div class="skill-desc">${skill.description}</div>
+                        <div class="skill-level">Уровень: ${skill.currentLevel}/${skill.maxLevel}</div>
+                    `;
+                    
+                    skillElement.addEventListener('click', () => selectSkill(skill));
+                    skillTree.appendChild(skillElement);
+                });
+            }
+        }
+
+        // Проверка, заблокирован ли навык
+        function isSkillLocked(skill) {
+            // Туннель всегда разблокирован
+            if (skill.name === 'Туннель') return false;
+            
+            // Если навык уже изучен, он не заблокирован
+            if (skill.currentLevel > 0) return false;
+            
+            // Проверяем требования для разблокировки
+            if (skill.unlockRequirement) {
+                const requiredSkill = allSkills[skill.unlockRequirement.skill];
+                if (!requiredSkill || requiredSkill.currentLevel < skill.unlockRequirement.level) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // Выбор навыка
+        function selectSkill(skill) {
+            if (isSkillLocked(skill)) return;
+            if (skill.currentLevel >= skill.maxLevel) return;
+            if (gameState.skillPoints <= 0) return;
+            
+            // Увеличиваем уровень навыка
+            if (skill.currentLevel === 0) {
+                gameState.unlockedSkills++;
+            }
+            
+            skill.currentLevel++;
+            gameState.skillPoints--;
+            
+            // Если это первый уровень, добавляем навык в доступные способности
+            if (skill.currentLevel === 1) {
+                gameState.player.skills[skill.name.toLowerCase()] = skill;
+            }
+            
+            document.getElementById('skill-points').textContent = `Очки навыков: ${gameState.skillPoints}`;
+            renderSkillTree();
+        }
+
+        // Начать раунд
+        function startRound() {
+            document.getElementById('skill-tree-screen').style.display = 'none';
+            
+            // Обновляем кнопки способностей
+            updateAbilityButtons();
+            
+            // Сбрасываем таймер раунда
+            gameState.roundTimer = 45;
+            document.getElementById('round-timer').textContent = gameState.roundTimer;
+            
+            // Запускаем игровой цикл
+            gameState.isGameRunning = true;
+            
+            // Интервал для таймера раунда
+            gameState.roundInterval = setInterval(() => {
+                gameState.roundTimer--;
+                document.getElementById('round-timer').textContent = gameState.roundTimer;
+                
+                if (gameState.roundTimer <= 0) {
+                    endRound(true);
+                }
+            }, 1000);
+            
+            // Интервал для спавна метеоритов
+            gameState.meteorSpawnRate = Math.max(200, 1000 - (gameState.round * 50));
+            gameState.meteorSpeed = 2 + (gameState.round * 0.02);
+            
+            gameState.gameInterval = setInterval(() => {
+                if (!gameState.meteorPause || !gameState.meteorPause.active) {
+                    spawnMeteor();
+                }
+                
+                updateMeteors();
+                checkCollisions();
+                updateCooldowns();
+            }, 16); // ~60 FPS
+        }
+
+        // Спавн метеорита
+        function spawnMeteor() {
+            const gameScreen = document.getElementById('game-screen');
+            const screenWidth = gameScreen.clientWidth;
+            
+            const meteor = {
+                id: 'meteor-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                x: Math.random() * (screenWidth - 40) + 20,
+                y: -20,
+                speed: gameState.meteorSpeed * (0.8 + Math.random() * 0.4)
+            };
+            
+            gameState.meteors.push(meteor);
+            
+            const meteorElement = document.createElement('div');
+            meteorElement.className = 'meteor';
+            meteorElement.id = meteor.id;
+            meteorElement.style.left = meteor.x + 'px';
+            meteorElement.style.top = meteor.y + 'px';
+            
+            gameScreen.appendChild(meteorElement);
+        }
+
+        // Обновление позиций метеоритов
+        function updateMeteors() {
+            const gameScreen = document.getElementById('game-screen');
+            const screenHeight = gameScreen.clientHeight;
+            
+            gameState.meteors.forEach(meteor => {
+                meteor.y += meteor.speed;
+                
+                const meteorElement = document.getElementById(meteor.id);
+                if (meteorElement) {
+                    meteorElement.style.top = meteor.y + 'px';
+                }
+                
+                // Удаляем метеориты, вылетевшие за пределы экрана
+                if (meteor.y > screenHeight + 50) {
+                    meteorElement?.remove();
+                    gameState.meteors = gameState.meteors.filter(m => m.id !== meteor.id);
+                }
+            });
+        }
+
+        // Проверка столкновений
+        function checkCollisions() {
+            const player = document.getElementById('player');
+            const playerRect = player.getBoundingClientRect();
+            
+            gameState.meteors.forEach(meteor => {
+                const meteorElement = document.getElementById(meteor.id);
+                if (!meteorElement) return;
+                
+                const meteorRect = meteorElement.getBoundingClientRect();
+                
+                if (
+                    playerRect.left < meteorRect.right &&
+                    playerRect.right > meteorRect.left &&
+                    playerRect.top < meteorRect.bottom &&
+                    playerRect.bottom > meteorRect.top
+                ) {
+                    // Столкновение произошло
+                    handleCollision(meteor);
+                }
+            });
+        }
+
+        // Обработка столкновения
+        function handleCollision(meteor) {
+            // Удаляем метеорит
+            document.getElementById(meteor.id)?.remove();
+            gameState.meteors = gameState.meteors.filter(m => m.id !== meteor.id);
+            
+            let damage = 10;
+            
+            // Учитываем уменьшение урона
+            if (gameState.meteorDamageReduction?.active) {
+                damage *= (1 - gameState.meteorDamageReduction.reduction);
+            }
+            
+            // Обработка обратного урона (лечение)
+            if (gameState.reverseDamage?.active) {
+                const healAmount = damage * (1 + (gameState.reverseDamage.healBonus || 0));
+                gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healAmount);
+                updateHealthBar();
+                return;
+            }
+            
+            // Обработка щита, поглощающего урон
+            if (gameState.player.absorbShield?.active) {
+                if (gameState.player.absorbShield.current > damage) {
+                    gameState.player.absorbShield.current -= damage;
+                    return;
+                } else {
+                    damage -= gameState.player.absorbShield.current;
+                    gameState.player.absorbShield.current = 0;
+                }
+            }
+            
+            // Обработка уменьшения урона от щита
+            if (gameState.player.shield?.active) {
+                damage *= (1 - gameState.player.shield.reduction);
+            }
+            
+            // Применение урона
+            let newHealth = gameState.player.health - damage;
+            
+            // Проверка защиты от смерти
+            if (gameState.player.minHealthProtection?.active) {
+                const minHealth = gameState.player.maxHealth * gameState.player.minHealthProtection.minHealth;
+                if (newHealth < minHealth) {
+                    newHealth = minHealth;
+                }
+            }
+            
+            gameState.player.health = Math.max(0, newHealth);
+            updateHealthBar();
+            
+            // Проверка смерти игрока
+            if (gameState.player.health <= 0) {
+                endRound(false);
+            }
+        }
+
+        // Обновление кулдаунов способностей
+        function updateCooldowns() {
+            for (let i = 0; i < 4; i++) {
+                if (gameState.player.abilityCooldowns[i] > 0) {
+                    gameState.player.abilityCooldowns[i] -= 16; // Уменьшаем на время кадра
+                    
+                    if (gameState.player.abilityCooldowns[i] <= 0) {
+                        gameState.player.abilityCooldowns[i] = 0;
+                        document.getElementById(`ability-${i+1}`).classList.remove('cooldown');
+                    }
+                }
+            }
+        }
+
+        // Использование способности
+        function useAbility(slot) {
+            const index = slot - 1;
+            const abilityId = gameState.player.activeAbilities[index];
+            
+            if (!abilityId || gameState.player.abilityCooldowns[index] > 0) return;
+            
+            const ability = gameState.player.skills[abilityId];
+            if (!ability) return;
+            
+            // Применяем эффект способности
+            ability.effect(ability.currentLevel);
+            
+            // Устанавливаем кулдаун
+            gameState.player.abilityCooldowns[index] = ability.cooldown(ability.currentLevel);
+            document.getElementById(`ability-${slot}`).classList.add('cooldown');
+        }
+
+        // Обновление кнопок способностей
+        function updateAbilityButtons() {
+            for (let i = 0; i < 4; i++) {
+                const abilityId = gameState.player.activeAbilities[i];
+                const button = document.getElementById(`ability-${i+1}`);
+                
+                if (abilityId) {
+                    const ability = gameState.player.skills[abilityId];
+                    button.textContent = ability.name;
+                    
+                    if (ability.currentLevel > 0) {
+                        button.textContent += ` (${ability.currentLevel})`;
+                    }
+                } else {
+                    button.textContent = '-';
+                }
+                
+                if (gameState.player.abilityCooldowns[i] > 0) {
+                    button.classList.add('cooldown');
+                } else {
+                    button.classList.remove('cooldown');
+                }
+            }
+        }
+
+        // Обновление полоски здоровья
+        function updateHealthBar() {
+            const healthPercent = (gameState.player.health / gameState.player.maxHealth) * 100;
+            document.getElementById('health-fill').style.width = `${healthPercent}%`;
+        }
+
+        // Завершение раунда
+        function endRound(success) {
+            clearInterval(gameState.roundInterval);
+            clearInterval(gameState.gameInterval);
+            gameState.isGameRunning = false;
+            
+            // Очищаем метеориты
+            gameState.meteors.forEach(meteor => {
+                document.getElementById(meteor.id)?.remove();
+            });
+            gameState.meteors = [];
+            
+            if (success) {
+                // Награда за успешное завершение раунда
+                gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + 50);
+                gameState.player.maxHealth += 50;
+                gameState.skillPoints++;
+                gameState.round++;
+                
+                showSkillTree();
+            } else {
+                // Игра окончена
+                gameOver();
+            }
+        }
+
+        // Игра окончена
+        function gameOver() {
+            document.getElementById('game-over-screen').style.display = 'flex';
+            document.getElementById('game-over-message').textContent = 'ВЫ ПРОИГРАЛИ';
+            document.getElementById('rounds-survived').textContent = gameState.round - 1;
+            document.getElementById('skills-unlocked').textContent = gameState.unlockedSkills;
+        }
+
+        // Перезапуск игры
+        function restartGame() {
+            // Сброс состояния игры
+            gameState = {
+                player: {
+                    health: 500,
+                    maxHealth: 500,
+                    skills: {},
+                    activeAbilities: [null, null, null, null],
+                    abilityCooldowns: [0, 0, 0, 0]
+                },
+                round: 1,
+                skillPoints: 0,
+                meteorSpeed: 2,
+                meteorSpawnRate: 1000,
+                meteors: [],
+                gameTime: 0,
+                roundTimer: 45,
+                roundInterval: null,
+                gameInterval: null,
+                isGameRunning: false,
+                unlockedSkills: 0
+            };
+            
+            // Сброс всех способностей
+            Object.keys(allSkills).forEach(skillId => {
+                allSkills[skillId].currentLevel = 0;
+            });
+            
+            // Начинаем с туннеля
+            allSkills['tunnel'].currentLevel = 1;
+            gameState.player.skills['tunnel'] = allSkills['tunnel'];
+            gameState.player.activeAbilities[0] = 'tunnel';
+            
+            initGame();
+        }
+
+        // Показать инструкцию
+        function showHowToPlay() {
+            alert(`КАК ИГРАТЬ:
+1. Ваш корабль находится в центре экрана
+2. Метеориты летят сверху - избегайте их
+3. Используйте 4 способности внизу экрана
+4. После каждого раунда улучшайте способности
+5. Выживайте как можно дольше!
+
+Управление:
+- Нажимайте на кнопки способностей для активации
+- В меню навыков выбирайте улучшения`);
+        }
+
+        // Запуск игры при загрузке страницы
+        window.onload = initGame;
+    </script>
+</body>
+</html>
