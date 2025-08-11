@@ -1,0 +1,7 @@
+{
+    "id": "controls_guide",
+    "title": "Инструкция по кнопкам",
+    "description": "Эта игра показывает назначение всех кнопок геймбоя",
+    "init": "const buttons = {\n    'up': 'D-Pad Вверх - перемещение вверх',\n    'down': 'D-Pad Вниз - перемещение вниз',\n    'left': 'D-Pad Влево - перемещение влево',\n    'right': 'D-Pad Вправо - перемещение вправо',\n    'a': 'Кнопка A - основное действие',\n    'b': 'Кнопка B - второстепенное действие',\n    'start': 'START - пауза/меню',\n    'select': 'SELECT - дополнительная функция'\n};\n\nlet currentButton = 'up';\n\nfunction render() {\n    document.getElementById('game-container').innerHTML = `\n        <div style=\"text-align: center; padding: 20px;\">\n            <h2>${currentButton.toUpperCase()}</h2>\n            <div style=\"font-size: 24px; margin: 30px 0;\">\n                ${buttons[currentButton]}\n            </div>\n            <div style=\"margin-top: 40px;\">\n                Нажмите любую кнопку чтобы увидеть её описание\n            </div>\n            <button onclick=\"backToMainMenu()\" style=\"margin-top: 30px;\">В меню</button>\n        </div>\n    `;\n}\n\nrender();",
+    "handleInput": "currentButton = button;\nrender();\n\nif (button === 'start') {\n    backToMainMenu();\n}"
+}
