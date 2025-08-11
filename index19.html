@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Геймбой Эмулятор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+
+        .gameboy {
+            position: relative;
+            width: 320px;
+            height: 570px;
+            background-color: #d6d6d6;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            border: 8px solid #b5b5b5;
+        }
+
+        .screen {
+            width: 100%;
+            height: 180px;
+            background-color: #8bac0f;
+            border: 10px solid #5a6e0b;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 5px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .menu button {
+            margin: 5px;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .menu button:hover {
+            background-color: #45a049;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .d-pad {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .d-pad-button {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .up {
+            top: 0;
+            left: 35px;
+        }
+
+        .down {
+            bottom: 0;
+            left: 35px;
+        }
+
+        .left {
+            top: 35px;
+            left: 0;
+        }
+
+        .right {
+            top: 35px;
+            right: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-button {
+            width: 45px;
+            height: 45px;
+            background-color: #c00;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-select {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .start-select button {
+            margin: 0 10px;
+            padding: 5px 15px;
+            background-color: #555;
+            border: none;
+            color: white;
+            border-radius: 3px;
+        }
+
+        .ttt-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 150px;
+            height: 150px;
+        }
+
+        .ttt-cell {
+            background-color: #6d8c0c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .ttt-cell.x {
+            color: #0c1d8c;
+        }
+
+        .ttt-cell.o {
+            color: #8c0c0c;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 350px) {
+            .gameboy {
+                transform: scale(0.9);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .gameboy {
+                transform: scale(0.8);
+            }
+        }
+
+        @media (orientation: landscape) {
+            .gameboy {
+                transform: rotate(90deg) scale(0.7);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gameboy">
+        <div class="screen">
+            <div class="info-panel">
+                <span id="game-title">Геймбой</span>
+                <span id="sound-status">Звук: ВКЛ</span>
+            </div>
+            <div class="game-container" id="game-container">
+                <div class="menu" id="main-menu">
+                    <h2>Геймбой Эмулятор</h2>
+                    <button id="new-game-btn">Новая игра</button>
+                    <button id="load-game-btn">Загрузить игру</button>
+                    <button id="sound-toggle-btn">Звук ВКЛ/ВЫКЛ</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="d-pad">
+                <div class="d-pad-button up" id="up-btn">↑</div>
+                <div class="d-pad-button down" id="down-btn">↓</div>
+                <div class="d-pad-button left" id="left-btn">←</div>
+                <div class="d-pad-button right" id="right-btn">→</div>
+            </div>
+            
+            <div class="action-buttons">
+                <div class="action-button" id="a-btn">A</div>
+                <div class="action-button" id="b-btn">B</div>
+            </div>
+            
+            <div class="start-select">
+                <button id="start-btn">START</button>
+                <button id="select-btn">SELECT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Состояние эмулятора
+        const state = {
+            soundEnabled: true,
+            currentGame: null,
+            games: {
+                'tictactoe': {
+                    title: 'Крестики-Нолики',
+                    init: initTicTacToe,
+                    handleInput: handleTicTacToeInput
+                }
+            }
+        };
+
+        // DOM элементы
+        const elements = {
+            gameContainer: document.getElementById('game-container'),
+            mainMenu: document.getElementById('main-menu'),
+            gameTitle: document.getElementById('game-title'),
+            soundStatus: document.getElementById('sound-status'),
+            newGameBtn: document.getElementById('new-game-btn'),
+            loadGameBtn: document.getElementById('load-game-btn'),
+            soundToggleBtn: document.getElementById('sound-toggle-btn'),
+            upBtn: document.getElementById('up-btn'),
+            downBtn: document.getElementById('down-btn'),
+            leftBtn: document.getElementById('left-btn'),
+            rightBtn: document.getElementById('right-btn'),
+            aBtn: document.getElementById('a-btn'),
+            bBtn: document.getElementById('b-btn'),
+            startBtn: document.getElementById('start-btn'),
+            selectBtn: document.getElementById('select-btn')
+        };
+
+        // Инициализация
+        function init() {
+            // Назначение обработчиков событий
+            elements.newGameBtn.addEventListener('click', showGameSelection);
+            elements.loadGameBtn.addEventListener('click', loadGameFromFile);
+            elements.soundToggleBtn.addEventListener('click', toggleSound);
+            
+            // Обработчики кнопок
+            elements.upBtn.addEventListener('click', () => handleButtonPress('up'));
+            elements.downBtn.addEventListener('click', () => handleButtonPress('down'));
+            elements.leftBtn.addEventListener('click', () => handleButtonPress('left'));
+            elements.rightBtn.addEventListener('click', () => handleButtonPress('right'));
+            elements.aBtn.addEventListener('click', () => handleButtonPress('a'));
+            elements.bBtn.addEventListener('click', () => handleButtonPress('b'));
+            elements.startBtn.addEventListener('click', () => handleButtonPress('start'));
+            elements.selectBtn.addEventListener('click', () => handleButtonPress('select'));
+            
+            // Обработчики клавиатуры
+            document.addEventListener('keydown', (e) => {
+                switch(e.key) {
+                    case 'ArrowUp': handleButtonPress('up'); break;
+                    case 'ArrowDown': handleButtonPress('down'); break;
+                    case 'ArrowLeft': handleButtonPress('left'); break;
+                    case 'ArrowRight': handleButtonPress('right'); break;
+                    case 'a': case 'A': handleButtonPress('a'); break;
+                    case 'b': case 'B': handleButtonPress('b'); break;
+                    case 'Enter': handleButtonPress('start'); break;
+                    case ' ': handleButtonPress('select'); break;
+                }
+            });
+            
+            updateUI();
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            elements.soundStatus.textContent = `Звук: ${state.soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
+        }
+
+        // Переключение звука
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            updateUI();
+            playSound('click');
+        }
+
+        // Воспроизведение звука
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            
+            // Здесь можно добавить реальные звуки
+            console.log(`Play ${type} sound`);
+        }
+
+        // Обработка нажатия кнопки
+        function handleButtonPress(button) {
+            playSound('click');
+            
+            if (state.currentGame) {
+                // Передаем нажатие в текущую игру
+                state.currentGame.handleInput(button);
+            } else {
+                // Обработка в меню
+                switch(button) {
+                    case 'a':
+                        showGameSelection();
+                        break;
+                    case 'start':
+                        toggleSound();
+                        break;
+                }
+            }
+        }
+
+        // Показать выбор игры
+        function showGameSelection() {
+            const menuHTML = `
+                <div class="menu">
+                    <h2>Выберите игру</h2>
+                    ${Object.keys(state.games).map(gameId => `
+                        <button onclick="startGame('${gameId}')">${state.games[gameId].title}</button>
+                    `).join('')}
+                    <button onclick="backToMainMenu()">Назад</button>
+                </div>
+            `;
+            
+            elements.gameContainer.innerHTML = menuHTML;
+        }
+
+        // Начать игру
+        function startGame(gameId) {
+            if (state.games[gameId]) {
+                state.currentGame = {
+                    id: gameId,
+                    title: state.games[gameId].title,
+                    handleInput: state.games[gameId].handleInput
+                };
+                
+                elements.gameTitle.textContent = state.currentGame.title;
+                elements.gameContainer.innerHTML = '';
+                
+                // Инициализация игры
+                state.games[gameId].init();
+                
+                playSound('start');
+            }
+        }
+
+        // Вернуться в главное меню
+        function backToMainMenu() {
+            state.currentGame = null;
+            elements.gameTitle.textContent = 'Геймбой';
+            elements.gameContainer.innerHTML = '';
+            elements.mainMenu.classList.remove('hidden');
+        }
+
+        // Загрузить игру из файла
+        function loadGameFromFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,.txt';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const gameData = JSON.parse(event.target.result);
+                        registerNewGame(gameData);
+                        alert(`Игра "${gameData.title}" успешно загружена!`);
+                    } catch (error) {
+                        alert('Ошибка загрузки игры: неверный формат файла');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // Зарегистрировать новую игру
+        function registerNewGame(gameData) {
+            if (!gameData.id || !gameData.title || !gameData.init || !gameData.handleInput) {
+                alert('Неверный формат игры. Должны быть указаны id, title, init и handleInput');
+                return;
+            }
+            
+            // Создаем функции из строк
+            try {
+                gameData.init = new Function(gameData.init);
+                gameData.handleInput = new Function('button', gameData.handleInput);
+                
+                // Добавляем игру в коллекцию
+                state.games[gameData.id] = gameData;
+            } catch (e) {
+                alert('Ошибка в коде игры: ' + e.message);
+            }
+        }
+
+        // Крестики-нолики
+        function initTicTacToe() {
+            const tttState = {
+                board: Array(9).fill(null),
+                currentPlayer: 'x',
+                gameOver: false
+            };
+            
+            function renderBoard() {
+                const boardHTML = `
+                    <div class="ttt-board">
+                        ${tttState.board.map((cell, index) => `
+                            <div class="ttt-cell ${cell || ''}" 
+                                 data-index="${index}"
+                                 onclick="handleTicTacToeCellClick(${index})">
+                                ${cell || ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top: 10px; text-align: center;">
+                        ${tttState.gameOver ? 
+                            `Игра окончена! ${checkWinner() ? `Победитель: ${checkWinner().toUpperCase()}` : 'Ничья'}` : 
+                            `Ход: ${tttState.currentPlayer.toUpperCase()}`}
+                    </div>
+                    <button onclick="backToMainMenu()" style="margin-top: 10px;">В меню</button>
+                `;
+                
+                elements.gameContainer.innerHTML = boardHTML;
+            }
+            
+            function makeMove(index) {
+                if (tttState.gameOver || tttState.board[index]) return;
+                
+                tttState.board[index] = tttState.currentPlayer;
+                
+                // Проверка победы
+                const winner = checkWinner();
+                if (winner) {
+                    tttState.gameOver = true;
+                    playSound('win');
+                } else if (!tttState.board.includes(null)) {
+                    tttState.gameOver = true;
+                    playSound('draw');
+                } else {
+                    // Ход компьютера
+                    tttState.currentPlayer = tttState.currentPlayer === 'x' ? 'o' : 'x';
+                    if (tttState.currentPlayer === 'o') {
+                        setTimeout(computerMove, 500);
+                    }
+                    playSound('move');
+                }
+                
+                renderBoard();
+            }
+            
+            function computerMove() {
+                if (tttState.gameOver) return;
+                
+                // Простой ИИ: сначала пытается выиграть, затем блокирует, затем случайный ход
+                let move;
+                
+                // 1. Попытка выиграть
+                move = findWinningMove('o');
+                if (move !== -1) {
+                    makeMove(move);
+                    return;
+                }
+                
+                // 2. Блокировка игрока
+                move = findWinningMove('x');
+                if (move !== -1) {
+                    makeMove(move);
+                    return;
+                }
+                
+                // 3. Случайный ход
+                const emptyCells = tttState.board.map((cell, index) => cell === null ? index : null).filter(val => val !== null);
+                if (emptyCells.length > 0) {
+                    move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    makeMove(move);
+                }
+            }
+            
+            function findWinningMove(player) {
+                const lines = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6]             // diagonals
+                ];
+                
+                for (let line of lines) {
+                    const [a, b, c] = line;
+                    if (tttState.board[a] === player && tttState.board[b] === player && tttState.board[c] === null) return c;
+                    if (tttState.board[a] === player && tttState.board[c] === player && tttState.board[b] === null) return b;
+                    if (tttState.board[b] === player && tttState.board[c] === player && tttState.board[a] === null) return a;
+                }
+                
+                return -1;
+            }
+            
+            function checkWinner() {
+                const lines = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6]             // diagonals
+                ];
+                
+                for (let line of lines) {
+                    const [a, b, c] = line;
+                    if (tttState.board[a] && tttState.board[a] === tttState.board[b] && tttState.board[a] === tttState.board[c]) {
+                        return tttState.board[a];
+                    }
+                }
+                
+                return null;
+            }
+            
+            // Сохраняем состояние и функции в глобальной области видимости
+            window.tttState = tttState;
+            window.handleTicTacToeCellClick = function(index) {
+                if (tttState.currentPlayer === 'x') {
+                    makeMove(index);
+                }
+            };
+            
+            renderBoard();
+        }
+
+        function handleTicTacToeInput(button) {
+            if (!window.tttState || window.tttState.gameOver) return;
+            
+            // Простая навигация по полю с помощью D-pad
+            const cells = document.querySelectorAll('.ttt-cell');
+            let currentIndex = -1;
+            
+            cells.forEach((cell, index) => {
+                if (cell.classList.contains('selected')) {
+                    currentIndex = index;
+                    cell.classList.remove('selected');
+                }
+            });
+            
+            switch(button) {
+                case 'up':
+                    currentIndex = (currentIndex - 3 + 9) % 9;
+                    break;
+                case 'down':
+                    currentIndex = (currentIndex + 3) % 9;
+                    break;
+                case 'left':
+                    currentIndex = (currentIndex % 3 === 0) ? currentIndex + 2 : currentIndex - 1;
+                    break;
+                case 'right':
+                    currentIndex = (currentIndex % 3 === 2) ? currentIndex - 2 : currentIndex + 1;
+                    break;
+                case 'a':
+                    if (currentIndex !== -1 && window.tttState.currentPlayer === 'x') {
+                        window.handleTicTacToeCellClick(currentIndex);
+                    }
+                    return;
+            }
+            
+            if (currentIndex === -1) currentIndex = 0;
+            cells[currentIndex].classList.add('selected');
+        }
+
+        // Пример JSON для новой игры (для тестирования загрузки)
+        /*
+        {
+            "id": "simplegame",
+            "title": "Простая игра",
+            "init": "alert('Игра инициализирована!');",
+            "handleInput": "alert('Нажата кнопка: ' + button);"
+        }
+        */
+
+        // Запуск эмулятора
+        window.onload = init;
+    </script>
+</body>
+</html>
