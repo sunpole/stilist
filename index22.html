@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Геймбой Эмулятор PRO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #222;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+
+        .gameboy {
+            position: relative;
+            width: 320px;
+            height: 570px;
+            background-color: #d6d6d6;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            border: 8px solid #b5b5b5;
+        }
+
+        .screen {
+            width: 100%;
+            height: 180px;
+            background-color: #8bac0f;
+            border: 10px solid #5a6e0b;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-content {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 5px;
+            scrollbar-width: none;
+        }
+
+        .game-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 5px;
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .menu-content {
+            width: 100%;
+            max-height: 100%;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .menu button {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 80%;
+            min-width: 200px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .menu button:active {
+            transform: scale(0.95);
+        }
+
+        .menu button:hover {
+            background-color: #45a049;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .d-pad {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .d-pad-button {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            transition: all 0.1s;
+            cursor: pointer;
+        }
+
+        .d-pad-button:active {
+            background-color: #555;
+            transform: scale(0.9);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .up {
+            top: 0;
+            left: 35px;
+        }
+
+        .down {
+            bottom: 0;
+            left: 35px;
+        }
+
+        .left {
+            top: 35px;
+            left: 0;
+        }
+
+        .right {
+            top: 35px;
+            right: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-button {
+            width: 45px;
+            height: 45px;
+            background-color: #c00;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.1s;
+            cursor: pointer;
+        }
+
+        .action-button:active {
+            background-color: #f00;
+            transform: scale(0.9);
+        }
+
+        .start-select {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .start-select button {
+            margin: 0 10px;
+            padding: 5px 15px;
+            background-color: #555;
+            border: none;
+            color: white;
+            border-radius: 3px;
+            transition: all 0.1s;
+            cursor: pointer;
+        }
+
+        .start-select button:active {
+            background-color: #777;
+            transform: scale(0.95);
+        }
+
+        .rps-game {
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        .rps-choices {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .rps-choices button {
+            padding: 10px;
+            min-width: 80px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .rps-result {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .active {
+            background-color: #555 !important;
+            transform: scale(0.9) !important;
+        }
+
+        @media (max-width: 350px) {
+            .gameboy {
+                transform: scale(0.9);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .gameboy {
+                transform: scale(0.8);
+            }
+        }
+
+        @media (orientation: landscape) {
+            .gameboy {
+                transform: rotate(90deg) scale(0.7);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gameboy">
+        <div class="screen">
+            <div class="info-panel">
+                <span id="game-title">Геймбой PRO</span>
+                <span id="sound-status">Звук: ВКЛ</span>
+            </div>
+            <div class="game-container" id="game-container">
+                <div class="menu" id="main-menu">
+                    <div class="menu-content">
+                        <h2>Геймбой Эмулятор PRO</h2>
+                        <button id="new-game-btn">Камень-Ножницы-Бумага</button>
+                        <button id="load-game-btn">Загрузить игру</button>
+                        <button id="sound-toggle-btn">Звук ВКЛ/ВЫКЛ</button>
+                        <button id="help-btn">Инструкция</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="d-pad">
+                <div class="d-pad-button up" id="up-btn">↑</div>
+                <div class="d-pad-button down" id="down-btn">↓</div>
+                <div class="d-pad-button left" id="left-btn">←</div>
+                <div class="d-pad-button right" id="right-btn">→</div>
+            </div>
+            
+            <div class="action-buttons">
+                <div class="action-button" id="a-btn">A</div>
+                <div class="action-button" id="b-btn">B</div>
+            </div>
+            
+            <div class="start-select">
+                <button id="start-btn">START</button>
+                <button id="select-btn">SELECT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Состояние эмулятора
+        const state = {
+            soundEnabled: true,
+            currentGame: null,
+            games: {
+                'rps': {
+                    title: 'Камень-Ножницы-Бумага',
+                    init: initRockPaperScissors,
+                    handleInput: handleRockPaperScissorsInput
+                }
+            },
+            menuItems: [],
+            currentMenuItem: 0,
+            scrollPosition: 0
+        };
+
+        // DOM элементы
+        const elements = {
+            gameContainer: document.getElementById('game-container'),
+            gameContent: document.querySelector('.game-content'),
+            mainMenu: document.getElementById('main-menu'),
+            gameTitle: document.getElementById('game-title'),
+            soundStatus: document.getElementById('sound-status'),
+            newGameBtn: document.getElementById('new-game-btn'),
+            loadGameBtn: document.getElementById('load-game-btn'),
+            soundToggleBtn: document.getElementById('sound-toggle-btn'),
+            helpBtn: document.getElementById('help-btn'),
+            upBtn: document.getElementById('up-btn'),
+            downBtn: document.getElementById('down-btn'),
+            leftBtn: document.getElementById('left-btn'),
+            rightBtn: document.getElementById('right-btn'),
+            aBtn: document.getElementById('a-btn'),
+            bBtn: document.getElementById('b-btn'),
+            startBtn: document.getElementById('start-btn'),
+            selectBtn: document.getElementById('select-btn')
+        };
+
+        // Инициализация
+        function init() {
+            // Собираем все пункты меню
+            state.menuItems = Array.from(elements.mainMenu.querySelectorAll('button'));
+            
+            // Назначение обработчиков событий
+            setupButtonHandlers();
+            
+            // Обработчики клавиатуры
+            document.addEventListener('keydown', handleKeyDown);
+            
+            updateUI();
+        }
+
+        // Настройка обработчиков кнопок
+        function setupButtonHandlers() {
+            // Кнопки управления
+            elements.upBtn.addEventListener('click', () => handleButtonPress('up'));
+            elements.downBtn.addEventListener('click', () => handleButtonPress('down'));
+            elements.leftBtn.addEventListener('click', () => handleButtonPress('left'));
+            elements.rightBtn.addEventListener('click', () => handleButtonPress('right'));
+            elements.aBtn.addEventListener('click', () => handleButtonPress('a'));
+            elements.bBtn.addEventListener('click', () => handleButtonPress('b'));
+            elements.startBtn.addEventListener('click', () => handleButtonPress('start'));
+            elements.selectBtn.addEventListener('click', () => handleButtonPress('select'));
+            
+            // Кнопки меню
+            elements.newGameBtn.addEventListener('click', () => startGame('rps'));
+            elements.loadGameBtn.addEventListener('click', showLoadGameMenu);
+            elements.soundToggleBtn.addEventListener('click', toggleSound);
+            elements.helpBtn.addEventListener('click', showHelp);
+            
+            // Для сенсорных устройств
+            elements.upBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('up');
+            });
+            elements.downBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('down');
+            });
+            elements.leftBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('left');
+            });
+            elements.rightBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('right');
+            });
+            elements.aBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('a');
+            });
+            elements.bBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('b');
+            });
+            elements.startBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('start');
+            });
+            elements.selectBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonPress('select');
+            });
+        }
+
+        // Обработка клавиатуры
+        function handleKeyDown(e) {
+            switch(e.key) {
+                case 'ArrowUp': handleButtonPress('up'); break;
+                case 'ArrowDown': handleButtonPress('down'); break;
+                case 'ArrowLeft': handleButtonPress('left'); break;
+                case 'ArrowRight': handleButtonPress('right'); break;
+                case 'a': case 'A': handleButtonPress('a'); break;
+                case 'b': case 'B': handleButtonPress('b'); break;
+                case 'Enter': handleButtonPress('start'); break;
+                case ' ': handleButtonPress('select'); break;
+                case 'Escape': handleButtonPress('start'); break;
+            }
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            elements.soundStatus.textContent = `Звук: ${state.soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}`;
+        }
+
+        // Переключение звука
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            updateUI();
+            playSound('click');
+        }
+
+        // Воспроизведение звука
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            // Здесь можно добавить реальные звуки
+            console.log(`Play ${type} sound`);
+        }
+
+        // Обработка нажатия кнопки
+        function handleButtonPress(button) {
+            playSound('click');
+            
+            if (state.currentGame) {
+                // Передаем нажатие в текущую игру
+                state.currentGame.handleInput(button);
+            } else {
+                // Обработка в меню
+                handleMenuInput(button);
+            }
+        }
+
+        // Обработка ввода в меню
+        function handleMenuInput(button) {
+            const menuItems = state.menuItems;
+            let currentIndex = state.currentMenuItem;
+            
+            switch(button) {
+                case 'up':
+                    currentIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
+                    menuItems[currentIndex].focus();
+                    state.scrollPosition = Math.max(0, menuItems[currentIndex].offsetTop - 50);
+                    elements.mainMenu.scrollTo(0, state.scrollPosition);
+                    break;
+                case 'down':
+                    currentIndex = (currentIndex + 1) % menuItems.length;
+                    menuItems[currentIndex].focus();
+                    state.scrollPosition = Math.min(
+                        menuItems[currentIndex].offsetTop - 50,
+                        elements.mainMenu.scrollHeight - elements.mainMenu.clientHeight
+                    );
+                    elements.mainMenu.scrollTo(0, state.scrollPosition);
+                    break;
+                case 'a':
+                case 'start':
+                    if (document.activeElement && document.activeElement.click) {
+                        document.activeElement.click();
+                    }
+                    break;
+                case 'b':
+                    backToMainMenu();
+                    break;
+            }
+            
+            state.currentMenuItem = currentIndex;
+        }
+
+        // Показать справку
+        function showHelp() {
+            const helpHTML = `
+                <div class="menu">
+                    <div class="menu-content">
+                        <h2>Полная инструкция</h2>
+                        <div style="text-align: left; margin: 15px 0;">
+                            <h3>Управление:</h3>
+                            <p><strong>D-Pad (↑ ↓ ← →)</strong> - перемещение по меню/игре</p>
+                            <p><strong>Кнопка A</strong> - выбор/подтверждение</p>
+                            <p><strong>Кнопка B</strong> - назад/отмена</p>
+                            <p><strong>START</strong> - всегда возвращает в главное меню</p>
+                            <p><strong>SELECT</strong> - специальная функция в играх</p>
+                            
+                            <h3 style="margin-top: 20px;">Как играть:</h3>
+                            <p>1. Выберите игру из меню</p>
+                            <p>2. Используйте кнопки для управления</p>
+                            <p>3. START - вернуться в меню в любой момент</p>
+                            
+                            <h3 style="margin-top: 20px;">Загрузка игр:</h3>
+                            <p>Вы можете загружать свои игры в формате JSON</p>
+                            <p>Положите файл игры в папку с эмулятором или укажите URL</p>
+                        </div>
+                        <button onclick="backToMainMenu()" style="margin-top: 20px;">Назад</button>
+                    </div>
+                </div>
+            `;
+            
+            elements.gameContainer.innerHTML = helpHTML;
+            state.menuItems = Array.from(document.querySelectorAll('.menu button'));
+            state.currentMenuItem = 0;
+        }
+
+        // Показать меню загрузки игр
+        function showLoadGameMenu() {
+            const menuHTML = `
+                <div class="menu">
+                    <div class="menu-content">
+                        <h2>Загрузить игру</h2>
+                        <p>Выберите способ загрузки:</p>
+                        <button onclick="loadGameFromFile()">Из файла на устройстве</button>
+                        <button onclick="loadGameFromUrl()">По URL из интернета</button>
+                        <button onclick="scanForGames()">Из папки с эмулятором</button>
+                        <button onclick="backToMainMenu()" style="margin-top: 20px;">Назад</button>
+                    </div>
+                </div>
+            `;
+            
+            elements.gameContainer.innerHTML = menuHTML;
+            state.menuItems = Array.from(document.querySelectorAll('.menu button'));
+            state.currentMenuItem = 0;
+        }
+
+        // Начать игру
+        function startGame(gameId) {
+            if (state.games[gameId]) {
+                state.currentGame = {
+                    id: gameId,
+                    title: state.games[gameId].title,
+                    handleInput: state.games[gameId].handleInput
+                };
+                
+                elements.gameTitle.textContent = state.currentGame.title;
+                elements.gameContainer.innerHTML = '<div class="game-content"></div>';
+                
+                // Инициализация игры
+                state.games[gameId].init();
+                
+                playSound('start');
+            }
+        }
+
+        // Вернуться в главное меню
+        function backToMainMenu() {
+            state.currentGame = null;
+            elements.gameTitle.textContent = 'Геймбой PRO';
+            elements.gameContainer.innerHTML = '';
+            elements.mainMenu.classList.remove('hidden');
+            state.menuItems = Array.from(elements.mainMenu.querySelectorAll('button'));
+            state.currentMenuItem = 0;
+            state.menuItems[0].focus();
+        }
+
+        // Загрузить игру из файла
+        function loadGameFromFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,.txt';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const gameData = JSON.parse(event.target.result);
+                        registerNewGame(gameData);
+                        alert(`Игра "${gameData.title}" успешно загружена!`);
+                        backToMainMenu();
+                    } catch (error) {
+                        alert('Ошибка загрузки игры: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // Загрузить игру по URL
+        function loadGameFromUrl() {
+            const url = prompt('Введите URL JSON файла с игрой:', 'https://example.com/game.json');
+            if (!url) return;
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка загрузки');
+                    return response.json();
+                })
+                .then(gameData => {
+                    registerNewGame(gameData);
+                    alert(`Игра "${gameData.title}" успешно загружена!`);
+                    backToMainMenu();
+                })
+                .catch(error => {
+                    alert('Ошибка загрузки игры: ' + error.message);
+                });
+        }
+
+        // Сканировать папку на наличие игр
+        function scanForGames() {
+            fetch('games.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('Файл games.json не найден');
+                    return response.json();
+                })
+                .then(gameList => {
+                    if (!Array.isArray(gameList)) throw new Error('Неверный формат games.json');
+                    
+                    const menuHTML = `
+                        <div class="menu">
+                            <div class="menu-content">
+                                <h2>Доступные игры</h2>
+                                ${gameList.map(game => `
+                                    <button onclick="loadGameFromCatalog('${game.file}')">${game.name || game.file}</button>
+                                `).join('')}
+                                <button onclick="backToMainMenu()" style="margin-top: 20px;">Назад</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    elements.gameContainer.innerHTML = menuHTML;
+                    state.menuItems = Array.from(document.querySelectorAll('.menu button'));
+                    state.currentMenuItem = 0;
+                })
+                .catch(error => {
+                    alert('Не удалось загрузить список игр. Создайте файл games.json с массивом игр.');
+                    console.error(error);
+                });
+        }
+
+        // Загрузить игру из каталога
+        function loadGameFromCatalog(filename) {
+            fetch(filename)
+                .then(response => {
+                    if (!response.ok) throw new Error('Файл игры не найден');
+                    return response.json();
+                })
+                .then(gameData => {
+                    registerNewGame(gameData);
+                    alert(`Игра "${gameData.title}" успешно загружена!`);
+                    backToMainMenu();
+                })
+                .catch(error => {
+                    alert('Ошибка загрузки игры: ' + error.message);
+                });
+        }
+
+        // Зарегистрировать новую игру
+        function registerNewGame(gameData) {
+            if (!gameData.id || !gameData.title || !gameData.init || !gameData.handleInput) {
+                throw new Error('Неверный формат игры. Должны быть указаны id, title, init и handleInput');
+            }
+            
+            try {
+                gameData.init = new Function(gameData.init);
+                gameData.handleInput = new Function('button', gameData.handleInput);
+                
+                state.games[gameData.id] = gameData;
+            } catch (e) {
+                throw new Error('Ошибка в коде игры: ' + e.message);
+            }
+        }
+
+        // Игра "Камень-Ножницы-Бумага"
+        function initRockPaperScissors() {
+            const choices = ['камень', 'ножницы', 'бумага'];
+            let playerChoice = null;
+            let computerChoice = null;
+            let result = '';
+            
+            function render() {
+                const html = `
+                    <div class="rps-game">
+                        <h2>Камень-Ножницы-Бумага</h2>
+                        
+                        <div class="rps-choices">
+                            <button onclick="makeChoice('камень')" ${playerChoice ? 'disabled' : ''}>Камень</button>
+                            <button onclick="makeChoice('ножницы')" ${playerChoice ? 'disabled' : ''}>Ножницы</button>
+                            <button onclick="makeChoice('бумага')" ${playerChoice ? 'disabled' : ''}>Бумага</button>
+                        </div>
+                        
+                        ${playerChoice ? `
+                            <div class="rps-result">
+                                <p>Вы: ${playerChoice}</p>
+                                <p>Компьютер: ${computerChoice}</p>
+                                <h3>${result}</h3>
+                            </div>
+                            
+                            <button onclick="resetGame()">Играть снова</button>
+                        ` : ''}
+                        
+                        <button onclick="backToMainMenu()" style="margin-top: 20px;">В меню</button>
+                    </div>
+                `;
+                
+                elements.gameContent.innerHTML = html;
+                state.menuItems = Array.from(document.querySelectorAll('.rps-game button'));
+                state.currentMenuItem = 0;
+                if (state.menuItems.length > 0) {
+                    state.menuItems[0].focus();
+                }
+            }
+            
+            window.makeChoice = function(choice) {
+                playerChoice = choice;
+                computerChoice = choices[Math.floor(Math.random() * choices.length)];
+                
+                if (playerChoice === computerChoice) {
+                    result = 'Ничья!';
+                } else if (
+                    (playerChoice === 'камень' && computerChoice === 'ножницы') ||
+                    (playerChoice === 'ножницы' && computerChoice === 'бумага') ||
+                    (playerChoice === 'бумага' && computerChoice === 'камень')
+                ) {
+                    result = 'Вы победили!';
+                } else {
+                    result = 'Вы проиграли!';
+                }
+                
+                render();
+                playSound(playerChoice === computerChoice ? 'draw' : result.includes('победили') ? 'win' : 'lose');
+            };
+            
+            window.resetGame = function() {
+                playerChoice = null;
+                computerChoice = null;
+                result = '';
+                render();
+            };
+            
+            render();
+        }
+
+        function handleRockPaperScissorsInput(button) {
+            const menuItems = state.menuItems;
+            let currentIndex = state.currentMenuItem;
+            
+            switch(button) {
+                case 'up':
+                    currentIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
+                    break;
+                case 'down':
+                    currentIndex = (currentIndex + 1) % menuItems.length;
+                    break;
+                case 'left':
+                    currentIndex = Math.max(0, currentIndex - 1);
+                    break;
+                case 'right':
+                    currentIndex = Math.min(menuItems.length - 1, currentIndex + 1);
+                    break;
+                case 'a':
+                    if (menuItems[currentIndex] && !menuItems[currentIndex].disabled) {
+                        menuItems[currentIndex].click();
+                    }
+                    break;
+                case 'b':
+                    if (document.querySelector('.rps-result')) {
+                        window.resetGame();
+                    }
+                    break;
+                case 'start':
+                    backToMainMenu();
+                    return;
+            }
+            
+            if (menuItems[currentIndex]) {
+                menuItems[currentIndex].focus();
+                state.currentMenuItem = currentIndex;
+                
+                // Прокрутка к выбранному элементу
+                const container = elements.gameContent;
+                const item = menuItems[currentIndex];
+                const itemRect = item.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                if (itemRect.bottom > containerRect.bottom) {
+                    container.scrollTop += itemRect.bottom - containerRect.bottom + 10;
+                } else if (itemRect.top < containerRect.top) {
+                    container.scrollTop -= containerRect.top - itemRect.top + 10;
+                }
+            }
+        }
+
+        // Запуск эмулятора
+        window.onload = init;
+    </script>
+</body>
+</html>
