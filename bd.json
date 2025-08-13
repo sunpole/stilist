@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Базовая пушка",
+    "cost": 100,
+    "attack_speed": 1000,
+    "damage": 10,
+    "range": 200,
+    "projectile_type": "bullet",
+    "target_air": false,
+    "upgrades": [2, 3]
+  },
+  {
+    "id": 2,
+    "name": "Быстрая пушка",
+    "cost": 150,
+    "attack_speed": 700,
+    "damage": 8,
+    "range": 180,
+    "projectile_type": "bullet",
+    "target_air": false,
+    "upgrades": [4]
+  },
+  {
+    "id": 3,
+    "name": "Снайперская башня",
+    "cost": 200,
+    "attack_speed": 1500,
+    "damage": 25,
+    "range": 350,
+    "projectile_type": "bullet",
+    "target_air": true,
+    "upgrades": [5]
+  },
+  {
+    "id": 4,
+    "name": "Пулемётная башня",
+    "cost": 250,
+    "attack_speed": 300,
+    "damage": 5,
+    "range": 150,
+    "projectile_type": "bullet",
+    "target_air": true,
+    "upgrades": []
+  },
+  {
+    "id": 5,
+    "name": "Элитная снайперская",
+    "cost": 400,
+    "attack_speed": 1200,
+    "damage": 40,
+    "range": 400,
+    "projectile_type": "bullet",
+    "target_air": true,
+    "upgrades": []
+  }
+]
