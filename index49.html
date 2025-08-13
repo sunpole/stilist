@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Table Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+        .json-container {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON Table Editor</h1>
+    
+    <div class="controls">
+        <input type="file" id="fileInput" accept=".json">
+        <button id="exportBtn" disabled>Экспорт JSON</button>
+        <button id="showJsonBtn" disabled>Показать JSON</button>
+        <button id="addRowBtn" disabled>Добавить строку</button>
+        <button id="deleteRowBtn" disabled>Удалить строку</button>
+    </div>
+    
+    <div id="tableContainer"></div>
+    
+    <div id="jsonContainer" class="json-container">
+        <pre id="jsonOutput"></pre>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        let jsonData = [];
+        let currentEditingCell = null;
+        
+        // DOM элементы
+        const fileInput = document.getElementById('fileInput');
+        const exportBtn = document.getElementById('exportBtn');
+        const showJsonBtn = document.getElementById('showJsonBtn');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const deleteRowBtn = document.getElementById('deleteRowBtn');
+        const tableContainer = document.getElementById('tableContainer');
+        const jsonContainer = document.getElementById('jsonContainer');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const toast = document.getElementById('toast');
+        
+        // Обработчики событий
+        fileInput.addEventListener('change', handleFileUpload);
+        exportBtn.addEventListener('click', exportJson);
+        showJsonBtn.addEventListener('click', toggleJsonView);
+        addRowBtn.addEventListener('click', addNewRow);
+        deleteRowBtn.addEventListener('click', deleteSelectedRow);
+        
+        // Загрузка файла
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    jsonData = JSON.parse(e.target.result);
+                    renderTable();
+                    exportBtn.disabled = false;
+                    showJsonBtn.disabled = false;
+                    addRowBtn.disabled = false;
+                    showToast('Файл успешно загружен');
+                } catch (error) {
+                    showToast('Ошибка при чтении файла: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Рендер таблицы
+        function renderTable() {
+            if (jsonData.length === 0) {
+                tableContainer.innerHTML = '<p>Нет данных для отображения</p>';
+                return;
+            }
+            
+            // Собираем все возможные ключи из данных
+            const allKeys = new Set();
+            jsonData.forEach(item => {
+                Object.keys(item).forEach(key => allKeys.add(key));
+            });
+            const headers = Array.from(allKeys);
+            
+            // Создаем таблицу
+            let tableHTML = '<table><thead><tr>';
+            
+            // Заголовки таблицы
+            headers.forEach(header => {
+                tableHTML += `<th>${header}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            // Строки данных
+            jsonData.forEach((row, rowIndex) => {
+                tableHTML += `<tr data-row-index="${rowIndex}">`;
+                headers.forEach(header => {
+                    const value = row[header] !== undefined ? 
+                        (typeof row[header] === 'object' ? 
+                            JSON.stringify(row[header]) : 
+                            row[header]) : 
+                        '';
+                    tableHTML += `<td data-header="${header}">${value}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody></table>';
+            tableContainer.innerHTML = tableHTML;
+            
+            // Добавляем обработчики для редактирования ячеек
+            document.querySelectorAll('td').forEach(cell => {
+                cell.addEventListener('dblclick', startCellEdit);
+            });
+            
+            // Добавляем обработчики для выбора строк
+            document.querySelectorAll('tr').forEach(row => {
+                row.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    updateDeleteButtonState();
+                });
+            });
+        }
+        
+        // Начало редактирования ячейки
+        function startCellEdit(event) {
+            if (currentEditingCell) {
+                finishCellEdit(currentEditingCell);
+            }
+            
+            const cell = event.target;
+            const header = cell.getAttribute('data-header');
+            const rowIndex = cell.parentElement.getAttribute('data-row-index');
+            const originalValue = jsonData[rowIndex][header] !== undefined ? 
+                jsonData[rowIndex][header] : '';
+            
+            // Сохраняем ссылку на редактируемую ячейку
+            currentEditingCell = {
+                element: cell,
+                header: header,
+                rowIndex: rowIndex,
+                originalValue: originalValue
+            };
+            
+            // Заменяем содержимое ячейки на input
+            let inputType = 'text';
+            if (typeof originalValue === 'number') {
+                inputType = 'number';
+            }
+            
+            cell.innerHTML = `<input type="${inputType}" value="${originalValue}">`;
+            cell.querySelector('input').focus();
+            
+            // Обработчики для завершения редактирования
+            const input = cell.querySelector('input');
+            input.addEventListener('blur', () => finishCellEdit(currentEditingCell));
+            input.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') finishCellEdit(currentEditingCell);
+                if (e.key === 'Escape') cancelCellEdit(currentEditingCell);
+            });
+        }
+        
+        // Завершение редактирования ячейки
+        function finishCellEdit(cellInfo) {
+            const input = cellInfo.element.querySelector('input');
+            if (!input) return;
+            
+            let newValue = input.value;
+            
+            // Преобразуем значение в правильный тип
+            if (typeof cellInfo.originalValue === 'number') {
+                newValue = parseFloat(newValue) || 0;
+            } else if (typeof cellInfo.originalValue === 'boolean') {
+                newValue = Boolean(newValue);
+            }
+            
+            // Обновляем данные
+            jsonData[cellInfo.rowIndex][cellInfo.header] = newValue;
+            
+            // Восстанавливаем ячейку
+            cellInfo.element.textContent = typeof newValue === 'object' ? 
+                JSON.stringify(newValue) : newValue;
+            
+            currentEditingCell = null;
+        }
+        
+        // Отмена редактирования ячейки
+        function cancelCellEdit(cellInfo) {
+            cellInfo.element.textContent = typeof cellInfo.originalValue === 'object' ? 
+                JSON.stringify(cellInfo.originalValue) : cellInfo.originalValue;
+            currentEditingCell = null;
+        }
+        
+        // Добавление новой строки
+        function addNewRow() {
+            if (jsonData.length === 0) {
+                // Если нет данных, создаем строку с пустыми значениями для всех заголовков
+                const headers = Array.from(
+                    new Set(jsonData.flatMap(item => Object.keys(item)))
+                const newRow = {};
+                headers.forEach(header => {
+                    newRow[header] = '';
+                });
+                jsonData.push(newRow);
+            } else {
+                // Копируем структуру последней строки
+                const newRow = JSON.parse(JSON.stringify(jsonData[jsonData.length - 1]));
+                // Очищаем значения
+                Object.keys(newRow).forEach(key => {
+                    if (typeof newRow[key] === 'number') {
+                        newRow[key] = 0;
+                    } else if (typeof newRow[key] === 'string') {
+                        newRow[key] = '';
+                    } else if (Array.isArray(newRow[key])) {
+                        newRow[key] = [];
+                    } else if (typeof newRow[key] === 'object') {
+                        newRow[key] = {};
+                    }
+                });
+                jsonData.push(newRow);
+            }
+            
+            renderTable();
+            showToast('Добавлена новая строка');
+        }
+        
+        // Удаление выбранных строк
+        function deleteSelectedRow() {
+            const selectedRows = document.querySelectorAll('tr.selected');
+            if (selectedRows.length === 0) {
+                showToast('Не выбрано ни одной строки', 'error');
+                return;
+            }
+            
+            // Удаляем строки в обратном порядке, чтобы индексы не сбивались
+            const indexesToDelete = Array.from(selectedRows)
+                .map(row => parseInt(row.getAttribute('data-row-index')))
+                .sort((a, b) => b - a);
+            
+            indexesToDelete.forEach(index => {
+                jsonData.splice(index, 1);
+            });
+            
+            renderTable();
+            showToast(`Удалено ${indexesToDelete.length} строк`);
+        }
+        
+        // Обновление состояния кнопки удаления
+        function updateDeleteButtonState() {
+            const selectedRows = document.querySelectorAll('tr.selected');
+            deleteRowBtn.disabled = selectedRows.length === 0;
+        }
+        
+        // Экспорт JSON
+        function exportJson() {
+            if (jsonData.length === 0) {
+                showToast('Нет данных для экспорта', 'error');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(jsonData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'exported_data.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showToast('Файл экспортирован');
+        }
+        
+        // Переключение отображения JSON
+        function toggleJsonView() {
+            if (jsonContainer.style.display === 'block') {
+                jsonContainer.style.display = 'none';
+            } else {
+                jsonOutput.textContent = JSON.stringify(jsonData, null, 2);
+                jsonContainer.style.display = 'block';
+            }
+        }
+        
+        // Показать уведомление
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
