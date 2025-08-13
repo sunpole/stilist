@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Музыкальная Война (Упрощенная)</title>
+    <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            position: relative;
+            border: 2px solid #4ecca3;
+            border-radius: 10px;
+            overflow: hidden;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231a1a2e"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%2326264d" stroke-width="0.5"/></svg>');
+            background-size: 40px 40px;
+        }
+
+        #game-screen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #title-screen {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #title-screen h1 {
+            color: #4ecca3;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        #title-screen p {
+            margin-bottom: 30px;
+        }
+
+        #game-ui {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(26, 26, 46, 0.9);
+            border-top: 2px solid #4ecca3;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+
+        .currency {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .currency-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 5px;
+            background-color: #4ecca3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #1a1a2e;
+        }
+
+        .btn {
+            background-color: #4ecca3;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #3dbb90;
+        }
+
+        .note-enemy {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            position: absolute;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.7));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .note-lvl1 { background-color: #ff6b6b; }
+        .note-lvl2 { background-color: #ffa502; }
+        .note-lvl3 { background-color: #ffd166; }
+        .note-lvl4 { background-color: #06d6a0; }
+        .note-lvl5 { background-color: #118ab2; }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1a1a2e;
+            border: 2px solid #4ecca3;
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            display: none;
+        }
+
+        .modal h2 {
+            color: #4ecca3;
+            margin-bottom: 15px;
+        }
+
+        .note-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .note-option {
+            background-color: #4ecca3;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 60px;
+            font-weight: bold;
+        }
+
+        .note-option:hover {
+            background-color: #3dbb90;
+        }
+
+        #note-guess-modal {
+            display: none;
+        }
+
+        #shop-modal {
+            display: none;
+        }
+
+        #game-over-modal {
+            display: none;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #2d2d4d;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #4ecca3;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #1a1a2e;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Экран заголовка -->
+        <div id="title-screen">
+            <h1>Музыкальная Война</h1>
+            <p>Сражайся с нотами, собирай аккорды и освободи Аккорд Судьбы!</p>
+            <button class="btn" id="start-btn">Начать игру</button>
+        </div>
+
+        <!-- Игровой экран -->
+        <div id="game-screen" style="display: none;">
+            <!-- Ноты-враги будут генерироваться здесь -->
+            
+            <!-- Игровой UI -->
+            <div id="game-ui">
+                <div class="currency">
+                    <div class="currency-icon">♪</div>
+                    <span id="sound-coins">0</span>
+                </div>
+                <div class="currency">
+                    <div class="currency-icon">♫</div>
+                    <span id="echo-coins">0</span>
+                </div>
+                <div class="currency">
+                    <div class="currency-icon">♬</div>
+                    <span id="note-coins">0</span>
+                </div>
+                <button class="btn" id="shop-btn">Магазин</button>
+            </div>
+        </div>
+
+        <!-- Модальное окно для угадывания ноты -->
+        <div id="note-guess-modal" class="modal">
+            <h2 id="note-guess-title">Угадайте ноту</h2>
+            <p>Уровень ноты: <span id="note-level">1</span></p>
+            <button class="btn" id="btn-play-note">Прослушать</button>
+            <div class="note-options" id="note-options"></div>
+            <p id="note-guess-feedback"></p>
+            <button class="btn" id="btn-close-guess">Закрыть</button>
+        </div>
+
+        <!-- Модальное окно магазина -->
+        <div id="shop-modal" class="modal">
+            <h2>Магазин нот</h2>
+            <p>Обменяйте отголоски на ноты</p>
+            <div class="currency">
+                <div class="currency-icon">♫</div>
+                <span id="shop-echo-coins">0</span>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">♬</div>
+                <span id="shop-note-coins">0</span>
+            </div>
+            <button class="btn" id="btn-buy-note">Купить 1 ноту (5 отголосков)</button>
+            <button class="btn" id="btn-close-shop">Закрыть</button>
+        </div>
+
+        <!-- Модальное окно завершения игры -->
+        <div id="game-over-modal" class="modal">
+            <h2>Игра завершена!</h2>
+            <p id="game-over-message"></p>
+            <button class="btn" id="btn-restart">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        const gameState = {
+            soundCoins: 0,
+            echoCoins: 0,
+            noteCoins: 0,
+            currentNote: null,
+            currentNoteLevel: 1,
+            attempts: 0,
+            notes: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            gameActive: false,
+            enemyNotes: []
+        };
+
+        // Инициализация игры
+        function initGame() {
+            // Загружаем сохранения
+            loadGame();
+            
+            // Инициализируем аудио
+            initAudio();
+            
+            // Назначаем обработчики событий
+            setupEventListeners();
+            
+            // Показываем экран заголовка
+            showTitleScreen();
+        }
+
+        // Инициализация аудио
+        function initAudio() {
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                gameState.audioContext = new AudioContext();
+            } catch(e) {
+                alert('Ваш браузер не поддерживает Web Audio API');
+            }
+        }
+
+        // Начало новой игры
+        function startGame() {
+            // Сброс состояния игры
+            gameState.soundCoins = 0;
+            gameState.echoCoins = 0;
+            gameState.noteCoins = 0;
+            gameState.gameActive = true;
+            
+            // Генерация врагов
+            generateEnemies();
+            
+            // Обновление UI
+            updateUI();
+            
+            // Переключение на игровой экран
+            showGameScreen();
+        }
+
+        // Генерация нот-врагов
+        function generateEnemies() {
+            // Очищаем предыдущих врагов
+            clearEnemies();
+            
+            // Создаем новых врагов
+            const enemyCount = 5; // 5 врагов для упрощенной версии
+            const gameScreen = document.getElementById('game-screen');
+            
+            for (let i = 0; i < enemyCount; i++) {
+                const level = Math.floor(Math.random() * 5) + 1; // Уровень от 1 до 5
+                const noteElement = document.createElement('div');
+                noteElement.className = `note-enemy note-lvl${level}`;
+                noteElement.textContent = '♪';
+                noteElement.dataset.level = level;
+                
+                // Позиционируем врагов случайным образом
+                const x = 10 + Math.random() * 80;
+                const y = 10 + Math.random() * 60;
+                noteElement.style.left = `${x}%`;
+                noteElement.style.top = `${y}%`;
+                
+                noteElement.addEventListener('click', () => attackNote(noteElement));
+                
+                gameScreen.appendChild(noteElement);
+                gameState.enemyNotes.push(noteElement);
+            }
+        }
+
+        // Очистка врагов
+        function clearEnemies() {
+            gameState.enemyNotes.forEach(note => note.remove());
+            gameState.enemyNotes = [];
+        }
+
+        // Атака на ноту
+        function attackNote(noteElement) {
+            if (!gameState.gameActive) return;
+            
+            const level = parseInt(noteElement.dataset.level);
+            gameState.currentNoteLevel = level;
+            
+            // Генерируем случайную ноту
+            gameState.currentNote = gameState.notes[Math.floor(Math.random() * gameState.notes.length)];
+            gameState.attempts = 0;
+            
+            // Показываем модальное окно угадывания
+            document.getElementById('note-level').textContent = level;
+            document.getElementById('note-guess-feedback').textContent = '';
+            
+            // Генерируем варианты ответа
+            generateNoteOptions(level);
+            
+            // Показываем модальное окно
+            document.getElementById('note-guess-modal').style.display = 'block';
+        }
+
+        // Генерация вариантов ответа для ноты
+        function generateNoteOptions(level) {
+            const optionsContainer = document.getElementById('note-options');
+            optionsContainer.innerHTML = '';
+            
+            // Количество вариантов зависит от уровня ноты
+            const optionsCount = level + 1;
+            const options = [];
+            
+            // Добавляем правильный ответ
+            options.push(gameState.currentNote);
+            
+            // Добавляем случайные неправильные ответы
+            while (options.length < optionsCount) {
+                const randomNote = gameState.notes[Math.floor(Math.random() * gameState.notes.length)];
+                if (!options.includes(randomNote)) {
+                    options.push(randomNote);
+                }
+            }
+            
+            // Перемешиваем варианты
+            shuffleArray(options);
+            
+            // Создаем кнопки вариантов
+            options.forEach(note => {
+                const button = document.createElement('button');
+                button.className = 'note-option';
+                button.textContent = note;
+                button.addEventListener('click', () => checkNoteGuess(note, noteElement));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Проверка угадывания ноты
+        function checkNoteGuess(guess, noteElement) {
+            gameState.attempts++;
+            
+            if (guess === gameState.currentNote) {
+                // Правильный ответ
+                if (gameState.attempts === 1) {
+                    // С первой попытки - получаем звуковые монеты
+                    const reward = gameState.currentNoteLevel;
+                    gameState.soundCoins += reward;
+                    document.getElementById('note-guess-feedback').textContent = `Правильно! Получено ${reward} звуковых монет.`;
+                    document.getElementById('note-guess-feedback').style.color = '#4ecca3';
+                } else {
+                    // Со второй попытки - получаем отголоски
+                    const reward = gameState.currentNoteLevel;
+                    gameState.echoCoins += reward;
+                    document.getElementById('note-guess-feedback').textContent = `Правильно! Получено ${reward} отголосков.`;
+                    document.getElementById('note-guess-feedback').style.color = '#4ecca3';
+                }
+                
+                // Удаляем побежденную ноту
+                noteElement.remove();
+                gameState.enemyNotes = gameState.enemyNotes.filter(note => note !== noteElement);
+                
+                // Проверяем условие победы
+                if (gameState.enemyNotes.length === 0) {
+                    setTimeout(() => {
+                        endGame(true);
+                    }, 1500);
+                }
+                
+                // Обновляем UI
+                updateUI();
+                
+                // Закрываем окно через 1.5 секунды
+                setTimeout(() => {
+                    document.getElementById('note-guess-modal').style.display = 'none';
+                }, 1500);
+            } else {
+                // Неправильный ответ
+                document.getElementById('note-guess-feedback').textContent = 'Неправильно! Попробуйте еще раз.';
+                document.getElementById('note-guess-feedback').style.color = '#ff6b6b';
+            }
+        }
+
+        // Проигрывание ноты
+        function playNote(note, duration = 0.5) {
+            if (!gameState.audioContext) return;
+            
+            const freq = getNoteFrequency(note);
+            const oscillator = gameState.audioContext.createOscillator();
+            const gainNode = gameState.audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = freq;
+            
+            gainNode.gain.setValueAtTime(0, gameState.audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(1, gameState.audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, gameState.audioContext.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(gameState.audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(gameState.audioContext.currentTime + duration);
+        }
+
+        // Получение частоты ноты
+        function getNoteFrequency(note, octave = 4) {
+            const A4 = 440;
+            const notesInOctave = 12;
+            const noteIndex = gameState.notes.indexOf(note);
+            const A4Index = gameState.notes.indexOf('A') + 4 * notesInOctave;
+            const targetIndex = noteIndex + octave * notesInOctave;
+            
+            return A4 * Math.pow(2, (targetIndex - A4Index) / notesInOctave);
+        }
+
+        // Магазин нот
+        function openShop() {
+            document.getElementById('shop-echo-coins').textContent = gameState.echoCoins;
+            document.getElementById('shop-note-coins').textContent = gameState.noteCoins;
+            document.getElementById('shop-modal').style.display = 'block';
+        }
+
+        // Покупка ноты
+        function buyNote() {
+            if (gameState.echoCoins >= 5) {
+                gameState.echoCoins -= 5;
+                gameState.noteCoins += 1;
+                updateUI();
+                document.getElementById('shop-echo-coins').textContent = gameState.echoCoins;
+                document.getElementById('shop-note-coins').textContent = gameState.noteCoins;
+                
+                // Проверяем условие победы (собрано 10 нот)
+                if (gameState.noteCoins >= 10) {
+                    setTimeout(() => {
+                        endGame(true);
+                    }, 1500);
+                }
+            } else {
+                alert('Недостаточно отголосков!');
+            }
+        }
+
+        // Завершение игры
+        function endGame(win) {
+            gameState.gameActive = false;
+            
+            const gameOverModal = document.getElementById('game-over-modal');
+            const message = win ? 
+                'Поздравляем! Вы собрали достаточно нот. Хотите сыграть еще раз?' : 
+                'Игра окончена. Хотите попробовать еще раз?';
+            
+            document.getElementById('game-over-message').textContent = message;
+            gameOverModal.style.display = 'block';
+        }
+
+        // Обновление UI
+        function updateUI() {
+            document.getElementById('sound-coins').textContent = gameState.soundCoins;
+            document.getElementById('echo-coins').textContent = gameState.echoCoins;
+            document.getElementById('note-coins').textContent = gameState.noteCoins;
+            
+            // Сохраняем игру
+            saveGame();
+        }
+
+        // Сохранение игры
+        function saveGame() {
+            localStorage.setItem('musicWarSimpleGame', JSON.stringify({
+                soundCoins: gameState.soundCoins,
+                echoCoins: gameState.echoCoins,
+                noteCoins: gameState.noteCoins
+            }));
+        }
+
+        // Загрузка игры
+        function loadGame() {
+            const savedGame = localStorage.getItem('musicWarSimpleGame');
+            if (savedGame) {
+                const savedState = JSON.parse(savedGame);
+                gameState.soundCoins = savedState.soundCoins || 0;
+                gameState.echoCoins = savedState.echoCoins || 0;
+                gameState.noteCoins = savedState.noteCoins || 0;
+            }
+        }
+
+        // Показать экран заголовка
+        function showTitleScreen() {
+            document.getElementById('title-screen').style.display = 'block';
+            document.getElementById('game-screen').style.display = 'none';
+        }
+
+        // Показать игровой экран
+        function showGameScreen() {
+            document.getElementById('title-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+        }
+
+        // Утилиты
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Назначение обработчиков событий
+        function setupEventListeners() {
+            // Кнопка начала игры
+            document.getElementById('start-btn').addEventListener('click', startGame);
+            
+            // Кнопка рестарта
+            document.getElementById('btn-restart').addEventListener('click', startGame);
+            
+            // Кнопка магазина
+            document.getElementById('shop-btn').addEventListener('click', openShop);
+            
+            // Кнопки магазина
+            document.getElementById('btn-buy-note').addEventListener('click', buyNote);
+            document.getElementById('btn-close-shop').addEventListener('click', () => {
+                document.getElementById('shop-modal').style.display = 'none';
+            });
+            
+            // Кнопки угадывания ноты
+            document.getElementById('btn-play-note').addEventListener('click', () => {
+                playNote(gameState.currentNote);
+            });
+            document.getElementById('btn-close-guess').addEventListener('click', () => {
+                document.getElementById('note-guess-modal').style.display = 'none';
+            });
+        }
+
+        // Запуск игры при загрузке страницы
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
