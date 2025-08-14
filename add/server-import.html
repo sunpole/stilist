@@ -1,0 +1,360 @@
+<!-- modules/server-import.html -->
+<style>
+  .server-import {
+    font-family: Arial, sans-serif;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f9f9f9;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .server-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .server-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .server-btn {
+    background: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 13px;
+  }
+  
+  .server-info {
+    padding: 0.5rem;
+    background: #eef;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 13px;
+  }
+  
+  .server-explorer {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .server-item {
+    padding: 0.3rem;
+    cursor: pointer;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .server-item:hover {
+    background: #f0f0f0;
+  }
+  
+  .server-path {
+    color: #666;
+    font-size: 0.8em;
+  }
+  
+  .server-search {
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
+  
+  .server-search input {
+    flex: 1;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .server-status {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .server-progress {
+    height: 100%;
+    background: #4CAF50;
+    width: 0%;
+    transition: width 0.3s;
+  }
+</style>
+
+<div class="server-import">
+  <div class="server-header">
+    <h3 style="margin: 0">Загрузка с сервера</h3>
+    <div id="server-status-text" style="font-size: 13px; color: #666;">Готово</div>
+  </div>
+  
+  <div class="server-info" id="server-info">
+    Файл не загружен
+  </div>
+  
+  <div class="server-controls">
+    <button class="server-btn" id="server-refresh-btn">⟳ Обновить</button>
+    <button class="server-btn" id="server-back-btn">← Назад</button>
+    <input type="text" id="server-path-input" placeholder="Путь к папке" style="flex:1; padding:4px;">
+    <button class="server-btn" id="server-go-btn">Перейти</button>
+  </div>
+  
+  <div class="server-search">
+    <input type="text" id="server-search-input" placeholder="Поиск JSON файлов...">
+  </div>
+  
+  <div class="server-explorer" id="server-explorer">
+    <div class="server-item">Загрузка списка файлов...</div>
+  </div>
+  
+  <div class="server-status">
+    <div class="server-progress" id="server-progress"></div>
+  </div>
+</div>
+
+<script>
+  // Текущий путь и история навигации
+  let currentPath = './';
+  let pathHistory = [];
+  
+  // Основные элементы
+  const serverStatusText = document.getElementById('server-status-text');
+  const serverInfo = document.getElementById('server-info');
+  const serverExplorer = document.getElementById('server-explorer');
+  const serverProgress = document.getElementById('server-progress');
+  const pathInput = document.getElementById('server-path-input');
+  const searchInput = document.getElementById('server-search-input');
+
+  // Инициализация
+  document.addEventListener('DOMContentLoaded', () => {
+    loadDirectory(currentPath);
+    
+    // Назначение обработчиков событий
+    document.getElementById('server-refresh-btn').addEventListener('click', () => {
+      loadDirectory(currentPath);
+    });
+    
+    document.getElementById('server-back-btn').addEventListener('click', () => {
+      if (pathHistory.length > 0) {
+        currentPath = pathHistory.pop();
+        loadDirectory(currentPath);
+      }
+    });
+    
+    document.getElementById('server-go-btn').addEventListener('click', () => {
+      const newPath = pathInput.value.trim() || './';
+      pathHistory.push(currentPath);
+      currentPath = newPath;
+      loadDirectory(currentPath);
+    });
+    
+    searchInput.addEventListener('input', () => {
+      filterFiles();
+    });
+    
+    pathInput.value = currentPath;
+  });
+
+  // Загрузка содержимого директории
+  async function loadDirectory(path) {
+    updateStatus('Загрузка списка файлов...', 30);
+    pathInput.value = path;
+    
+    try {
+      // Эмуляция запроса к серверу
+      const files = await fetchDirectoryContents(path);
+      displayFiles(files);
+      updateStatus(`Загружено: ${path}`, 100);
+    } catch (err) {
+      updateStatus(`Ошибка: ${err.message}`, 0);
+      serverExplorer.innerHTML = `<div class="server-item" style="color:red;">${err.message}</div>`;
+    }
+  }
+
+  // Получение содержимого директории с сервера
+  async function fetchDirectoryContents(path) {
+    // В реальном проекте здесь будет fetch к API сервера
+    // Это демо-реализация с эмуляцией
+    
+    // Для GitHub Pages - специальная обработка
+    if (window.location.host.includes('github.io')) {
+      return await fetchGitHubContents(path);
+    }
+    
+    // Эмуляция ответа сервера
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const demoFiles = [
+          { name: 'data.json', path: path + 'data.json', type: 'file', size: 2451 },
+          { name: 'config.json', path: path + 'config.json', type: 'file', size: 1024 },
+          { name: 'users', path: path + 'users/', type: 'directory' },
+          { name: 'settings.json', path: path + 'settings.json', type: 'file', size: 512 }
+        ];
+        
+        // Фильтруем только JSON файлы и папки
+        resolve(demoFiles.filter(file => 
+          file.type === 'directory' || file.name.endsWith('.json')
+        ));
+      }, 500);
+    });
+  }
+
+  // Получение файлов из GitHub (для GitHub Pages)
+  async function fetchGitHubContents(path) {
+    try {
+      const repoName = window.location.pathname.split('/')[1];
+      if (!repoName) throw new Error("Не удалось определить репозиторий");
+      
+      const apiUrl = `https://api.github.com/repos/${repoName}/${repoName}.github.io/contents/${path}`;
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) throw new Error("Не удалось получить файлы");
+      
+      const data = await response.json();
+      return data.map(item => ({
+        name: item.name,
+        path: item.path,
+        type: item.type === 'dir' ? 'directory' : 'file',
+        size: item.size || 0
+      })).filter(item => 
+        item.type === 'directory' || item.name.endsWith('.json')
+      );
+    } catch (err) {
+      console.error("GitHub API error:", err);
+      throw new Error("Не удалось получить список файлов");
+    }
+  }
+
+  // Отображение файлов в проводнике
+  function displayFiles(files) {
+    serverExplorer.innerHTML = '';
+    
+    if (files.length === 0) {
+      serverExplorer.innerHTML = '<div class="server-item">Папка пуста</div>';
+      return;
+    }
+    
+    // Сначала папки, потом файлы
+    const sortedFiles = [...files].sort((a, b) => {
+      if (a.type === 'directory' && b.type !== 'directory') return -1;
+      if (a.type !== 'directory' && b.type === 'directory') return 1;
+      return a.name.localeCompare(b.name);
+    });
+    
+    sortedFiles.forEach(file => {
+      const item = document.createElement('div');
+      item.className = 'server-item';
+      
+      if (file.type === 'directory') {
+        item.innerHTML = `
+          <span>📁 ${file.name}</span>
+          <span class="server-path">папка</span>
+        `;
+        
+        item.addEventListener('click', () => {
+          pathHistory.push(currentPath);
+          currentPath = file.path;
+          loadDirectory(currentPath);
+        });
+      } else {
+        item.innerHTML = `
+          <span>📄 ${file.name}</span>
+          <span class="server-path">${formatFileSize(file.size)}</span>
+        `;
+        
+        item.addEventListener('click', () => {
+          loadFile(file.path);
+        });
+      }
+      
+      serverExplorer.appendChild(item);
+    });
+    
+    filterFiles();
+  }
+
+  // Фильтрация файлов по поисковому запросу
+  function filterFiles() {
+    const searchTerm = searchInput.value.toLowerCase();
+    if (!searchTerm) return;
+    
+    const items = serverExplorer.querySelectorAll('.server-item');
+    items.forEach(item => {
+      const fileName = item.textContent.toLowerCase();
+      item.style.display = fileName.includes(searchTerm) ? '' : 'none';
+    });
+  }
+
+  // Загрузка JSON файла
+  async function loadFile(filePath) {
+    updateStatus(`Загрузка ${filePath}...`, 30);
+    
+    try {
+      const response = await fetch(filePath);
+      if (!response.ok) throw new Error("Ошибка загрузки файла");
+      
+      const jsonData = await response.json();
+      updateStatus(`Успешно загружен: ${filePath}`, 100);
+      updateFileInfo(`Файл: ${filePath.split('/').pop()} (${formatFileSize(response.headers.get('content-length') || 0)})`);
+      
+      // Сохраняем данные и отправляем событие
+      saveToLocalStorage(jsonData);
+    } catch (err) {
+      updateStatus(`Ошибка: ${err.message}`, 0);
+    }
+  }
+
+  // Сохранение данных в localStorage
+  function saveToLocalStorage(data) {
+    try {
+      localStorage.setItem('currentJson', JSON.stringify(data));
+      localStorage.setItem('lastLoadedFrom', currentPath);
+      localStorage.setItem('lastLoadedTime', new Date().toLocaleString());
+      
+      // Отправляем событие о новой загрузке
+      window.dispatchEvent(new CustomEvent('json-loaded', {
+        detail: {
+          source: 'server',
+          path: currentPath
+        }
+      }));
+    } catch (e) {
+      console.error("Ошибка сохранения:", e);
+    }
+  }
+
+  // Форматирование размера файла
+  function formatFileSize(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  // Обновление статуса
+  function updateStatus(message, percent = 0) {
+    serverStatusText.textContent = message;
+    serverProgress.style.width = percent + '%';
+    serverProgress.style.backgroundColor = percent === 100 ? '#4CAF50' : 
+                                        percent > 0 ? '#2196F3' : '#ff9800';
+  }
+  
+  // Обновление информации о файле
+  function updateFileInfo(info) {
+    serverInfo.textContent = info;
+  }
+</script>
