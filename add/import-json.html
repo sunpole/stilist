@@ -1,51 +1,210 @@
+<!-- modules/import-json.html -->
 <style>
-  /* Стили модуля */
   .import-json {
+    font-family: Arial, sans-serif;
     padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+    max-width: 800px;
+    margin: 0 auto;
   }
-  .import-json h2 {
-    margin-top: 0;
-    color: #333;
+  
+  .import-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
-  .import-json button {
-    background: #4CAF50;
+  
+  .import-btn {
+    background: #4a6fa5;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 10px;
     border-radius: 4px;
     cursor: pointer;
+    transition: background 0.3s;
   }
-  .import-json button:hover {
-    background: #45a049;
+  
+  .import-btn:hover {
+    background: #3a5a8f;
+  }
+  
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    margin: 1rem 0;
+    font-family: monospace;
+  }
+  
+  .file-info {
+    padding: 0.5rem;
+    background: #eef;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  .status-bar {
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+  
+  .status-progress {
+    height: 100%;
+    background: #4CAF50;
+    width: 0%;
+    transition: width 0.3s;
   }
 </style>
 
 <div class="import-json">
   <h2>Импорт JSON</h2>
-  <input type="file" id="file-input" accept=".json">
-  <button id="load-btn">Загрузить</button>
-  <div id="output"></div>
+  
+  <div class="import-methods">
+    <button class="import-btn" id="file-btn">С устройства 📁</button>
+    <button class="import-btn" id="project-btn">В проекте 🔍</button>
+    <button class="import-btn" id="url-btn">По ссылке 🌐</button>
+    <button class="import-btn" id="text-btn">Как текст ✏️</button>
+  </div>
+  
+  <div class="file-info" id="file-info">
+    Файл не загружен
+  </div>
+  
+  <textarea id="json-textarea" placeholder='Вставьте JSON или выберите файл...'></textarea>
+  
+  <div class="status-bar">
+    <div class="status-progress" id="status-progress"></div>
+  </div>
+  
+  <div id="status-text">Готово к загрузке</div>
 </div>
 
 <script>
-  document.getElementById('load-btn').addEventListener('click', () => {
-    const fileInput = document.getElementById('file-input');
-    const file = fileInput.files[0];
-    if (!file) return;
+  let currentJson = null;
+  const statusProgress = document.getElementById('status-progress');
+  const statusText = document.getElementById('status-text');
+  const fileInfo = document.getElementById('file-info');
+  const textarea = document.getElementById('json-textarea');
+
+  // 1. Импорт из файла
+  document.getElementById('file-btn').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
     
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const jsonData = JSON.parse(e.target.result);
-        document.getElementById('output').textContent = 'Файл загружен!';
-        console.log('Данные:', jsonData);
-        
-        // Сохраняем данные для других модулей
-        localStorage.setItem('jsonData', JSON.stringify(jsonData));
-      } catch (error) {
-        document.getElementById('output').textContent = 'Ошибка: невалидный JSON';
-      }
+    input.onchange = e => {
+      const startTime = performance.now();
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      updateStatus('Загрузка...', 30);
+      
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          currentJson = JSON.parse(e.target.result);
+          updateFileInfo(`Файл: ${file.name} (${(file.size/1024).toFixed(1)} KB) | Способ: С устройства`);
+          textarea.value = JSON.stringify(currentJson, null, 2);
+          
+          const loadTime = (performance.now() - startTime).toFixed(1);
+          updateStatus(`Загружено за ${loadTime} мс`, 100);
+        } catch (err) {
+          updateStatus('Ошибка: невалидный JSON', 0);
+        }
+      };
+      
+      reader.readAsText(file);
     };
-    reader.readAsText(file);
+    
+    input.click();
   });
+
+  // 2. Поиск JSON в проекте (эмуляция)
+  document.getElementById('project-btn').addEventListener('click', async () => {
+    updateStatus('Поиск файлов...', 20);
+    
+    // В реальности здесь fetch к API или файловой структуре
+    setTimeout(() => {
+      const mockFiles = [
+        {name: "data.json", size: 1024},
+        {name: "config.json", size: 512}
+      ];
+      
+      if (mockFiles.length > 0) {
+        const selectedFile = mockFiles[0]; // Берём первый файл для примера
+        currentJson = {mock: "Это демо-данные. В реальности здесь будет fetch('data.json')"};
+        
+        updateFileInfo(`Файл: ${selectedFile.name} (${selectedFile.size} B) | Способ: В проекте`);
+        textarea.value = JSON.stringify(currentJson, null, 2);
+        updateStatus(`Найдено ${mockFiles.length} файлов`, 100);
+      } else {
+        updateStatus('JSON-файлы не найдены', 0);
+      }
+    }, 800);
+  });
+
+  // 3. Загрузка по URL
+  document.getElementById('url-btn').addEventListener('click', async () => {
+    const url = prompt("Введите URL JSON-файла:", "https://example.com/data.json");
+    if (!url) return;
+    
+    updateStatus('Загрузка...', 30);
+    const startTime = performance.now();
+    
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Ошибка HTTP: " + response.status);
+      
+      currentJson = await response.json();
+      updateFileInfo(`URL: ${url} | Способ: По ссылке`);
+      textarea.value = JSON.stringify(currentJson, null, 2);
+      
+      const loadTime = (performance.now() - startTime).toFixed(1);
+      updateStatus(`Загружено за ${loadTime} мс`, 100);
+    } catch (err) {
+      updateStatus('Ошибка: ' + err.message, 0);
+    }
+  });
+
+  // 4. Ввод вручную
+  document.getElementById('text-btn').addEventListener('click', () => {
+    try {
+      if (!textarea.value.trim()) throw new Error("Введите JSON");
+      currentJson = JSON.parse(textarea.value);
+      updateFileInfo(`Загружено вручную | Способ: Текст`);
+      updateStatus("Валидный JSON", 100);
+    } catch (err) {
+      updateStatus('Ошибка: ' + err.message, 0);
+    }
+  });
+
+  // Обновление статуса
+  function updateStatus(message, percent) {
+    statusText.textContent = message;
+    statusProgress.style.width = percent + '%';
+    statusProgress.style.backgroundColor = percent === 100 ? '#4CAF50' : '#2196F3';
+  }
+
+  // Обновление информации о файле
+  function updateFileInfo(info) {
+    fileInfo.textContent = info;
+    fileInfo.style.animation = 'none';
+    void fileInfo.offsetWidth; // Триггер рефлоу
+    fileInfo.style.animation = 'highlight 0.5s';
+  }
+
+  // Анимация highlight
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes highlight {
+      from { background: #aaffaa; }
+      to { background: #eef; }
+    }
+  `;
+  document.head.appendChild(style);
 </script>
