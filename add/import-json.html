@@ -1,0 +1,337 @@
+<!-- modules/import-json.html -->
+<style>
+  .import-json {
+    font-family: Arial, sans-serif;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f9f9f9;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .import-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .import-methods {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .import-btn {
+    background: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 13px;
+    flex: 1;
+    max-width: 15%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .file-info {
+    padding: 0.5rem;
+    background: #eef;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 13px;
+  }
+  
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    margin: 0.5rem 0;
+    font-family: monospace;
+    display: none;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 4px;
+  }
+  
+  .text-import-controls {
+    display: none;
+    margin-bottom: 0.5rem;
+    text-align: right;
+  }
+  
+  .status-bar {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .status-progress {
+    height: 100%;
+    background: #4CAF50;
+    width: 0%;
+    transition: width 0.3s;
+  }
+  
+  .file-explorer {
+    display: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .file-item {
+    padding: 0.3rem;
+    cursor: pointer;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .file-item:hover {
+    background: #f0f0f0;
+  }
+</style>
+
+<div class="import-json">
+  <div class="import-header">
+    <h3 style="margin: 0">Импорт JSON</h3>
+    <div id="status-text" style="font-size: 13px; color: #666;">Готово</div>
+  </div>
+  
+  <div class="file-info" id="file-info">
+    Файл не загружен
+  </div>
+  
+  <div class="import-methods">
+    <button class="import-btn" id="file-btn" title="Импорт с устройства">📁 Устройство</button>
+    <button class="import-btn" id="project-btn" title="Поиск в проекте">🔍 Проект</button>
+    <button class="import-btn" id="url-btn" title="Загрузка по URL">🌐 Ссылка</button>
+    <button class="import-btn" id="text-btn" title="Ввод вручную">✏️ Текст</button>
+  </div>
+  
+  <div class="file-explorer" id="file-explorer">
+    <!-- Список файлов будет здесь -->
+  </div>
+  
+  <textarea id="json-textarea" placeholder='Вставьте JSON здесь...'></textarea>
+  
+  <div class="text-import-controls" id="text-import-controls">
+    <button class="import-btn" style="max-width: 100px; padding: 4px 8px;" id="load-text-btn">Загрузить</button>
+  </div>
+  
+  <div class="status-bar">
+    <div class="status-progress" id="status-progress"></div>
+  </div>
+</div>
+
+<script>
+  let currentJson = null;
+  const statusProgress = document.getElementById('status-progress');
+  const statusText = document.getElementById('status-text');
+  const fileInfo = document.getElementById('file-info');
+  const textarea = document.getElementById('json-textarea');
+  const fileExplorer = document.getElementById('file-explorer');
+  const textImportControls = document.getElementById('text-import-controls');
+
+  // 1. Импорт из файла
+  document.getElementById('file-btn').addEventListener('click', () => {
+    hideAllControls();
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = e => {
+      const startTime = performance.now();
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      updateStatus('Загрузка...', 30);
+      
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          currentJson = JSON.parse(e.target.result);
+          updateFileInfo(`Файл: ${file.name} (${(file.size/1024).toFixed(1)} KB) | Способ: Устройство`);
+          
+          const loadTime = (performance.now() - startTime).toFixed(1);
+          updateStatus(`Загружено за ${loadTime} мс`, 100);
+          saveToLocalStorage(currentJson);
+        } catch (err) {
+          updateStatus('Ошибка: невалидный JSON', 0);
+        }
+      };
+      
+      reader.readAsText(file);
+    };
+    
+    input.click();
+  });
+
+  // 2. Импорт из проекта
+  document.getElementById('project-btn').addEventListener('click', async () => {
+    hideAllControls();
+    fileExplorer.style.display = 'block';
+    updateStatus('Поиск JSON файлов...', 20);
+    
+    try {
+      // Получаем список JSON файлов в проекте
+      const files = await getProjectJsonFiles();
+      displayProjectFiles(files);
+      updateStatus(`Найдено ${files.length} файлов`, 100);
+    } catch (err) {
+      updateStatus('Ошибка: ' + err.message, 0);
+      fileExplorer.innerHTML = `<div style="color: red;">${err.message}</div>`;
+    }
+  });
+
+  // 3. Импорт по URL
+  document.getElementById('url-btn').addEventListener('click', async () => {
+    hideAllControls();
+    const url = prompt("Введите URL JSON-файла:", "data.json");
+    if (!url) return;
+    
+    updateStatus('Загрузка...', 30);
+    const startTime = performance.now();
+    
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Ошибка HTTP: " + response.status);
+      
+      currentJson = await response.json();
+      updateFileInfo(`URL: ${url} | Способ: Ссылка`);
+      saveToLocalStorage(currentJson);
+      
+      const loadTime = (performance.now() - startTime).toFixed(1);
+      updateStatus(`Загружено за ${loadTime} мс`, 100);
+    } catch (err) {
+      updateStatus('Ошибка: ' + err.message, 0);
+    }
+  });
+
+  // 4. Импорт текстом (добавлена обратно)
+  document.getElementById('text-btn').addEventListener('click', () => {
+    hideAllControls();
+    textarea.style.display = 'block';
+    textarea.value = '';
+    textImportControls.style.display = 'block';
+    updateStatus("Введите JSON в поле ниже", 0);
+  });
+
+  document.getElementById('load-text-btn').addEventListener('click', () => {
+    try {
+      if (!textarea.value.trim()) throw new Error("Введите JSON");
+      currentJson = JSON.parse(textarea.value);
+      updateFileInfo(`Загружено вручную | Способ: Текст`);
+      updateStatus("Валидный JSON", 100);
+      saveToLocalStorage(currentJson);
+    } catch (err) {
+      updateStatus('Ошибка: ' + err.message, 0);
+    }
+  });
+
+  // ===== Функции для работы с файлами проекта =====
+  async function getProjectJsonFiles() {
+    const knownFiles = ['data.json', 'config.json', 'db.json', 'settings.json'];
+    const availableFiles = [];
+    
+    for (const file of knownFiles) {
+      try {
+        const response = await fetch(file);
+        if (response.ok) {
+          availableFiles.push({
+            name: file,
+            path: file,
+            size: (await response.blob()).size
+          });
+        }
+      } catch (e) {}
+    }
+    
+    if (availableFiles.length === 0) {
+      throw new Error("JSON файлы не найдены. Добавьте файлы в корень проекта.");
+    }
+    
+    return availableFiles;
+  }
+  
+  function displayProjectFiles(files) {
+    fileExplorer.innerHTML = '';
+    
+    if (files.length === 0) {
+      fileExplorer.innerHTML = '<div>JSON файлы не найдены</div>';
+      return;
+    }
+    
+    files.forEach(file => {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.innerHTML = `
+        <span>${file.name}</span>
+        <span>${formatFileSize(file.size)}</span>
+      `;
+      
+      fileItem.addEventListener('click', async () => {
+        updateStatus(`Загрузка ${file.name}...`, 30);
+        try {
+          const response = await fetch(file.path);
+          if (!response.ok) throw new Error("Ошибка загрузки");
+          
+          currentJson = await response.json();
+          updateFileInfo(`Файл: ${file.name} (${formatFileSize(file.size)}) | Способ: Проект`);
+          updateStatus(`Успешно загружен`, 100);
+          saveToLocalStorage(currentJson);
+          fileExplorer.style.display = 'none';
+        } catch (err) {
+          updateStatus('Ошибка загрузки: ' + err.message, 0);
+        }
+      });
+      
+      fileExplorer.appendChild(fileItem);
+    });
+  }
+
+  // ===== Общие функции =====
+  function formatFileSize(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i]);
+  }
+  
+  function saveToLocalStorage(data) {
+    try {
+      localStorage.setItem('currentJson', JSON.stringify(data));
+      localStorage.setItem('lastLoaded', new Date().toLocaleString());
+      window.dispatchEvent(new CustomEvent('json-loaded'));
+    } catch (e) {
+      console.error("Ошибка сохранения:", e);
+    }
+  }
+  
+  function updateStatus(message, percent = 0) {
+    statusText.textContent = message;
+    statusProgress.style.width = percent + '%';
+    statusProgress.style.backgroundColor = percent === 100 ? '#4CAF50' : 
+                                        percent > 0 ? '#2196F3' : '#ff9800';
+  }
+  
+  function updateFileInfo(info) {
+    fileInfo.textContent = info;
+  }
+  
+  function hideAllControls() {
+    fileExplorer.style.display = 'none';
+    textarea.style.display = 'none';
+    textImportControls.style.display = 'none';
+  }
+</script>
