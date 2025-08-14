@@ -28,9 +28,23 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       padding: 1rem;
       overflow: hidden;
+      position: relative; /* Для позиционирования кнопки */
     }
     
-    /* На мобильных — 1 колонка */
+    /* Кнопка "Открыть в новом окне" */
+    .module-open-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
     @media (max-width: 600px) {
       .modules-grid {
         grid-template-columns: 1fr;
@@ -41,11 +55,10 @@
 <body>
   <h1>Админка JSON</h1>
   <div class="modules-grid" id="modules-container">
-    <!-- Сюда будут вставляться модули -->
+    <!-- Модули будут здесь -->
   </div>
 
   <script>
-    // Загружаем модуль и добавляем его в сетку
     async function loadModule(modulePath) {
       const response = await fetch(modulePath);
       const html = await response.text();
@@ -53,6 +66,14 @@
       const moduleDiv = document.createElement('div');
       moduleDiv.className = 'module';
       moduleDiv.innerHTML = html;
+      
+      // Добавляем кнопку "Открыть в новом окне"
+      const openBtn = document.createElement('button');
+      openBtn.className = 'module-open-btn';
+      openBtn.textContent = '↗';
+      openBtn.title = 'Открыть в новом окне';
+      openBtn.onclick = () => window.open(modulePath, '_blank');
+      moduleDiv.prepend(openBtn);
       
       document.getElementById('modules-container').appendChild(moduleDiv);
       
@@ -65,8 +86,9 @@
       });
     }
 
-    // Загружаем модуль импорта (можно добавить другие)
+    // Загружаем модули
     loadModule('import-json.html');
+    // loadModule('view-json.html'); // Пример для других модулей
   </script>
 </body>
 </html>
