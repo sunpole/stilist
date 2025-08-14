@@ -1,0 +1,26 @@
+{
+  "constants": {
+    "default_speed": 40,
+    "default_hp": 100,
+    "default_reward": 10,
+    "default_penalty": 5,
+    "speed_buff_default_radius": 0,
+    "speed_buff_default_value": 0.0
+  },
+  "orders": [
+    {
+      "id": "vip",
+      "name": "VIP-клиент",
+      "description": "Редкий, очень мощный и выгодный клиент. Медленный, огромная награда и штраф. Усиливает скорость других заказов в радиусе 2 клеток на 30%. Получает урон только от специалистов 3+ разряда и офсета.",
+      "icon": "icons/vip.svg",
+      "speed": 50,
+      "hp": 1000,
+      "reward": 50,
+      "penalty": 25,
+      "can_split": false,
+      "can_return": false,
+      "speed_buff_radius": 2,
+      "speed_buff_value": 0.3
+    }
+  ]
+}
