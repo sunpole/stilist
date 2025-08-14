@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Admin</title>
+  <style>
+    /* Общие стили */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+    
+    /* Сетка модулей */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    
+    /* Блок модуля */
+    .module {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      overflow: hidden;
+    }
+    
+    /* На мобильных — 1 колонка */
+    @media (max-width: 600px) {
+      .modules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Админка JSON</h1>
+  <div class="modules-grid" id="modules-container">
+    <!-- Сюда будут вставляться модули -->
+  </div>
+
+  <script>
+    // Загружаем модуль и добавляем его в сетку
+    async function loadModule(modulePath) {
+      const response = await fetch(modulePath);
+      const html = await response.text();
+      
+      const moduleDiv = document.createElement('div');
+      moduleDiv.className = 'module';
+      moduleDiv.innerHTML = html;
+      
+      document.getElementById('modules-container').appendChild(moduleDiv);
+      
+      // Запускаем скрипты модуля
+      const scripts = moduleDiv.querySelectorAll('script');
+      scripts.forEach(script => {
+        const newScript = document.createElement('script');
+        newScript.textContent = script.textContent;
+        document.body.appendChild(newScript).remove();
+      });
+    }
+
+    // Загружаем модуль импорта (можно добавить другие)
+    loadModule('import-json.html');
+  </script>
+</body>
+</html>
