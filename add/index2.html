@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Admin</title>
+  <style>
+    /* Общие стили */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+    
+    /* Сетка модулей */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    
+    /* Блок модуля */
+    .module {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Кнопка "Открыть в новом окне" */
+    .module-open-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    @media (max-width: 600px) {
+      .modules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Админка JSON</h1>
+  <div class="modules-grid" id="modules-container">
+    <!-- Модули будут загружены автоматически -->
+  </div>
+
+  <script>
+    // Функция для получения списка модулей
+    async function getModuleList() {
+      try {
+        // Запрашиваем содержимое папки modules
+        const response = await fetch('./modules/');
+        if (!response.ok) throw new Error("Не удалось прочитать папку modules");
+        
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Находим все HTML-файлы (исключая index.html)
+        const links = Array.from(doc.querySelectorAll('a[href$=".html"]'))
+          .filter(link => !link.textContent.includes('index.html'))
+          .map(link => 'modules/' + link.getAttribute('href'));
+        
+        return links;
+      } catch (error) {
+        console.error('Ошибка получения списка модулей:', error);
+        return [];
+      }
+    }
+
+    // Функция загрузки модуля
+    async function loadModule(modulePath) {
+      try {
+        const response = await fetch(modulePath);
+        if (!response.ok) throw new Error(`Ошибка загрузки ${modulePath}`);
+        
+        const html = await response.text();
+        const moduleName = modulePath.split('/').pop().replace('.html', '');
+        
+        const moduleDiv = document.createElement('div');
+        moduleDiv.className = 'module';
+        moduleDiv.id = `${moduleName}-container`;
+        moduleDiv.innerHTML = html;
+        
+        // Добавляем кнопку открытия в новом окне
+        const openBtn = document.createElement('button');
+        openBtn.className = 'module-open-btn';
+        openBtn.textContent = '↗';
+        openBtn.title = 'Открыть в новом окне';
+        openBtn.onclick = () => window.open(modulePath, '_blank');
+        moduleDiv.prepend(openBtn);
+        
+        document.getElementById('modules-container').appendChild(moduleDiv);
+        
+        // Выполняем скрипты модуля
+        const scripts = moduleDiv.querySelectorAll('script');
+        scripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.body.appendChild(newScript).remove();
+        });
+        
+      } catch (error) {
+        console.error(`Ошибка загрузки модуля ${modulePath}:`, error);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'module';
+        errorDiv.innerHTML = `
+          <h3>${modulePath.split('/').pop()}</h3>
+          <p style="color: red;">Ошибка загрузки модуля</p>
+        `;
+        document.getElementById('modules-container').appendChild(errorDiv);
+      }
+    }
+
+    // Основная функция загрузки всех модулей
+    async function loadAllModules() {
+      const modules = await getModuleList();
+      if (modules.length === 0) {
+        document.getElementById('modules-container').innerHTML = 
+          '<div class="module"><p>Модули не найдены в папке /modules</p></div>';
+        return;
+      }
+      
+      for (const modulePath of modules) {
+        await loadModule(modulePath);
+      }
+    }
+
+    // Загружаем модули при запуске
+    document.addEventListener('DOMContentLoaded', loadAllModules);
+  </script>
+</body>
+</html>
