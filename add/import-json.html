@@ -1,0 +1,51 @@
+<style>
+  /* Стили модуля */
+  .import-json {
+    padding: 1rem;
+  }
+  .import-json h2 {
+    margin-top: 0;
+    color: #333;
+  }
+  .import-json button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .import-json button:hover {
+    background: #45a049;
+  }
+</style>
+
+<div class="import-json">
+  <h2>Импорт JSON</h2>
+  <input type="file" id="file-input" accept=".json">
+  <button id="load-btn">Загрузить</button>
+  <div id="output"></div>
+</div>
+
+<script>
+  document.getElementById('load-btn').addEventListener('click', () => {
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target.result);
+        document.getElementById('output').textContent = 'Файл загружен!';
+        console.log('Данные:', jsonData);
+        
+        // Сохраняем данные для других модулей
+        localStorage.setItem('jsonData', JSON.stringify(jsonData));
+      } catch (error) {
+        document.getElementById('output').textContent = 'Ошибка: невалидный JSON';
+      }
+    };
+    reader.readAsText(file);
+  });
+</script>
