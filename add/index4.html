@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Admin</title>
+  <style>
+    /* Стили сетки и модулей */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    
+    .module {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      position: relative;
+    }
+    
+    /* Кнопки управления */
+    .control-panel {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    
+    .parse-btn {
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    /* Стили для файлового инпута (скрытого) */
+    #directory-input {
+      display: none;
+    }
+    
+    /* Индикатор последнего парсинга */
+    .last-parse {
+      margin-left: auto;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    /* Стили для ошибок */
+    .error {
+      color: #d32f2f;
+      font-weight: bold;
+    }
+    
+    .module-error {
+      border: 2px solid #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <h1>Админка JSON</h1>
+  
+  <div class="control-panel">
+    <button class="parse-btn" id="parse-btn">Парсить модули из папки</button>
+    <input type="file" id="directory-input" webkitdirectory directory multiple>
+    <div class="last-parse" id="last-parse">
+      Последний парсинг: 
+      <span id="last-parse-time">никогда</span>
+    </div>
+  </div>
+  
+  <div class="modules-grid" id="modules-container">
+    <!-- Модули будут загружены здесь -->
+  </div>
+
+  <script>
+    // Элементы управления
+    const parseBtn = document.getElementById('parse-btn');
+    const directoryInput = document.getElementById('directory-input');
+    const modulesContainer = document.getElementById('modules-container');
+    const lastParseTimeElement = document.getElementById('last-parse-time');
+    
+    // Загружаем время последнего парсинга из localStorage
+    const lastParseTime = localStorage.getItem('lastParseTime');
+    if (lastParseTime) {
+      lastParseTimeElement.textContent = new Date(lastParseTime).toLocaleString();
+    }
+    
+    // Обработчик кнопки парсинга
+    parseBtn.addEventListener('click', () => {
+      directoryInput.click(); // Триггерим скрытый файловый инпут
+    });
+    
+    // Обработчик выбора директории
+    directoryInput.addEventListener('change', async (event) => {
+      const files = event.target.files;
+      if (!files.length) return;
+      
+      modulesContainer.innerHTML = '<div class="module">Загрузка модулей...</div>';
+      
+      // Фильтруем только HTML-файлы
+      const htmlFiles = Array.from(files).filter(file => 
+        file.name.endsWith('.html') && 
+        !file.name.startsWith('index')
+      );
+      
+      if (!htmlFiles.length) {
+        modulesContainer.innerHTML = '<div class="module">HTML-файлы модулей не найдены</div>';
+        return;
+      }
+      
+      // Очищаем контейнер перед загрузкой новых модулей
+      modulesContainer.innerHTML = '';
+      
+      // Загружаем каждый модуль с проверкой на валидность
+      for (const file of htmlFiles) {
+        try {
+          await loadModuleFromFile(file);
+        } catch (error) {
+          console.error(`Ошибка загрузки модуля ${file.name}:`, error);
+          addErrorModule(file.name, error.message);
+        }
+      }
+      
+      // Сохраняем время последнего парсинга
+      const now = new Date();
+      localStorage.setItem('lastParseTime', now.toString());
+      lastParseTimeElement.textContent = now.toLocaleString();
+    });
+    
+    // Функция для добавления модуля с ошибкой
+    function addErrorModule(name, errorMessage) {
+      const moduleDiv = document.createElement('div');
+      moduleDiv.className = 'module module-error';
+      
+      const title = document.createElement('h3');
+      title.textContent = name.replace('.html', '');
+      moduleDiv.appendChild(title);
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.textContent = `Ошибка: ${errorMessage}`;
+      moduleDiv.appendChild(errorDiv);
+      
+      modulesContainer.appendChild(moduleDiv);
+    }
+    
+    // Функция загрузки модуля из File объекта
+    async function loadModuleFromFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onload = async (e) => {
+          try {
+            // Проверяем валидность HTML перед созданием элемента
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(e.target.result, 'text/html');
+            
+            if (doc.querySelector('parsererror')) {
+              throw new Error('Некорректный HTML');
+            }
+            
+            const moduleDiv = document.createElement('div');
+            moduleDiv.className = 'module';
+            moduleDiv.innerHTML = e.target.result;
+            
+            // Добавляем заголовок модуля
+            const title = document.createElement('h3');
+            title.textContent = file.name.replace('.html', '');
+            moduleDiv.prepend(title);
+            
+            // Добавляем в контейнер
+            modulesContainer.appendChild(moduleDiv);
+            
+            // Исполняем скрипты модуля
+            executeModuleScripts(moduleDiv);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        };
+        
+        reader.onerror = () => {
+          reject(new Error('Ошибка чтения файла'));
+        };
+        
+        reader.readAsText(file);
+      });
+    }
+    
+    // Выполнение скриптов модуля
+    function executeModuleScripts(moduleDiv) {
+      const scripts = moduleDiv.querySelectorAll('script');
+      
+      scripts.forEach(script => {
+        try {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.body.appendChild(newScript);
+          document.body.removeChild(newScript);
+        } catch (error) {
+          console.error('Ошибка выполнения скрипта:', error);
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error';
+          errorDiv.textContent = `Ошибка скрипта: ${error.message}`;
+          moduleDiv.appendChild(errorDiv);
+          moduleDiv.classList.add('module-error');
+        }
+      });
+    }
+    
+    // Загрузка стандартных модулей при инициализации
+    async function loadDefaultModules() {
+      const defaultModules = [
+        'modules/import-json.html',
+        'modules/view-json.html'
+      ];
+      
+      for (const path of defaultModules) {
+        try {
+          const response = await fetch(path);
+          if (response.ok) {
+            await loadModuleFromUrl(path);
+          }
+        } catch (error) {
+          console.error(`Ошибка загрузки ${path}:`, error);
+          addErrorModule(path.split('/').pop(), error.message);
+        }
+      }
+    }
+    
+    // Загрузка модуля по URL
+    async function loadModuleFromUrl(url) {
+      try {
+        const response = await fetch(url);
+        const html = await response.text();
+        
+        // Проверка валидности HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        if (doc.querySelector('parsererror')) {
+          throw new Error('Некорректный HTML');
+        }
+        
+        const moduleDiv = document.createElement('div');
+        moduleDiv.className = 'module';
+        moduleDiv.innerHTML = html;
+        
+        const title = document.createElement('h3');
+        title.textContent = url.split('/').pop().replace('.html', '');
+        moduleDiv.prepend(title);
+        
+        modulesContainer.appendChild(moduleDiv);
+        executeModuleScripts(moduleDiv);
+      } catch (error) {
+        console.error(`Ошибка загрузки модуля ${url}:`, error);
+        throw error;
+      }
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', loadDefaultModules);
+  </script>
+</body>
+</html>
