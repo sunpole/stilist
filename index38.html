@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defense Spray Mechanic</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        #path {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            width: 80%;
+            height: 20px;
+            background-color: #555;
+            transform: translateY(-50%);
+        }
+        #pointA, #pointB {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        #pointA {
+            left: 5%;
+            top: 50%;
+            background-color: red;
+            transform: translateY(-50%);
+        }
+        #pointB {
+            right: 5%;
+            top: 50%;
+            background-color: blue;
+            transform: translateY(-50%);
+        }
+        #tower {
+            position: absolute;
+            left: 50%;
+            top: calc(50% - 100px);
+            width: 60px;
+            height: 100px;
+            background-color: #888;
+            border-radius: 10px;
+            transform: translateX(-50%);
+        }
+        .enemy {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #f00;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="path"></div>
+        <div id="pointA">A</div>
+        <div id="pointB">B</div>
+        <div id="tower"></div>
+        <div id="stats">
+            Уничтожено: <span id="killed">0</span> | 
+            Прошли: <span id="passed">0</span>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const tower = document.getElementById('tower');
+        const killedCounter = document.getElementById('killed');
+        const passedCounter = document.getElementById('passed');
+
+        // Game state
+        let enemies = [];
+        let projectiles = [];
+        let killed = 0;
+        let passed = 0;
+        let lastSpawnTime = 0;
+        const spawnInterval = 2000; // ms
+        const towerCenter = {
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2 - 100
+        };
+
+        // Enemy class
+        class Enemy {
+            constructor() {
+                this.x = document.getElementById('pointA').getBoundingClientRect().left + 15;
+                this.y = document.getElementById('pointA').getBoundingClientRect().top + 15;
+                this.speed = 2;
+                this.health = 100;
+                this.element = document.createElement('div');
+                this.element.className = 'enemy';
+                this.element.style.left = `${this.x}px`;
+                this.element.style.top = `${this.y}px`;
+                container.appendChild(this.element);
+            }
+
+            update() {
+                const pointB = document.getElementById('pointB').getBoundingClientRect();
+                const targetX = pointB.left + 15;
+                const targetY = pointB.top + 15;
+                
+                // Move toward point B
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 5) {
+                    this.x += (dx / distance) * this.speed;
+                    this.y += (dy / distance) * this.speed;
+                    this.element.style.left = `${this.x}px`;
+                    this.element.style.top = `${this.y}px`;
+                    return false; // Not reached
+                } else {
+                    passed++;
+                    passedCounter.textContent = passed;
+                    this.element.remove();
+                    return true; // Reached
+                }
+            }
+
+            takeDamage(damage) {
+                this.health -= damage;
+                if (this.health <= 0) {
+                    killed++;
+                    killedCounter.textContent = killed;
+                    this.element.remove();
+                    return true; // Dead
+                }
+                return false; // Still alive
+            }
+        }
+
+        // Projectile class
+        class Projectile {
+            constructor(x, y, angle, spread) {
+                this.x = x;
+                this.y = y;
+                this.speed = 5;
+                this.damage = 10;
+                this.angle = angle + (Math.random() * spread * 2 - spread);
+                this.element = document.createElement('div');
+                this.element.className = 'projectile';
+                this.element.style.left = `${x}px`;
+                this.element.style.top = `${y}px`;
+                container.appendChild(this.element);
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.element.style.left = `${this.x}px`;
+                this.element.style.top = `${this.y}px`;
+
+                // Check if out of screen
+                if (this.x < 0 || this.x > window.innerWidth || 
+                    this.y < 0 || this.y > window.innerHeight) {
+                    this.element.remove();
+                    return true; // Remove
+                }
+
+                // Check collision with enemies
+                for (let i = 0; i < enemies.length; i++) {
+                    const enemy = enemies[i];
+                    const dx = this.x - enemy.x;
+                    const dy = this.y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 20) { // Collision radius
+                        const isDead = enemy.takeDamage(this.damage);
+                        if (isDead) {
+                            enemies.splice(i, 1);
+                        }
+                        this.element.remove();
+                        return true; // Hit
+                    }
+                }
+
+                return false; // Continue flying
+            }
+        }
+
+        // Game loop
+        function gameLoop(timestamp) {
+            // Spawn new enemies
+            if (timestamp - lastSpawnTime > spawnInterval) {
+                enemies.push(new Enemy());
+                lastSpawnTime = timestamp;
+            }
+
+            // Update enemies
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const reached = enemies[i].update();
+                if (reached) {
+                    enemies.splice(i, 1);
+                }
+            }
+
+            // Tower shooting logic
+            if (enemies.length > 0) {
+                // Find closest enemy
+                let closestEnemy = null;
+                let minDistance = Infinity;
+                
+                for (const enemy of enemies) {
+                    const dx = enemy.x - towerCenter.x;
+                    const dy = enemy.y - towerCenter.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestEnemy = enemy;
+                    }
+                }
+
+                if (closestEnemy) {
+                    // Calculate angle to enemy
+                    const angleToEnemy = Math.atan2(
+                        closestEnemy.y - towerCenter.y,
+                        closestEnemy.x - towerCenter.x
+                    );
+
+                    // Create spray of projectiles
+                    for (let i = 0; i < 5; i++) {
+                        projectiles.push(new Projectile(
+                            towerCenter.x,
+                            towerCenter.y,
+                            angleToEnemy,
+                            Math.PI * 3 / 180 // ±3 degrees
+                        ));
+                    }
+                    for (let i = 0; i < 10; i++) {
+                        projectiles.push(new Projectile(
+                            towerCenter.x,
+                            towerCenter.y,
+                            angleToEnemy,
+                            Math.PI * 15 / 180 // ±15 degrees
+                        ));
+                    }
+                    for (let i = 0; i < 5; i++) {
+                        projectiles.push(new Projectile(
+                            towerCenter.x,
+                            towerCenter.y,
+                            angleToEnemy,
+                            Math.PI * 25 / 180 // ±25 degrees
+                        ));
+                    }
+                }
+            }
+
+            // Update projectiles
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const shouldRemove = projectiles[i].update();
+                if (shouldRemove) {
+                    projectiles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        requestAnimationFrame(gameLoop);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            towerCenter.x = window.innerWidth / 2;
+            towerCenter.y = window.innerHeight / 2 - 100;
+        });
+    </script>
+</body>
+</html>
