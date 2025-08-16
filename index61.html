@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Крестики-нолики (P2P)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    #game {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: 20px auto;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #status {
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #peerId {
+      font-weight: bold;
+      color: #2196F3;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Крестики-нолики (P2P)</h1>
+  
+  <div id="menu">
+    <button id="createBtn">Создать игру</button>
+    <p>или</p>
+    <input id="connectInput" placeholder="ID игры">
+    <button id="connectBtn">Подключиться</button>
+  </div>
+
+  <div id="gameInfo" style="display: none;">
+    <p>ID игры: <span id="peerId"></span></p>
+    <p id="status">Ожидание подключения...</p>
+  </div>
+
+  <div id="game"></div>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    // Настройка PeerJS
+    const peer = new Peer();
+    let conn = null;
+    let isHost = false;
+    let currentPlayer = "X";
+    const board = ["", "", "", "", "", "", "", "", ""];
+
+    // Элементы DOM
+    const menu = document.getElementById("menu");
+    const gameInfo = document.getElementById("gameInfo");
+    const gameDiv = document.getElementById("game");
+    const statusText = document.getElementById("status");
+    const peerIdSpan = document.getElementById("peerId");
+
+    // Создаем игровое поле
+    function createBoard() {
+      gameDiv.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.index = i;
+        cell.addEventListener("click", () => handleCellClick(i));
+        cell.textContent = board[i];
+        gameDiv.appendChild(cell);
+      }
+      gameDiv.style.display = "grid";
+    }
+
+    // Обработка хода
+    function handleCellClick(index) {
+      if (board[index] !== "" || (currentPlayer === "O" && isHost) || (currentPlayer === "X" && !isHost)) return;
+      
+      board[index] = currentPlayer;
+      document.querySelector(`.cell[data-index="${index}"]`).textContent = currentPlayer;
+      
+      // Отправляем ход другому игроку
+      if (conn) conn.send({ type: "move", index, player: currentPlayer });
+      
+      checkWinner();
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      statusText.textContent = `Ход: ${currentPlayer}`;
+    }
+
+    // Проверка победы
+    function checkWinner() {
+      const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // строки
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // столбцы
+        [0, 4, 8], [2, 4, 6]             // диагонали
+      ];
+
+      for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          statusText.textContent = `Победил ${board[a]}!`;
+          return true;
+        }
+      }
+
+      if (!board.includes("")) {
+        statusText.textContent = "Ничья!";
+        return true;
+      }
+
+      return false;
+    }
+
+    // Создание игры (Хост)
+    document.getElementById("createBtn").addEventListener("click", () => {
+      isHost = true;
+      currentPlayer = "X";
+      menu.style.display = "none";
+      gameInfo.style.display = "block";
+      peerIdSpan.textContent = peer.id;
+      statusText.textContent = "Ожидание подключения...";
+      createBoard();
+
+      peer.on("connection", (connection) => {
+        conn = connection;
+        statusText.textContent = "Игрок подключен! Ход: X";
+        
+        conn.on("data", (data) => {
+          if (data.type === "move") {
+            board[data.index] = data.player;
+            document.querySelector(`.cell[data-index="${data.index}"]`).textContent = data.player;
+            currentPlayer = "X";
+            statusText.textContent = `Ход: ${currentPlayer}`;
+            checkWinner();
+          }
+        });
+      });
+    });
+
+    // Подключение к игре (Клиент)
+    document.getElementById("connectBtn").addEventListener("click", () => {
+      const hostId = document.getElementById("connectInput").value;
+      if (!hostId) return;
+
+      conn = peer.connect(hostId);
+      menu.style.display = "none";
+      gameInfo.style.display = "block";
+      peerIdSpan.textContent = peer.id;
+      statusText.textContent = "Подключение...";
+
+      conn.on("open", () => {
+        statusText.textContent = "Подключено! Ход: O";
+        currentPlayer = "O";
+        createBoard();
+      });
+
+      conn.on("data", (data) => {
+        if (data.type === "move") {
+          board[data.index] = data.player;
+          document.querySelector(`.cell[data-index="${data.index}"]`).textContent = data.player;
+          currentPlayer = "O";
+          statusText.textContent = `Ход: ${currentPlayer}`;
+          checkWinner();
+        }
+      });
+    });
+
+    // Инициализация Peer
+    peer.on("open", (id) => {
+      console.log("Мой ID:", id);
+    });
+  </script>
+</body>
+</html>
