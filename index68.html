@@ -735,7 +735,7 @@ function loadGame(){
         st.projs.forEach(p=>p.el&&p.el.remove()); st.projs=[];
         st.spawning=false; st.left=0; st.total=0;
 
-        st.money=data.money||150; st.lives=data.lives||20; st.wave=data.wave||0;
+        st.money=data.money||250; st.lives=data.lives||20; st.wave=data.wave||0;
         st.inv = (data.inv||[]).map(c=>({type:c.type, level:c.level}));
         st.towers = [];
         (data.towers||[]).forEach((t,i)=>{
@@ -759,7 +759,7 @@ function gameOver(victory){
     updateHUD();
 }
 function newGame(){
-    st.money = 150; st.lives = 20; st.wave = 0;
+    st.money = 250; st.lives = 20; st.wave = 0;
     st.enemies.forEach(e=>e.el&&e.el.remove()); st.enemies=[];
     st.projs.forEach(p=>p.el&&p.el.remove()); st.projs=[];
     st.towers = [];
