@@ -171,7 +171,7 @@
 
 <script>
 /* ======== БАЛАНС ======== */
-const BASE_TOWER = { dmg:14, rng:100, proj:100, rld:0.50 }; // +40% dmg, x2 range
+const BASE_TOWER = { dmg:19, rng:120, proj:185, rld:0.40 }; // +40% dmg, x2 range
 const TYPES = {
     BARREL : {key:'BARREL', name:'Ствол',   stat:'dmg', icon:'🔫', color:'#2b7cff'},
     BREECH : {key:'BREECH', name:'Затвор',  stat:'rld', icon:'🔧', color:'#ffcc66'},
@@ -197,7 +197,7 @@ const REFUND_RATE_INV   = 0.5; // продажа из инвентаря
 
 /* ======== СОСТОЯНИЕ ======== */
 const st = {
-    money: 150, lives: 20, wave: 0,
+    money: 250, lives: 20, wave: 0,
     enemies: [], projs: [], towers: [], // tower: {comps:[{type,level,purchaseCost}], level, stats, lastShot, mode}
     inv: [],
     pathLen: 0, lastTs: performance.now(),
