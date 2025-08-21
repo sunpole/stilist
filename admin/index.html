@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel for JSON DB</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Админка JSON Баз</h1>
+    </header>
+
+    <nav class="controls">
+        <!-- Кнопка импорта -->
+        <label for="file-import" class="btn btn-primary">Импорт JSON</label>
+        <input type="file" id="file-import" accept=".json" hidden>
+
+        <!-- Кнопка экспорта (позже сделаем активной) -->
+        <button id="btn-export" class="btn" disabled>Экспорт JSON</button>
+
+        <!-- Кнопки управления видом (позже) -->
+        <button id="view-table" class="btn btn-active">Таблица</button>
+        <button id="view-cards" class="btn">Карточки</button>
+
+        <!-- Кнопка добавления строки (позже) -->
+        <button id="btn-add-row" class="btn btn-success" disabled>+ Добавить строку</button>
+    </nav>
+
+    <main class="main-content">
+        <!-- Сюда будет вставляться таблица или карточки -->
+        <div id="data-container" class="data-container">
+            <p class="placeholder">Загрузите JSON-файл для начала работы.</p>
+        </div>
+    </main>
+
+    <!-- Подключаем модули -->
+    <script type="module" src="js/dataManager.js"></script>
+    <script type="module" src="js/import.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
