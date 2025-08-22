@@ -1,0 +1,318 @@
+:root {
+    /* Стандартная цветовая схема (Default) */
+    --color-bg: #f8f9fa;
+    --color-surface: #ffffff;
+    --color-text: #212529;
+    --color-text-muted: #6c757d;
+    --color-primary: #007bff;
+    --color-primary-hover: #0069d9;
+    --color-success: #28a745;
+    --color-success-hover: #218838;
+    --color-border: #dee2e6;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --color-bg: #121212;
+    --color-surface: #1e1e1e;
+    --color-text: #e0e0e0;
+    --color-text-muted: #a0a0a0;
+    --color-primary: #bb86fc;
+    --color-primary-hover: #9b66d9;
+    --color-success: #03dac6;
+    --color-success-hover: #00b9a6;
+    --color-border: #2d2d2d;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="blue"] {
+    --color-bg: #e6f7ff;
+    --color-surface: #ffffff;
+    --color-text: #0056b3;
+    --color-text-muted: #4a90e2;
+    --color-primary: #1890ff;
+    --color-primary-hover: #40a9ff;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #91d5ff;
+    --color-shadow: rgba(24, 144, 255, 0.1);
+}
+
+[data-theme="green"] {
+    --color-bg: #f6ffed;
+    --color-surface: #ffffff;
+    --color-text: #135200;
+    --color-text-muted: #5b8c00;
+    --color-primary: #52c41a;
+    --color-primary-hover: #73d13d;
+    --color-success: #389e0d;
+    --color-success-hover: #52c41a;
+    --color-border: #b7eb8f;
+    --color-shadow: rgba(82, 196, 26, 0.1);
+}
+
+[data-theme="purple"] {
+    --color-bg: #f9f0ff;
+    --color-surface: #ffffff;
+    --color-text: #722ed1;
+    --color-text-muted: #9254de;
+    --color-primary: #722ed1;
+    --color-primary-hover: #9254de;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #d3adf7;
+    --color-shadow: rgba(114, 46, 209, 0.1);
+}
+
+[data-theme="orange"] {
+    --color-bg: #fff7e6;
+    --color-surface: #ffffff;
+    --color-text: #ad4e00;
+    --color-text-muted: #d46b08;
+    --color-primary: #fa8c16;
+    --color-primary-hover: #ffa940;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #ffd591;
+    --color-shadow: rgba(250, 140, 22, 0.1);
+}
+
+[data-theme="pink"] {
+    --color-bg: #fff0f6;
+    --color-surface: #ffffff;
+    --color-text: #c41d7f;
+    --color-text-muted: #eb2f96;
+    --color-primary: #eb2f96;
+    --color-primary-hover: #ff4da6;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #ffadd2;
+    --color-shadow: rgba(235, 47, 150, 0.1);
+}
+
+[data-theme="teal"] {
+    --color-bg: #e6fffb;
+    --color-surface: #ffffff;
+    --color-text: #006d75;
+    --color-text-muted: #08979c;
+    --color-primary: #13c2c2;
+    --color-primary-hover: #36cfc9;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #87e8de;
+    --color-shadow: rgba(19, 194, 194, 0.1);
+}
+
+[data-theme="yellow"] {
+    --color-bg: #feffe6;
+    --color-surface: #ffffff;
+    --color-text: #614700;
+    --color-text-muted: #d4b106;
+    --color-primary: #fadb14;
+    --color-primary-hover: #ffec3d;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #fff566;
+    --color-shadow: rgba(250, 219, 20, 0.1);
+}
+
+[data-theme="red"] {
+    --color-bg: #fff1f0;
+    --color-surface: #ffffff;
+    --color-text: #a8071a;
+    --color-text-muted: #cf1322;
+    --color-primary: #f5222d;
+    --color-primary-hover: #ff4d4f;
+    --color-success: #52c41a;
+    --color-success-hover: #73d13d;
+    --color-border: #ffa39e;
+    --color-shadow: rgba(245, 34, 45, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    line-height: 1.6;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: var(--color-surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.theme-switcher {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-switcher label {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+#theme-select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: var(--color-surface);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    background-color: var(--color-border);
+    color: var(--color-text);
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: var(--color-success-hover);
+}
+
+.btn-active {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.main-content {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    min-height: 400px;
+}
+
+.data-container {
+    overflow-x: auto;
+}
+
+.placeholder {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: 40px 0;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+    
+    .header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .controls {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .theme-switcher {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 12px;
+    }
+    
+    .controls {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .btn {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+}
