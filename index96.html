@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор стоимости бумаги</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --border-radius: 8px;
+            --box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark-color);
+            line-height: 1.4;
+            padding: 12px;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            display: none;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            body {
+                padding: 20px;
+                font-size: 16px;
+            }
+            
+            header {
+                padding: 25px;
+                margin-bottom: 30px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 10px;
+            }
+            
+            .subtitle {
+                display: block;
+                color: #7f8c8d;
+                font-size: 1.1rem;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            transition: var(--transition);
+        }
+
+        @media (min-width: 900px) {
+            .card {
+                padding: 25px;
+            }
+            
+            .card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--light-color);
+            font-size: 1.2rem;
+        }
+
+        @media (min-width: 900px) {
+            .card-title {
+                font-size: 1.4rem;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid var(--light-color);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        @media (min-width: 900px) {
+            .form-group {
+                margin-bottom: 20px;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 13px;
+        }
+
+        @media (min-width: 900px) {
+            label {
+                font-size: inherit;
+                margin-bottom: 8px;
+            }
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        @media (min-width: 900px) {
+            input, select {
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        @media (min-width: 900px) {
+            button {
+                padding: 14px 20px;
+                font-size: 16px;
+                gap: 8px;
+            }
+            
+            button:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+            }
+        }
+
+        button.secondary {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        button.secondary:hover {
+            background-color: #bdc3c7;
+        }
+
+        button.accent {
+            background-color: var(--accent-color);
+        }
+
+        button.accent:hover {
+            background-color: #c0392b;
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        button.success:hover {
+            background-color: #27ae60;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        @media (min-width: 900px) {
+            .result {
+                margin-top: 20px;
+                padding: 20px;
+                border-left: 5px solid var(--secondary-color);
+            }
+        }
+
+        .result h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        @media (min-width: 900px) {
+            .result h3 {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        @media (min-width: 900px) {
+            .result-value {
+                font-size: 32px;
+                margin: 15px 0;
+            }
+        }
+
+        .calculation-text {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 900px) {
+            .calculation-text {
+                margin-top: 20px;
+                padding: 20px;
+                min-height: 150px;
+                font-size: inherit;
+                line-height: 1.5;
+                max-height: 200px;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 900px) {
+            .button-group {
+                gap: 12px;
+                margin-top: 20px;
+            }
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        @media (min-width: 900px) {
+            .button-group button {
+                padding: 14px 20px;
+                font-size: 16px;
+            }
+        }
+
+        .history {
+            margin-top: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .history {
+                margin-top: 40px;
+            }
+        }
+
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        @media (min-width: 900px) {
+            .history-item {
+                padding: 18px;
+                font-size: inherit;
+            }
+            
+            .history-item:hover {
+                background-color: #f5f5f5;
+                border-radius: var(--border-radius);
+            }
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+
+        @media (min-width: 900px) {
+            .history-name {
+                font-size: inherit;
+                margin-bottom: 5px;
+            }
+        }
+
+        .history-details {
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        @media (min-width: 900px) {
+            .history-details {
+                font-size: 14px;
+            }
+        }
+
+        .history-result {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        @media (min-width: 900px) {
+            .history-result {
+                font-size: 18px;
+                margin-left: 15px;
+            }
+        }
+
+        .custom-format {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        @media (min-width: 900px) {
+            .custom-format {
+                gap: 12px;
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            padding: 15px;
+            color: #7f8c8d;
+            font-size: 12px;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (min-width: 900px) {
+            footer {
+                margin-top: 50px;
+                padding: 25px;
+                font-size: 14px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        @media (min-width: 900px) {
+            .input-with-icon i {
+                left: 15px;
+                font-size: inherit;
+            }
+        }
+
+        .input-with-icon input {
+            padding-left: 35px;
+        }
+
+        @media (min-width: 900px) {
+            .input-with-icon input {
+                padding-left: 45px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .custom-format {
+                grid-template-columns: 1fr;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .history-result {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+            
+            .format-presets {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .format-presets {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            background-color: var(--success-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            font-size: 13px;
+        }
+
+        @media (min-width: 900px) {
+            .notification {
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                font-size: inherit;
+            }
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .input-hint {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        @media (min-width: 900px) {
+            .input-hint {
+                font-size: 12px;
+                margin-top: 5px;
+            }
+        }
+        
+        .format-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        @media (min-width: 900px) {
+            .format-presets {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+        }
+        
+        .format-btn {
+            padding: 8px 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        @media (min-width: 900px) {
+            .format-btn {
+                padding: 12px 8px;
+                font-size: inherit;
+                border: 2px solid #ddd;
+            }
+            
+            .format-btn:hover {
+                background-color: #e9ecef;
+                border-color: #adb5bd;
+                transform: translateY(-2px);
+            }
+        }
+        
+        .format-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+        }
+
+        @media (min-width: 900px) {
+            .format-btn.active {
+                box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            }
+        }
+        
+        .format-custom-btn {
+            grid-column: span 3;
+            margin-top: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .format-custom-btn {
+                grid-column: span 2;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .format-custom-btn {
+                grid-column: span 1;
+            }
+        }
+        
+        .unit-label {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        @media (min-width: 900px) {
+            .unit-label {
+                right: 15px;
+                padding: 2px 8px;
+                font-size: 14px;
+            }
+        }
+        
+        .input-with-unit {
+            position: relative;
+        }
+        
+        .input-with-unit input {
+            padding-right: 50px;
+        }
+
+        @media (min-width: 900px) {
+            .input-with-unit input {
+                padding-right: 60px;
+            }
+        }
+
+        .mobile-compact .result-value {
+            font-size: 18px;
+            margin: 8px 0;
+        }
+
+        .mobile-compact .calculation-text {
+            min-height: 80px;
+            max-height: 120px;
+            padding: 10px;
+            font-size: 11px;
+        }
+
+        .mobile-compact .button-group {
+            margin-top: 12px;
+        }
+
+        .mobile-compact .button-group button {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Калькулятор стоимости бумаги</h1>
+            <p class="subtitle">Конвертер цены за кг в цену за лист</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <h2 class="card-title">Параметры бумаги</h2>
+                <div class="form-group">
+                    <label for="paperName">Название бумаги (необязательно)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-font"></i>
+                        <input type="text" id="paperName" placeholder="Например: Офсетная бумага">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pricePerKg">Стоимость за кг (руб)</label>
+                    <div class="input-with-icon input-with-unit">
+                        <i class="fas fa-ruble-sign"></i>
+                        <input type="text" id="pricePerKg" inputmode="decimal" placeholder="150 или 45,50">
+                        <span class="unit-label">руб/кг</span>
+                    </div>
+                    <div class="input-hint">Можно вводить как с точкой, так и с запятой</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="density">Плотность (г/м²)</label>
+                    <div class="input-with-icon input-with-unit">
+                        <i class="fas fa-weight-hanging"></i>
+                        <input type="text" id="density" inputmode="decimal" placeholder="80 или 120,5">
+                        <span class="unit-label">г/м²</span>
+                    </div>
+                    <div class="input-hint">Можно вводить как с точкой, так и с запятой</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Формат листа (см)</label>
+                    <div class="format-presets">
+                        <div class="format-btn active" data-width="72" data-height="104">72×104</div>
+                        <div class="format-btn" data-width="65" data-height="94">65×94</div>
+                        <div class="format-btn" data-width="64" data-height="90">64×90</div>
+                        <div class="format-btn" data-width="62" data-height="94">62×94</div>
+                        <div class="format-btn" data-width="47" data-height="65">47×65</div>
+                        <div class="format-btn format-custom-btn" id="customFormatBtn">Произвольный</div>
+                    </div>
+                </div>
+                
+                <div id="customFormat" class="form-group hidden">
+                    <label>Произвольный размер (см)</label>
+                    <div class="custom-format">
+                        <div class="input-with-icon input-with-unit">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            <input type="text" id="customWidth" inputmode="decimal" placeholder="Ширина">
+                            <span class="unit-label">см</span>
+                        </div>
+                        <div class="input-with-icon input-with-unit">
+                            <i class="fas fa-arrows-alt-v"></i>
+                            <input type="text" id="customHeight" inputmode="decimal" placeholder="Высота">
+                            <span class="unit-label">см</span>
+                        </div>
+                    </div>
+                    <div class="input-hint">Можно вводить как с точкой, так и с запятой</div>
+                </div>
+                
+                <button id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Рассчитать
+                </button>
+            </div>
+            
+            <div class="card mobile-compact" id="resultCard">
+                <h2 class="card-title">Результаты расчета</h2>
+                <div class="result">
+                    <h3>Стоимость за 1 лист:</h3>
+                    <div id="resultValue" class="result-value">—</div>
+                </div>
+                
+                <h3>Текст расчета:</h3>
+                <div id="calculationText" class="calculation-text">Здесь будет отображен подробный расчет...</div>
+                
+                <div class="button-group">
+                    <button id="copyBtn" class="secondary">
+                        <i class="fas fa-copy"></i> Копировать
+                    </button>
+                    <button id="shareBtn" class="success">
+                        <i class="fas fa-share-alt"></i> Поделиться
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card history">
+            <h2 class="card-title">История расчетов</h2>
+            <div id="historyList"></div>
+            <button id="clearHistoryBtn" class="accent">
+                <i class="fas fa-trash"></i> Очистить историю
+            </button>
+        </div>
+        
+        <footer>
+            <p>© 2023 Калькулятор стоимости бумаги</p>
+        </footer>
+    </div>
+
+    <div id="notification" class="notification">
+        Текст скопирован в буфер обмена!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const paperNameInput = document.getElementById('paperName');
+            const pricePerKgInput = document.getElementById('pricePerKg');
+            const densityInput = document.getElementById('density');
+            const customFormatDiv = document.getElementById('customFormat');
+            const customFormatBtn = document.getElementById('customFormatBtn');
+            const customWidthInput = document.getElementById('customWidth');
+            const customHeightInput = document.getElementById('customHeight');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultValueDiv = document.getElementById('resultValue');
+            const calculationTextDiv = document.getElementById('calculationText');
+            const copyBtn = document.getElementById('copyBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const historyListDiv = document.getElementById('historyList');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const notification = document.getElementById('notification');
+            const formatBtns = document.querySelectorAll('.format-btn');
+            const resultCard = document.getElementById('resultCard');
+            
+            // Проверяем, является ли устройство мобильным
+            const isMobile = window.matchMedia("(max-width: 768px)").matches;
+            
+            // Применяем компактный стиль для мобильных устройств
+            if (isMobile) {
+                resultCard.classList.add('mobile-compact');
+            }
+            
+            // Текущий выбранный формат
+            let currentFormat = {
+                width: 72,
+                height: 104,
+                isCustom: false
+            };
+            
+            // Функция для преобразования строки в число, поддерживающая и точку, и запятую
+            function parseNumber(value) {
+                if (typeof value !== 'string') return Number(value);
+                
+                // Заменяем запятую на точку и удаляем все нечисловые символы кроме точки и минуса
+                const cleanedValue = value.replace(/,/g, '.').replace(/[^\d.-]/g, '');
+                
+                // Если значение пустое после очистки, возвращаем NaN
+                if (cleanedValue === '' || cleanedValue === '.') return NaN;
+                
+                return Number(cleanedValue);
+            }
+            
+            // Обработчики ввода для поддержки и точки, и запятой
+            function setupInputValidation(input) {
+                input.addEventListener('input', function() {
+                    // Сохраняем позицию курсора
+                    const cursorPosition = this.selectionStart;
+                    
+                    // Получаем значение и заменяем запятые на точки
+                    let value = this.value;
+                    const originalLength = value.length;
+                    
+                    value = value.replace(/,/g, '.');
+                    
+                    // Удаляем лишние точки (оставляем только первую)
+                    const parts = value.split('.');
+                    if (parts.length > 2) {
+                        value = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    
+                    // Обновляем значение
+                    this.value = value;
+                    
+                    // Восстанавливаем позицию курсора с учетом изменений
+                    const lengthDiff = value.length - originalLength;
+                    this.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
+                    
+                    // Запускаем расчет
+                    calculatePrice();
+                });
+            }
+            
+            // Настраиваем валидацию для всех числовых полей
+            setupInputValidation(pricePerKgInput);
+            setupInputValidation(densityInput);
+            setupInputValidation(customWidthInput);
+            setupInputValidation(customHeightInput);
+            
+            // Обработчики для кнопок форматов
+            formatBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Сбрасываем активное состояние у всех кнопок
+                    formatBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Устанавливаем активное состояние для текущей кнопки
+                    this.classList.add('active');
+                    
+                    if (this.id === 'customFormatBtn') {
+                        // Произвольный формат
+                        customFormatDiv.classList.remove('hidden');
+                        currentFormat.isCustom = true;
+                    } else {
+                        // Стандартный формат
+                        customFormatDiv.classList.add('hidden');
+                        currentFormat.isCustom = false;
+                        currentFormat.width = parseNumber(this.dataset.width);
+                        currentFormat.height = parseNumber(this.dataset.height);
+                    }
+                    
+                    calculatePrice();
+                });
+            });
+            
+            // Обработчик для полей произвольного формата
+            customWidthInput.addEventListener('input', function() {
+                if (currentFormat.isCustom) {
+                    currentFormat.width = parseNumber(this.value) || 0;
+                    calculatePrice();
+                }
+            });
+            
+            customHeightInput.addEventListener('input', function() {
+                if (currentFormat.isCustom) {
+                    currentFormat.height = parseNumber(this.value) || 0;
+                    calculatePrice();
+                }
+            });
+            
+            // Загрузка истории из localStorage
+            let calculationHistory = JSON.parse(localStorage.getItem('paperCalculationHistory')) || [];
+            
+            // Функция для отображения истории
+            function renderHistory() {
+                historyListDiv.innerHTML = '';
+                
+                if (calculationHistory.length === 0) {
+                    historyListDiv.innerHTML = '<div class="history-item"><div class="history-info">История расчетов пуста</div></div>';
+                    return;
+                }
+                
+                // Показываем только последние 5 расчетов на мобильных
+                const maxItems = isMobile ? 5 : 10;
+                const recentHistory = calculationHistory.slice(-maxItems).reverse();
+                
+                recentHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleString('ru-RU');
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div class="history-name">${item.paperName || 'Без названия'}</div>
+                            <div class="history-details">${item.density} г/м², ${item.format}, ${formattedDate}</div>
+                        </div>
+                        <div class="history-result">${item.result} руб</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', function() {
+                        // Заполняем форму данными из истории
+                        paperNameInput.value = item.paperName || '';
+                        pricePerKgInput.value = item.pricePerKg;
+                        densityInput.value = item.density;
+                        
+                        // Устанавливаем формат
+                        const formatParts = item.format.split('x');
+                        if (formatParts.length === 2) {
+                            const width = parseNumber(formatParts[0].trim());
+                            const height = parseNumber(formatParts[1].trim());
+                            
+                            // Проверяем, есть ли такой формат в пресетах
+                            let foundPreset = false;
+                            formatBtns.forEach(btn => {
+                                if (btn.id !== 'customFormatBtn' && 
+                                    parseNumber(btn.dataset.width) === width && 
+                                    parseNumber(btn.dataset.height) === height) {
+                                    btn.click();
+                                    foundPreset = true;
+                                }
+                            });
+                            
+                            if (!foundPreset) {
+                                customFormatBtn.click();
+                                customWidthInput.value = width;
+                                customHeightInput.value = height;
+                                currentFormat.width = width;
+                                currentFormat.height = height;
+                            }
+                        }
+                        
+                        calculatePrice();
+                    });
+                    
+                    historyListDiv.appendChild(historyItem);
+                });
+            }
+            
+            // Функция расчета стоимости
+            function calculatePrice() {
+                const paperName = paperNameInput.value.trim() || "Бумага без названия";
+                const pricePerKg = parseNumber(pricePerKgInput.value);
+                const density = parseNumber(densityInput.value);
+                
+                if (isNaN(pricePerKg) || isNaN(density) || pricePerKg <= 0 || density <= 0) {
+                    resultValueDiv.textContent = '—';
+                    calculationTextDiv.textContent = 'Заполните все обязательные поля корректными значениями';
+                    return null;
+                }
+                
+                // Получаем размеры листа
+                let width, height, formatName;
+                
+                if (currentFormat.isCustom) {
+                    width = parseNumber(customWidthInput.value);
+                    height = parseNumber(customHeightInput.value);
+                    
+                    if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+                        resultValueDiv.textContent = '—';
+                        calculationTextDiv.textContent = 'Укажите корректные размеры для произвольного формата';
+                        return null;
+                    }
+                    
+                    formatName = `${width} x ${height} см`;
+                } else {
+                    width = currentFormat.width;
+                    height = currentFormat.height;
+                    formatName = `${width} × ${height} см`;
+                }
+                
+                // Переводим размеры из см в метры
+                const widthMeters = width / 100;
+                const heightMeters = height / 100;
+                
+                // Расчет площади листа в м²
+                const area = widthMeters * heightMeters;
+                
+                // Расчет веса листа в граммах
+                const weight = area * density;
+                
+                // Расчет стоимости листа
+                const pricePerGram = pricePerKg / 1000; // цена за грамм
+                const pricePerSheet = weight * pricePerGram;
+                
+                // Форматируем результат
+                const formattedPrice = pricePerSheet.toFixed(2);
+                
+                // Обновляем интерфейс
+                resultValueDiv.textContent = `${formattedPrice} руб`;
+                
+                // Формируем текст расчета
+                const calculationText = `
+РАСЧЕТ СТОИМОСТИ БУМАГИ
+-----------------------------
+Название: ${paperName}
+Стоимость за кг: ${pricePerKg} руб
+Плотность: ${density} г/м²
+Формат: ${formatName}
+Размер: ${width} × ${height} см
+Площадь листа: ${area.toFixed(4)} м²
+Вес листа: ${weight.toFixed(2)} г
+-----------------------------
+СТОИМОСТЬ ЗА ЛИСТ: ${formattedPrice} руб
+                `;
+                
+                calculationTextDiv.textContent = calculationText;
+                
+                // Сохраняем расчет в историю
+                const calculationData = {
+                    paperName,
+                    pricePerKg,
+                    density,
+                    format: formatName,
+                    result: formattedPrice,
+                    timestamp: new Date().getTime()
+                };
+                
+                calculationHistory.push(calculationData);
+                localStorage.setItem('paperCalculationHistory', JSON.stringify(calculationHistory));
+                
+                // Обновляем историю на экране
+                renderHistory();
+                
+                return {
+                    price: formattedPrice,
+                    text: calculationText
+                };
+            }
+            
+            // Показать уведомление
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Обработчик кнопки расчета
+            calculateBtn.addEventListener('click', calculatePrice);
+            
+            // Копирование текста расчета
+            copyBtn.addEventListener('click', function() {
+                const text = calculationTextDiv.textContent;
+                if (!text || text === 'Здесь будет отображен подробный расчет...') return;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('Текст расчета скопирован в буфер обмена!');
+                }).catch(err => {
+                    // Fallback для браузеров без поддержки Clipboard API
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('Текст скопирован в буфер обмена!');
+                });
+            });
+            
+            // Поделиться результатом
+            shareBtn.addEventListener('click', function() {
+                const result = calculatePrice();
+                if (!result) return;
+                
+                const shareData = {
+                    title: 'Расчет стоимости бумаги',
+                    text: result.text,
+                    url: window.location.href
+                };
+                
+                if (navigator.share) {
+                    navigator.share(shareData)
+                        .then(() => console.log('Успешный обмен'))
+                        .catch(error => console.log('Ошибка обмена:', error));
+                } else {
+                    // Fallback для браузеров без поддержки Web Share API
+                    navigator.clipboard.writeText(result.text).then(() => {
+                        showNotification('Текст расчета скопирован. Поделитесь им вручную.');
+                    });
+                }
+            });
+            
+            // Очистка истории
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('Вы уверены, что хотите очистить историю расчетов?')) {
+                    calculationHistory = [];
+                    localStorage.removeItem('paperCalculationHistory');
+                    renderHistory();
+                }
+            });
+            
+            // Инициализация истории при загрузке
+            renderHistory();
+            
+            // Авторасчет при изменении значений
+            const inputs = [
+                paperNameInput, 
+                pricePerKgInput, 
+                densityInput
+            ];
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', calculatePrice);
+            });
+            
+            // Первоначальный расчет
+            calculatePrice();
+        });
+    </script>
+</body>
+</html>
