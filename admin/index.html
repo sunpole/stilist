@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel for JSON DB</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Админка JSON Баз</h1>
+        <div class="theme-switcher">
+            <label for="theme-select">Тема:</label>
+            <select id="theme-select">
+                <option value="default">Стандартная</option>
+                <option value="dark">Тёмная</option>
+                <option value="blue">Синяя</option>
+                <option value="green">Зелёная</option>
+                <option value="purple">Фиолетовая</option>
+                <option value="orange">Оранжевая</option>
+                <option value="pink">Розовая</option>
+                <option value="teal">Бирюзовая</option>
+                <option value="yellow">Жёлтая</option>
+                <option value="red">Красная</option>
+            </select>
+        </div>
+    </header>
+
+    <nav class="controls">
+        <label for="file-import" class="btn btn-primary">Импорт JSON</label>
+        <input type="file" id="file-import" accept=".json" hidden>
+        
+        <button id="btn-export" class="btn" disabled>Экспорт JSON</button>
+        
+        <button id="view-table" class="btn btn-active">Таблица</button>
+        <button id="view-cards" class="btn" disabled>Карточки</button>
+        
+        <button id="btn-add-row" class="btn btn-success" disabled>+ Добавить строку</button>
+    </nav>
+
+    <main class="main-content">
+        <div id="data-container" class="data-container">
+            <p class="placeholder">Загрузите JSON-файл для начала работы.</p>
+        </div>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
