@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Analyzer Pro</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      padding: 15px;
+      max-width: 100%;
+      overflow-x: hidden;
+      background-color: #f5f7fa;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+    
+    .dropzone {
+      border: 3px dashed #6c757d;
+      border-radius: 10px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #f8f9fa;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .dropzone.active {
+      border-color: #0d6efd;
+      background: #e7f1ff;
+    }
+    
+    .dropzone p {
+      margin: 10px 0;
+      color: #6c757d;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+    
+    .btn:hover {
+      background: #0b5ed7;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #0d6efd;
+      color: #0d6efd;
+    }
+    
+    .btn-outline:hover {
+      background: #0d6efd;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+    }
+    
+    .btn-danger:hover {
+      background: #bb2d3b;
+    }
+    
+    .btn-success {
+      background: #198754;
+    }
+    
+    .btn-success:hover {
+      background: #157347;
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    
+    .file-info {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-top: 20px;
+      min-height: 100px;
+    }
+    
+    .metadata-section {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+    
+    .metadata-section:last-child {
+      border-bottom: none;
+    }
+    
+    .metadata-key {
+      font-weight: bold;
+      color: #2c3e50;
+      display: inline-block;
+      min-width: 180px;
+    }
+    
+    .metadata-value {
+      color: #34495e;
+      word-break: break-all;
+    }
+    
+    .section-title {
+      color: #0d6efd;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #e7f1ff;
+    }
+    
+    .status {
+      text-align: center;
+      padding: 10px;
+      color: #6c757d;
+    }
+    
+    .filter-panel {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .filter-title {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .file-preview {
+      max-width: 100%;
+      margin: 15px 0;
+      text-align: center;
+    }
+    
+    .file-preview img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      text-align: center;
+    }
+    
+    @media (max-width: 576px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .dropzone {
+        padding: 20px 10px;
+      }
+      
+      .btn {
+        width: 100%;
+        margin: 5px 0;
+      }
+      
+      .controls {
+        flex-direction: column;
+      }
+      
+      .metadata-key {
+        min-width: 120px;
+        display: block;
+        margin-bottom: 5px;
+      }
+      
+      .filter-options {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>File Analyzer Pro</h1>
+    
+    <div class="dropzone" id="dropzone">
+      <h3>Перетащите файл сюда</h3>
+      <p>или</p>
+      <button class="btn" id="selectFileBtn">Выбрать файл</button>
+      <input type="file" id="fileInput" style="display: none;">
+      <p id="fileStatus" style="margin-top: 15px; font-style: italic; color: #6c757d;"></p>
+    </div>
+    
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-title">Фильтры информации:</div>
+      <div class="filter-options">
+        <div class="filter-option">
+          <input type="checkbox" id="showBasic" checked>
+          <label for="showBasic">Основная информация</label>
+        </div>
+        <div class="filter-option">
+          <input type="checkbox" id="showExif" checked>
+          <label for="showExif">EXIF (фото)</label>
+        </div>
+        <div class="filter-option">
+          <input type="checkbox" id="showSystem" checked>
+          <label for="showSystem">Системные данные</label>
+        </div>
+        <div class="filter-option">
+          <input type="checkbox" id="showPreview" checked>
+          <label for="showPreview">Превью файла</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-success" id="copyAllBtn">Копировать всё</button>
+      <button class="btn btn-outline" id="downloadBtn">Скачать отчет</button>
+      <button class="btn btn-danger" id="clearBtn">Очистить</button>
+    </div>
+    
+    <div class="file-info" id="fileInfo">
+      <p class="status">Файл не выбран. Перетащите файл в область выше или нажмите "Выбрать файл".</p>
+    </div>
+  </div>
+
+  <script>
+    // Элементы DOM
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const fileStatus = document.getElementById('fileStatus');
+    const showBasic = document.getElementById('showBasic');
+    const showExif = document.getElementById('showExif');
+    const showSystem = document.getElementById('showSystem');
+    const showPreview = document.getElementById('showPreview');
+
+    // Текущий анализируемый файл
+    let currentFile = null;
+
+    // Инициализация приложения
+    function init() {
+      // Обработчики событий
+      selectFileBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+      
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          currentFile = e.target.files[0];
+          analyzeFile(currentFile);
+        }
+      });
+      
+      clearBtn.addEventListener('click', () => {
+        clearFileInfo();
+        resetFileInput();
+      });
+      
+      copyAllBtn.addEventListener('click', copyAllInfo);
+      downloadBtn.addEventListener('click', downloadReport);
+      
+      // Добавляем обработчики для фильтров
+      showBasic.addEventListener('change', applyFilters);
+      showExif.addEventListener('change', applyFilters);
+      showSystem.addEventListener('change', applyFilters);
+      showPreview.addEventListener('change', applyFilters);
+
+      // Drag & Drop
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('active');
+        fileStatus.textContent = "Отпустите файл для загрузки";
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('active');
+        fileStatus.textContent = "";
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('active');
+        fileStatus.textContent = "";
+        
+        if (e.dataTransfer.files.length > 0) {
+          currentFile = e.dataTransfer.files[0];
+          analyzeFile(currentFile);
+        }
+      });
+
+      // Показываем, что приложение готово
+      fileStatus.textContent = "Готов к загрузке файлов";
+    }
+
+    // Основная функция анализа файла
+    function analyzeFile(file) {
+      fileInfo.innerHTML = '<p class="status">Анализируем файл...</p>';
+      fileStatus.textContent = `Анализ: ${file.name}`;
+      
+      // Имитация загрузки для демонстрации
+      setTimeout(() => {
+        try {
+          const fileType = getFileTypeFromExtension(file.name);
+          let output = '';
+          
+          // Превью файла (для изображений)
+          if (file.type.startsWith('image/') && showPreview.checked) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              document.getElementById('previewImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            output += `
+              <div class="metadata-section" data-type="preview">
+                <h3 class="section-title">Превью файла</h3>
+                <div class="file-preview">
+                  <img id="previewImage" src="#" alt="Превью ${file.name}">
+                </div>
+              </div>
+            `;
+          }
+          
+          // Основная информация
+          output += `
+            <div class="metadata-section" data-type="basic">
+              <h3 class="section-title">Основная информация</h3>
+              <p><span class="metadata-key">Имя файла:</span> <span class="metadata-value">${file.name}</span></p>
+              <p><span class="metadata-key">Размер:</span> <span class="metadata-value">${formatFileSize(file.size)}</span></p>
+              <p><span class="metadata-key">Тип MIME:</span> <span class="metadata-value">${file.type || 'неизвестно'}</span></p>
+              <p><span class="metadata-key">Расширение:</span> <span class="metadata-value">${getFileExtension(file.name)}</span></p>
+              <p><span class="metadata-key">Последнее изменение:</span> <span class="metadata-value">${new Date(file.lastModified).toLocaleString()}</span></p>
+            </div>
+          `;
+          
+          // Системная информация
+          output += `
+            <div class="metadata-section" data-type="system">
+              <h3 class="section-title">Системная информация</h3>
+              <p><span class="metadata-key">Тип файла:</span> <span class="metadata-value">${fileType}</span></p>
+              <p><span class="metadata-key">Размер в байтах:</span> <span class="metadata-value">${file.size} байт</span></p>
+              <p><span class="metadata-key">Бинарный размер:</span> <span class="metadata-value">${file.size.toString(2)} (в двоичной системе)</span></p>
+            </div>
+          `;
+          
+          // EXIF информация (для изображений)
+          if (file.type.startsWith('image/')) {
+            output += `
+              <div class="metadata-section" data-type="exif">
+                <h3 class="section-title">EXIF-данные</h3>
+                <p><span class="metadata-key">Тип изображения:</span> <span class="metadata-value">${fileType}</span></p>
+                <p><span class="metadata-key">Разрешение:</span> <span class="metadata-value">Для получения разрешения требуется анализ содержимого файла</span></p>
+                <p><span class="metadata-key">Цветовое пространство:</span> <span class="metadata-value">Не определено</span></p>
+                <p><span class="metadata-key">Глубина цвета:</span> <span class="metadata-value">Не определена</span></p>
+              </div>
+            `;
+          }
+          
+          // Специфическая информация для разных типов файлов
+          if (file.name.endsWith('.pdf')) {
+            output += `
+              <div class="metadata-section" data-type="system">
+                <h3 class="section-title">PDF-информация</h3>
+                <p><span class="metadata-key">Тип документа:</span> <span class="metadata-value">PDF-документ</span></p>
+                <p><span class="metadata-key">Версия PDF:</span> <span class="metadata-value">Не определена</span></p>
+                <p><span class="metadata-key">Количество страниц:</span> <span class="metadata-value">Не определено</span></p>
+              </div>
+            `;
+          }
+          
+          // Для текстовых файлов
+          if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
+            output += `
+              <div class="metadata-section" data-type="system">
+                <h3 class="section-title">Текстовая информация</h3>
+                <p><span class="metadata-key">Тип содержимого:</span> <span class="metadata-value">Текстовый файл</span></p>
+                <p><span class="metadata-key">Кодировка:</span> <span class="metadata-value">UTF-8 (предположительно)</span></p>
+                <p><span class="metadata-key">Количество символов:</span> <span class="metadata-value">${file.size} (приблизительно)</span></p>
+              </div>
+            `;
+          }
+          
+          fileInfo.innerHTML = output;
+          applyFilters();
+          
+          // Показываем сообщение об успехе
+          fileInfo.innerHTML += '<div class="success-message">Файл успешно проанализирован!</div>';
+          
+        } catch (error) {
+          fileInfo.innerHTML = `<p class="status">Ошибка анализа файла: ${error.message}</p>`;
+          console.error("Ошибка анализа:", error);
+        }
+      }, 500);
+    }
+
+    // Вспомогательные функции
+    function getFileExtension(filename) {
+      return filename.split('.').pop().toLowerCase();
+    }
+    
+    function getFileTypeFromExtension(filename) {
+      const ext = getFileExtension(filename);
+      const types = {
+        'jpg': 'JPEG Image',
+        'jpeg': 'JPEG Image',
+        'png': 'PNG Image',
+        'gif': 'GIF Image',
+        'bmp': 'BMP Image',
+        'webp': 'WebP Image',
+        'pdf': 'PDF Document',
+        'doc': 'Word Document',
+        'docx': 'Word Document',
+        'xls': 'Excel Spreadsheet',
+        'xlsx': 'Excel Spreadsheet',
+        'ppt': 'PowerPoint Presentation',
+        'pptx': 'PowerPoint Presentation',
+        'txt': 'Text File',
+        'zip': 'ZIP Archive',
+        'rar': 'RAR Archive',
+        'mp3': 'MP3 Audio',
+        'mp4': 'MP4 Video',
+        'avi': 'AVI Video',
+        'mov': 'QuickTime Video'
+      };
+      
+      return types[ext] || 'Неизвестный тип файла';
+    }
+    
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Б';
+      const k = 1024;
+      const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    function copyAllInfo() {
+      if (!currentFile) {
+        alert('Сначала загрузите файл для анализа');
+        return;
+      }
+      
+      const textToCopy = Array.from(fileInfo.querySelectorAll('.metadata-section'))
+        .map(section => {
+          if (section.offsetParent !== null) {
+            return section.textContent.replace(/\s+/g, ' ').trim();
+          }
+          return '';
+        })
+        .filter(text => text !== '')
+        .join('\n\n');
+
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => alert('Информация скопирована в буфер обмена!'))
+          .catch(() => {
+            // Fallback для старых браузеров
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Информация скопирована!');
+          });
+      } else {
+        alert('Нет данных для копирования');
+      }
+    }
+    
+    function downloadReport() {
+      if (!currentFile) {
+        alert('Сначала загрузите файл для анализа');
+        return;
+      }
+      
+      const textToDownload = Array.from(fileInfo.querySelectorAll('.metadata-section'))
+        .map(section => {
+          if (section.offsetParent !== null) {
+            return section.textContent.replace(/\s+/g, ' ').trim();
+          }
+          return '';
+        })
+        .filter(text => text !== '')
+        .join('\n\n');
+      
+      if (textToDownload) {
+        const blob = new Blob([textToDownload], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'file-analysis-report.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        alert('Нет данных для скачивания');
+      }
+    }
+    
+    function applyFilters() {
+      const sections = fileInfo.querySelectorAll('.metadata-section');
+      sections.forEach(section => {
+        const type = section.getAttribute('data-type');
+        let shouldShow = false;
+        
+        if (type === 'basic') shouldShow = showBasic.checked;
+        else if (type === 'exif') shouldShow = showExif.checked;
+        else if (type === 'system') shouldShow = showSystem.checked;
+        else if (type === 'preview') shouldShow = showPreview.checked;
+        
+        section.style.display = shouldShow ? 'block' : 'none';
+      });
+      
+      // Проверяем, есть ли видимые секции
+      const visibleSections = Array.from(sections).filter(section => section.style.display !== 'none');
+      if (visibleSections.length === 0) {
+        fileInfo.innerHTML = '<p class="status">Все данные скрыты фильтрами</p>';
+      }
+    }
+    
+    function clearFileInfo() {
+      fileInfo.innerHTML = '<p class="status">Файл не выбран. Перетащите файл в область выше или нажмите "Выбрать файл".</p>';
+      fileStatus.textContent = "Готов к загрузке файлов";
+      currentFile = null;
+    }
+    
+    function resetFileInput() {
+      fileInput.value = '';
+    }
+
+    // Улучшенная обработка ошибок
+    window.addEventListener('error', (e) => {
+      console.error('Global error:', e.error);
+      fileInfo.innerHTML = '<p class="status">Произошла ошибка. Попробуйте другой файл.</p>';
+    });
+
+    // Инициализируем приложение после загрузки DOM
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
