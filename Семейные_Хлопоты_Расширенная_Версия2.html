@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Семейные Хлопоты: Со смайликами</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(to bottom, #ffcc80, #ffb74d);
+            color: #5d4037;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            max-width: 800px;
+            max-height: 600px;
+            background-color: #ffecb3;
+            border: 5px solid #ffa000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        #house {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #fff9c4;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #ffecb3 10px, transparent 10px),
+                radial-gradient(circle at 80% 70%, #ffecb3 15px, transparent 15px);
+        }
+        
+        .room {
+            position: absolute;
+            background-color: #ffccbc;
+            border: 3px solid #ff8a65;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5d4037;
+            font-size: 14px;
+            text-align: center;
+            padding: 5px;
+        }
+        
+        #living-room {
+            width: 250px;
+            height: 150px;
+            bottom: 20px;
+            left: 20px;
+        }
+        
+        #kitchen {
+            width: 180px;
+            height: 120px;
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        #bedroom {
+            width: 200px;
+            height: 130px;
+            top: 20px;
+            left: 20px;
+        }
+        
+        #bathroom {
+            width: 150px;
+            height: 100px;
+            top: 20px;
+            right: 20px;
+        }
+        
+        #mom {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            z-index: 100;
+            transition: all 0.2s ease;
+            font-size: 40px;
+            text-align: center;
+        }
+        
+        .child {
+            position: absolute;
+            z-index: 90;
+            transition: all 0.3s ease;
+            font-size: 35px;
+            text-align: center;
+        }
+        
+        #vera {
+            width: 40px;
+            height: 40px;
+        }
+        
+        #matvey {
+            width: 45px;
+            height: 45px;
+        }
+        
+        #nikita {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .mess {
+            position: absolute;
+            z-index: 80;
+            transition: opacity 0.5s ease;
+            animation: appear 0.5s ease;
+            font-size: 25px;
+        }
+        
+        @keyframes appear {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        
+        .health-bar {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 6px;
+            background-color: #ccc;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .health {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+            width: 100%;
+        }
+        
+        .name-tag {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 white;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+        
+        #hud {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 800px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 3px solid #ffa000;
+            border-radius: 10px;
+        }
+        
+        #score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF5722;
+        }
+        
+        #mood-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        #timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #9C27B0;
+        }
+        
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 3px solid #FFA000;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 20px;
+            display: none;
+            z-index: 200;
+            max-width: 80%;
+        }
+        
+        #start-btn {
+            padding: 10px 20px;
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 0 #388E3C;
+        }
+        
+        #start-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        
+        #instructions {
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 0 10px;
+            font-size: 14px;
+            max-width: 800px;
+        }
+        
+        .angry {
+            animation: angryShake 0.5s ease infinite;
+        }
+        
+        @keyframes angryShake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            50% { transform: translateX(3px); }
+            75% { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .cleaning {
+            animation: cleaningSpin 0.5s ease infinite;
+        }
+        
+        @keyframes cleaningSpin {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        .scared {
+            animation: scaredJump 0.3s ease;
+        }
+        
+        @keyframes scaredJump {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .bubble {
+            position: absolute;
+            background: white;
+            border: 2px solid #5d4037;
+            border-radius: 15px;
+            padding: 5px 10px;
+            font-size: 12px;
+            z-index: 150;
+            max-width: 120px;
+            text-align: center;
+            animation: fadeOut 2s forwards;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        #actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            max-width: 800px;
+        }
+        
+        .action-btn {
+            padding: 8px 15px;
+            background: linear-gradient(to bottom, #7986cb, #3949ab);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #3f51b5;
+        }
+        
+        .action-btn:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+        
+        .action-btn:disabled {
+            background: #ccc;
+            box-shadow: 0 3px 0 #999;
+            cursor: not-allowed;
+        }
+        
+        #customize {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ffa000;
+            display: none;
+            z-index: 300;
+            max-width: 80%;
+        }
+        
+        #customize-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background: #ffa000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 250;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .volume-control label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Семейные Хлопоты: Со смайликами</h1>
+    
+    <div id="instructions">
+        Управляй мамой, убирай беспорядок и присматривай за детьми!<br>
+        Вера рисует, Матвей оставляет миски, Никита разбрасывает обёртки!
+    </div>
+    
+    <div id="hud">
+        <div>Убрано: <span id="score">0</span></div>
+        <div>Настроение: <span id="mood">100%</span></div>
+        <div>Время: <span id="timer">120</span> сек</div>
+    </div>
+    
+    <div id="game-container">
+        <div id="house">
+            <div class="room" id="living-room">Гостиная</div>
+            <div class="room" id="kitchen">Кухня</div>
+            <div class="room" id="bedroom">Спальня</div>
+            <div class="room" id="bathroom">Ванная</div>
+            
+            <div id="mom">👩</div>
+            
+            <div class="child" id="vera">
+                <div class="name-tag">Вера</div>
+                <div class="health-bar"><div class="health" id="vera-health"></div></div>
+                👧
+            </div>
+            
+            <div class="child" id="matvey">
+                <div class="name-tag">Матвей</div>
+                <div class="health-bar"><div class="health" id="matvey-health"></div></div>
+                👦
+            </div>
+            
+            <div class="child" id="nikita">
+                <div class="name-tag">Никита</div>
+                <div class="health-bar"><div class="health" id="nikita-health"></div></div>
+                🧒
+            </div>
+        </div>
+        
+        <div id="message"></div>
+        <button id="customize-btn">Настроить</button>
+        <div id="customize">
+            <h3>Настройки игры</h3>
+            <div>
+                <label>Имя мамы: <input type="text" id="mom-name" value="Мама"></label>
+            </div>
+            <div>
+                <label>Фраза крика: <input type="text" id="yell-phrase" value="Так, быстро прибраться!"></label>
+            </div>
+            <div class="volume-control">
+                <label>Громкость: </label>
+                <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+                <span id="volume-value">50%</span>
+            </div>
+            <button id="save-customize">Сохранить</button>
+        </div>
+    </div>
+    
+    <div id="actions">
+        <button class="action-btn" id="action-yell">Крикнуть</button>
+        <button class="action-btn" id="action-clean">Быстрая уборка</button>
+        <button class="action-btn" id="action-hug">Обнять детей</button>
+    </div>
+    
+    <button id="start-btn">Начать игру</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы игры
+            const gameContainer = document.getElementById('game-container');
+            const house = document.getElementById('house');
+            const mom = document.getElementById('mom');
+            const vera = document.getElementById('vera');
+            const matvey = document.getElementById('matvey');
+            const nikita = document.getElementById('nikita');
+            const scoreElement = document.getElementById('score');
+            const timerElement = document.getElementById('timer');
+            const moodElement = document.getElementById('mood');
+            const messageElement = document.getElementById('message');
+            const startBtn = document.getElementById('start-btn');
+            const veraHealth = document.getElementById('vera-health');
+            const matveyHealth = document.getElementById('matvey-health');
+            const nikitaHealth = document.getElementById('nikita-health');
+            const actionYell = document.getElementById('action-yell');
+            const actionClean = document.getElementById('action-clean');
+            const actionHug = document.getElementById('action-hug');
+            const customizeBtn = document.getElementById('customize-btn');
+            const customizePanel = document.getElementById('customize');
+            const saveCustomizeBtn = document.getElementById('save-customize');
+            const volumeControl = document.getElementById('volume');
+            const volumeValue = document.getElementById('volume-value');
+            
+            // Звуковые эффекты - используются ваши файлы
+            const cleanSound = new Audio('clean.mp3');
+            const yellSound = new Audio('yell.mp3');
+            const hugSound = new Audio('hug.mp3');
+            const messSound = new Audio('mess.mp3');
+            
+            // Настройки по умолчанию
+            let customSettings = {
+                momName: "Мама",
+                yellPhrase: "Так, быстро прибраться!",
+                volume: 0.5
+            };
+            
+            // Состояние игры
+            let gameState = {
+                score: 0,
+                mood: 100,
+                timeLeft: 120,
+                isPlaying: false,
+                momPosition: { x: 200, y: 300 },
+                children: {
+                    vera: { x: 100, y: 100, health: 100, makingMess: false, mess: null, mood: 100 },
+                    matvey: { x: 300, y: 200, health: 100, makingMess: false, mess: null, mood: 100 },
+                    nikita: { x: 500, y: 150, health: 100, makingMess: false, mess: null, mood: 100 }
+                },
+                messes: [],
+                gameInterval: null,
+                timerInterval: null,
+                cooldowns: {
+                    yell: 0,
+                    clean: 0,
+                    hug: 0
+                }
+            };
+            
+            // Размеры игровой области
+            const gameWidth = gameContainer.offsetWidth;
+            const gameHeight = gameContainer.offsetHeight;
+            
+            // Функция для показа сообщений
+            function showMessage(text) {
+                messageElement.textContent = text;
+                messageElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Инициализация игры
+            function initGame() {
+                // Сброс состояния
+                gameState.score = 0;
+                gameState.mood = 100;
+                gameState.timeLeft = 120;
+                gameState.messes = [];
+                gameState.children.vera.health = 100;
+                gameState.children.matvey.health = 100;
+                gameState.children.nikita.health = 100;
+                gameState.children.vera.mood = 100;
+                gameState.children.matvey.mood = 100;
+                gameState.children.nikita.mood = 100;
+                gameState.children.vera.makingMess = false;
+                gameState.children.matvey.makingMess = false;
+                gameState.children.nikita.makingMess = false;
+                
+                // Установка начальных позиций
+                gameState.momPosition = { x: gameWidth / 2, y: gameHeight / 2 };
+                gameState.children.vera = { x: 100, y: 100, health: 100, makingMess: false, mess: null, mood: 100 };
+                gameState.children.matvey = { x: 300, y: 200, health: 100, makingMess: false, mess: null, mood: 100 };
+                gameState.children.nikita = { x: 500, y: 150, health: 100, makingMess: false, mess: null, mood: 100 };
+                
+                // Сброс перезарядки способностей
+                gameState.cooldowns = { yell: 0, clean: 0, hug: 0 };
+                
+                // Обновление интерфейса
+                scoreElement.textContent = gameState.score;
+                moodElement.textContent = gameState.mood + '%';
+                timerElement.textContent = gameState.timeLeft;
+                veraHealth.style.width = '100%';
+                matveyHealth.style.width = '100%';
+                nikitaHealth.style.width = '100%';
+                
+                // Удаление старого беспорядка
+                document.querySelectorAll('.mess').forEach(mess => mess.remove());
+                
+                // Обновление позиций
+                updatePositions();
+                
+                // Запуск игрового процесса
+                startGame();
+            }
+            
+            // Запуск игры
+            function startGame() {
+                if (gameState.gameInterval) clearInterval(gameState.gameInterval);
+                if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+                
+                gameState.isPlaying = true;
+                startBtn.textContent = "Перезапуск";
+                messageElement.style.display = 'none';
+                
+                // Таймер обратного отсчета
+                gameState.timerInterval = setInterval(() => {
+                    gameState.timeLeft--;
+                    timerElement.textContent = gameState.timeLeft;
+                    
+                    // Уменьшение перезарядки способностей
+                    for (let ability in gameState.cooldowns) {
+                        if (gameState.cooldowns[ability] > 0) {
+                            gameState.cooldowns[ability]--;
+                        }
+                    }
+                    
+                    updateAbilityButtons();
+                    
+                    if (gameState.timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+                
+                // Игровой цикл
+                gameState.gameInterval = setInterval(() => {
+                    moveChildren();
+                    makeMesses();
+                    updatePositions();
+                    updateMood();
+                }, 100);
+            }
+            
+            // Конец игры
+            function endGame() {
+                gameState.isPlaying = false;
+                clearInterval(gameState.gameInterval);
+                clearInterval(gameState.timerInterval);
+                
+                let message = `Игра окончена! Убрано: ${gameState.score}`;
+                if (gameState.score > 200) {
+                    message += "\nОтлично справилась!";
+                } else if (gameState.score > 100) {
+                    message += "\nХорошая работа!";
+                } else {
+                    message += "\nМожно лучше!";
+                }
+                
+                showMessage(message);
+            }
+            
+            // Обновление позиций всех элементов
+            function updatePositions() {
+                // Позиция мамы
+                mom.style.left = (gameState.momPosition.x - 25) + 'px';
+                mom.style.top = (gameState.momPosition.y - 25) + 'px';
+                
+                // Позиции детей
+                vera.style.left = (gameState.children.vera.x - 20) + 'px';
+                vera.style.top = (gameState.children.vera.y - 20) + 'px';
+                
+                matvey.style.left = (gameState.children.matvey.x - 22) + 'px';
+                matvey.style.top = (gameState.children.matvey.y - 22) + 'px';
+                
+                nikita.style.left = (gameState.children.nikita.x - 25) + 'px';
+                nikita.style.top = (gameState.children.nikita.y - 25) + 'px';
+                
+                // Обновление здоровья
+                veraHealth.style.width = gameState.children.vera.health + '%';
+                matveyHealth.style.width = gameState.children.matvey.health + '%';
+                nikitaHealth.style.width = gameState.children.nikita.health + '%';
+                
+                // Обновление цвета здоровья
+                updateHealthColor(veraHealth, gameState.children.vera.health);
+                updateHealthColor(matveyHealth, gameState.children.matvey.health);
+                updateHealthColor(nikitaHealth, gameState.children.nikita.health);
+            }
+            
+            // Обновление цвета полоски здоровья
+            function updateHealthColor(healthBar, health) {
+                if (health > 70) {
+                    healthBar.style.backgroundColor = '#4CAF50';
+                } else if (health > 30) {
+                    healthBar.style.backgroundColor = '#FFC107';
+                } else {
+                    healthBar.style.backgroundColor = '#F44336';
+                }
+            }
+            
+            // Движение детей
+            function moveChildren() {
+                moveChild('vera');
+                moveChild('matvey');
+                moveChild('nikita');
+            }
+            
+            // Движение конкретного ребенка
+            function moveChild(childName) {
+                const child = gameState.children[childName];
+                
+                // Если здоровье низкое, ребенок не двигается
+                if (child.health < 30) {
+                    // Восстановление здоровья со временем
+                    child.health = Math.min(100, child.health + 0.5);
+                    child.mood = Math.min(100, child.mood + 0.3);
+                    return;
+                }
+                
+                // Определяем направление движения (убегают от мамы)
+                const dx = child.x - gameState.momPosition.x;
+                const dy = child.y - gameState.momPosition.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Если далеко от мамы, можно создавать беспорядок
+                if (distance > 150 && !child.makingMess && Math.random() < 0.1) {
+                    child.makingMess = true;
+                }
+                
+                // Если близко к маме, убегаем
+                if (distance < 100) {
+                    // Убегаем от мамы
+                    const speed = 3;
+                    child.x += (dx / distance) * speed;
+                    child.y += (dy / distance) * speed;
+                    
+                    // Ограничение в пределах комнаты
+                    child.x = Math.max(30, Math.min(gameWidth - 30, child.x));
+                    child.y = Math.max(50, Math.min(gameHeight - 30, child.y));
+                    
+                    // Прекращаем создавать беспорядок при приближении мамы
+                    if (child.makingMess) {
+                        child.makingMess = false;
+                        if (child.mess) {
+                            child.mess.element.remove();
+                            child.mess = null;
+                        }
+                    }
+                } else if (!child.makingMess) {
+                    // Случайное блуждание
+                    child.x += (Math.random() - 0.5) * 4;
+                    child.y += (Math.random() - 0.5) * 4;
+                    
+                    // Ограничение в пределах комнаты
+                    child.x = Math.max(30, Math.min(gameWidth - 30, child.x));
+                    child.y = Math.max(50, Math.min(gameHeight - 30, child.y));
+                }
+            }
+            
+            // Создание беспорядка
+            function makeMesses() {
+                makeMess('vera', '🖍️', 'рисунок');
+                makeMess('matvey', '🥣', 'миска');
+                makeMess('nikita', '🍬', 'обёртка');
+                
+                // Случайное создание игрушек
+                if (Math.random() < 0.02) {
+                    createRandomToy();
+                }
+            }
+            
+            // Создание конкретного типа беспорядка
+            function makeMess(childName, emoji, type) {
+                const child = gameState.children[childName];
+                
+                if (child.makingMess && !child.mess) {
+                    // Создаем элемент беспорядка
+                    const messElement = document.createElement('div');
+                    messElement.className = `mess`;
+                    messElement.innerHTML = emoji;
+                    messElement.style.left = (child.x - 15) + 'px';
+                    messElement.style.top = (child.y + 10) + 'px';
+                    
+                    house.appendChild(messElement);
+                    
+                    // Сохраняем информацию о беспорядке
+                    child.mess = {
+                        type: type,
+                        element: messElement,
+                        x: child.x,
+                        y: child.y
+                    };
+                    
+                    // Добавляем в общий список
+                    gameState.messes.push({
+                        type: type,
+                        element: messElement,
+                        x: child.x,
+                        y: child.y,
+                        child: childName
+                    });
+                    
+                    // Воспроизводим звук
+                    playSound(messSound);
+                    
+                    // Уменьшаем настроение
+                    gameState.mood = Math.max(0, gameState.mood - 2);
+                } else if (child.makingMess && child.mess) {
+                    // Обновляем позицию беспорядка вместе с ребенком
+                    child.mess.element.style.left = (child.x - 15) + 'px';
+                    child.mess.element.style.top = (child.y + 10) + 'px';
+                } else if (!child.makingMess && child.mess) {
+                    // Удаляем беспорядок, если ребенок перестал его создавать
+                    child.mess.element.remove();
+                    child.mess = null;
+                    
+                    // Удаляем из общего списка
+                    gameState.messes = gameState.messes.filter(m => m.child !== childName);
+                }
+            }
+            
+            // Создание случайной игрушки
+            function createRandomToy() {
+                const x = 50 + Math.random() * (gameWidth - 100);
+                const y = 50 + Math.random() * (gameHeight - 100);
+                
+                const toyElement = document.createElement('div');
+                toyElement.className = 'mess';
+                toyElement.innerHTML = '🧸';
+                toyElement.style.left = x + 'px';
+                toyElement.style.top = y + 'px';
+                
+                house.appendChild(toyElement);
+                
+                gameState.messes.push({
+                    type: 'игрушка',
+                    element: toyElement,
+                    x: x,
+                    y: y,
+                    child: null
+                });
+                
+                // Показываем сообщение
+                showSpeechBubble("Появилась новая игрушка!", x, y);
+            }
+            
+            // Обновление настроения
+            function updateMood() {
+                // Настроение ухудшается, когда много беспорядка
+                const messFactor = gameState.messes.length * 0.5;
+                gameState.mood = Math.max(0, gameState.mood - messFactor);
+                
+                // Настроение улучшается, когда убираем беспорядок
+                if (gameState.score > 0) {
+                    gameState.mood = Math.min(100, gameState.mood + 0.1);
+                }
+                
+                moodElement.textContent = Math.round(gameState.mood) + '%';
+                
+                // Если настроение слишком низкое, игра замедляется
+                if (gameState.mood < 30) {
+                    mom.style.opacity = '0.7';
+                } else {
+                    mom.style.opacity = '1';
+                }
+            }
+            
+            // Показать пузырь с речью
+            function showSpeechBubble(text, x, y) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.textContent = text;
+                bubble.style.left = (x - 60) + 'px';
+                bubble.style.top = (y - 40) + 'px';
+                
+                house.appendChild(bubble);
+                
+                // Удаляем пузырь через 2 секунды
+                setTimeout(() => {
+                    bubble.remove();
+                }, 2000);
+            }
+            
+            // Обработка кликов/касаний
+            gameContainer.addEventListener('click', function(e) {
+                if (!gameState.isPlaying) return;
+                
+                const rect = gameContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Двигаем маму к месту клика
+                gameState.momPosition.x = x;
+                gameState.momPosition.y = y;
+                
+                // Проверяем, кликнули ли на беспорядок
+                checkMessesAt(x, y);
+                
+                // Проверяем, поймали ли ребенка
+                checkCaughtChild(x, y);
+                
+                updatePositions();
+            });
+            
+            // Проверка клика на беспорядок
+            function checkMessesAt(x, y) {
+                for (let i = gameState.messes.length - 1; i >= 0; i--) {
+                    const mess = gameState.messes[i];
+                    const distance = Math.sqrt(
+                        Math.pow(mess.x - x, 2) + Math.pow(mess.y - y, 2)
+                    );
+                    
+                    if (distance < 30) {
+                        // Убираем беспорядок
+                        mess.element.remove();
+                        gameState.messes.splice(i, 1);
+                        
+                        // Начисляем очки
+                        gameState.score += 10;
+                        scoreElement.textContent = gameState.score;
+                        
+                        // Воспроизводим звук
+                        playSound(cleanSound);
+                        
+                        // Визуальный эффект уборки
+                        mom.classList.add('cleaning');
+                        setTimeout(() => mom.classList.remove('cleaning'), 500);
+                    }
+                }
+            }
+            
+            // Проверка пойманного ребенка
+            function checkCaughtChild(x, y) {
+                for (const childName in gameState.children) {
+                    const child = gameState.children[childName];
+                    const distance = Math.sqrt(
+                        Math.pow(child.x - x, 2) + Math.pow(child.y - y, 2)
+                    );
+                    
+                    if (distance < 40) {
+                        // Ребенок пойман
+                        child.health -= 20;
+                        if (child.health < 0) child.health = 0;
+                        
+                        // Ухудшаем настроение ребенка
+                        child.mood = Math.max(0, child.mood - 10);
+                        
+                        // Визуальный эффект
+                        const childElement = document.getElementById(childName);
+                        childElement.classList.add('scared');
+                        setTimeout(() => childElement.classList.remove('scared'), 300);
+                        
+                        // Показываем сообщение
+                        showSpeechBubble("Ай, больно!", child.x, child.y);
+                        
+                        // Если создавал беспорядок - убираем его
+                        if (child.makingMess && child.mess) {
+                            child.makingMess = false;
+                            child.mess.element.remove();
+                            child.mess = null;
+                            
+                            // Удаляем из общего списка
+                            gameState.messes = gameState.messes.filter(m => m.child !== childName);
+                        }
+                    }
+                }
+            }
+            
+            // Обработчик кнопки крика
+            actionYell.addEventListener('click', function() {
+                if (!gameState.isPlaying || gameState.cooldowns.yell > 0) return;
+                
+                // Устанавливаем перезарядку
+                gameState.cooldowns.yell = 10;
+                updateAbilityButtons();
+                
+                // Воспроизводим звук
+                playSound(yellSound);
+                
+                // Показываем сообщение
+                showSpeechBubble(customSettings.yellPhrase, gameState.momPosition.x, gameState.momPosition.y);
+                
+                // Пугаем детей
+                for (const childName in gameState.children) {
+                    const child = gameState.children[childName];
+                    
+                    // Определяем расстояние до ребенка
+                    const dx = child.x - gameState.momPosition.x;
+                    const dy = child.y - gameState.momPosition.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Если ребенок близко, он пугается
+                    if (distance < 200) {
+                        child.health -= 15;
+                        if (child.health < 0) child.health = 0;
+                        
+                        // Ухудшаем настроение ребенка
+                        child.mood = Math.max(0, child.mood - 15);
+                        
+                        // Визуальный эффект
+                        const childElement = document.getElementById(childName);
+                        childElement.classList.add('scared');
+                        setTimeout(() => childElement.classList.remove('scared'), 300);
+                        
+                        // Прекращаем создавать беспорядок
+                        if (child.makingMess && child.mess) {
+                            child.makingMess = false;
+                            child.mess.element.remove();
+                            child.mess = null;
+                            
+                            // Удаляем из общего списка
+                            gameState.messes = gameState.messes.filter(m => m.child !== childName);
+                        }
+                    }
+                }
+            });
+            
+            // Обработчик кнопки быстрой уборки
+            actionClean.addEventListener('click', function() {
+                if (!gameState.isPlaying || gameState.cooldowns.clean > 0) return;
+                
+                // Устанавливаем перезарядку
+                gameState.cooldowns.clean = 15;
+                updateAbilityButtons();
+                
+                // Воспроизводим звук
+                playSound(cleanSound);
+                
+                // Убираем весь беспорядок в радиусе
+                for (let i = gameState.messes.length - 1; i >= 0; i--) {
+                    const mess = gameState.messes[i];
+                    const dx = mess.x - gameState.momPosition.x;
+                    const dy = mess.y - gameState.momPosition.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        // Убираем беспорядок
+                        mess.element.remove();
+                        gameState.messes.splice(i, 1);
+                        
+                        // Начисляем очки
+                        gameState.score += 10;
+                    }
+                }
+                
+                scoreElement.textContent = gameState.score;
+                
+                // Визуальный эффект уборки
+                mom.classList.add('cleaning');
+                setTimeout(() => mom.classList.remove('cleaning'), 500);
+            });
+            
+            // Обработчик кнопки объятий
+            actionHug.addEventListener('click', function() {
+                if (!gameState.isPlaying || gameState.cooldowns.hug > 0) return;
+                
+                // Устанавливаем перезарядку
+                gameState.cooldowns.hug = 20;
+                updateAbilityButtons();
+                
+                // Воспроизводим звук
+                playSound(hugSound);
+                
+                // Улучшаем настроение детей
+                for (const childName in gameState.children) {
+                    const child = gameState.children[childName];
+                    
+                    // Определяем расстояние до ребенка
+                    const dx = child.x - gameState.momPosition.x;
+                    const dy = child.y - gameState.momPosition.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Если ребенок близко, улучшаем его настроение
+                    if (distance < 150) {
+                        child.mood = Math.min(100, child.mood + 30);
+                        child.health = Math.min(100, child.health + 20);
+                        
+                        // Показываем сообщение
+                        showSpeechBubble("Обнялись!", child.x, child.y);
+                    }
+                }
+                
+                // Улучшаем общее настроение
+                gameState.mood = Math.min(100, gameState.mood + 20);
+                moodElement.textContent = Math.round(gameState.mood) + '%';
+            });
+            
+            // Обновление состояния кнопок способностей
+            function updateAbilityButtons() {
+                actionYell.textContent = gameState.cooldowns.yell > 0 ? 
+                    `Крикнуть (${gameState.cooldowns.yell})` : "Крикнуть";
+                actionYell.disabled = gameState.cooldowns.yell > 0;
+                
+                actionClean.textContent = gameState.cooldowns.clean > 0 ? 
+                    `Уборка (${gameState.cooldowns.clean})` : "Быстрая уборка";
+                actionClean.disabled = gameState.cooldowns.clean > 0;
+                
+                actionHug.textContent = gameState.cooldowns.hug > 0 ? 
+                    `Обнять (${gameState.cooldowns.hug})` : "Обнять детей";
+                actionHug.disabled = gameState.cooldowns.hug > 0;
+            }
+            
+            // Воспроизведение звука
+            function playSound(sound) {
+                sound.volume = customSettings.volume;
+                sound.currentTime = 0;
+                
+                // Пытаемся воспроизвести звук
+                sound.play().catch(e => {
+                    console.log("Не удалось воспроизвести звук: ", e);
+                    // Показываем сообщение, если это первая ошибка воспроизведения
+                    if (!sound.errorShown) {
+                        showMessage("Разрешите воспроизведение звука для полного опыта игры!");
+                        sound.errorShown = true;
+                    }
+                });
+            }
+            
+            // Обработчик кнопки начала игры
+            startBtn.addEventListener('click', initGame);
+            
+            // Обработчик кнопки настройки
+            customizeBtn.addEventListener('click', function() {
+                customizePanel.style.display = customizePanel.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Обработчик сохранения настроек
+            saveCustomizeBtn.addEventListener('click', function() {
+                customSettings.momName = document.getElementById('mom-name').value;
+                customSettings.yellPhrase = document.getElementById('yell-phrase').value;
+                customSettings.volume = parseFloat(document.getElementById('volume').value);
+                
+                // Обновляем отображение громкости
+                volumeValue.textContent = Math.round(customSettings.volume * 100) + '%';
+                
+                customizePanel.style.display = 'none';
+                showMessage("Настройки сохранены!");
+            });
+            
+            // Обработчик изменения громкости
+            volumeControl.addEventListener('input', function() {
+                const volume = parseFloat(volumeControl.value);
+                volumeValue.textContent = Math.round(volume * 100) + '%';
+            });
+            
+            // Предотвращение контекстного меню
+            gameContainer.addEventListener('contextmenu', e => e.preventDefault());
+            
+            // Инициализация при загрузке
+            mom.style.left = (gameState.momPosition.x - 25) + 'px';
+            mom.style.top = (gameState.momPosition.y - 25) + 'px';
+            
+            // Загружаем настройки в форму
+            document.getElementById('mom-name').value = customSettings.momName;
+            document.getElementById('yell-phrase').value = customSettings.yellPhrase;
+            document.getElementById('volume').value = customSettings.volume;
+            volumeValue.textContent = Math.round(customSettings.volume * 100) + '%';
+            
+            // Показать инструкцию при первом запуске
+            showMessage("Нажми 'Начать игру' чтобы играть!");
+        });
+    </script>
+</body>
+</html>
