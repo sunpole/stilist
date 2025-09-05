@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Собираем игрушки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 95%;
+            height: 70vh;
+            max-width: 600px;
+            background-color: #FFE082;
+            border: 5px solid #FFA000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        #room {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #FFF9C4;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #FFECB3 10px, transparent 10px),
+                radial-gradient(circle at 80% 70%, #FFECB3 15px, transparent 15px);
+        }
+        
+        .toy {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .toy:active {
+            transform: scale(1.2);
+        }
+        
+        #toy-box {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #8D6E63;
+            border: 3px solid #5D4037;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            z-index: 5;
+        }
+        
+        #score-display {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF5722;
+            text-shadow: 2px 2px 0 white;
+            z-index: 20;
+        }
+        
+        #timer-display {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+            text-shadow: 2px 2px 0 white;
+            z-index: 20;
+        }
+        
+        #start-screen, #end-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 249, 196, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #end-screen {
+            display: none;
+        }
+        
+        h1 {
+            color: #FF5722;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 white;
+        }
+        
+        p {
+            font-size: 18px;
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 0 #388E3C;
+        }
+        
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        
+        .celebration {
+            position: absolute;
+            font-size: 40px;
+            animation: celebrate 1s ease-out;
+            z-index: 50;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            50% { transform: translateY(-100px) scale(1.5); opacity: 1; }
+            100% { transform: translateY(-200px) scale(1); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="room">
+            <div id="toy-box">Коробка для игрушек</div>
+            <div id="score-display">Игрушки: 0/10</div>
+            <div id="timer-display">Время: 60</div>
+        </div>
+        
+        <div id="start-screen">
+            <h1>Собираем игрушки!</h1>
+            <p>Помоги собрать все игрушки и положить их в коробку!</p>
+            <p>Просто нажимай на игрушки, чтобы собрать их!</p>
+            <button class="btn" id="start-btn">Начать игру</button>
+        </div>
+        
+        <div id="end-screen">
+            <h1>Молодец!</h1>
+            <p id="result-text">Ты собрал все игрушки!</p>
+            <button class="btn" id="restart-btn">Играть снова</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы игры
+            const gameContainer = document.getElementById('game-container');
+            const room = document.getElementById('room');
+            const toyBox = document.getElementById('toy-box');
+            const scoreDisplay = document.getElementById('score-display');
+            const timerDisplay = document.getElementById('timer-display');
+            const startScreen = document.getElementById('start-screen');
+            const endScreen = document.getElementById('end-screen');
+            const resultText = document.getElementById('result-text');
+            const startBtn = document.getElementById('start-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            
+            // Звуковые эффекты (замените на свои файлы)
+            const sounds = {
+                collect: new Audio('collect-sound.mp3'),
+                win: new Audio('win-sound.mp3'),
+                music: new Audio('background-music.mp3')
+            };
+            
+            // Настройка звуков
+            for (let key in sounds) {
+                sounds[key].preload = 'auto';
+                sounds[key].volume = 0.6;
+            }
+            sounds.music.loop = true;
+            sounds.music.volume = 0.2;
+            
+            // Состояние игры
+            let gameState = {
+                score: 0,
+                totalToys: 10,
+                timeLeft: 60,
+                isPlaying: false,
+                toys: [],
+                gameInterval: null,
+                timerInterval: null
+            };
+            
+            // Инициализация игры
+            function initGame() {
+                // Сброс состояния
+                gameState.score = 0;
+                gameState.timeLeft = 60;
+                gameState.toys = [];
+                
+                // Очистка игрушек
+                document.querySelectorAll('.toy').forEach(toy => toy.remove());
+                
+                // Создание игрушек
+                createToys();
+                
+                // Обновление интерфейса
+                scoreDisplay.textContent = `Игрушки: ${gameState.score}/${gameState.totalToys}`;
+                timerDisplay.textContent = `Время: ${gameState.timeLeft}`;
+                
+                // Скрытие экранов
+                startScreen.style.display = 'none';
+                endScreen.style.display = 'none';
+                
+                // Запуск музыки
+                sounds.music.play().catch(e => {
+                    console.log("Автовоспроизведение музыки заблокировано");
+                });
+                
+                // Запуск игрового процесса
+                startGame();
+            }
+            
+            // Создание игрушек
+            function createToys() {
+                const toyTypes = [
+                    {color: '#FF5252', shape: 'circle', width: 40, height: 40},
+                    {color: '#448AFF', shape: 'square', width: 40, height: 40},
+                    {color: '#FFC107', shape: 'triangle', width: 40, height: 40},
+                    {color: '#9C27B0', shape: 'diamond', width: 40, height: 40},
+                    {color: '#4CAF50', shape: 'star', width: 45, height: 45}
+                ];
+                
+                const roomWidth = gameContainer.offsetWidth;
+                const roomHeight = gameContainer.offsetHeight;
+                
+                for (let i = 0; i < gameState.totalToys; i++) {
+                    const toyType = toyTypes[Math.floor(Math.random() * toyTypes.length)];
+                    const toy = document.createElement('div');
+                    toy.className = 'toy';
+                    
+                    // Случайная позиция
+                    const x = Math.random() * (roomWidth - 60) + 20;
+                    const y = Math.random() * (roomHeight - 120) + 60;
+                    
+                    // Стилизация игрушки
+                    toy.style.width = toyType.width + 'px';
+                    toy.style.height = toyType.height + 'px';
+                    toy.style.left = x + 'px';
+                    toy.style.top = y + 'px';
+                    toy.style.backgroundColor = toyType.color;
+                    
+                    // Разные формы игрушек
+                    switch(toyType.shape) {
+                        case 'circle':
+                            toy.style.borderRadius = '50%';
+                            break;
+                        case 'triangle':
+                            toy.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+                            toy.style.backgroundColor = 'transparent';
+                            toy.style.backgroundImage = `linear-gradient(to bottom right, transparent 0%, transparent 50%, ${toyType.color} 50%, ${toyType.color} 100%)`;
+                            break;
+                        case 'diamond':
+                            toy.style.transform = 'rotate(45deg)';
+                            break;
+                        case 'star':
+                            toy.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                            break;
+                    }
+                    
+                    // Добавление обработчика клика
+                    toy.addEventListener('click', () => collectToy(toy));
+                    
+                    room.appendChild(toy);
+                    gameState.toys.push(toy);
+                }
+            }
+            
+            // Запуск игры
+            function startGame() {
+                gameState.isPlaying = true;
+                
+                // Таймер обратного отсчета
+                gameState.timerInterval = setInterval(() => {
+                    gameState.timeLeft--;
+                    timerDisplay.textContent = `Время: ${gameState.timeLeft}`;
+                    
+                    if (gameState.timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+            }
+            
+            // Сбор игрушки
+            function collectToy(toy) {
+                if (!gameState.isPlaying) return;
+                
+                // Воспроизведение звука
+                sounds.collect.play().catch(e => {
+                    console.log("Не удалось воспроизвести звук");
+                });
+                
+                // Анимация сбора
+                toy.style.transition = 'all 0.5s ease';
+                toy.style.transform = 'scale(0.1)';
+                toy.style.opacity = '0';
+                
+                // Увеличение счета
+                gameState.score++;
+                scoreDisplay.textContent = `Игрушки: ${gameState.score}/${gameState.totalToys}`;
+                
+                // Создание анимации празднования
+                if (gameState.score % 3 === 0) {
+                    createCelebration(toy.offsetLeft, toy.offsetTop);
+                }
+                
+                // Удаление игрушки после анимации
+                setTimeout(() => {
+                    toy.remove();
+                    
+                    // Проверка на победу
+                    if (gameState.score >= gameState.totalToys) {
+                        endGame();
+                    }
+                }, 500);
+            }
+            
+            // Создание анимации празднования
+            function createCelebration(x, y) {
+                const celebration = document.createElement('div');
+                celebration.className = 'celebration';
+                celebration.textContent = '👍';
+                celebration.style.left = x + 'px';
+                celebration.style.top = y + 'px';
+                
+                room.appendChild(celebration);
+                
+                // Удаление после анимации
+                setTimeout(() => {
+                    celebration.remove();
+                }, 1000);
+            }
+            
+            // Конец игры
+            function endGame() {
+                gameState.isPlaying = false;
+                clearInterval(gameState.timerInterval);
+                
+                // Остановка музыки
+                sounds.music.pause();
+                sounds.music.currentTime = 0;
+                
+                // Воспроизведение звука победы
+                if (gameState.score >= gameState.totalToys) {
+                    sounds.win.play().catch(e => {
+                        console.log("Не удалось воспроизвести звук победы");
+                    });
+                    resultText.textContent = `Ура! Ты собрал все игрушки за ${60 - gameState.timeLeft} секунд!`;
+                } else {
+                    resultText.textContent = `Ты собрал ${gameState.score} из ${gameState.totalToys} игрушек. Попробуй ещё!`;
+                }
+                
+                // Показ экрана окончания игры
+                endScreen.style.display = 'flex';
+            }
+            
+            // Обработчики кнопок
+            startBtn.addEventListener('click', initGame);
+            restartBtn.addEventListener('click', initGame);
+            
+            // Предотвращение контекстного меню
+            gameContainer.addEventListener('contextmenu', e => e.preventDefault());
+        });
+    </script>
+</body>
+</html>
