@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мухобойка</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+        
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        
+        #score-container {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #ffcc00;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+            z-index: 10;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        #level {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #ffcc00;
+        }
+        
+        #score {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        #game-area {
+            width: 100%;
+            height: 80%;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 3px solid #4a90e2;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .fly {
+            position: absolute;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+        
+        .fly:hover {
+            transform: scale(1.1);
+        }
+        
+        #swatter {
+            position: absolute;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 5;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        
+        .swat-animation {
+            animation: swat 0.2s forwards;
+        }
+        
+        @keyframes swat {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(0.8); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        #controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            z-index: 10;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #4a90e2, #3a70b0);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+            border: 2px solid #ffcc00;
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        #sound-toggle {
+            background: linear-gradient(to bottom, #ff6b6b, #c44d4d);
+        }
+        
+        #start-screen, #level-up-screen, #boss-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #level-up-screen, #boss-screen {
+            display: none;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            color: #ffcc00;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+        }
+        
+        h2 {
+            font-size: 2rem;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+        
+        .boss {
+            font-size: 4rem !important;
+            animation: boss-pulse 2s infinite;
+        }
+        
+        @keyframes boss-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        .hit-effect {
+            position: absolute;
+            font-size: 2rem;
+            animation: hit-effect 0.5s forwards;
+            pointer-events: none;
+            z-index: 4;
+        }
+        
+        @keyframes hit-effect {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            #score-container {
+                padding: 8px 16px;
+            }
+            
+            #level {
+                font-size: 1rem;
+            }
+            
+            #score {
+                font-size: 1.3rem;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .fly {
+                font-size: 1.5rem;
+            }
+            
+            #swatter {
+                font-size: 2.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            p {
+                font-size: 1rem;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <div id="game-container">
+        <div id="score-container">
+            <div id="level">Уровень: 1</div>
+            <div id="score">Мухи: 0/10</div>
+        </div>
+        
+        <div id="game-area">
+            <div id="swatter">🔨</div>
+            <!-- Мухи будут добавляться сюда -->
+        </div>
+        
+        <div id="controls">
+            <button id="start-btn">Начать игру</button>
+            <button id="sound-toggle">🔇 Звук</button>
+        </div>
+    </div>
+    
+    <div id="start-screen">
+        <h1>🪰 Мухобойка 🔨</h1>
+        <p>Убивай мух, зарабатывай очки и сражайся с мухобоссом!</p>
+        <p>Кликай по мухам, чтобы уничтожить их</p>
+        <button id="start-menu-btn">Играть!</button>
+    </div>
+    
+    <div id="level-up-screen">
+        <h2>Уровень пройден! 🎉</h2>
+        <p>Готовься к следующему уровню с ещё большим количеством мух!</p>
+        <button id="next-level-btn">Следующий уровень</button>
+    </div>
+    
+    <div id="boss-screen">
+        <h2>Внимание! Прибыл Мухобосс! 🐞</h2>
+        <p>Победи его, чтобы продолжить игру!</p>
+        <button id="boss-fight-btn">Сражаться!</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы игры
+            const gameArea = document.getElementById('game-area');
+            const swatter = document.getElementById('swatter');
+            const scoreDisplay = document.getElementById('score');
+            const levelDisplay = document.getElementById('level');
+            const startScreen = document.getElementById('start-screen');
+            const levelUpScreen = document.getElementById('level-up-screen');
+            const bossScreen = document.getElementById('boss-screen');
+            const startBtn = document.getElementById('start-btn');
+            const startMenuBtn = document.getElementById('start-menu-btn');
+            const nextLevelBtn = document.getElementById('next-level-btn');
+            const bossFightBtn = document.getElementById('boss-fight-btn');
+            const soundToggle = document.getElementById('sound-toggle');
+            
+            // Переменные игры
+            let score = 0;
+            let level = 1;
+            let fliesToNextLevel = 10;
+            let fliesSpawned = 0;
+            let fliesKilled = 0;
+            let gameActive = false;
+            let soundEnabled = true;
+            let bossActive = false;
+            
+            // Звуковые эффекты
+            const hitSounds = [
+                { file: "hit1", audio: new Audio() },
+                { file: "hit2", audio: new Audio() },
+                { file: "hit3", audio: new Audio() }
+            ];
+            
+            const spawnSounds = [
+                { file: "spawn1", audio: new Audio() },
+                { file: "spawn2", audio: new Audio() }
+            ];
+            
+            const levelUpSound = new Audio();
+            const bossSound = new Audio();
+            const backgroundMusic = new Audio();
+            
+            // Функция для загрузки звуков
+            function loadSounds() {
+                // В реальной реализации здесь должны быть пути к реальным звуковым файлам
+                // Для демонстрации мы используем базовые тоны
+                
+                // Создаем простые звуки с помощью Web Audio API
+                createHitSounds();
+                createSpawnSounds();
+                createLevelUpSound();
+                createBossSound();
+                createBackgroundMusic();
+            }
+            
+            function createHitSounds() {
+                hitSounds.forEach((sound, index) => {
+                    // В реальной игре здесь должен быть sound.audio.src = "sounds/" + sound.file + ".mp3";
+                    // Для демонстрации создаем синтезированные звуки
+                    const context = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+                    
+                    oscillator.type = 'square';
+                    oscillator.frequency.value = 300 + (index * 50);
+                    gainNode.gain.value = 0.3;
+                    
+                    oscillator.start();
+                    oscillator.stop(context.currentTime + 0.1);
+                    
+                    sound.audio = { play: function() {
+                        const newContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const newOscillator = newContext.createOscillator();
+                        const newGain = newContext.createGain();
+                        
+                        newOscillator.connect(newGain);
+                        newGain.connect(newContext.destination);
+                        
+                        newOscillator.type = 'square';
+                        newOscillator.frequency.value = 300 + (index * 50);
+                        newGain.gain.value = 0.3;
+                        
+                        newOscillator.start();
+                        newOscillator.stop(newContext.currentTime + 0.1);
+                    }};
+                });
+            }
+            
+            function createSpawnSounds() {
+                spawnSounds.forEach((sound, index) => {
+                    // Аналогично для других звуков
+                    sound.audio = { play: function() {
+                        const context = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = context.createOscillator();
+                        const gainNode = context.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(context.destination);
+                        
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.value = 200 + (index * 100);
+                        gainNode.gain.value = 0.2;
+                        
+                        oscillator.start();
+                        oscillator.stop(context.currentTime + 0.15);
+                    }};
+                });
+            }
+            
+            function createLevelUpSound() {
+                levelUpSound.play = function() {
+                    const context = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 523.25; // Нота C5
+                    gainNode.gain.value = 0.3;
+                    
+                    oscillator.start();
+                    oscillator.frequency.exponentialRampToValueAtTime(1046.5, context.currentTime + 0.5); // C6
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+                    
+                    oscillator.stop(context.currentTime + 0.5);
+                };
+            }
+            
+            function createBossSound() {
+                bossSound.play = function() {
+                    const context = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+                    
+                    oscillator.type = 'square';
+                    oscillator.frequency.value = 110; // Ля2
+                    gainNode.gain.value = 0.4;
+                    
+                    oscillator.start();
+                    oscillator.frequency.exponentialRampToValueAtTime(55, context.currentTime + 1); // Ля1
+                    
+                    oscillator.stop(context.currentTime + 1);
+                };
+            }
+            
+            function createBackgroundMusic() {
+                // Фоновая музыка будет простым повторяющимся звуком
+                backgroundMusic.play = function() {
+                    if (!soundEnabled) return;
+                    
+                    const context = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 261.63; // C4
+                    gainNode.gain.value = 0.1;
+                    
+                    // Простая мелодия
+                    const times = [0, 0.5, 1.0, 1.5, 2.0, 2.5];
+                    const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
+                    
+                    oscillator.start();
+                    
+                    for (let i = 0; i < times.length; i++) {
+                        oscillator.frequency.setValueAtTime(notes[i], context.currentTime + times[i]);
+                    }
+                    
+                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                    
+                    oscillator.stop(context.currentTime + 3);
+                    
+                    // Повторяем музыку
+                    setTimeout(() => {
+                        if (gameActive && soundEnabled) {
+                            backgroundMusic.play();
+                        }
+                    }, 3000);
+                };
+            }
+            
+            // Инициализация игры
+            function initGame() {
+                loadSounds();
+                updateScore();
+                
+                // Обработчики событий
+                gameArea.addEventListener('mousemove', moveSwatter);
+                gameArea.addEventListener('touchmove', moveSwatterTouch, { passive: false });
+                
+                startBtn.addEventListener('click', startGame);
+                startMenuBtn.addEventListener('click', startGame);
+                nextLevelBtn.addEventListener('click', nextLevel);
+                bossFightBtn.addEventListener('click', startBossFight);
+                
+                soundToggle.addEventListener('click', toggleSound);
+                
+                // Отключаем контекстное меню
+                document.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+            }
+            
+            // Запуск игры
+            function startGame() {
+                startScreen.style.display = 'none';
+                levelUpScreen.style.display = 'none';
+                bossScreen.style.display = 'none';
+                
+                resetGame();
+                gameActive = true;
+                
+                if (soundEnabled) {
+                    backgroundMusic.play();
+                }
+                
+                spawnFly();
+            }
+            
+            // Сброс игры
+            function resetGame() {
+                score = 0;
+                level = 1;
+                fliesToNextLevel = 10;
+                fliesSpawned = 0;
+                fliesKilled = 0;
+                bossActive = false;
+                
+                // Очищаем игровую область
+                const flies = document.querySelectorAll('.fly');
+                flies.forEach(fly => fly.remove());
+                
+                updateScore();
+            }
+            
+            // Обновление счета
+            function updateScore() {
+                scoreDisplay.textContent = `Мухи: ${fliesKilled}/${fliesToNextLevel}`;
+                levelDisplay.textContent = `Уровень: ${level}`;
+            }
+            
+            // Движение мухобойки
+            function moveSwatter(e) {
+                const rect = gameArea.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                swatter.style.left = `${x}px`;
+                swatter.style.top = `${y}px`;
+            }
+            
+            function moveSwatterTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = gameArea.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                swatter.style.left = `${x}px`;
+                swatter.style.top = `${y}px`;
+            }
+            
+            // Создание мухи
+            function spawnFly() {
+                if (!gameActive) return;
+                
+                const fly = document.createElement('div');
+                fly.className = 'fly';
+                fly.innerHTML = '🪰';
+                
+                // Случайная позиция
+                const maxX = gameArea.offsetWidth - 50;
+                const maxY = gameArea.offsetHeight - 50;
+                const x = Math.floor(Math.random() * maxX);
+                const y = Math.floor(Math.random() * maxY);
+                
+                fly.style.left = `${x}px`;
+                fly.style.top = `${y}px`;
+                
+                // Случайная анимация
+                const animationDuration = 2 + Math.random() * 3;
+                fly.style.animation = `fly-around ${animationDuration}s infinite alternate`;
+                
+                // Обработчик клика
+                fly.addEventListener('click', killFly);
+                fly.addEventListener('touchstart', killFly, { passive: false });
+                
+                gameArea.appendChild(fly);
+                fliesSpawned++;
+                
+                // Воспроизводим звук появления
+                if (soundEnabled) {
+                    const randomSound = spawnSounds[Math.floor(Math.random() * spawnSounds.length)];
+                    randomSound.audio.play();
+                }
+                
+                // Следующая муха
+                if (fliesSpawned < (bossActive ? 1 : fliesToNextLevel)) {
+                    const nextSpawn = bossActive ? 2000 : 1000 - (level * 50);
+                    setTimeout(spawnFly, Math.max(300, nextSpawn));
+                } else if (!bossActive) {
+                    // Если это последняя муха уровня, запускаем босса
+                    setTimeout(showBossScreen, 1000);
+                }
+            }
+            
+            // Убийство мухи
+            function killFly(e) {
+                if (e.type === 'touchstart') {
+                    e.preventDefault();
+                }
+                
+                const fly = e.target;
+                
+                // Анимация удара
+                swatter.classList.add('swat-animation');
+                setTimeout(() => {
+                    swatter.classList.remove('swat-animation');
+                }, 200);
+                
+                // Эффект попадания
+                const hitEffect = document.createElement('div');
+                hitEffect.className = 'hit-effect';
+                hitEffect.innerHTML = '💥';
+                hitEffect.style.left = fly.style.left;
+                hitEffect.style.top = fly.style.top;
+                gameArea.appendChild(hitEffect);
+                
+                setTimeout(() => {
+                    hitEffect.remove();
+                }, 500);
+                
+                // Удаляем муху
+                fly.remove();
+                
+                // Обновляем счет
+                fliesKilled++;
+                updateScore();
+                
+                // Воспроизводим случайный звук удара
+                if (soundEnabled) {
+                    const randomSound = hitSounds[Math.floor(Math.random() * hitSounds.length)];
+                    randomSound.audio.play();
+                }
+                
+                // Проверяем завершение уровня
+                if (fliesKilled >= fliesToNextLevel && !bossActive) {
+                    levelComplete();
+                } else if (bossActive && fliesKilled >= 1) {
+                    // Если убили босса
+                    bossDefeated();
+                }
+            }
+            
+            // Завершение уровня
+            function levelComplete() {
+                gameActive = false;
+                
+                if (soundEnabled) {
+                    levelUpSound.play();
+                }
+                
+                setTimeout(() => {
+                    levelUpScreen.style.display = 'flex';
+                }, 1000);
+            }
+            
+            // Следующий уровень
+            function nextLevel() {
+                level++;
+                fliesToNextLevel = 10 + (level * 2);
+                fliesSpawned = 0;
+                fliesKilled = 0;
+                
+                levelUpScreen.style.display = 'none';
+                gameActive = true;
+                
+                updateScore();
+                spawnFly();
+            }
+            
+            // Показ экрана босса
+            function showBossScreen() {
+                gameActive = false;
+                
+                if (soundEnabled) {
+                    bossSound.play();
+                }
+                
+                bossScreen.style.display = 'flex';
+            }
+            
+            // Начало битвы с боссом
+            function startBossFight() {
+                bossActive = true;
+                fliesSpawned = 0;
+                fliesKilled = 0;
+                
+                bossScreen.style.display = 'none';
+                gameActive = true;
+                
+                // Создаем босса
+                const boss = document.createElement('div');
+                boss.className = 'fly boss';
+                boss.innerHTML = '🐞';
+                
+                // Центрируем босса
+                const x = (gameArea.offsetWidth - 80) / 2;
+                const y = (gameArea.offsetHeight - 80) / 2;
+                
+                boss.style.left = `${x}px`;
+                boss.style.top = `${y}px`;
+                
+                // Обработчик клика
+                boss.addEventListener('click', killFly);
+                boss.addEventListener('touchstart', killFly, { passive: false });
+                
+                gameArea.appendChild(boss);
+                fliesSpawned++;
+                
+                if (soundEnabled) {
+                    bossSound.play();
+                }
+            }
+            
+            // Победа над боссом
+            function bossDefeated() {
+                gameActive = false;
+                
+                if (soundEnabled) {
+                    levelUpSound.play();
+                }
+                
+                setTimeout(() => {
+                    nextLevel();
+                }, 1500);
+            }
+            
+            // Переключение звука
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                soundToggle.textContent = soundEnabled ? '🔇 Звук' : '🔈 Звук';
+                
+                if (soundEnabled && gameActive) {
+                    backgroundMusic.play();
+                }
+            }
+            
+            // Запускаем инициализацию игры
+            initGame();
+        });
+    </script>
+</body>
+</html>
