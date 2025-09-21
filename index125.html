@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Церковный Симулятор</title>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6a8b 100%);
+            color: #ecf0f1;
+            line-height: 1.6;
+            padding: 15px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-bottom: 3px solid #e67e22;
+        }
+        
+        h1 {
+            color: #e67e22;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        
+        .stat-name {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .tab-btn.active {
+            background: #e67e22;
+            color: #fff;
+        }
+        
+        .tab-content {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        .action-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .action-title {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .action-desc {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-bottom: 12px;
+        }
+        
+        .action-cost {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #e67e22, #d35400);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.1s;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #34495e;
+            border-radius: 12px;
+            margin-right: 10px;
+        }
+        
+        .toggle:after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        
+        input[type="checkbox"] {
+            display: none;
+        }
+        
+        input[type="checkbox"]:checked + .toggle {
+            background: #2ecc71;
+        }
+        
+        input[type="checkbox"]:checked + .toggle:after {
+            left: 28px;
+        }
+        
+        .progress-container {
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #34495e;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #e67e22;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            transition: transform 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .cost-item {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin: 2px;
+            font-size: 0.8rem;
+        }
+        
+        .game-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .game-btn {
+            width: 70px;
+            height: 70px;
+            font-size: 2rem;
+            margin: 0 5px;
+            border-radius: 50%;
+        }
+        
+        .game-result {
+            margin: 15px 0;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .footer-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 0 5px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Церковный Симулятор</h1>
+            <p>Развивайте общину и готовьте лидеров</p>
+        </header>
+        
+        <div class="stats-panel">
+            <div class="stat">
+                <div class="stat-name">Прихожане</div>
+                <div class="stat-value" id="followers">10</div>
+            </div>
+            <div class="stat">
+                <div class="stat-name">Вера</div>
+                <div class="stat-value" id="faith">50</div>
+            </div>
+            <div class="stat">
+                <div class="stat-name">Пожертвования</div>
+                <div class="stat-value" id="donations">100</div>
+            </div>
+            <div class="stat">
+                <div class="stat-name">Лидеры</div>
+                <div class="stat-value" id="leaders">0</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="actions">Действия</button>
+            <button class="tab-btn" data-tab="leaders">Лидеры</button>
+            <button class="tab-btn" data-tab="upgrades">Улучшения</button>
+        </div>
+        
+        <div id="actions" class="tab-content active">
+            <div class="action-card">
+                <div class="action-title">
+                    <span>Молитва</span>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="auto-prayer">
+                        <label class="toggle" for="auto-prayer"></label>
+                    </div>
+                </div>
+                <div class="action-desc">Увеличивает веру. Автоматически выполняется лидерами.</div>
+                <button class="btn" onclick="performAction('prayer')">Помолиться (+5 веры)</button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-title">
+                    <span>Проповедь</span>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="auto-sermon">
+                        <label class="toggle" for="auto-sermon"></label>
+                    </div>
+                </div>
+                <div class="action-desc">Привлекает новых прихожан. Автоматически выполняется лидерами.</div>
+                <button class="btn" onclick="performAction('sermon')">Провести проповедь (+2 прихожанина)</button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-title">
+                    <span>Сбор пожертвований</span>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="auto-donation">
+                        <label class="toggle" for="auto-donation"></label>
+                    </div>
+                </div>
+                <div class="action-desc">Собирает пожертвования от прихожан. Автоматически выполняется лидерами.</div>
+                <button class="btn" onclick="performAction('donation')">Собрать пожертвования (+10 монет)</button>
+            </div>
+        </div>
+        
+        <div id="leaders" class="tab-content">
+            <div class="action-card">
+                <div class="action-title">Подготовка лидеров</div>
+                <div class="action-desc">Лидеры автоматически выполняют действия. Каждый лидер увеличивает эффективность автоматизации.</div>
+                
+                <div class="progress-container">
+                    <div>Прогресс подготовки: <span id="training-progress">0%</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="training-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="game-container">
+                    <p>Сыграйте в игру, чтобы подготовить лидера:</p>
+                    <div>
+                        <button class="btn game-btn" onclick="playGame('rock')">✊</button>
+                        <button class="btn game-btn" onclick="playGame('scissors')">✌️</button>
+                        <button class="btn game-btn" onclick="playGame('paper')">✋</button>
+                    </div>
+                    <div class="game-result" id="game-result"></div>
+                </div>
+                
+                <div class="action-cost">
+                    Стоимость: <span class="cost-item">20 веры</span> <span class="cost-item">5 прихожан</span>
+                </div>
+                
+                <button class="btn" id="train-btn" onclick="trainLeader()">Подготовить лидера</button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-title">Ваши лидеры</div>
+                <div class="action-desc" id="leaders-desc">У вас нет лидеров. Подготовьте первого лидера, чтобы автоматизировать действия.</div>
+                <div class="progress-container">
+                    <div>Автоматизация: <span id="auto-power">0%</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="auto-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="upgrades" class="tab-content">
+            <div class="action-card">
+                <div class="action-title">Улучшение молитвы</div>
+                <div class="action-desc">Увеличивает эффективность молитвы на 100%.</div>
+                <div class="action-cost">
+                    Стоимость: <span class="cost-item">100 веры</span>
+                </div>
+                <button class="btn" id="upgrade-prayer" onclick="buyUpgrade('prayer')">Улучшить</button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-title">Улучшение проповеди</div>
+                <div class="action-desc">Увеличивает эффективность проповеди на 100%.</div>
+                <div class="action-cost">
+                    Стоимость: <span class="cost-item">80 веры</span> <span class="cost-item">20 пожертвований</span>
+                </div>
+                <button class="btn" id="upgrade-sermon" onclick="buyUpgrade('sermon')">Улучшить</button>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-title">Улучшение сбора</div>
+                <div class="action-desc">Увеличивает эффективность сбора пожертвований на 100%.</div>
+                <div class="action-cost">
+                    Стоимость: <span class="cost-item">50 веры</span> <span class="cost-item">50 пожертвований</span>
+                </div>
+                <button class="btn" id="upgrade-donation" onclick="buyUpgrade('donation')">Улучшить</button>
+            </div>
+        </div>
+        
+        <footer>
+            <button class="footer-btn" onclick="saveGame()">Сохранить</button>
+            <button class="footer-btn" onclick="resetGame()">Сброс</button>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Основная структура данных игры
+        let gameState = {
+            resources: {
+                followers: 10,
+                faith: 50,
+                donations: 100
+            },
+            leaders: 0,
+            upgrades: {
+                prayer: 1,
+                sermon: 1,
+                donation: 1
+            },
+            trainingProgress: 0,
+            lastUpdate: Date.now()
+        };
+
+        // Загрузка игры
+        function loadGame() {
+            const saved = localStorage.getItem('churchSimulator');
+            if (saved) {
+                try {
+                    gameState = JSON.parse(saved);
+                    showNotification('Игра загружена!');
+                } catch (e) {
+                    console.error('Ошибка загрузки:', e);
+                }
+            }
+            updateUI();
+            startGameLoop();
+        }
+
+        // Сохранение игры
+        function saveGame() {
+            localStorage.setItem('churchSimulator', JSON.stringify(gameState));
+            showNotification('Игра сохранена!');
+        }
+
+        // Сброс игры
+        function resetGame() {
+            if (confirm('Начать заново? Весь прогресс будет потерян.')) {
+                gameState = {
+                    resources: {
+                        followers: 10,
+                        faith: 50,
+                        donations: 100
+                    },
+                    leaders: 0,
+                    upgrades: {
+                        prayer: 1,
+                        sermon: 1,
+                        donation: 1
+                    },
+                    trainingProgress: 0,
+                    lastUpdate: Date.now()
+                };
+                updateUI();
+                saveGame();
+                showNotification('Новая игра начата!');
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            // Ресурсы
+            document.getElementById('followers').textContent = Math.floor(gameState.resources.followers);
+            document.getElementById('faith').textContent = Math.floor(gameState.resources.faith);
+            document.getElementById('donations').textContent = Math.floor(gameState.resources.donations);
+            document.getElementById('leaders').textContent = gameState.leaders;
+            
+            // Прогресс подготовки лидера
+            document.getElementById('training-progress').textContent = `${gameState.trainingProgress}%`;
+            document.getElementById('training-bar').style.width = `${gameState.trainingProgress}%`;
+            
+            // Кнопка подготовки лидера
+            const trainBtn = document.getElementById('train-btn');
+            trainBtn.disabled = gameState.trainingProgress < 100 || 
+                               gameState.resources.faith < 20 || 
+                               gameState.resources.followers < 5;
+            
+            // Описание лидеров
+            const leadersDesc = document.getElementById('leaders-desc');
+            if (gameState.leaders === 0) {
+                leadersDesc.textContent = 'У вас нет лидеров. Подготовьте первого лидера, чтобы автоматизировать действия.';
+            } else {
+                leadersDesc.textContent = `У вас ${gameState.leaders} лидеров. Они автоматически выполняют действия с эффективностью ${gameState.leaders * 10}%.`;
+            }
+            
+            // Мощность автоматизации
+            const autoPower = gameState.leaders * 10;
+            document.getElementById('auto-power').textContent = `${autoPower}%`;
+            document.getElementById('auto-bar').style.width = `${Math.min(autoPower, 100)}%`;
+            
+            // Обновить кнопки улучшений
+            updateUpgradeButtons();
+        }
+
+        // Обновление кнопок улучшений
+        function updateUpgradeButtons() {
+            const prayerUpgrade = document.getElementById('upgrade-prayer');
+            const sermonUpgrade = document.getElementById('upgrade-sermon');
+            const donationUpgrade = document.getElementById('upgrade-donation');
+            
+            prayerUpgrade.disabled = gameState.resources.faith < 100;
+            sermonUpgrade.disabled = gameState.resources.faith < 80 || gameState.resources.donations < 20;
+            donationUpgrade.disabled = gameState.resources.faith < 50 || gameState.resources.donations < 50;
+        }
+
+        // Выполнение действия
+        function performAction(action) {
+            let gain = 0;
+            
+            switch(action) {
+                case 'prayer':
+                    gain = 5 * gameState.upgrades.prayer;
+                    gameState.resources.faith += gain;
+                    showNotification(`+${gain} веры!`);
+                    break;
+                    
+                case 'sermon':
+                    gain = 2 * gameState.upgrades.sermon;
+                    gameState.resources.followers += gain;
+                    showNotification(`+${gain} прихожан!`);
+                    break;
+                    
+                case 'donation':
+                    gain = 10 * gameState.upgrades.donation;
+                    gameState.resources.donations += gain;
+                    showNotification(`+${gain} пожертвований!`);
+                    break;
+            }
+            
+            updateUI();
+            saveGame();
+        }
+
+        // Игра для подготовки лидера
+        function playGame(choice) {
+            if (gameState.trainingProgress >= 100) return;
+            
+            const choices = ['rock', 'scissors', 'paper'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            let result = '';
+            
+            if (choice === computerChoice) {
+                result = 'Ничья! +10% к подготовке';
+                gameState.trainingProgress += 10;
+            } else if (
+                (choice === 'rock' && computerChoice === 'scissors') ||
+                (choice === 'scissors' && computerChoice === 'paper') ||
+                (choice === 'paper' && computerChoice === 'rock')
+            ) {
+                result = 'Вы выиграли! +25% к подготовке';
+                gameState.trainingProgress += 25;
+            } else {
+                result = 'Вы проиграли. +5% к подготовке';
+                gameState.trainingProgress += 5;
+            }
+            
+            gameState.trainingProgress = Math.min(gameState.trainingProgress, 100);
+            document.getElementById('game-result').textContent = result;
+            updateUI();
+            saveGame();
+        }
+
+        // Подготовка лидера
+        function trainLeader() {
+            if (gameState.trainingProgress < 100 || 
+                gameState.resources.faith < 20 || 
+                gameState.resources.followers < 5) {
+                return;
+            }
+            
+            gameState.resources.faith -= 20;
+            gameState.resources.followers -= 5;
+            gameState.leaders += 1;
+            gameState.trainingProgress = 0;
+            
+            document.getElementById('game-result').textContent = '';
+            showNotification('Новый лидер подготовлен!');
+            updateUI();
+            saveGame();
+        }
+
+        // Покупка улучшения
+        function buyUpgrade(upgrade) {
+            let costFaith = 0, costDonations = 0;
+            
+            switch(upgrade) {
+                case 'prayer':
+                    if (gameState.resources.faith < 100) return;
+                    gameState.resources.faith -= 100;
+                    gameState.upgrades.prayer += 1;
+                    showNotification('Молитва улучшена!');
+                    break;
+                    
+                case 'sermon':
+                    if (gameState.resources.faith < 80 || gameState.resources.donations < 20) return;
+                    gameState.resources.faith -= 80;
+                    gameState.resources.donations -= 20;
+                    gameState.upgrades.sermon += 1;
+                    showNotification('Проповедь улучшена!');
+                    break;
+                    
+                case 'donation':
+                    if (gameState.resources.faith < 50 || gameState.resources.donations < 50) return;
+                    gameState.resources.faith -= 50;
+                    gameState.resources.donations -= 50;
+                    gameState.upgrades.donation += 1;
+                    showNotification('Сбор улучшен!');
+                    break;
+            }
+            
+            updateUI();
+            saveGame();
+        }
+
+        // Игровой цикл (автоматические действия)
+        function startGameLoop() {
+            setInterval(() => {
+                if (gameState.leaders > 0) {
+                    // Автоматическое выполнение действий с эффективностью, зависящей от количества лидеров
+                    const efficiency = gameState.leaders * 0.1;
+                    
+                    // Автоматическая молитва
+                    if (document.getElementById('auto-prayer').checked) {
+                        gameState.resources.faith += 2 * gameState.upgrades.prayer * efficiency;
+                    }
+                    
+                    // Автоматическая проповедь
+                    if (document.getElementById('auto-sermon').checked) {
+                        gameState.resources.followers += 1 * gameState.upgrades.sermon * efficiency;
+                    }
+                    
+                    // Автоматический сбор пожертвований
+                    if (document.getElementById('auto-donation').checked) {
+                        gameState.resources.donations += 4 * gameState.upgrades.donation * efficiency;
+                    }
+                    
+                    updateUI();
+                    saveGame();
+                }
+            }, 3000);
+        }
+
+        // Переключение вкладок
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.tab;
+                
+                // Деактивировать все кнопки и вкладки
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Активировать текущую
+                button.classList.add('active');
+                document.getElementById(tab).classList.add('active');
+            });
+        });
+
+        // Запуск игры при загрузке
+        window.addEventListener('load', () => {
+            loadGame();
+        });
+    </script>
+</body>
+</html>
