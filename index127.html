@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Церковный Симулятор</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #2a4b8c 100%);
+            color: #f8f8f8;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+        }
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-bottom: 3px solid #d4af37;
+        }
+        h1 {
+            color: #d4af37;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .panel {
+            background: rgba(30, 30, 60, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            border: 2px solid #5d8aa8;
+        }
+        .stats-panel {
+            grid-column: 1;
+        }
+        .main-content {
+            grid-column: 2;
+        }
+        .events-panel {
+            grid-column: 3;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4af37;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+        .tab-btn {
+            padding: 12px 25px;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        .tab-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+        .tab-btn.active {
+            background: #d4af37;
+            color: #1a2a6c;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 0 0 10px 10px;
+            min-height: 400px;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        .progress-bar {
+            height: 25px;
+            background-color: #3a3a6a;
+            border-radius: 12px;
+            margin: 12px 0;
+            overflow: hidden;
+            border: 1px solid #5d8aa8;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37 0%, #ffd700 100%);
+            border-radius: 12px;
+            transition: width 0.5s;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        button {
+            background: linear-gradient(to right, #2a4b8c, #3a5ba8);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 6px;
+            transition: all 0.3s;
+            font-weight: bold;
+            border: 1px solid #5d8aa8;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(93, 138, 168, 0.4);
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .building, .upgrade, .resource, .prayer {
+            padding: 15px;
+            background: rgba(50, 50, 90, 0.8);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #d4af37;
+            transition: all 0.3s;
+        }
+        .building:hover, .upgrade:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .resource {
+            text-align: center;
+            padding: 12px;
+        }
+        .building-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .requirements {
+            font-size: 0.9em;
+            color: #aaa;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #5d8aa8;
+            background: rgba(30, 30, 60, 0.9);
+            color: white;
+            font-size: 1em;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: rgba(30, 30, 60, 0.95);
+            border-left: 4px solid #d4af37;
+            border-radius: 8px;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+            max-width: 350px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .event {
+            padding: 15px;
+            background: rgba(60, 60, 100, 0.8);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #d4af37;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .prayer-effect {
+            font-style: italic;
+            color: #d4af37;
+            margin-top: 8px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .highlight {
+            animation: highlight 1s;
+        }
+        @keyframes highlight {
+            0% { background-color: initial; }
+            50% { background-color: rgba(212, 175, 55, 0.3); }
+            100% { background-color: initial; }
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(40, 40, 80, 0.6);
+            border-radius: 5px;
+        }
+        .cost {
+            color: #d4af37;
+            font-weight: bold;
+        }
+        .income {
+            color: #5d8aa8;
+            font-weight: bold;
+        }
+        .level-badge {
+            background: #d4af37;
+            color: #1a2a6c;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        h2 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #5d8aa8;
+            padding-bottom: 8px;
+        }
+        h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Церковный Симулятор</h1>
+            <p>Развивайте свою церковь, привлекайте верующих и создайте процветающую религиозную общину!</p>
+        </header>
+        
+        <div class="panel stats-panel">
+            <h2>Ресурсы</h2>
+            <div class="resource-grid" id="resources">
+                <!-- Динамически генерируемые ресурсы -->
+            </div>
+            
+            <h2>Доход в секунду</h2>
+            <div id="income-display">
+                <!-- Доходы -->
+            </div>
+            
+            <h2>Статистика</h2>
+            <div id="stats">
+                <div class="stat-row">
+                    <span>Уровень церкви:</span>
+                    <span id="church-level">1</span>
+                </div>
+                <div class="stat-row">
+                    <span>Верующие:</span>
+                    <span id="followers">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Репутация:</span>
+                    <span id="reputation">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Вера:</span>
+                    <span id="faith">0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <p>Опыт: <span id="exp">0</span>/<span id="exp-needed">100</span></p>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="saveGame()">Сохранить</button>
+                <button onclick="exportGame()">Экспорт</button>
+                <button onclick="resetGame()">Новая игра</button>
+            </div>
+        </div>
+        
+        <div class="panel main-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('gathering')">Собирательство</button>
+                <button class="tab-btn" onclick="switchTab('buildings')">Здания</button>
+                <button class="tab-btn" onclick="switchTab('prayers')">Молитвы</button>
+                <button class="tab-btn" onclick="switchTab('upgrades')">Улучшения</button>
+                <button class="tab-btn" onclick="switchTab('events')">События</button>
+            </div>
+            
+            <div id="gathering" class="tab-content active">
+                <h2>Собирательство и добыча</h2>
+                <p>Собирайте ресурсы и привлекайте новых верующих в вашу церковь</p>
+                <div id="gathering-actions">
+                    <!-- Действия по собирательству -->
+                </div>
+            </div>
+            
+            <div id="buildings" class="tab-content">
+                <h2>Церковные здания</h2>
+                <p>Стройте и улучшайте здания для увеличения доходов и возможностей</p>
+                <div class="building-grid" id="buildings-list">
+                    <!-- Список зданий -->
+                </div>
+            </div>
+            
+            <div id="prayers" class="tab-content">
+                <h2>Молитвы и ритуалы</h2>
+                <p>Совершайте молитвы для получения благословений и чудес</p>
+                <div id="prayers-list">
+                    <!-- Список молитв -->
+                </div>
+            </div>
+            
+            <div id="upgrades" class="tab-content">
+                <h2>Улучшения церкви</h2>
+                <p>Улучшайте возможности вашей церкви и увеличивайте эффективность</p>
+                <div id="upgrades-list">
+                    <!-- Список улучшений -->
+                </div>
+            </div>
+            
+            <div id="events" class="tab-content">
+                <h2>Церковные события</h2>
+                <p>Участвуйте в событиях для увеличения репутации и веры</p>
+                <div id="events-list">
+                    <!-- Активные события -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel events-panel">
+            <h2>Последние события</h2>
+            <div id="recent-events">
+                <!-- Лента событий -->
+            </div>
+            
+            <h2>Достижения</h2>
+            <div id="achievements">
+                <!-- Список достижений -->
+            </div>
+            
+            <h2>Задачи</h2>
+            <div id="quests">
+                <!-- Активные задачи -->
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Основная структура данных игры
+        let gameState = {
+            resources: {
+                'пожертвования': 50,
+                'восковые свечи': 10,
+                'церковное вино': 5,
+                'ладан': 3,
+                'реликвии': 0
+            },
+            stats: {
+                level: 1,
+                exp: 0,
+                expNeeded: 100,
+                followers: 0,
+                reputation: 0,
+                faith: 0
+            },
+            buildings: {
+                'часовня': { level: 0, count: 0 },
+                'церковь': { level: 0, count: 0 },
+                'монастырь': { level: 0, count: 0 },
+                'библиотека': { level: 0, count: 0 },
+                'богадельня': { level: 0, count: 0 },
+                'собор': { level: 0, count: 0 }
+            },
+            upgrades: {},
+            prayers: {},
+            income: {
+                'пожертвования': 0,
+                'верующие': 0,
+                'репутация': 0,
+                'вера': 0
+            },
+            gathering: {
+                'молитва': { level: 1, efficiency: 1 },
+                'проповедь': { level: 1, efficiency: 1 },
+                'исповедь': { level: 1, efficiency: 1 },
+                'крещение': { level: 1, efficiency: 1 }
+            },
+            events: [],
+            achievements: [],
+            quests: [],
+            lastUpdate: Date.now()
+        };
+
+        // Конфигурация зданий
+        const buildingConfig = {
+            'часовня': {
+                name: 'Часовня',
+                description: 'Небольшая молельня для прихожан',
+                baseCost: { 'пожертвования': 100 },
+                income: { 'пожертвования': 0.5, 'верующие': 0.1 },
+                requirements: {}
+            },
+            'церковь': {
+                name: 'Церковь',
+                description: 'Основное здание для богослужений',
+                baseCost: { 'пожертвования': 500, 'восковые свечи': 20 },
+                income: { 'пожертвования': 2, 'верующие': 0.5, 'репутация': 0.1 },
+                requirements: { 'часовня': 1 }
+            },
+            'монастырь': {
+                name: 'Монастырь',
+                description: 'Место для уединения и молитв',
+                baseCost: { 'пожертвования': 2000, 'ладан': 10 },
+                income: { 'вера': 0.3, 'репутация': 0.5 },
+                requirements: { 'церковь': 1 }
+            },
+            'библиотека': {
+                name: 'Библиотека',
+                description: 'Хранилище религиозных текстов',
+                baseCost: { 'пожертвования': 1500, 'церковное вино': 5 },
+                income: { 'репутация': 0.8, 'вера': 0.2 },
+                requirements: { 'церковь': 1 }
+            },
+            'богадельня': {
+                name: 'Богадельня',
+                description: 'Приют для нуждающихся',
+                baseCost: { 'пожертвования': 3000, 'восковые свечи': 30 },
+                income: { 'репутация': 1.5, 'верующие': 0.3 },
+                requirements: { 'монастырь': 1 }
+            },
+            'собор': {
+                name: 'Собор',
+                description: 'Величественное религиозное сооружение',
+                baseCost: { 'пожертвования': 10000, 'ладан': 50, 'церковное вино': 20 },
+                income: { 'пожертвования': 10, 'верующие': 2, 'репутация': 3, 'вера': 2 },
+                requirements: { 'церковь': 3, 'монастырь': 2, 'библиотека': 2 }
+            }
+        };
+
+        // Конфигурация действий
+        const gatheringConfig = {
+            'молитва': {
+                name: 'Молитва',
+                description: 'Вознесите молитву для получения веры',
+                baseYield: { 'вера': 1 },
+                cost: { 'восковые свечи': 1 },
+                time: 5000
+            },
+            'проповедь': {
+                name: 'Проповедь',
+                description: 'Проведите проповедь для привлечения верующих',
+                baseYield: { 'верующие': 1, 'репутация': 0.5 },
+                cost: {},
+                time: 8000
+            },
+            'исповедь': {
+                name: 'Исповедь',
+                description: 'Примите исповедь для получения пожертвований',
+                baseYield: { 'пожертвования': 5 },
+                cost: {},
+                time: 6000
+            },
+            'крещение': {
+                name: 'Крещение',
+                description: 'Проведите обряд крещения',
+                baseYield: { 'верующие': 2, 'репутация': 1 },
+                cost: { 'церковное вино': 1 },
+                time: 10000
+            }
+        };
+
+        // Конфигурация молитв
+        const prayersConfig = {
+            'молитва_здоровья': {
+                name: 'Молитва о здоровье',
+                description: 'Увеличивает прирост верующих',
+                cost: { 'вера': 20, 'ладан': 2 },
+                effect: { type: 'multiplier', target: 'верующие', value: 1.5, duration: 60000 },
+                cooldown: 120000
+            },
+            'молитва_процветания': {
+                name: 'Молитва о процветании',
+                description: 'Увеличивает пожертвования',
+                cost: { 'вера': 30, 'восковые свечи': 5 },
+                effect: { type: 'multiplier', target: 'пожертвования', value: 2, duration: 45000 },
+                cooldown: 90000
+            },
+            'молитва_мудрости': {
+                name: 'Молитва о мудрости',
+                description: 'Увеличивает получаемую веру',
+                cost: { 'вера': 25, 'ладан': 3 },
+                effect: { type: 'multiplier', target: 'вера', value: 1.8, duration: 50000 },
+                cooldown: 100000
+            }
+        };
+
+        // Загрузка состояния игры из localStorage
+        function loadGame() {
+            const savedGame = localStorage.getItem('churchSimulator');
+            if (savedGame) {
+                try {
+                    const parsed = JSON.parse(savedGame);
+                    // Миграция старых сохранений
+                    gameState = { ...gameState, ...parsed };
+                    gameState.lastUpdate = Date.now();
+                    showNotification('Игра загружена!');
+                } catch (e) {
+                    console.error('Ошибка загрузки игры:', e);
+                    showNotification('Ошибка загрузки сохранения');
+                }
+            }
+            updateUI();
+            startGameLoop();
+        }
+
+        // Сохранение состояния игры в localStorage
+        function saveGame() {
+            gameState.lastUpdate = Date.now();
+            localStorage.setItem('churchSimulator', JSON.stringify(gameState));
+            showNotification('Игра сохранена!');
+        }
+
+        // Экспорт сохранения
+        function exportGame() {
+            const exportData = btoa(JSON.stringify(gameState));
+            prompt('Скопируйте ваш код сохранения:', exportData);
+        }
+
+        // Импорт сохранения
+        function importGame() {
+            const importData = prompt('Введите код сохранения:');
+            if (importData) {
+                try {
+                    const parsed = JSON.parse(atob(importData));
+                    gameState = { ...gameState, ...parsed };
+                    saveGame();
+                    showNotification('Игра импортирована!');
+                    setTimeout(() => location.reload(), 1000);
+                } catch (e) {
+                    showNotification('Ошибка импорта! Неверный код.');
+                }
+            }
+        }
+
+        // Сброс игры
+        function resetGame() {
+            if (confirm('Вы уверены? Весь прогресс будет потерян!')) {
+                localStorage.removeItem('churchSimulator');
+                gameState = {
+                    resources: {
+                        'пожертвования': 50,
+                        'восковые свечи': 10,
+                        'церковное вино': 5,
+                        'ладан': 3,
+                        'реликвии': 0
+                    },
+                    stats: {
+                        level: 1,
+                        exp: 0,
+                        expNeeded: 100,
+                        followers: 0,
+                        reputation: 0,
+                        faith: 0
+                    },
+                    buildings: {
+                        'часовня': { level: 0, count: 0 },
+                        'церковь': { level: 0, count: 0 },
+                        'монастырь': { level: 0, count: 0 },
+                        'библиотека': { level: 0, count: 0 },
+                        'богадельня': { level: 0, count: 0 },
+                        'собор': { level: 0, count: 0 }
+                    },
+                    upgrades: {},
+                    prayers: {},
+                    income: {
+                        'пожертвования': 0,
+                        'верующие': 0,
+                        'репутация': 0,
+                        'вера': 0
+                    },
+                    gathering: {
+                        'молитва': { level: 1, efficiency: 1 },
+                        'проповедь': { level: 1, efficiency: 1 },
+                        'исповедь': { level: 1, efficiency: 1 },
+                        'крещение': { level: 1, efficiency: 1 }
+                    },
+                    events: [],
+                    achievements: [],
+                    quests: [],
+                    lastUpdate: Date.now()
+                };
+                updateUI();
+                showNotification('Новая игра начата!');
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            updateResources();
+            updateStats();
+            updateGathering();
+            updateBuildings();
+            updatePrayers();
+            updateIncome();
+            updateEvents();
+        }
+
+        // Обновление отображения ресурсов
+        function updateResources() {
+            const resourcesContainer = document.getElementById('resources');
+            resourcesContainer.innerHTML = '';
+            
+            for (const [resource, quantity] of Object.entries(gameState.resources)) {
+                const resourceEl = document.createElement('div');
+                resourceEl.className = 'resource';
+                resourceEl.innerHTML = `
+                    <h3>${resource}</h3>
+                    <div>${Math.floor(quantity)}</div>
+                `;
+                resourcesContainer.appendChild(resourceEl);
+            }
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            document.getElementById('church-level').textContent = gameState.stats.level;
+            document.getElementById('followers').textContent = Math.floor(gameState.stats.followers);
+            document.getElementById('reputation').textContent = Math.floor(gameState.stats.reputation);
+            document.getElementById('faith').textContent = Math.floor(gameState.stats.faith);
+            document.getElementById('exp').textContent = Math.floor(gameState.stats.exp);
+            document.getElementById('exp-needed').textContent = gameState.stats.expNeeded;
+            
+            const expPercent = (gameState.stats.exp / gameState.stats.expNeeded) * 100;
+            document.querySelector('#stats .progress-fill').style.width = `${expPercent}%`;
+        }
+
+        // Обновление доходов
+        function updateIncome() {
+            const incomeContainer = document.getElementById('income-display');
+            incomeContainer.innerHTML = '';
+            
+            for (const [resource, income] of Object.entries(gameState.income)) {
+                if (income > 0) {
+                    const incomeEl = document.createElement('div');
+                    incomeEl.className = 'stat-row';
+                    incomeEl.innerHTML = `
+                        <span>${resource}:</span>
+                        <span class="income">+${income.toFixed(1)}/сек</span>
+                    `;
+                    incomeContainer.appendChild(incomeEl);
+                }
+            }
+        }
+
+        // Обновление действий
+        function updateGathering() {
+            const gatheringContainer = document.getElementById('gathering-actions');
+            gatheringContainer.innerHTML = '';
+            
+            for (const [actionId, actionConfig] of Object.entries(gatheringConfig)) {
+                const action = gameState.gathering[actionId];
+                const actionEl = document.createElement('div');
+                actionEl.className = 'building';
+                
+                let costHTML = '';
+                for (const [resource, amount] of Object.entries(actionConfig.cost)) {
+                    costHTML += `<div>${resource}: ${amount}</div>`;
+                }
+                
+                let yieldHTML = '';
+                for (const [resource, amount] of Object.entries(actionConfig.baseYield)) {
+                    const actualAmount = amount * action.efficiency;
+                    yieldHTML += `<div>${resource}: +${actualAmount.toFixed(1)}</div>`;
+                }
+                
+                actionEl.innerHTML = `
+                    <h3>${actionConfig.name} <span class="level-badge">Ур. ${action.level}</span></h3>
+                    <p>${actionConfig.description}</p>
+                    <div class="requirements">
+                        <strong>Стоимость:</strong>${costHTML || '<div>Нет стоимости</div>'}
+                    </div>
+                    <div class="income">
+                        <strong>Награда:</strong>${yieldHTML}
+                    </div>
+                    <button onclick="performAction('${actionId}')">Выполнить (${(actionConfig.time/1000)}сек)</button>
+                `;
+                
+                gatheringContainer.appendChild(actionEl);
+            }
+        }
+
+        // Обновление зданий
+        function updateBuildings() {
+            const buildingsContainer = document.getElementById('buildings-list');
+            buildingsContainer.innerHTML = '';
+            
+            for (const [buildingId, buildingData] of Object.entries(gameState.buildings)) {
+                const config = buildingConfig[buildingId];
+                const buildingEl = document.createElement('div');
+                buildingEl.className = 'building';
+                
+                let canBuild = true;
+                let requirementsHTML = '';
+                
+                // Проверка требований
+                for (const [reqBuilding, reqLevel] of Object.entries(config.requirements)) {
+                    const hasBuilding = gameState.buildings[reqBuilding].level >= reqLevel;
+                    requirementsHTML += `<div>${buildingConfig[reqBuilding].name} ${reqLevel} ур. ${hasBuilding ? '✓' : '✗'}</div>`;
+                    if (!hasBuilding) canBuild = false;
+                }
+                
+                // Расчет стоимости
+                const baseCost = config.baseCost;
+                const actualCost = {};
+                for (const [resource, amount] of Object.entries(baseCost)) {
+                    actualCost[resource] = Math.floor(amount * Math.pow(1.5, buildingData.level));
+                }
+                
+                let costHTML = '';
+                for (const [resource, amount] of Object.entries(actualCost)) {
+                    const hasResource = gameState.resources[resource] >= amount;
+                    costHTML += `<div>${resource}: ${amount} ${hasResource ? '✓' : '✗'}</div>`;
+                    if (!hasResource) canBuild = false;
+                }
+                
+                buildingEl.innerHTML = `
+                    <h3>${config.name} <span class="level-badge">Ур. ${buildingData.level}</span></h3>
+                    <p>${config.description}</p>
+                    <div class="requirements">
+                        <strong>Требования:</strong>${requirementsHTML || '<div>Нет требований</div>'}
+                    </div>
+                    <div class="cost">
+                        <strong>Стоимость:</strong>${costHTML}
+                    </div>
+                    <button ${!canBuild ? 'disabled' : ''} onclick="build('${buildingId}')">
+                        ${buildingData.count > 0 ? 'Улучшить' : 'Построить'}
+                    </button>
+                `;
+                
+                buildingsContainer.appendChild(buildingEl);
+            }
+        }
+
+        // Обновление молитв
+        function updatePrayers() {
+            const prayersContainer = document.getElementById('prayers-list');
+            prayersContainer.innerHTML = '';
+            
+            for (const [prayerId, prayerConfig] of Object.entries(prayersConfig)) {
+                const prayerEl = document.createElement('div');
+                prayerEl.className = 'prayer';
+                
+                let canPray = true;
+                let costHTML = '';
+                
+                for (const [resource, amount] of Object.entries(prayerConfig.cost)) {
+                    const hasResource = gameState.resources[resource] >= amount;
+                    costHTML += `<div>${resource}: ${amount} ${hasResource ? '✓' : '✗'}</div>`;
+                    if (!hasResource) canPray = false;
+                }
+                
+                prayerEl.innerHTML = `
+                    <h3>${prayerConfig.name}</h3>
+                    <p>${prayerConfig.description}</p>
+                    <div class="requirements">
+                        <strong>Стоимость:</strong>${costHTML}
+                    </div>
+                    <div class="prayer-effect">
+                        Эффект: ${prayerConfig.effect.value}x к ${prayerConfig.effect.target} на ${prayerConfig.effect.duration/1000}сек
+                    </div>
+                    <button ${!canPray ? 'disabled' : ''} onclick="performPrayer('${prayerId}')">
+                        Совершить молитву
+                    </button>
+                `;
+                
+                prayersContainer.appendChild(prayerEl);
+            }
+        }
+
+        // Обновление событий
+        function updateEvents() {
+            const eventsContainer = document.getElementById('events-list');
+            eventsContainer.innerHTML = '<p>Проверяйте регулярно новые церковные события!</p>';
+            
+            const recentEvents = document.getElementById('recent-events');
+            recentEvents.innerHTML = '<p>Здесь будут отображаться последние события вашей церкви</p>';
+        }
+
+        // Выполнение действия
+        function performAction(actionId) {
+            const action = gatheringConfig[actionId];
+            const actionState = gameState.gathering[actionId];
+            
+            // Проверка стоимости
+            for (const [resource, amount] of Object.entries(action.cost)) {
+                if (gameState.resources[resource] < amount) {
+                    showNotification(`Недостаточно ${resource}!`);
+                    return;
+                }
+            }
+            
+            // Вычитаем стоимость
+            for (const [resource, amount] of Object.entries(action.cost)) {
+                gameState.resources[resource] -= amount;
+            }
+            
+            // Блокируем кнопку на время действия
+            const button = event.target;
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Выполняется...';
+            
+            setTimeout(() => {
+                // Начисляем награду
+                for (const [resource, amount] of Object.entries(action.baseYield)) {
+                    const actualAmount = amount * actionState.efficiency;
+                    if (resource in gameState.resources) {
+                        gameState.resources[resource] += actualAmount;
+                    } else if (resource in gameState.stats) {
+                        gameState.stats[resource] += actualAmount;
+                    }
+                }
+                
+                // Добавляем опыт
+                addExperience(2);
+                
+                // Разблокируем кнопку
+                button.disabled = false;
+                button.textContent = originalText;
+                
+                showNotification(`${action.name} завершена!`);
+                updateUI();
+                saveGame();
+            }, action.time);
+        }
+
+        // Строительство зданий
+        function build(buildingId) {
+            const buildingData = gameState.buildings[buildingId];
+            const config = buildingConfig[buildingId];
+            
+            // Проверка требований
+            for (const [reqBuilding, reqLevel] of Object.entries(config.requirements)) {
+                if (gameState.buildings[reqBuilding].level < reqLevel) {
+                    showNotification(`Требуется ${buildingConfig[reqBuilding].name} ${reqLevel} уровня!`);
+                    return;
+                }
+            }
+            
+            // Расчет стоимости
+            const baseCost = config.baseCost;
+            const actualCost = {};
+            for (const [resource, amount] of Object.entries(baseCost)) {
+                actualCost[resource] = Math.floor(amount * Math.pow(1.5, buildingData.level));
+            }
+            
+            // Проверка стоимости
+            for (const [resource, amount] of Object.entries(actualCost)) {
+                if (gameState.resources[resource] < amount) {
+                    showNotification(`Недостаточно ${resource}!`);
+                    return;
+                }
+            }
+            
+            // Вычитаем стоимость
+            for (const [resource, amount] of Object.entries(actualCost)) {
+                gameState.resources[resource] -= amount;
+            }
+            
+            // Строим/улучшаем здание
+            if (buildingData.count === 0) {
+                buildingData.count = 1;
+            }
+            buildingData.level++;
+            
+            // Пересчитываем доход
+            calculateIncome();
+            
+            // Добавляем опыт
+            addExperience(10 * buildingData.level);
+            
+            showNotification(`${config.name} ${buildingData.count > 1 ? 'улучшена' : 'построена'} до уровня ${buildingData.level}!`);
+            updateUI();
+            saveGame();
+        }
+
+        // Совершение молитвы
+        function performPrayer(prayerId) {
+            const prayer = prayersConfig[prayerId];
+            
+            // Проверка стоимости
+            for (const [resource, amount] of Object.entries(prayer.cost)) {
+                if (gameState.resources[resource] < amount) {
+                    showNotification(`Недостаточно ${resource}!`);
+                    return;
+                }
+            }
+            
+            // Вычитаем стоимость
+            for (const [resource, amount] of Object.entries(prayer.cost)) {
+                gameState.resources[resource] -= amount;
+            }
+            
+            // Применяем эффект молитвы
+            applyPrayerEffect(prayer.effect);
+            
+            // Блокируем кнопку на время перезарядки
+            const button = event.target;
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.disabled = false;
+            }, prayer.cooldown);
+            
+            showNotification(`Молитва "${prayer.name}" совершена!`);
+            updateUI();
+            saveGame();
+        }
+
+        // Применение эффекта молитвы
+        function applyPrayerEffect(effect) {
+            // Здесь будет логика применения эффектов молитв
+            showNotification(`Эффект молитвы: +${effect.value}x к ${effect.target}`);
+        }
+
+        // Расчет доходов
+        function calculateIncome() {
+            // Сбрасываем доход
+            for (const key in gameState.income) {
+                gameState.income[key] = 0;
+            }
+            
+            // Добавляем доход от зданий
+            for (const [buildingId, buildingData] of Object.entries(gameState.buildings)) {
+                if (buildingData.count > 0) {
+                    const config = buildingConfig[buildingId];
+                    for (const [resource, amount] of Object.entries(config.income)) {
+                        gameState.income[resource] += amount * buildingData.level;
+                    }
+                }
+            }
+        }
+
+        // Добавление опыта и повышение уровня
+        function addExperience(amount) {
+            gameState.stats.exp += amount;
+            
+            if (gameState.stats.exp >= gameState.stats.expNeeded) {
+                gameState.stats.level++;
+                gameState.stats.exp -= gameState.stats.expNeeded;
+                gameState.stats.expNeeded = Math.floor(gameState.stats.expNeeded * 1.8);
+                
+                showNotification(`Поздравляем! Вы достигли уровня ${gameState.stats.level}!`);
+                
+                // Награда за уровень
+                gameState.resources['пожертвования'] += gameState.stats.level * 100;
+                gameState.stats.followers += gameState.stats.level * 5;
+            }
+        }
+
+        // Игровой цикл
+        function startGameLoop() {
+            setInterval(() => {
+                const now = Date.now();
+                const deltaTime = (now - gameState.lastUpdate) / 1000;
+                gameState.lastUpdate = now;
+                
+                // Начисляем доход
+                for (const [resource, income] of Object.entries(gameState.income)) {
+                    if (resource in gameState.resources) {
+                        gameState.resources[resource] += income * deltaTime;
+                    } else if (resource in gameState.stats) {
+                        gameState.stats[resource] += income * deltaTime;
+                    }
+                }
+                
+                // Автосохранение каждые 30 секунд
+                if (Math.floor(now / 1000) % 30 === 0) {
+                    saveGame();
+                }
+                
+                updateUI();
+            }, 1000);
+        }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убрать активный класс у всех кнопок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabName).classList.add('active');
+            
+            // Активировать кнопку
+            document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Инициализация игры при загрузке
+        window.onload = function() {
+            loadGame();
+            
+            // Добавляем кнопку импорта вручную
+            const statsPanel = document.querySelector('.stats-panel');
+            const importButton = document.createElement('button');
+            importButton.textContent = 'Импорт';
+            importButton.onclick = importGame;
+            importButton.style.marginTop = '10px';
+            statsPanel.querySelector('.action-buttons').appendChild(importButton);
+        };
+    </script>
+</body>
+</html>
