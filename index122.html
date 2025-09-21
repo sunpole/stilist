@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Церковный симулятор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #E0FFFF);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            min-height: 100vh;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            max-height: 850px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        
+        .stat {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .week-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .day {
+            flex: 1;
+            text-align: center;
+            padding: 4px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        
+        .day.active {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: #8B4513;
+        }
+        
+        .church {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 80px;
+            background: #FFF;
+            border: 2px solid #000;
+            z-index: 2;
+        }
+        
+        .church-roof {
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: #8B0000;
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        }
+        
+        .church-cross {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+        }
+        
+        .church-door {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 30px;
+            background: #000;
+            transition: background 0.3s;
+        }
+        
+        .church-door.open {
+            background: #FFD700;
+            box-shadow: 0 0 10px #FFD700;
+        }
+        
+        .conversion-rate {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .person {
+            position: absolute;
+            bottom: 20px;
+            width: 15px;
+            height: 25px;
+            background: #333;
+            border-radius: 2px;
+            z-index: 1;
+        }
+        
+        .person-head {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            border-radius: 50%;
+        }
+        
+        .upgrades-container {
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upgrade-category {
+            margin-bottom: 12px;
+        }
+        
+        .upgrade-category h3 {
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .upgrade-info {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .upgrade-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .upgrade-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .upgrade-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+        
+        .upgrade-btn:disabled {
+            background: #CCC;
+            cursor: not-allowed;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .control-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            margin: 0 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+        
+        .control-btn:disabled {
+            background: #CCC;
+            cursor: not-allowed;
+        }
+        
+        .mission-btn {
+            background: #FF9800;
+        }
+        
+        .faith-btn {
+            background: #9C27B0;
+        }
+        
+        #start-screen, #weekly-report {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .screen-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        
+        #weekly-report {
+            display: none;
+        }
+        
+        .report-stats {
+            margin: 15px 0;
+        }
+        
+        .report-stat {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 100;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-height: 700px) {
+            .game-area {
+                height: 150px;
+            }
+            
+            .upgrades-container {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Церковный симулятор</h1>
+            <p>Привлекай людей в церковь и получай веру!</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>Вера</div>
+                <div class="stat-value" id="faith">100</div>
+            </div>
+            <div class="stat">
+                <div>Уровень</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat">
+                <div>Прихожане</div>
+                <div class="stat-value" id="converted">0</div>
+            </div>
+        </div>
+        
+        <div class="week-bar">
+            <div class="day" id="monday">Пн</div>
+            <div class="day" id="tuesday">Вт</div>
+            <div class="day" id="wednesday">Ср</div>
+            <div class="day" id="thursday">Чт</div>
+            <div class="day" id="friday">Пт</div>
+            <div class="day" id="saturday">Сб</div>
+            <div class="day" id="sunday">Вс</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="ground"></div>
+            <div class="church">
+                <div class="church-roof"></div>
+                <div class="church-cross">✝</div>
+                <div class="church-door" id="church-door"></div>
+                <div class="conversion-rate" id="conversion-rate">10%</div>
+            </div>
+            <!-- Люди будут добавляться через JS -->
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" id="mission-btn" disabled>Миссия (300)</button>
+            <button class="control-btn faith-btn" id="faith-upgrade-btn">+1% за 1000</button>
+        </div>
+        
+        <div class="upgrades-container">
+            <div class="upgrade-category">
+                <h3>Улучшения церкви</h3>
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Улучшить церковь</div>
+                        <div class="upgrade-desc">Увеличивает шанс привлечения людей</div>
+                    </div>
+                    <button class="upgrade-btn" id="upgrade-church-btn">50</button>
+                </div>
+                
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Открыть служение</div>
+                        <div class="upgrade-desc">Добавляет день для привлечения людей</div>
+                    </div>
+                    <button class="upgrade-btn" id="upgrade-service-btn">100</button>
+                </div>
+            </div>
+            
+            <div class="upgrade-category">
+                <h3>Церковные улучшения</h3>
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Евхаристия</div>
+                        <div class="upgrade-desc">+2 веры с человека</div>
+                    </div>
+                    <button class="upgrade-btn" id="eucharist-btn">200</button>
+                </div>
+                
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Дьякон</div>
+                        <div class="upgrade-desc">+5 веры с человека</div>
+                    </div>
+                    <button class="upgrade-btn" id="deacon-btn">500</button>
+                </div>
+                
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">Пресвитер</div>
+                        <div class="upgrade-desc">+10 веры с человека</div>
+                    </div>
+                    <button class="upgrade-btn" id="presbyter-btn">1000</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-screen">
+        <div class="screen-content">
+            <h2>Церковный симулятор</h2>
+            <p>Ставь церковь, улучшай её и привлекай людей!</p>
+            <button class="control-btn" onclick="startGame()">Начать игру</button>
+        </div>
+    </div>
+
+    <div id="weekly-report">
+        <div class="screen-content">
+            <h2>Еженедельный отчёт</h2>
+            <div class="report-stats">
+                <div class="report-stat">Новых прихожан: <span id="report-converted">0</span></div>
+                <div class="report-stat">Заработано веры: <span id="report-faith-earned">0</span></div>
+                <div class="report-stat">Божье благословение: <span id="report-blessing">0</span></div>
+                <div class="report-stat">Общий доход: <span id="report-total">0</span></div>
+            </div>
+            <button class="control-btn" onclick="closeReport()">Продолжить</button>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация игры
+        const DAY_DURATION = 4000; // 4 секунды на день
+        const BASE_CONVERSION_RATE = 0.1; // 10% базовый шанс
+        
+        // Состояние игры
+        let gameState = {
+            faith: 100,
+            churchLevel: 1,
+            converted: 0,
+            day: 0,
+            days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+            dayNames: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+            services: {
+                sunday: true
+            },
+            upgrades: {
+                eucharist: false,
+                deacon: false,
+                presbyter: false
+            },
+            conversionRate: BASE_CONVERSION_RATE,
+            faithPerConvert: 1,
+            weeklyStats: {
+                converted: 0,
+                faithEarned: 0
+            },
+            gameActive: false,
+            people: [],
+            nextFaithUpgradeCost: 1000,
+            faithUpgradeCount: 0
+        };
+
+        // Элементы DOM
+        const faithEl = document.getElementById('faith');
+        const levelEl = document.getElementById('level');
+        const convertedEl = document.getElementById('converted');
+        const churchDoorEl = document.getElementById('church-door');
+        const conversionRateEl = document.getElementById('conversion-rate');
+        const upgradeChurchBtn = document.getElementById('upgrade-church-btn');
+        const upgradeServiceBtn = document.getElementById('upgrade-service-btn');
+        const eucharistBtn = document.getElementById('eucharist-btn');
+        const deaconBtn = document.getElementById('deacon-btn');
+        const presbyterBtn = document.getElementById('presbyter-btn');
+        const missionBtn = document.getElementById('mission-btn');
+        const faithUpgradeBtn = document.getElementById('faith-upgrade-btn');
+        const weeklyReportEl = document.getElementById('weekly-report');
+
+        // Инициализация игры
+        function initGame() {
+            // Обработчики кнопок
+            upgradeChurchBtn.addEventListener('click', upgradeChurch);
+            upgradeServiceBtn.addEventListener('click', upgradeService);
+            eucharistBtn.addEventListener('click', () => buyUpgrade('eucharist', 200, eucharistBtn));
+            deaconBtn.addEventListener('click', () => buyUpgrade('deacon', 500, deaconBtn));
+            presbyterBtn.addEventListener('click', () => buyUpgrade('presbyter', 1000, presbyterBtn));
+            missionBtn.addEventListener('click', sendMission);
+            faithUpgradeBtn.addEventListener('click', upgradeFaithConversion);
+            
+            // Запускаем игровой цикл
+            gameState.gameActive = true;
+            startDayCycle();
+            startPersonSpawning();
+            updateUI();
+        }
+
+        // Запуск цикла дней
+        function startDayCycle() {
+            setInterval(() => {
+                // Если начинается понедельник, очищаем экран
+                if (gameState.day === 0) {
+                    clearPeople();
+                }
+                
+                gameState.day = (gameState.day + 1) % 7;
+                updateDayDisplay();
+                
+                // Если воскресенье закончилось, показываем отчет
+                if (gameState.day === 0) {
+                    showWeeklyReport();
+                }
+            }, DAY_DURATION);
+        }
+
+        // Очистка людей с экрана
+        function clearPeople() {
+            const people = document.querySelectorAll('.person');
+            people.forEach(person => person.remove());
+            gameState.people = [];
+        }
+
+        // Обновление отображения дня
+        function updateDayDisplay() {
+            // Сбрасываем активный день у всех
+            gameState.days.forEach(day => {
+                document.getElementById(day).classList.remove('active');
+            });
+            
+            // Устанавливаем активный день
+            const currentDay = gameState.days[gameState.day];
+            document.getElementById(currentDay).classList.add('active');
+            
+            // Открываем/закрываем двери церкви
+            const isServiceDay = gameState.services[currentDay];
+            if (isServiceDay) {
+                churchDoorEl.classList.add('open');
+            } else {
+                churchDoorEl.classList.remove('open');
+            }
+            
+            // Обновляем отображение процента конверсии
+            conversionRateEl.textContent = Math.round(gameState.conversionRate * 100) + '%';
+        }
+
+        // Запуск появления людей
+        function startPersonSpawning() {
+            setInterval(() => {
+                if (!gameState.gameActive) return;
+                
+                // Случайное количество людей (1-4)
+                const count = Math.floor(Math.random() * 4) + 1;
+                
+                for (let i = 0; i < count; i++) {
+                    // Случайная задержка для каждого человека
+                    setTimeout(() => {
+                        createPerson();
+                    }, i * 300);
+                }
+            }, 2000); // Новые люди появляются каждые 2 секунды
+        }
+
+        // Создание человека
+        function createPerson() {
+            const person = document.createElement('div');
+            person.className = 'person';
+            
+            const head = document.createElement('div');
+            head.className = 'person-head';
+            person.appendChild(head);
+            
+            const gameArea = document.querySelector('.game-area');
+            gameArea.appendChild(person);
+            
+            // Начальная позиция справа за экраном
+            person.style.right = '-20px';
+            
+            // Случайная скорость
+            const speed = 0.5 + Math.random() * 0.5;
+            
+            // Добавляем в массив людей
+            gameState.people.push(person);
+            
+            // Анимация движения
+            const movePerson = () => {
+                if (!gameState.gameActive || !person.isConnected) return;
+                
+                const currentPos = parseInt(person.style.right);
+                if (currentPos > gameArea.offsetWidth + 20) {
+                    // Человек ушел за левую границу - удаляем
+                    gameArea.removeChild(person);
+                    gameState.people = gameState.people.filter(p => p !== person);
+                    return;
+                }
+                
+                // Двигаем человека
+                person.style.right = (currentPos + speed) + 'px';
+                
+                // Проверяем, находится ли человек рядом с церковью
+                const churchRect = document.querySelector('.church').getBoundingClientRect();
+                const personRect = person.getBoundingClientRect();
+                
+                const distance = Math.abs(personRect.left - churchRect.right);
+                
+                // Если церковь открыта и человек рядом
+                const currentDay = gameState.days[gameState.day];
+                if (gameState.services[currentDay] && distance < 50) {
+                    // Проверяем, зайдет ли человек в церковь
+                    if (Math.random() < gameState.conversionRate) {
+                        // Человек заходит в церковь
+                        gameArea.removeChild(person);
+                        gameState.people = gameState.people.filter(p => p !== person);
+                        gameState.converted++;
+                        gameState.weeklyStats.converted++;
+                        
+                        const faithEarned = gameState.faithPerConvert;
+                        gameState.faith += faithEarned;
+                        gameState.weeklyStats.faithEarned += faithEarned;
+                        
+                        updateUI();
+                        return;
+                    }
+                }
+                
+                requestAnimationFrame(movePerson);
+            };
+            
+            requestAnimationFrame(movePerson);
+        }
+
+        // Улучшение церкви
+        function upgradeChurch() {
+            const cost = 50 * gameState.churchLevel;
+            
+            if (gameState.faith >= cost && gameState.churchLevel < 8) {
+                gameState.faith -= cost;
+                gameState.churchLevel++;
+                gameState.conversionRate = BASE_CONVERSION_RATE + (gameState.churchLevel - 1) * 0.1;
+                
+                updateUI();
+                showNotification(`Церковь улучшена до уровня ${gameState.churchLevel}!`);
+            }
+        }
+
+        // Открытие службы в другой день
+        function upgradeService() {
+            const cost = 100;
+            const days = Object.keys(gameState.services);
+            
+            if (gameState.faith >= cost && days.length < 7) {
+                gameState.faith -= cost;
+                
+                // Открываем следующий день
+                const nextDay = gameState.days[days.length];
+                gameState.services[nextDay] = true;
+                
+                updateUI();
+                showNotification(`Теперь службы проходят по ${getDayName(nextDay)}!`);
+            }
+        }
+
+        // Получение названия дня
+        function getDayName(dayId) {
+            const days = {
+                'monday': 'понедельникам',
+                'tuesday': 'вторникам',
+                'wednesday': 'средам',
+                'thursday': 'четвергам',
+                'friday': 'пятницам',
+                'saturday': 'субботам',
+                'sunday': 'воскресеньям'
+            };
+            return days[dayId];
+        }
+
+        // Покупка улучшения
+        function buyUpgrade(upgrade, cost, button) {
+            if (gameState.faith >= cost && !gameState.upgrades[upgrade]) {
+                gameState.faith -= cost;
+                gameState.upgrades[upgrade] = true;
+                
+                // Применяем эффект улучшения
+                switch(upgrade) {
+                    case 'eucharist':
+                        gameState.faithPerConvert += 2;
+                        break;
+                    case 'deacon':
+                        gameState.faithPerConvert += 5;
+                        break;
+                    case 'presbyter':
+                        gameState.faithPerConvert += 10;
+                        break;
+                }
+                
+                button.textContent = 'Куплено';
+                button.disabled = true;
+                
+                updateUI();
+                showNotification(`Улучшение "${getUpgradeName(upgrade)}" приобретено!`);
+            }
+        }
+
+        // Получение названия улучшения
+        function getUpgradeName(upgrade) {
+            const names = {
+                'eucharist': 'Евхаристия',
+                'deacon': 'Дьякон',
+                'presbyter': 'Пресвитер'
+            };
+            return names[upgrade];
+        }
+
+        // Улучшение конверсии за веру
+        function upgradeFaithConversion() {
+            if (gameState.faith >= gameState.nextFaithUpgradeCost && gameState.conversionRate < 0.99) {
+                gameState.faith -= gameState.nextFaithUpgradeCost;
+                gameState.conversionRate += 0.01;
+                gameState.faithUpgradeCount++;
+                
+                // Увеличиваем стоимость следующего улучшения
+                gameState.nextFaithUpgradeCost *= 2;
+                
+                updateUI();
+                showNotification(`Шанс привлечения увеличен до ${Math.round(gameState.conversionRate * 100)}%!`);
+            }
+        }
+
+        // Отправка миссии
+        function sendMission() {
+            if (gameState.converted >= 300) {
+                gameState.converted -= 200;
+                const faithEarned = 100;
+                gameState.faith += faithEarned;
+                
+                updateUI();
+                showNotification(`Миссия отправлена! Получено ${faithEarned} веры.`);
+            } else if (gameState.converted >= 1000) {
+                gameState.converted -= 750;
+                const faithEarned = 300;
+                gameState.faith += faithEarned;
+                
+                updateUI();
+                showNotification(`Новая церковь открыта! Получено ${faithEarned} веры.`);
+            }
+        }
+
+        // Показать еженедельный отчет
+        function showWeeklyReport() {
+            // Округляем благословение вверх
+            const blessing = Math.ceil(gameState.weeklyStats.faithEarned * 0.1);
+            gameState.faith += blessing;
+            
+            document.getElementById('report-converted').textContent = gameState.weeklyStats.converted;
+            document.getElementById('report-faith-earned').textContent = gameState.weeklyStats.faithEarned;
+            document.getElementById('report-blessing').textContent = blessing;
+            document.getElementById('report-total').textContent = gameState.weeklyStats.faithEarned + blessing;
+            
+            // Сбрасываем weekly stats
+            gameState.weeklyStats = {
+                converted: 0,
+                faithEarned: 0
+            };
+            
+            // Показываем уведомление вместо полноэкранного отчета
+            showNotification(`Недельный отчёт: +${blessing} благословения!`);
+            
+            updateUI();
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Убираем уведомление через 3 секунды
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Закрыть отчет
+        function closeReport() {
+            weeklyReportEl.style.display = 'none';
+            gameState.gameActive = true;
+            updateUI();
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            faithEl.textContent = gameState.faith;
+            levelEl.textContent = gameState.churchLevel;
+            convertedEl.textContent = gameState.converted;
+            conversionRateEl.textContent = Math.round(gameState.conversionRate * 100) + '%';
+            
+            // Обновляем кнопки
+            const churchCost = 50 * gameState.churchLevel;
+            upgradeChurchBtn.textContent = churchCost;
+            upgradeChurchBtn.disabled = gameState.faith < churchCost || gameState.churchLevel >= 8;
+            
+            const serviceCost = 100;
+            const servicesCount = Object.keys(gameState.services).length;
+            upgradeServiceBtn.textContent = serviceCost;
+            upgradeServiceBtn.disabled = gameState.faith < serviceCost || servicesCount >= 7;
+            
+            // Обновляем кнопку улучшения веры
+            faithUpgradeBtn.textContent = `+1% за ${gameState.nextFaithUpgradeCost}`;
+            faithUpgradeBtn.disabled = gameState.faith < gameState.nextFaithUpgradeCost || gameState.conversionRate >= 0.99;
+            
+            // Обновляем кнопку миссии
+            missionBtn.disabled = gameState.converted < 300;
+            if (gameState.converted >= 1000) {
+                missionBtn.textContent = 'Новая церковь (1000)';
+            } else if (gameState.converted >= 300) {
+                missionBtn.textContent = 'Миссия (300)';
+            }
+        }
+
+        // Начать игру
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            initGame();
+        }
+
+        // Запуск при загрузке
+        window.addEventListener('load', () => {
+            // Устанавливаем понедельник как активный день
+            document.getElementById('monday').classList.add('active');
+        });
+    </script>
+</body>
+</html>
