@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Церковный Симулятор 2025</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c 0%, #2a4b8c 100%);
+            color: #f8f8f8;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-bottom: 3px solid #d4af37;
+        }
+        h1 {
+            color: #d4af37;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+            margin-bottom: 10px;
+        }
+        .panel {
+            background: rgba(30, 30, 60, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            border: 2px solid #5d8aa8;
+        }
+        .stats-panel {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .main-content {
+            grid-column: 1;
+        }
+        .side-panel {
+            grid-column: 2;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4af37;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        .tab-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+        .tab-btn.active {
+            background: #d4af37;
+            color: #1a2a6c;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 0 0 10px 10px;
+            min-height: 400px;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        .progress-bar {
+            height: 25px;
+            background-color: #3a3a6a;
+            border-radius: 12px;
+            margin: 12px 0;
+            overflow: hidden;
+            border: 1px solid #5d8aa8;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37 0%, #ffd700 100%);
+            border-radius: 12px;
+            transition: width 0.5s;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        button {
+            background: linear-gradient(to right, #2a4b8c, #3a5ba8);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 6px;
+            transition: all 0.3s;
+            font-weight: bold;
+            border: 1px solid #5d8aa8;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(93, 138, 168, 0.4);
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .resource, .activity, .leader, .upgrade {
+            padding: 15px;
+            background: rgba(50, 50, 90, 0.8);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #d4af37;
+            transition: all 0.3s;
+        }
+        .resource:hover, .activity:hover, .leader:hover, .upgrade:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .resource {
+            text-align: center;
+            padding: 12px;
+        }
+        .activity-grid, .leaders-grid, .upgrades-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .requirements {
+            font-size: 0.9em;
+            color: #aaa;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: rgba(30, 30, 60, 0.95);
+            border-left: 4px solid #d4af37;
+            border-radius: 8px;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+            max-width: 350px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(40, 40, 80, 0.6);
+            border-radius: 5px;
+        }
+        .cost {
+            color: #d4af37;
+            font-weight: bold;
+        }
+        .income {
+            color: #5d8aa8;
+            font-weight: bold;
+        }
+        .level-badge {
+            background: #d4af37;
+            color: #1a2a6c;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        h2 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #5d8aa8;
+            padding-bottom: 8px;
+        }
+        h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .rps-game {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        .rps-btn {
+            font-size: 2em;
+            padding: 15px;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .game-result {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        .automation-control {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .automation-control label {
+            margin-left: 10px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .highlight {
+            animation: highlight 1s;
+        }
+        @keyframes highlight {
+            0% { background-color: initial; }
+            50% { background-color: rgba(212, 175, 55, 0.3); }
+            100% { background-color: initial; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Церковный Симулятор 2025</h1>
+            <p>Развивайте лидеров, автоматизируйте деятельность и создайте процветающую церковную общину!</p>
+        </header>
+        
+        <div class="panel stats-panel">
+            <div class="stat-row">
+                <span>Прихожане:</span>
+                <span id="followers">10</span>
+            </div>
+            <div class="stat-row">
+                <span>Вера:</span>
+                <span id="faith">50</span>
+            </div>
+            <div class="stat-row">
+                <span>Пожертвования:</span>
+                <span id="donations">100</span>
+            </div>
+            <div class="stat-row">
+                <span>Лидеры:</span>
+                <span id="leaders-count">0</span>
+            </div>
+            <div class="stat-row">
+                <span>Уровень церкви:</span>
+                <span id="church-level">1</span>
+            </div>
+        </div>
+        
+        <div class="panel main-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('activities')">Деятельность</button>
+                <button class="tab-btn" onclick="switchTab('leaders')">Лидеры</button>
+                <button class="tab-btn" onclick="switchTab('upgrades')">Улучшения</button>
+            </div>
+            
+            <div id="activities" class="tab-content active">
+                <h2>Церковная деятельность</h2>
+                <p>Активируйте деятельность для получения ресурсов. Улучшайте для автоматизации!</p>
+                <div class="activity-grid" id="activities-list">
+                    <!-- Активности будут добавлены через JS -->
+                </div>
+            </div>
+            
+            <div id="leaders" class="tab-content">
+                <h2>Развитие лидеров</h2>
+                <p>Подготавливайте лидеров, которые будут автоматически выполнять деятельность!</p>
+                <div class="leaders-grid" id="leaders-list">
+                    <!-- Лидеры будут добавлены через JS -->
+                </div>
+                
+                <h3>Подготовка нового лидера</h3>
+                <div class="resource">
+                    <p>Сыграйте в простую игру, чтобы подготовить лидера:</p>
+                    <div class="rps-game">
+                        <button class="rps-btn" onclick="playGame('камень')">✊</button>
+                        <button class="rps-btn" onclick="playGame('ножницы')">✌️</button>
+                        <button class="rps-btn" onclick="playGame('бумага')">✋</button>
+                    </div>
+                    <div class="game-result" id="game-result"></div>
+                    <p>Стоимость: 50 веры и 20 прихожан</p>
+                    <button id="train-leader-btn" onclick="trainLeader()">Подготовить лидера</button>
+                </div>
+            </div>
+            
+            <div id="upgrades" class="tab-content">
+                <h2>Улучшения церкви</h2>
+                <p>Улучшайте эффективность деятельности и лидеров!</p>
+                <div class="upgrades-grid" id="upgrades-list">
+                    <!-- Улучшения будут добавлены через JS -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel side-panel">
+            <h2>Автоматизация</h2>
+            <div id="automation-list">
+                <!-- Элементы автоматизации будут добавлены через JS -->
+            </div>
+            
+            <h2>Достижения</h2>
+            <div id="achievements">
+                <div class="stat-row">
+                    <span>Первый лидер</span>
+                    <span>🔒</span>
+                </div>
+                <div class="stat-row">
+                    <span>10 прихожан</span>
+                    <span>✅</span>
+                </div>
+                <div class="stat-row">
+                    <span>100 веры</span>
+                    <span>🔒</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="saveGame()">Сохранить</button>
+                <button onclick="resetGame()">Новая игра</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Основная структура данных игры
+        let gameState = {
+            resources: {
+                followers: 10,
+                faith: 50,
+                donations: 100
+            },
+            activities: {
+                prayer: { 
+                    level: 1, 
+                    unlocked: true, 
+                    auto: false, 
+                    yield: { faith: 1 }, 
+                    cost: {}, 
+                    time: 3000 
+                },
+                sermon: { 
+                    level: 1, 
+                    unlocked: true, 
+                    auto: false, 
+                    yield: { followers: 1 }, 
+                    cost: {}, 
+                    time: 5000 
+                },
+                charity: { 
+                    level: 0, 
+                    unlocked: false, 
+                    auto: false, 
+                    yield: { donations: 5, faith: 0.5 }, 
+                    cost: { donations: 10 }, 
+                    time: 8000 
+                },
+                teaching: { 
+                    level: 0, 
+                    unlocked: false, 
+                    auto: false, 
+                    yield: { faith: 2 }, 
+                    cost: { faith: 5 }, 
+                    time: 10000 
+                }
+            },
+            leaders: {
+                junior: { count: 0, capacity: 1, efficiency: 1 },
+                senior: { count: 0, capacity: 2, efficiency: 1.5 },
+                coordinator: { count: 0, capacity: 3, efficiency: 2 }
+            },
+            upgrades: {
+                autoPrayer: { level: 0, cost: { donations: 50 }, effect: "Автоматическая молитва" },
+                autoSermon: { level: 0, cost: { donations: 100 }, effect: "Автоматическая проповедь" },
+                leaderEfficiency: { level: 0, cost: { faith: 30 }, effect: "Эффективность лидеров +20%" }
+            },
+            churchLevel: 1,
+            lastUpdate: Date.now()
+        };
+
+        // Загрузка состояния игры из localStorage
+        function loadGame() {
+            const savedGame = localStorage.getItem('churchSimulator2025');
+            if (savedGame) {
+                try {
+                    gameState = JSON.parse(savedGame);
+                    showNotification('Игра загружена!');
+                } catch (e) {
+                    console.error('Ошибка загрузки игры:', e);
+                    showNotification('Ошибка загрузки сохранения');
+                }
+            }
+            updateUI();
+            startGameLoop();
+        }
+
+        // Сохранение состояния игры в localStorage
+        function saveGame() {
+            gameState.lastUpdate = Date.now();
+            localStorage.setItem('churchSimulator2025', JSON.stringify(gameState));
+            showNotification('Игра сохранена!');
+        }
+
+        // Сброс игры
+        function resetGame() {
+            if (confirm('Вы уверены? Весь прогресс будет потерян!')) {
+                localStorage.removeItem('churchSimulator2025');
+                gameState = {
+                    resources: {
+                        followers: 10,
+                        faith: 50,
+                        donations: 100
+                    },
+                    activities: {
+                        prayer: { 
+                            level: 1, 
+                            unlocked: true, 
+                            auto: false, 
+                            yield: { faith: 1 }, 
+                            cost: {}, 
+                            time: 3000 
+                        },
+                        sermon: { 
+                            level: 1, 
+                            unlocked: true, 
+                            auto: false, 
+                            yield: { followers: 1 }, 
+                            cost: {}, 
+                            time: 5000 
+                        },
+                        charity: { 
+                            level: 0, 
+                            unlocked: false, 
+                            auto: false, 
+                            yield: { donations: 5, faith: 0.5 }, 
+                            cost: { donations: 10 }, 
+                            time: 8000 
+                        },
+                        teaching: { 
+                            level: 0, 
+                            unlocked: false, 
+                            auto: false, 
+                            yield: { faith: 2 }, 
+                            cost: { faith: 5 }, 
+                            time: 10000 
+                        }
+                    },
+                    leaders: {
+                        junior: { count: 0, capacity: 1, efficiency: 1 },
+                        senior: { count: 0, capacity: 2, efficiency: 1.5 },
+                        coordinator: { count: 0, capacity: 3, efficiency: 2 }
+                    },
+                    upgrades: {
+                        autoPrayer: { level: 0, cost: { donations: 50 }, effect: "Автоматическая молитва" },
+                        autoSermon: { level: 0, cost: { donations: 100 }, effect: "Автоматическая проповедь" },
+                        leaderEfficiency: { level: 0, cost: { faith: 30 }, effect: "Эффективность лидеров +20%" }
+                    },
+                    churchLevel: 1,
+                    lastUpdate: Date.now()
+                };
+                updateUI();
+                showNotification('Новая игра начата!');
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            updateResources();
+            updateActivities();
+            updateLeaders();
+            updateUpgrades();
+            updateAutomation();
+        }
+
+        // Обновление отображения ресурсов
+        function updateResources() {
+            document.getElementById('followers').textContent = Math.floor(gameState.resources.followers);
+            document.getElementById('faith').textContent = Math.floor(gameState.resources.faith);
+            document.getElementById('donations').textContent = Math.floor(gameState.resources.donations);
+            document.getElementById('leaders-count').textContent = Object.values(gameState.leaders).reduce((sum, leader) => sum + leader.count, 0);
+            document.getElementById('church-level').textContent = gameState.churchLevel;
+        }
+
+        // Обновление отображения активностей
+        function updateActivities() {
+            const activitiesContainer = document.getElementById('activities-list');
+            activitiesContainer.innerHTML = '';
+            
+            const activitiesConfig = {
+                prayer: { name: 'Молитва', desc: 'Увеличивает веру' },
+                sermon: { name: 'Проповедь', desc: 'Привлекает новых прихожан' },
+                charity: { name: 'Благотворительность', desc: 'Приносит пожертвования и немного веры' },
+                teaching: { name: 'Обучение', desc: 'Увеличивает веру (требует веры)' }
+            };
+            
+            for (const [activityId, activity] of Object.entries(gameState.activities)) {
+                if (!activity.unlocked) continue;
+                
+                const config = activitiesConfig[activityId];
+                const activityEl = document.createElement('div');
+                activityEl.className = 'activity';
+                
+                activityEl.innerHTML = `
+                    <h3>${config.name} <span class="level-badge">Ур. ${activity.level}</span></h3>
+                    <p>${config.desc}</p>
+                    <div class="automation-control">
+                        <input type="checkbox" id="auto-${activityId}" ${activity.auto ? 'checked' : ''} 
+                            onchange="toggleAutomation('${activityId}')">
+                        <label for="auto-${activityId}">Автоматически выполнять</label>
+                    </div>
+                    <button onclick="performActivity('${activityId}')">Выполнить</button>
+                `;
+                
+                activitiesContainer.appendChild(activityEl);
+            }
+        }
+
+        // Обновление отображения лидеров
+        function updateLeaders() {
+            const leadersContainer = document.getElementById('leaders-list');
+            leadersContainer.innerHTML = '';
+            
+            const leadersConfig = {
+                junior: { name: 'Младший лидер', desc: 'Может выполнять 1 деятельность' },
+                senior: { name: 'Старший лидер', desc: 'Может выполнять 2 деятельности' },
+                coordinator: { name: 'Координатор', desc: 'Может выполнять 3 деятельности' }
+            };
+            
+            for (const [leaderId, leader] of Object.entries(gameState.leaders)) {
+                const config = leadersConfig[leaderId];
+                const leaderEl = document.createElement('div');
+                leaderEl.className = 'leader';
+                
+                leaderEl.innerHTML = `
+                    <h3>${config.name} <span class="level-badge">${leader.count}</span></h3>
+                    <p>${config.desc}</p>
+                    <p>Эффективность: ${leader.efficiency}x</p>
+                `;
+                
+                leadersContainer.appendChild(leaderEl);
+            }
+            
+            // Обновляем кнопку подготовки лидера
+            const trainButton = document.getElementById('train-leader-btn');
+            trainButton.disabled = !(gameState.resources.faith >= 50 && gameState.resources.followers >= 20);
+        }
+
+        // Обновление отображения улучшений
+        function updateUpgrades() {
+            const upgradesContainer = document.getElementById('upgrades-list');
+            upgradesContainer.innerHTML = '';
+            
+            for (const [upgradeId, upgrade] of Object.entries(gameState.upgrades)) {
+                const upgradeEl = document.createElement('div');
+                upgradeEl.className = 'upgrade';
+                
+                let canAfford = true;
+                let costHTML = '';
+                
+                for (const [resource, amount] of Object.entries(upgrade.cost)) {
+                    const actualCost = amount * (upgrade.level + 1);
+                    costHTML += `<div>${resource}: ${actualCost}</div>`;
+                    if (gameState.resources[resource] < actualCost) {
+                        canAfford = false;
+                    }
+                }
+                
+                upgradeEl.innerHTML = `
+                    <h3>${upgrade.effect} <span class="level-badge">Ур. ${upgrade.level}</span></h3>
+                    <div class="cost">
+                        <strong>Стоимость:</strong>${costHTML}
+                    </div>
+                    <button ${!canAfford ? 'disabled' : ''} onclick="buyUpgrade('${upgradeId}')">
+                        Улучшить
+                    </button>
+                `;
+                
+                upgradesContainer.appendChild(upgradeEl);
+            }
+        }
+
+        // Обновление отображения автоматизации
+        function updateAutomation() {
+            const automationContainer = document.getElementById('automation-list');
+            automationContainer.innerHTML = '';
+            
+            // Показываем текущую автоматизацию
+            for (const [activityId, activity] of Object.entries(gameState.activities)) {
+                if (activity.auto) {
+                    const autoEl = document.createElement('div');
+                    autoEl.className = 'resource';
+                    autoEl.innerHTML = `
+                        <h3>${activityId === 'prayer' ? 'Молитва' : 
+                                activityId === 'sermon' ? 'Проповедь' : 
+                                activityId === 'charity' ? 'Благотворительность' : 'Обучение'}</h3>
+                        <p>Автоматическое выполнение каждые ${activity.time/1000} сек</p>
+                    `;
+                    automationContainer.appendChild(autoEl);
+                }
+            }
+            
+            // Показываем информацию о лидерах
+            const totalCapacity = Object.values(gameState.leaders).reduce(
+                (sum, leader) => sum + (leader.count * leader.capacity), 0
+            );
+            
+            const usedCapacity = Object.values(gameState.activities).filter(a => a.auto).length;
+            
+            const capacityEl = document.createElement('div');
+            capacityEl.className = 'resource';
+            capacityEl.innerHTML = `
+                <h3>Мощность лидеров</h3>
+                <p>Используется: ${usedCapacity} из ${totalCapacity}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(usedCapacity/totalCapacity)*100}%"></div>
+                </div>
+            `;
+            automationContainer.appendChild(capacityEl);
+        }
+
+        // Выполнение деятельности
+        function performActivity(activityId) {
+            const activity = gameState.activities[activityId];
+            
+            // Проверка стоимости
+            for (const [resource, amount] of Object.entries(activity.cost)) {
+                if (gameState.resources[resource] < amount) {
+                    showNotification(`Недостаточно ${resource}!`);
+                    return;
+                }
+            }
+            
+            // Вычитаем стоимость
+            for (const [resource, amount] of Object.entries(activity.cost)) {
+                gameState.resources[resource] -= amount;
+            }
+            
+            // Блокируем кнопку на время действия
+            const button = event.target;
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Выполняется...';
+            
+            setTimeout(() => {
+                // Начисляем награду
+                for (const [resource, amount] of Object.entries(activity.yield)) {
+                    gameState.resources[resource] += amount * activity.level;
+                }
+                
+                // Разблокируем кнопку
+                button.disabled = false;
+                button.textContent = originalText;
+                
+                showNotification(`Деятельность завершена!`);
+                updateUI();
+                saveGame();
+            }, activity.time);
+        }
+
+        // Переключение автоматизации
+        function toggleAutomation(activityId) {
+            const activity = gameState.activities[activityId];
+            const checkbox = document.getElementById(`auto-${activityId}`);
+            
+            // Проверяем, есть ли достаточно мощности лидеров
+            const totalCapacity = Object.values(gameState.leaders).reduce(
+                (sum, leader) => sum + (leader.count * leader.capacity), 0
+            );
+            
+            const usedCapacity = Object.values(gameState.activities).filter(a => a.auto).length;
+            
+            if (checkbox.checked && usedCapacity >= totalCapacity) {
+                checkbox.checked = false;
+                showNotification('Недостаточно лидеров для автоматизации!');
+                return;
+            }
+            
+            activity.auto = checkbox.checked;
+            updateAutomation();
+            saveGame();
+        }
+
+        // Игра для подготовки лидера
+        function playGame(choice) {
+            const choices = ['камень', 'ножницы', 'бумага'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            let result = '';
+            
+            if (choice === computerChoice) {
+                result = 'Ничья! Попробуйте снова.';
+            } else if (
+                (choice === 'камень' && computerChoice === 'ножницы') ||
+                (choice === 'ножницы' && computerChoice === 'бумага') ||
+                (choice === 'бумага' && computerChoice === 'камень')
+            ) {
+                result = 'Вы выиграли! Лидер лучше подготовлен.';
+            } else {
+                result = 'Вы проиграли. Лидер потребует больше ресурсов.';
+            }
+            
+            document.getElementById('game-result').textContent = `Вы: ${choice} vs Компьютер: ${computerChoice}. ${result}`;
+        }
+
+        // Подготовка лидера
+        function trainLeader() {
+            if (gameState.resources.faith < 50 || gameState.resources.followers < 20) {
+                showNotification('Недостаточно ресурсов для подготовки лидера!');
+                return;
+            }
+            
+            gameState.resources.faith -= 50;
+            gameState.resources.followers -= 20;
+            
+            // Простой алгоритм определения уровня лидера
+            const rand = Math.random();
+            let leaderType = 'junior';
+            
+            if (rand < 0.1) {
+                leaderType = 'coordinator';
+            } else if (rand < 0.3) {
+                leaderType = 'senior';
+            }
+            
+            gameState.leaders[leaderType].count++;
+            
+            showNotification(`Подготовлен новый ${leaderType === 'junior' ? 'младший' : leaderType === 'senior' ? 'старший' : 'координатор'} лидер!`);
+            updateUI();
+            saveGame();
+        }
+
+        // Покупка улучшения
+        function buyUpgrade(upgradeId) {
+            const upgrade = gameState.upgrades[upgradeId];
+            const actualCost = {};
+            
+            for (const [resource, amount] of Object.entries(upgrade.cost)) {
+                actualCost[resource] = amount * (upgrade.level + 1);
+                if (gameState.resources[resource] < actualCost[resource]) {
+                    showNotification(`Недостаточно ${resource}!`);
+                    return;
+                }
+            }
+            
+            // Вычитаем стоимость
+            for (const [resource, amount] of Object.entries(actualCost)) {
+                gameState.resources[resource] -= amount;
+            }
+            
+            // Применяем улучшение
+            upgrade.level++;
+            
+            // Специальные эффекты улучшений
+            if (upgradeId === 'autoPrayer' && upgrade.level === 1) {
+                gameState.activities.prayer.auto = true;
+            } else if (upgradeId === 'autoSermon' && upgrade.level === 1) {
+                gameState.activities.sermon.auto = true;
+            } else if (upgradeId === 'leaderEfficiency') {
+                for (const leader of Object.values(gameState.leaders)) {
+                    leader.efficiency = 1 + (0.2 * upgrade.level);
+                }
+            }
+            
+            showNotification(`Улучшение "${upgrade.effect}" приобретено!`);
+            updateUI();
+            saveGame();
+        }
+
+        // Игровой цикл
+        function startGameLoop() {
+            setInterval(() => {
+                // Автоматическое выполнение activities
+                for (const [activityId, activity] of Object.entries(gameState.activities)) {
+                    if (activity.auto) {
+                        // Проверяем, достаточно ли ресурсов для автоматического выполнения
+                        let canExecute = true;
+                        for (const [resource, amount] of Object.entries(activity.cost)) {
+                            if (gameState.resources[resource] < amount) {
+                                canExecute = false;
+                                break;
+                            }
+                        }
+                        
+                        if (canExecute) {
+                            // Вычитаем стоимость
+                            for (const [resource, amount] of Object.entries(activity.cost)) {
+                                gameState.resources[resource] -= amount;
+                            }
+                            
+                            // Начисляем награду с учетом эффективности лидеров
+                            const leaderEfficiency = Object.values(gameState.leaders).reduce(
+                                (max, leader) => Math.max(max, leader.efficiency), 1
+                            );
+                            
+                            for (const [resource, amount] of Object.entries(activity.yield)) {
+                                gameState.resources[resource] += amount * activity.level * leaderEfficiency;
+                            }
+                        }
+                    }
+                }
+                
+                // Разблокируем новые activities при достижении определенного уровня
+                if (gameState.resources.faith >= 100 && !gameState.activities.charity.unlocked) {
+                    gameState.activities.charity.unlocked = true;
+                    gameState.activities.charity.level = 1;
+                    showNotification('Разблокирована благотворительность!');
+                }
+                
+                if (gameState.resources.faith >= 200 && !gameState.activities.teaching.unlocked) {
+                    gameState.activities.teaching.unlocked = true;
+                    gameState.activities.teaching.level = 1;
+                    showNotification('Разблокировано обучение!');
+                }
+                
+                // Повышаем уровень церкви
+                if (gameState.resources.followers >= 100 && gameState.churchLevel === 1) {
+                    gameState.churchLevel = 2;
+                    showNotification('Церковь достигла 2 уровня!');
+                }
+                
+                updateUI();
+            }, 3000); // Проверяем каждые 3 секунды
+        }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убрать активный класс у всех кнопок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabName).classList.add('active');
+            
+            // Активировать кнопку
+            document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Инициализация игры при загрузке
+        window.onload = function() {
+            loadGame();
+        };
+    </script>
+</body>
+</html>
