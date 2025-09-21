@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Церковный симулятор — переработка (полный файл)</title>
+<style>
+/* --- Базовые сбросы и контейнер --- */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(180deg,#9ed0ff 0%, #eaf8ff 100%);
+    color:#222;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    justify-content:center;
+    padding:8px;
+}
+
+/* --- Основной фрейм игры --- */
+.game-root{
+    width:100%;
+    max-width:540px;
+    background:rgba(255,255,255,0.98);
+    border-radius:12px;
+    box-shadow:0 6px 24px rgba(0,0,0,0.12);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    height:94vh;
+}
+
+/* --- Хедер --- */
+.header{
+    padding:12px 14px;
+    border-bottom:1px solid #eee;
+}
+.header h1{font-size:18px;margin-bottom:4px}
+.header p{font-size:13px;color:#444}
+
+/* --- Статистика --- */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding:10px 14px;
+}
+.stat{
+    background:#fbfbfb;
+    border-radius:8px;
+    padding:8px;
+    text-align:center;
+    box-shadow:inset 0 -1px 0 rgba(0,0,0,0.02)
+}
+.stat .label{font-size:11px;color:#666}
+.stat .value{font-weight:700;font-size:16px;margin-top:4px}
+
+/* --- Неделя/дни --- */
+.week-bar{
+    display:flex;
+    gap:6px;
+    padding:8px 14px;
+    align-items:center;
+}
+.day{
+    flex:1;
+    text-align:center;
+    padding:6px 4px;
+    border-radius:6px;
+    font-size:12px;
+    background:transparent;
+    color:#333;
+}
+.day.active{background:#4CAF50;color:#fff;font-weight:700;box-shadow:0 2px 8px rgba(76,175,80,0.18)}
+
+/* --- Игра — игровая область --- */
+.play-area{
+    padding:10px 14px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    flex-direction:column;
+    flex:1;
+    overflow:hidden;
+}
+.game-stage{
+    position:relative;
+    background:linear-gradient(#e6f6ff,#ffffff);
+    border-radius:10px;
+    height:170px;
+    overflow:hidden;
+    border:1px solid #e6eef6;
+}
+.ground{
+    position:absolute;
+    left:0;right:0;bottom:0;height:18px;background:#8B5A2B;
+}
+.church{
+    position:absolute;
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%);
+    width:66px;height:86px;
+    background:#fff;
+    border:2px solid #222;
+    border-radius:6px;
+    z-index:30;
+}
+.church-roof{
+    position:absolute;top:-18px;left:0;width:100%;height:24px;background:#8B0000;clip-path:polygon(0% 100%,50% 0%,100% 100%);
+    border-radius:4px 4px 0 0;
+}
+.church-cross{position:absolute;top:-34px;left:50%;transform:translateX(-50%);font-size:18px}
+.church-door{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:18px;height:30px;background:#222;border-radius:3px;transition:all .25s}
+.church-door.open{background:#ffd54f;box-shadow:0 0 10px rgba(255,213,79,0.5)}
+.conversion-bubble{
+    position:absolute;left:50%;transform:translateX(-50%);top:-34px;background:rgba(0,0,0,0.66);color:#fff;padding:5px 8px;border-radius:14px;font-size:12px;white-space:nowrap;z-index:40
+}
+.leader-bubble{position:absolute;left:50%;transform:translateX(-50%);top:-58px;background:rgba(200,40,40,0.95);color:#fff;padding:4px 8px;border-radius:12px;font-size:11px;display:none;z-index:40}
+
+/* --- Люди (персонажи) --- */
+.person{
+    position:absolute;
+    bottom:18px;
+    width:14px;height:24px;background:#333;border-radius:3px;z-index:20;
+    display:flex;align-items:flex-start;justify-content:center;
+}
+.person-head{position:relative;top:-6px;width:10px;height:10px;border-radius:50%;background:#ffd54f}
+.person.leader .person-head{background:#ff5252;box-shadow:0 0 8px rgba(255,82,82,0.6)}
+
+/* --- Контролы --- */
+.controls{
+    display:flex;
+    gap:8px;
+    padding:10px 14px;
+}
+.btn{
+    flex:1;
+    background:#4CAF50;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;
+    box-shadow:0 4px 10px rgba(76,175,80,0.16)
+}
+.btn.secondary{background:#ff9800}
+.btn.ghost{background:#fff;color:#444;border:1px solid #ddd;box-shadow:none}
+
+/* --- Панель апгрейдов: две горизонтальные полосы --- */
+.upgrades-panel{
+    padding:10px 14px;
+    border-top:1px solid #eee;
+    background:linear-gradient(180deg,rgba(255,255,255,0.92),rgba(250,250,252,0.92));
+}
+.upgrades-row{
+    margin-bottom:10px;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:6px;
+    -webkit-overflow-scrolling:touch;
+}
+.upgrade-card{
+    min-width:150px;
+    flex:0 0 auto;
+    background:#fff;border-radius:8px;padding:8px;border:1px solid #e9eef6;
+    display:flex;flex-direction:column;gap:6px;
+}
+.upgrade-card .title{font-weight:700;font-size:13px}
+.upgrade-card .desc{font-size:12px;color:#666}
+.upgrade-card .cost{font-weight:700;margin-top:auto;text-align:right}
+.upgrade-card button{margin-top:6px;padding:8px;border-radius:6px;border:none;background:#1976d2;color:#fff;cursor:pointer}
+
+/* --- Панель событий/квестов --- */
+.events-box{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-top:6px;
+}
+.event-card{
+    min-width:190px;background:#fff;border-radius:8px;padding:8px;border:1px solid #eef3fb;
+}
+.event-card .ev-title{font-weight:700;font-size:13px}
+.event-card .ev-desc{font-size:12px;color:#555;margin-top:6px}
+
+/* --- Уведомления --- */
+.toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:rgba(30,30,30,0.92);color:#fff;padding:10px 14px;border-radius:8px;z-index:9999;font-size:13px;
+}
+
+/* --- Мелочи --- */
+.small{font-size:12px;color:#555}
+.center{text-align:center}
+.disabled{opacity:0.45;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="game-root" id="root">
+    <div class="header">
+        <h1>Церковный симулятор</h1>
+        <p>Новая версия: исправлены расчёты конверсии, динамическая база апгрейдов, события и квесты.</p>
+    </div>
+
+    <div class="stats" id="stats-row">
+        <div class="stat">
+            <div class="label">Вера</div>
+            <div class="value" id="ui-faith">0</div>
+        </div>
+        <div class="stat">
+            <div class="label">Уровень церкви</div>
+            <div class="value" id="ui-level">1</div>
+        </div>
+        <div class="stat">
+            <div class="label">Прихожане</div>
+            <div class="value" id="ui-converted">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="label">Лидеры</div>
+            <div class="value" id="ui-leaders">0</div>
+        </div>
+        <div class="stat">
+            <div class="label">Дни службы</div>
+            <div class="value" id="ui-services">1/6</div>
+        </div>
+        <div class="stat">
+            <div class="label">Неделя</div>
+            <div class="value" id="ui-week">1</div>
+        </div>
+    </div>
+
+    <div class="week-bar" id="week-bar">
+        <div class="day" data-day="0" id="ui-mon">Пн</div>
+        <div class="day" data-day="1" id="ui-tue">Вт</div>
+        <div class="day" data-day="2" id="ui-wed">Ср</div>
+        <div class="day" data-day="3" id="ui-thu">Чт</div>
+        <div class="day" data-day="4" id="ui-fri">Пт</div>
+        <div class="day" data-day="5" id="ui-sat">Сб</div>
+        <div class="day" data-day="6" id="ui-sun">Вс</div>
+    </div>
+
+    <div class="play-area">
+        <div class="game-stage" id="game-stage">
+            <div class="ground"></div>
+
+            <div class="church" id="church">
+                <div class="church-roof"></div>
+                <div class="church-cross">✝</div>
+                <div class="church-door" id="church-door"></div>
+                <div class="conversion-bubble" id="conversion-bubble">10%</div>
+                <div class="leader-bubble" id="leader-bubble">Лидер!</div>
+            </div>
+            <!-- Люди добавляются динамически -->
+        </div>
+
+        <div class="controls">
+            <button class="btn secondary" id="btn-mission">Миссия (300 + 1 лидер)</button>
+            <button class="btn" id="btn-assign">Назначить группы</button>
+            <button class="btn ghost" id="btn-fast-forward">x1 скорость</button>
+        </div>
+    </div>
+
+    <div class="upgrades-panel">
+        <div class="small" style="margin-bottom:6px">Апгрейды — первая полоса: увеличивают сбор веры</div>
+        <div class="upgrades-row" id="upgrades-faith-row"></div>
+
+        <div class="small" style="margin:8px 0 6px">Вторая полоса — рост прихожан и социо-эффекты</div>
+        <div class="upgrades-row" id="upgrades-convert-row"></div>
+
+        <div style="margin-top:8px" class="small">События и квесты (горизонтально)</div>
+        <div class="events-box" id="events-row"></div>
+    </div>
+</div>
+
+<script>
+/*
+  Профессиональная переработка игрового файла
+  - Конверсия считается индивидуально для каждого человека (ошибка исправлена)
+  - База апгрейдов/events/quests оформлена как объекты массивов (легко масштабировать)
+  - Две горизонтальные полосы апгрейдов
+  - Система лидеров, назначаемые группы, события и квесты
+  - Константы вверху для быстрой настройки
+*/
+
+/* =======================
+   Константы (рутовая секция)
+   ======================= */
+const CONFIG = {
+    DAY_DURATION_MS: 4000,            // базовая длительность дня (можно менять)
+    PEOPLE_SPAWN_INTERVAL_MS: 1400,   // интервал между спавнами пачек
+    PEOPLE_PER_SPAWN_MIN: 1,
+    PEOPLE_PER_SPAWN_MAX: 3,
+    SURGE_MULTIPLIER: 8,              // множитель людей для «наплыва»
+    BASE_CONVERSION_RATE: 0.10,       // базовый шанс 10%
+    CONVERSION_PER_CHURCH_LEVEL: 0.10,// каждые 1 уровень = +10% до capFromUpgrades
+    CAP_FROM_UPGRADES: 0.80,          // максимум накопительный (до добавочного 19%)
+    EXTRA_FIXED: 0.19,                // дополнительный постоянный максимум (0.19)
+    GLOBAL_CONVERSION_CAP: 0.99,      // абсолютный cap
+    LEADER_BASE_CHANCE: 0.004,        // шанс спавна лидера (0.4%)
+    MAX_CHURCH_LEVEL: 9,              // гибко
+    MISSION_REQUIRED_FLOCK: 300,
+    MISSION_REQUIRED_LEADERS: 1,
+    INITIAL_FAITH: 100,
+    INITIAL_FAITH_PER_CONVERT: 1,     // множитель веры за конверт
+};
+
+/* =======================
+   База данных апгрейдов (можно расширять)
+   структура each item: { id, name, desc, cost, maxStack, apply(gameState), type, tags }
+   - type: 'faith' | 'convert' | 'church' | 'service' | 'utility'
+   - maxStack: сколько уровней можно купить (1 = одноразово)
+   ======================= */
+const UPGRADES_DB = [
+    // Faith upgrades (повышают веру с каждого прихожанина или пассив)
+    { id:'faith_1', name:'Индульгенция простая', desc:'+1 вера с захода', cost:200, maxStack:1, type:'faith',
+      apply: gs => { gs.faithPerConvert += 1 } },
+    { id:'faith_2', name:'Учение пастора', desc:'+2 веры с захода', cost:450, maxStack:1, type:'faith',
+      apply: gs => { gs.faithPerConvert += 2 } },
+    { id:'faith_3', name:'Коллективная молитва I', desc:'+0.5 веры в сутки (пассив)', cost:2000, maxStack:5, type:'faith',
+      apply: gs => { gs.passiveFaithPerDay += 0.5 } },
+
+    // Convert upgrades (увеличивают кол-во прихожан с захода)
+    { id:'conv_1', name:'Семья', desc:'+1 прихожанин за заход', cost:1200, maxStack:3, type:'convert',
+      apply: gs => { gs.extraConverts += 1 } },
+    { id:'conv_2', name:'Родственники', desc:'+3 прихожанина за заход', cost:3500, maxStack:2, type:'convert',
+      apply: gs => { gs.extraConverts += 3 } },
+    { id:'conv_choir', name:'Хор', desc:'+5% к шансам в дни службы (если активирован)', cost:8000, maxStack:1, type:'convert',
+      apply: gs => { gs.choirActive = true } },
+
+    // Church structural upgrades (повышают уровень церкви => влияет на conversion)
+    { id:'church_up_1', name:'Ремонт крыши', desc:'+10% к шансам (уровень)', cost:50, maxStack:8, type:'church',
+      apply: gs => { gs.churchLevel = Math.min(gs.churchLevel + 1, CONFIG.MAX_CHURCH_LEVEL) } },
+
+    // Service upgrades (добавляют дни службы)
+    { id:'service_day', name:'Открыть службу', desc:'+1 день службы', cost:100, maxStack:5, type:'service',
+      apply: gs => { addServiceDay(gs) } },
+
+    // Utility / meta
+    { id:'leader_train', name:'Школа лидеров', desc:'Увеличивает шанс лидера на вход (стоит отдельно)', cost:12000, maxStack:3, type:'utility',
+      apply: gs => { gs.leaderChanceModifier += 0.002 } },
+    { id:'build_hq', name:'Строительство прихода', desc:'Снижает стоимость апгрейдов на 5%', cost:25000, maxStack:3, type:'utility',
+      apply: gs => { gs.costReduction += 0.05 } }
+];
+
+/* =======================
+   События и квесты (тоже база)
+   структура: { id, title, desc, trigger: function(gs) => bool , reward: function(gs) }
+   - trigger вызывается периодически (каждый день) и если вернёт true — событие активируется
+   - reward применяет награду
+   ======================= */
+const EVENTS_DB = [
+    {
+        id:'surge_week',
+        title:'Неожиданный наплыв',
+        desc:'Недельный наплыв людей — больше заходов в неделю',
+        trigger: gs => gs.week === gs.surgeWeek,
+        reward: gs => { gs.surgeActive = true; showToast('На этой неделе ожидается наплыв прихожан!'); }
+    },
+    {
+        id:'charity_drive',
+        title:'Благотворительная ярмарка',
+        desc:'Раз в 7 недель — даёт бонус к вере',
+        trigger: gs => (gs.week % 7 === 0),
+        reward: gs => {
+            const bonus = Math.floor(gs.faith * 0.05) + 50;
+            gs.faith += bonus;
+            showToast(`Благотворительная ярмарка дала +${bonus} веры`);
+        }
+    },
+    {
+        id:'mission_bonus',
+        title:'Миссионерская удача',
+        desc:'Случайная неделя — миссии приносят больше веры',
+        trigger: gs => Math.random() < 0.03, // редкое событие
+        reward: gs => {
+            gs.missionFaithMultiplier = Math.max(gs.missionFaithMultiplier, 1.5);
+            showToast('Миссии временно приносят +50% веры!');
+            setTimeout(()=>{ gs.missionFaithMultiplier = 1 }, 20000); // эффект временный
+        }
+    }
+];
+
+/* =======================
+   Game state
+   ======================= */
+let gameState = {
+    faith: CONFIG.INITIAL_FAITH,
+    churchLevel: 1,
+    converted: 0,
+    leaders: 0,
+    day: 0,
+    week: 1,
+    services: { sunday: true }, // active service days map
+    conversionRateBase: CONFIG.BASE_CONVERSION_RATE, // базовый
+    faithPerConvert: CONFIG.INITIAL_FAITH_PER_CONVERT,
+    extraConverts: 0,
+    passiveFaithPerDay: 0,
+    personList: [], // track DOM nodes & meta
+    gameActive: false,
+    surgeWeek: Math.floor(Math.random()*10) + 1,
+    surgeActive: false,
+    surgeDays: [],
+    leaderChanceModifier: 0,
+    costReduction: 0,
+    boughtUpgrades: {}, // map id => count
+    missionFaithMultiplier: 1,
+    missionPool: 0, // накопленная миссионерская валюта (необязательно)
+    faithEarnedThisWeek: 0,
+    weeklyConverted: 0,
+    eventsActive: [],
+    speedMultiplier: 1
+};
+
+/* =======================
+   UI элементы
+   ======================= */
+const ui = {
+    faith: document.getElementById('ui-faith'),
+    level: document.getElementById('ui-level'),
+    converted: document.getElementById('ui-converted'),
+    leaders: document.getElementById('ui-leaders'),
+    services: document.getElementById('ui-services'),
+    week: document.getElementById('ui-week'),
+    conversionBubble: document.getElementById('conversion-bubble'),
+    leaderBubble: document.getElementById('leader-bubble'),
+    gameStage: document.getElementById('game-stage'),
+    upgradesFaithRow: document.getElementById('upgrades-faith-row'),
+    upgradesConvertRow: document.getElementById('upgrades-convert-row'),
+    eventsRow: document.getElementById('events-row'),
+    btnMission: document.getElementById('btn-mission'),
+    btnAssign: document.getElementById('btn-assign'),
+    btnSpeed: document.getElementById('btn-fast-forward'),
+    churchDoor: document.getElementById('church-door'),
+    dayEls: Array.from(document.querySelectorAll('.day'))
+};
+
+/* =======================
+   Инициализация (рендер апгрейдов/событий)
+   ======================= */
+function init() {
+    renderUpgrades();
+    renderEvents();
+    attachHandlers();
+    updateUI();
+    startGameLoop();
+    gameState.gameActive = true;
+    showToast('Игра запущена');
+}
+
+/* --- Рендерим апгрейды как карточки из базы UPGRADES_DB --- */
+function renderUpgrades(){
+    ui.upgradesFaithRow.innerHTML = '';
+    ui.upgradesConvertRow.innerHTML = '';
+
+    UPGRADES_DB.forEach(upg => {
+        const card = document.createElement('div');
+        card.className = 'upgrade-card';
+        card.dataset.upgId = upg.id;
+        card.innerHTML = `<div class="title">${escapeHtml(upg.name)}</div>
+                          <div class="desc">${escapeHtml(upg.desc)}</div>
+                          <div class="cost small">Цена: <span class="cost-val">${formatCost(upg.cost)}</span></div>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Купить';
+        btn.addEventListener('click', () => buyUpgrade(upg.id));
+        card.appendChild(btn);
+
+        if(upg.type === 'faith' || upg.type === 'utility') ui.upgradesFaithRow.appendChild(card);
+        else ui.upgradesConvertRow.appendChild(card);
+    });
+}
+
+/* --- Рендер событий (квестов) --- */
+function renderEvents(){
+    ui.eventsRow.innerHTML = '';
+    EVENTS_DB.forEach(ev => {
+        const el = document.createElement('div');
+        el.className = 'event-card';
+        el.dataset.evId = ev.id;
+        el.innerHTML = `<div class="ev-title">${escapeHtml(ev.title)}</div>
+                        <div class="ev-desc">${escapeHtml(ev.desc)}</div>`;
+        ui.eventsRow.appendChild(el);
+    });
+}
+
+/* =======================
+   Работа с апгрейдами
+   ======================= */
+function buyUpgrade(id){
+    const upg = UPGRADES_DB.find(u=>u.id===id);
+    if(!upg) return;
+    const count = gameState.boughtUpgrades[id] || 0;
+    if(count >= upg.maxStack){
+        showToast('Максимум уровней куплено');
+        return;
+    }
+    const cost = Math.ceil(upg.cost * (1 - gameState.costReduction));
+    if(gameState.faith < cost){
+        showToast('Недостаточно веры');
+        return;
+    }
+    gameState.faith -= cost;
+    (gameState.boughtUpgrades[id] = (gameState.boughtUpgrades[id]||0)+1);
+    // Применяем эффект
+    upg.apply(gameState);
+    updateUI();
+    showToast(`Куплено: ${upg.name}`);
+}
+
+/* =======================
+   Добавление дня службы — функция helper
+   ======================= */
+function addServiceDay(gs = gameState){
+    // Откроем следующий неиспользуемый день (кроме воскресенья если уже открыт)
+    const daysOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    for(let d of daysOrder){
+        if(!gs.services[d]){
+            gs.services[d] = true;
+            return;
+        }
+    }
+}
+
+/* =======================
+   Циклы игры — дни & спавн людей
+   ======================= */
+let dayInterval = null;
+let spawnInterval = null;
+
+function startGameLoop(){
+    // День
+    dayInterval = setInterval(() => {
+        advanceDay();
+    }, CONFIG.DAY_DURATION_MS / gameState.speedMultiplier);
+
+    // Спавн пачек людей
+    spawnInterval = setInterval(() => {
+        spawnPeopleWave();
+    }, CONFIG.PEOPLE_SPAWN_INTERVAL_MS / gameState.speedMultiplier);
+}
+
+/* Перезапуск таймеров при смене скорости */
+function restartLoops(){
+    clearInterval(dayInterval);
+    clearInterval(spawnInterval);
+    startGameLoop();
+}
+
+/* Продвигаем день */
+function advanceDay(){
+    gameState.day = (gameState.day + 1) % 7;
+    if(gameState.day === 0){
+        // Началась новая неделя
+        gameState.week++;
+        performWeeklyReport();
+        // Регулярные обновления событий: случайно назначаем surgeWeek
+        if(gameState.week % 10 === 0){
+            gameState.surgeWeek = gameState.week + Math.floor(Math.random()*10)+1;
+        }
+        // Сбрасываем временные множители
+        gameState.surgeActive = false;
+    }
+    // Проверяем события (trigger)
+    EVENTS_DB.forEach(ev=>{
+        try{
+            if(ev.trigger(gameState)){
+                ev.reward(gameState);
+            }
+        }catch(e){
+            console.error('Event error', e);
+        }
+    });
+    updateDayUI();
+}
+
+/* Обновляем визуалку дня и открытие дверей */
+function updateDayUI(){
+    ui.dayEls.forEach(el => el.classList.remove('active'));
+    const dayIndex = gameState.day;
+    ui.dayEls[dayIndex].classList.add('active');
+    // Открываем/закрываем дверь
+    const dayNames = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    const currentDayId = dayNames[dayIndex];
+    const isService = !!gameState.services[currentDayId];
+    if(isService){
+        ui.churchDoor.classList.add('open');
+    } else {
+        ui.churchDoor.classList.remove('open');
+    }
+    // Показываем конверсию в bubble
+    ui.conversionBubble.textContent = Math.round(getEffectiveConversionRate()*100) + '%';
+}
+
+/* =======================
+   Спавн людей и логика конверсии (исправлено)
+   ======================= */
+function spawnPeopleWave(){
+    if(!gameState.gameActive) return;
+    // кол-во людей в пачке
+    let count = randInt(CONFIG.PEOPLE_PER_SPAWN_MIN, CONFIG.PEOPLE_PER_SPAWN_MAX);
+    // Если на неделе наплыв и в surgeActive либо день - увеличиваем
+    if(gameState.surgeActive || (gameState.surgeWeek === gameState.week && Math.random()<0.3)){
+        count *= CONFIG.SURGE_MULTIPLIER;
+    }
+    // дополнительные люди в конкретный день можно прокидывать (surgeDays) — можно расширить
+    for(let i=0;i<count;i++){
+        setTimeout(()=> spawnPerson(), i*220);
+    }
+}
+
+function spawnPerson(){
+    const person = document.createElement('div');
+    person.className = 'person';
+    const head = document.createElement('div');
+    head.className = 'person-head';
+    person.appendChild(head);
+    ui.gameStage.appendChild(person);
+
+    // стартовая позиция слева (вправо двигаем)
+    const startX = -40;
+    person.style.left = startX + 'px';
+    // Z-index variation
+    person.style.zIndex = 20 + Math.floor(Math.random()*10);
+
+    // шанс лидерства
+    const leaderChance = CONFIG.LEADER_BASE_CHANCE + gameState.leaderChanceModifier;
+    const isLeader = Math.random() < leaderChance;
+    if(isLeader){
+        person.classList.add('leader');
+        gameState.leaderSpawnCounter = (gameState.leaderSpawnCounter || 0) + 1;
+        // краткое индикация лидера у церкви
+        ui.leaderBubble.style.display = 'block';
+        setTimeout(()=> ui.leaderBubble.style.display = 'none', 1800);
+    }
+
+    // движение вправо до церкви; проверка попадания
+    const speed = 0.6 + Math.random()*1.6; // px per frame approximation
+    let pos = startX;
+    const targetX = ui.gameStage.clientWidth/2 + 40; // район церкви
+    let animFrame = null;
+
+    function step(){
+        if(!person.isConnected) return; // если DOM удалён
+        pos += speed * (1 + Math.random()*0.3);
+        person.style.left = pos + 'px';
+        // если прошёл экран
+        if(pos > ui.gameStage.clientWidth + 20){
+            // remove
+            person.remove();
+            cancelAnimationFrame(animFrame);
+            return;
+        }
+        // если близко к церкви — проверяем заход
+        if(pos >= targetX - 30 && pos <= targetX + 40){
+            const dayNames = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+            const today = dayNames[gameState.day];
+            if(gameState.services[today]){
+                // тестируем индивидуально
+                const chance = getEffectiveConversionRate();
+                const finalChance = Math.min(chance + (gameState.choirActive && true ? 0.05 : 0), CONFIG.GLOBAL_CONVERSION_CAP);
+                if(Math.random() < finalChance){
+                    // Convert!
+                    person.remove();
+                    const converts = 1 + gameState.extraConverts;
+                    gameState.converted += converts;
+                    gameState.weeklyConverted += converts;
+                    if(isLeader){
+                        gameState.leaders += 1;
+                    }
+                    // вера — рандомизированная, но мультиплицированная
+                    const baseFaithRoll = rollFaithAmount(); // 1..10 weighted
+                    const faithEarned = Math.max(1, Math.round(baseFaithRoll * gameState.faithPerConvert));
+                    // если лидер, фиксированная награда (баланс)
+                    const faithToAdd = isLeader ? 25 : faithEarned;
+                    gameState.faith += faithToAdd;
+                    gameState.faithEarnedThisWeek += faithToAdd;
+                    updateUI();
+                    cancelAnimationFrame(animFrame);
+                    return;
+                }
+            }
+        }
+        animFrame = requestAnimationFrame(step);
+    }
+    animFrame = requestAnimationFrame(step);
+}
+
+/* Расчёт эффективного процента конверсии:
+   - базовый = CONFIG.BASE_CONVERSION_RATE
+   - из уровня церкви: (churchLevel -1) * CONFIG.CONVERSION_PER_CHURCH_LEVEL
+   - из апгрейдов и фиксированных бонусов: cap up to CONFIG.CAP_FROM_UPGRADES (0.8)
+   - + EXTRA_FIXED (0.19)
+   - итог не выше GLOBAL_CONVERSION_CAP
+*/
+function getEffectiveConversionRate(){
+    // накопительный от уровней
+    const fromLevel = Math.min(CONFIG.CAP_FROM_UPGRADES, (gameState.churchLevel - 1) * CONFIG.CONVERSION_PER_CHURCH_LEVEL + CONFIG.BASE_CONVERSION_RATE);
+    // апгрейды/модификаторы (если добавить дополнительные)
+    let additional = 0;
+    // choir gives extra, handled at calling place
+    // итоговый
+    const raw = Math.min(CONFIG.GLOBAL_CONVERSION_CAP, fromLevel + CONFIG.EXTRA_FIXED);
+    return raw;
+}
+
+/* =======================
+   Вспомогательные: расчёт веры (веса)
+   ======================= */
+function rollFaithAmount(){
+    // вероятности как в исходнике — накопительный массив
+    const probabilities = [0.35,0.25,0.15,0.08,0.06,0.04,0.03,0.02,0.01,0.01];
+    const r = Math.random();
+    let cumulative = 0;
+    for(let i=0;i<probabilities.length;i++){
+        cumulative += probabilities[i];
+        if(r <= cumulative) return i+1;
+    }
+    return 1;
+}
+
+/* =======================
+   Миссия
+   ======================= */
+function sendMission(){
+    if(gameState.converted < CONFIG.MISSION_REQUIRED_FLOCK){
+        showToast('Нужно больше прихожан (300)');
+        return;
+    }
+    if(gameState.leaders < CONFIG.MISSION_REQUIRED_LEADERS){
+        showToast('Нужен лидер для миссии');
+        return;
+    }
+    // тратим
+    gameState.converted -= CONFIG.MISSION_REQUIRED_FLOCK;
+    gameState.leaders -= CONFIG.MISSION_REQUIRED_LEADERS;
+    // награда:
+    const base = 100;
+    const faithGain = Math.round(base * gameState.missionFaithMultiplier + gameState.weeklyConverted * 0.01);
+    gameState.faith += faithGain;
+    gameState.faithEarnedThisWeek += faithGain;
+    showToast(`Миссия отправлена: +${faithGain} веры`);
+    updateUI();
+}
+
+/* =======================
+   Weekly report (воскресенье -> подведение итогов)
+   механика: базовое благословение = 10% от заработанной за неделю;
+   лидеры добавляют +1% за каждого лидера к благословению (leaderBonusPercent = leaders * 0.01)
+   итог = baseBlessing * (1 + leaderBonusPercent)
+   ======================= */
+function performWeeklyReport(){
+    const baseBlessing = Math.ceil(gameState.faithEarnedThisWeek * 0.10);
+    const leaderBonusPercent = gameState.leaders * 0.01;
+    const totalBlessing = Math.floor(baseBlessing * (1 + leaderBonusPercent));
+    if(totalBlessing > 0){
+        gameState.faith += totalBlessing;
+        showToast(`Еженедельный отчёт: +${totalBlessing} благословения`);
+    }
+    // сбрасываем метрики недели
+    gameState.weeklyConverted = 0;
+    gameState.faithEarnedThisWeek = 0;
+    // иногда активируем surge
+    if(gameState.week === gameState.surgeWeek){
+        gameState.surgeActive = true;
+    }
+    updateUI();
+}
+
+/* =======================
+   Режимы использования прихожан (группы)
+   - Назначить группы: консольный UI (попап) упрощённо: расходуются прихожане на многие вещи
+   - Для простоты добавим 3 вида назначений:
+     * PrayerGroup: 100 прихожан => +0.5 веры/день (пассив)
+     * Choir: 150 прихожан => +5% шанс в дни службы (стекуемый через upgrade choir лучше)
+     * Builder: 200 прихожан => снижает стоимость апгрейдов на 5%
+   ======================= */
+function assignGroups(){
+    const choice = prompt("Назначить группы (введите: prayer / choir / builder)","");
+    if(!choice) return;
+    if(choice === 'prayer'){
+        if(gameState.converted < 100){ showToast('Нужно 100 прихожан'); return; }
+        gameState.converted -= 100;
+        gameState.passiveFaithPerDay += 0.5;
+        showToast('Создана молитвенная группа: +0.5 веры/день');
+    } else if(choice === 'choir'){
+        if(gameState.converted < 150){ showToast('Нужно 150 прихожан'); return; }
+        gameState.converted -= 150;
+        gameState.choirActive = true;
+        showToast('Хор создан: +5% к шансам в дни службы');
+    } else if(choice === 'builder'){
+        if(gameState.converted < 200){ showToast('Нужно 200 прихожан'); return; }
+        gameState.converted -= 200;
+        gameState.costReduction += 0.05;
+        showToast('Строительная бригада: стоимость апгрейдов снижена на 5%');
+    } else {
+        showToast('Неизвестная группа');
+    }
+    updateUI();
+}
+
+/* =======================
+   UI / Helpers
+   ======================= */
+function updateUI(){
+    ui.faith.textContent = Math.floor(gameState.faith);
+    ui.level.textContent = gameState.churchLevel;
+    ui.converted.textContent = gameState.converted;
+    ui.leaders.textContent = gameState.leaders;
+    ui.services.textContent = `${Object.keys(gameState.services).length}/6`;
+    ui.week.textContent = gameState.week;
+    ui.conversionBubble.textContent = Math.round(getEffectiveConversionRate()*100) + '%';
+
+    // Обновить апгрейдные карточки: доступность
+    document.querySelectorAll('.upgrade-card').forEach(card=>{
+        const id = card.dataset.upgId;
+        const upg = UPGRADES_DB.find(u=>u.id===id);
+        if(!upg) return;
+        const btn = card.querySelector('button');
+        const count = gameState.boughtUpgrades[id] || 0;
+        const cost = Math.ceil(upg.cost * (1 - gameState.costReduction));
+        card.querySelector('.cost-val').textContent = formatCost(cost);
+        btn.disabled = (gameState.faith < cost) || (count >= upg.maxStack);
+        btn.textContent = (count>=upg.maxStack) ? 'Куплено' : 'Купить';
+    });
+    // Миссия кнопка
+    ui.btnMission.disabled = !(gameState.converted >= CONFIG.MISSION_REQUIRED_FLOCK && gameState.leaders >= CONFIG.MISSION_REQUIRED_LEADERS);
+}
+
+/* Быстрый toast */
+let toastTimer = null;
+function showToast(text, ttl=3000){
+    clearTimeout(toastTimer);
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = text;
+    document.body.appendChild(el);
+    toastTimer = setTimeout(()=> el.remove(), ttl);
+}
+
+/* Некоторый формат для стоимости */
+function formatCost(n){ return n.toString(); }
+
+/* Безопасное экранирование (для title/desc в верстке) */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+/* Кнопки и хендлеры */
+function attachHandlers(){
+    ui.btnMission.addEventListener('click', sendMission);
+    ui.btnAssign.addEventListener('click', assignGroups);
+    ui.btnSpeed.addEventListener('click', toggleSpeed);
+    // старт: клик по church - купить апгрейд на уровень за проверку
+    document.getElementById('church').addEventListener('click', ()=> {
+        // быстрый апгрейд уровня церкви за небольшую плату (demo)
+        const cost = 50 * gameState.churchLevel * (1 - gameState.costReduction);
+        if(gameState.faith >= cost && gameState.churchLevel < CONFIG.MAX_CHURCH_LEVEL){
+            gameState.faith -= Math.ceil(cost);
+            gameState.churchLevel++;
+            showToast(`Церковь улучшена до ${gameState.churchLevel}`);
+            updateUI();
+        } else {
+            showToast('Нельзя улучшить церковь (недостаточно веры или максимум)');
+        }
+    });
+}
+
+/* Переключаем скорость игры (x1 / x2) */
+function toggleSpeed(){
+    if(gameState.speedMultiplier === 1){
+        gameState.speedMultiplier = 1.75;
+        ui.btnSpeed.textContent = 'x1.75 скорость';
+    } else {
+        gameState.speedMultiplier = 1;
+        ui.btnSpeed.textContent = 'x1 скорость';
+    }
+    restartLoops();
+}
+
+/* =======================
+   Вспомогательные (рандом и числа)
+   ======================= */
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+/* =======================
+   Полезные: отображение доступных апгрейдов и событий в DOM
+   ======================= */
+/* Уже реализовано в renderUpgrades/renderEvents */
+
+/* =======================
+   Автосохранение / экспорт (минимально)
+   ======================= */
+function saveState(){
+    const copy = Object.assign({}, gameState);
+    // Не сохраняем DOM и интервалы
+    try{
+        localStorage.setItem('church_sim_state_v1', JSON.stringify(copy));
+        showToast('Игра сохранена');
+    }catch(e){ console.warn(e) }
+}
+function loadState(){
+    try{
+        const raw = localStorage.getItem('church_sim_state_v1');
+        if(!raw) return;
+        const loaded = JSON.parse(raw);
+        Object.assign(gameState, loaded);
+        updateUI();
+        showToast('Состояние загружено');
+    }catch(e){ console.warn(e) }
+}
+
+/* =======================
+   Старт игры
+   ======================= */
+window.addEventListener('load', ()=> {
+    // начальные значения
+    gameState.faith = CONFIG.INITIAL_FAITH;
+    gameState.churchLevel = 1;
+    gameState.faithPerConvert = CONFIG.INITIAL_FAITH_PER_CONVERT;
+    gameState.extraConverts = 0;
+    gameState.passiveFaithPerDay = 0;
+    gameState.choirActive = false;
+    gameState.costReduction = 0;
+    gameState.leaderChanceModifier = 0;
+    gameState.missionFaithMultiplier = 1;
+    gameState.week = 1;
+    updateDayUI();
+    init();
+    // сохраняем раз в минуту
+    setInterval(saveState, 60000);
+    // пассивная вера ежедневно (вариант: начислять каждую новую неделю / каждый день)
+    setInterval(()=> {
+        // пассивка: умножаем на количество дней (каждый день)
+        const passive = gameState.passiveFaithPerDay;
+        if(passive > 0){
+            gameState.faith += passive;
+            gameState.faithEarnedThisWeek += passive;
+            updateUI();
+        }
+    }, CONFIG.DAY_DURATION_MS / gameState.speedMultiplier);
+});
+
+/* =======================
+   Дополнительно: expose некоторые функции для отладки в консоли
+   ======================= */
+window._gs = gameState;
+window._save = saveState;
+window._load = loadState;
+window._buyUpgrade = buyUpgrade;
+window._spawn = spawnPerson;
+
+/* ============= Конец файла ============= */
+</script>
+</body>
+</html>
