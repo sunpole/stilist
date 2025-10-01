@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шапочный Бизнес</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .game-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .stats-table th, .stats-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .stats-table th {
+            background-color: #f2f2f2;
+        }
+        .upgrades {
+            margin-top: 20px;
+        }
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4caf50;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Шапочный Бизнес</h1>
+        
+        <div class="status-bar">
+            <div>Капитал: <span id="money">100</span> ₽</div>
+            <div>Склад: <span id="storage">0</span> шапок</div>
+            <div>Спрос: <span id="demand">100</span>%</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="productionProgress" style="width: 0%"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="produceHat()">Произвести шапку</button>
+            <button onclick="runAdvertisement()">Запустить рекламу</button>
+            <button onclick="sellHats()">Продать партию</button>
+            <button onclick="nextDay()">Следующий день</button>
+        </div>
+
+        <table class="stats-table">
+            <tr>
+                <th>Показатель</th>
+                <th>Значение</th>
+            </tr>
+            <tr>
+                <td>Цена производства</td>
+                <td id="productionCost">10</td>
+            </tr>
+            <tr>
+                <td>Цена продажи</td>
+                <td id="sellPrice">15</td>
+            </tr>
+            <tr>
+                <td>Произведено всего</td>
+                <td id="totalProduced">0</td>
+            </tr>
+            <tr>
+                <td>Продано всего</td>
+                <td id="totalSold">0</td>
+            </tr>
+        </table>
+
+        <div class="upgrades">
+            <h3>Улучшения</h3>
+            <div class="upgrade-item">
+                <div>
+                    <strong>Улучшенный станок</strong><br>
+                    <small>Ускоряет производство</small>
+                </div>
+                <button onclick="buyUpgrade('machine')" id="machineBtn">Купить (200 ₽)</button>
+            </div>
+            <div class="upgrade-item">
+                <div>
+                    <strong>Маркетинговое агентство</strong><br>
+                    <small>Реклама работает лучше</small>
+                </div>
+                <button onclick="buyUpgrade('marketing')" id="marketingBtn">Купить (300 ₽)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Игровое состояние
+        const gameState = {
+            money: 100,
+            storage: 0,
+            demand: 100,
+            productionCost: 10,
+            sellPrice: 15,
+            totalProduced: 0,
+            totalSold: 0,
+            day: 1,
+            upgrades: {
+                machine: false,
+                marketing: false
+            },
+            isProducing: false,
+            productionTime: 2000 // 2 секунды на производство
+        };
+
+        // Основные функции игры
+        function produceHat() {
+            if (gameState.isProducing) {
+                alert('Уже производим шапку!');
+                return;
+            }
+
+            if (gameState.money < gameState.productionCost) {
+                alert('Недостаточно денег для производства!');
+                return;
+            }
+
+            gameState.money -= gameState.productionCost;
+            gameState.isProducing = true;
+
+            const progressBar = document.getElementById('productionProgress');
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 2;
+                progressBar.style.width = width + '%';
+                if (width >= 100) {
+                    clearInterval(interval);
+                    gameState.storage++;
+                    gameState.totalProduced++;
+                    gameState.isProducing = false;
+                    updateDisplay();
+                }
+            }, gameState.productionTime / 50);
+        }
+
+        function runAdvertisement() {
+            const cost = 50;
+            if (gameState.money < cost) {
+                alert('Недостаточно денег на рекламу!');
+                return;
+            }
+
+            gameState.money -= cost;
+            const effect = gameState.upgrades.marketing ? 40 : 25;
+            gameState.demand = Math.min(200, gameState.demand + effect);
+            updateDisplay();
+            alert(`Рекламная кампания запущена! Спрос вырос.`);
+        }
+
+        function sellHats() {
+            if (gameState.storage === 0) {
+                alert('Нет шапок на складе для продажи!');
+                return;
+            }
+
+            const pricePerHat = gameState.sellPrice * (gameState.demand / 100);
+            const totalIncome = Math.floor(gameState.storage * pricePerHat);
+            
+            gameState.money += totalIncome;
+            gameState.totalSold += gameState.storage;
+            gameState.storage = 0;
+            
+            // Снижаем спрос после продажи
+            gameState.demand = Math.max(50, gameState.demand - 10);
+            
+            updateDisplay();
+            alert(`Продано партия шапок за ${totalIncome} ₽!`);
+        }
+
+        function nextDay() {
+            gameState.day++;
+            // Естественное снижение спроса
+            gameState.demand = Math.max(50, gameState.demand - 5);
+            updateDisplay();
+        }
+
+        function buyUpgrade(type) {
+            const upgrades = {
+                machine: { cost: 200, id: 'machineBtn' },
+                marketing: { cost: 300, id: 'marketingBtn' }
+            };
+
+            const upgrade = upgrades[type];
+            if (!upgrade || gameState.upgrades[type]) return;
+
+            if (gameState.money >= upgrade.cost) {
+                gameState.money -= upgrade.cost;
+                gameState.upgrades[type] = true;
+                
+                const button = document.getElementById(upgrade.id);
+                button.textContent = 'Куплено';
+                button.disabled = true;
+
+                if (type === 'machine') {
+                    gameState.productionTime = 1000; // Ускоряем производство
+                }
+
+                updateDisplay();
+                alert('Улучшение приобретено!');
+            } else {
+                alert('Недостаточно денег для покупки улучшения!');
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('money').textContent = gameState.money;
+            document.getElementById('storage').textContent = gameState.storage;
+            document.getElementById('demand').textContent = gameState.demand;
+            document.getElementById('productionCost').textContent = gameState.productionCost + ' ₽';
+            document.getElementById('sellPrice').textContent = Math.floor(gameState.sellPrice * (gameState.demand / 100)) + ' ₽';
+            document.getElementById('totalProduced').textContent = gameState.totalProduced;
+            document.getElementById('totalSold').textContent = gameState.totalSold;
+        }
+
+        // Инициализация игры
+        updateDisplay();
+    </script>
+</body>
+</html>
