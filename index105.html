@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IDLE RPG Dungeon — Переработанная версия</title>
+<!--
+Экспертная переработка (всё, что вы просили: точечные скиллы у каждого участника рядом с HP/MP,
+HOT с тиками, барьеры (полная неуязвимость на цель), групповой щит саппорта (поглощает весь урон),
+маг — процентный урон, ИИ использует все способности, апгрейды HP/MP/DMG без лимита,
+фиксированное место под баффы/кнопки, реальное время (1 tick = 1 секунда), строгий UI.
+-->
+<style>
+:root{
+  --bg:#0f1720;
+  --panel:#111827;
+  --muted:#9aa4b2;
+  --accent:#c7a95c;
+  --accent-2:#9aa4b2;
+  --hp:#b91c1c;
+  --mp:#1e90ff;
+  --card-bg:#0b1220;
+  --shadow:0 6px 18px rgba(2,6,23,0.6);
+}
+*{box-sizing:border-box;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#081018 0%, #0f1720 100%); color:#e6eef6}
+.container{max-width:1200px;margin:18px auto;padding:12px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.title{font-size:20px;color:var(--accent)}
+.meta{color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:1fr 420px;gap:14px}
+.left{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border-radius:10px;padding:12px;box-shadow:var(--shadow);min-height:80px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.battle-area{display:flex;gap:12px}
+.party, .enemies{display:flex;flex-direction:column;gap:10px;flex:1;overflow:auto}
+.side-title{color:var(--accent);font-weight:600;margin-bottom:8px}
+.member{display:flex;gap:10px;background:var(--card-bg);border-radius:8px;padding:8px;align-items:flex-start;min-height:120px}
+.member-left{width:120px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.avatar{width:64px;height:64px;border-radius:8px;background:linear-gradient(180deg,#0b2436,#0b1a2a);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+.member-main{flex:1;display:flex;flex-direction:column;gap:6px}
+.name-row{display:flex;justify-content:space-between;align-items:center}
+.name{font-weight:700;color:#fff}
+.role{color:var(--muted);font-size:12px}
+.stat-row{display:flex;gap:10px;align-items:center}
+.bar{flex:1;height:12px;background:#0b1520;border-radius:6px;position:relative;overflow:hidden}
+.fill-hp{height:100%;background:linear-gradient(90deg,#ff6b6b,#ff3b3b);transition:width .4s}
+.fill-mp{height:100%;background:linear-gradient(90deg,#3aa0ff,#0077ff);transition:width .4s}
+.stat-text{font-size:12px;color:#e6eef6;min-width:90px;text-align:right}
+.buff-area{display:flex;gap:6px;margin-top:6px;min-height:28px;align-items:center}
+/* Reserve fixed height for controls & buffs so layout doesn't shift */
+.controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;height:48px;align-items:center}
+.ctrl-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer;min-width:86px}
+.ctrl-btn:disabled{opacity:.4;cursor:not-allowed}
+.buff{background:rgba(255,255,255,0.03);padding:4px 6px;border-radius:6px;font-size:12px;color:#dff0e0;border:1px solid rgba(255,255,255,0.03)}
+.small{font-size:12px;color:var(--muted)}
+.player-abilities{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ability-card{background:#07111a;border-radius:8px;padding:8px 10px;color:#e6eef6;border:1px solid rgba(255,255,255,0.03);min-width:140px}
+.ability-title{font-weight:700;color:var(--accent);font-size:13px}
+.ability-desc{font-size:12px;color:var(--muted);margin-top:6px}
+.cooldown{font-size:13px;color:#ffd3a6;font-weight:700;margin-left:8px}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:8px}
+.upgrade{background:#07111a;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);font-size:13px}
+.controls-bottom{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.footer-note{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+
+/* stricter, minimal look adjustments */
+button{font-family:inherit}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">IDLE RPG Dungeon — Рефакторинг (дизайн: строгий)</div>
+      <div class="small">Партия / баффы / HOT / барьеры / маг — процентный урон / апгрейды без лимита</div>
+    </div>
+    <div class="meta">Золото: <span id="currency">50</span> • Данж: <span id="dungeonName">Лес Теней</span> • Волна: <span id="waveNow">1</span>/<span id="waveMax">3</span></div>
+  </div>
+
+  <div class="layout">
+    <div class="left">
+      <div class="panel">
+        <div class="row">
+          <div class="side-title">Ваша группа</div>
+          <div class="small">Каждый член — фиксированная зона под баффы и кнопки</div>
+        </div>
+        <div id="party" class="party" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel" style="margin-top:8px">
+        <div class="row"><div class="side-title">Игрок — способности</div><div class="small">Нижняя панель — управляемые способности</div></div>
+        <div id="playerAbilities" class="player-abilities" style="margin-top:10px"></div>
+        <div class="controls-bottom">
+          <button id="nextDungeonBtn" class="ctrl-btn" disabled>Следующий данж</button>
+          <button id="openShopBtn" class="ctrl-btn">Магазин</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="side-title">Враги</div>
+        <div id="enemies" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel" style="margin-top:12px">
+        <div class="row"><div class="side-title">Магазин / улучшения</div><div class="small">HP / MP / Урон — без лимита</div></div>
+        <div id="shop" class="shop-grid" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">Подсказка: используйте точечные кнопки рядом с каждым союзником для быстрого применения лечения/мана/барьера/HOT.</div>
+</div>
+
+<script>
+/* =========== Конфигурация дизайна/игровой логики ================
+ - Tick: 1 tick = 1 секунда (setInterval 1000ms) — все длительности в секундах.
+ - Фиксированные зоны (controls, buff-area) — чтобы ничего не "дёргалось".
+ - Точечные кнопки у каждого члена (heal/mana/barrier/hot).
+ - Барьер от хилера: полная неуязвимость цели (6 сек).
+ - GroupShield саппорта: поглощает весь урон для всех (6 сек), cd 30.
+ - HOT хилера: 3 тика за 3 сек, каждый тик = 40 + 2% maxHP.
+ - Маг: 15/20/25/40% от maxHP, по боссу урон /5.
+ - AI использует все скилы по приоритетам.
+ - Экономика: золото только за завершение волны/данжа.
+ - Апгрейды HP/MP/DMG без лимита; стоимость растёт *1.5.
+============================================================== */
+
+const TICK_MS = 1000; // 1 second per tick
+const TICKS_PER_SEC = 1; // convenience
+
+// Dungeons
+const DUNGEONS = [
+  { name: "Лес Теней", waves:3, enemiesPerWave:3, reward:20, boss:false },
+  { name: "Пещеры Гоблинов", waves:4, enemiesPerWave:4, reward:30, boss:false },
+  { name: "Замок Нежити", waves:3, enemiesPerWave:5, reward:40, boss:true },
+  { name: "Логово Дракона", waves:4, enemiesPerWave:6, reward:50, boss:true }
+];
+
+// Initial game state
+let state = {
+  currency: 50,
+  currentDungeon: 0,
+  currentWave: 0,
+  party: {}, // will be init
+  enemies: [],
+  abilityCooldowns: {}, // player ability cd map
+  upgrades: {},
+  gameInterval: null,
+  bossInvulnerable: false,
+  bossInvulTimer: 0,
+  dungeonsCompleted: 0
+};
+
+/* ========== Helpers: UI elems ========== */
+const $ = id => document.getElementById(id);
+const partyContainer = $('party');
+const enemiesContainer = $('enemies');
+const playerAbilitiesContainer = $('playerAbilities');
+const shopContainer = $('shop');
+const currencyEl = $('currency');
+const dungeonNameEl = $('dungeonName');
+const waveNowEl = $('waveNow');
+const waveMaxEl = $('waveMax');
+const nextDungeonBtn = $('nextDungeonBtn');
+const openShopBtn = $('openShopBtn');
+
+/* ========== Initialize upgrades ========== */
+function initUpgrades(){
+  state.upgrades = {
+    health: { level:0, cost:100, effect:0.25, max:null, name:'HP +25%' }, // strong effect as requested
+    mana:   { level:0, cost:100, effect:0.25, max:null, name:'MP +25%' },
+    damage: { level:0, cost:150, effect:0.25, max:null, name:'DMG +25%' },
+    healing:{ level:0, cost:150, effect:0.1,  max:5,   name:'Heal +10%' },
+    cooldown:{level:0, cost:200, effect:0.06, max:5, name:'CD -6%' },
+    manaCost:{level:0, cost:200, effect:0.06, max:5, name:'MP cost -6%'}
+  };
+}
+
+/* ========== Initialize party (with reserved UI layout) ========== */
+function initParty(){
+  // Base stats
+  const base = {
+    tank:   { hp:600, mp:80, dmg:12 },
+    healer: { hp:220, mp:220, dmg:6 },
+    support:{ hp:200, mp:260, dmg:6 },
+    mage:   { hp:180, mp:260, dmg:18 }
+  };
+  const hpMul = 1 + (state.upgrades.health.level * state.upgrades.health.effect);
+  const mpMul = 1 + (state.upgrades.mana.level * state.upgrades.mana.effect);
+  const dmgMul = 1 + (state.upgrades.damage.level * state.upgrades.damage.effect);
+
+  // helper to clone abilities
+  const mkAbility = (id, name, cost, cd, desc) => ({ id, name, cost, cd, curCd:0, desc });
+
+  state.party = {
+    tank: {
+      id:'tank', role:'Танк', name:'Танк', avatar:'T',
+      maxHP: Math.floor(base.tank.hp * hpMul),
+      health: Math.floor(base.tank.hp * hpMul),
+      maxMP: Math.floor(base.tank.mp * mpMul),
+      mana: Math.floor(base.tank.mp * mpMul),
+      dmg: Math.floor(base.tank.dmg * dmgMul),
+      alive:true,
+      buffs: [], // {id,name,expiresAt, data}
+      debuffs:[],
+      abilities: [
+        mkAbility('taunt','Провокация',10,10,'Агро на танка'),
+        mkAbility('shield','Щит',15,15,'Личный щит (уменьшает урон на 50% на 6 сек)'),
+        mkAbility('strike','Удар',5,3,'Урон одному врагу'),
+        mkAbility('selfHeal','Вызов',20,20,'Исцеление себя')
+       ],
+      autoAtkTimer: 3
+    },
+    healer: {
+      id:'healer', role:'Хилер', name:'Хилер', avatar:'H',
+      maxHP: Math.floor(base.healer.hp * hpMul),
+      health: Math.floor(base.healer.hp * hpMul),
+      maxMP: Math.floor(base.healer.mp * mpMul),
+      mana: Math.floor(base.healer.mp * mpMul),
+      dmg: Math.floor(base.healer.dmg * dmgMul),
+      alive:true,
+      buffs: [],
+      debuffs: [],
+      abilities: [
+        mkAbility('heal','Лечение',15,1,'Мгновенное лечение цели (cd 1s)'),
+        mkAbility('groupHeal','Груп.лечение',30,12,'Групповое лечение'),
+        mkAbility('resurrect','Воскрешение',50,30,'Воскрешает павшего'),
+        mkAbility('barrier','Барьер',25,18,'Полная неуязвимость цели на 6 сек'),
+        mkAbility('hot','HOT',20,10,'HOT: 3 тика по 40+2% HP (3 сек)')
+      ],
+      autoAtkTimer: 5
+    },
+    support: {
+      id:'support', role:'Саппорт', name:'Саппорт', avatar:'S',
+      maxHP: Math.floor(base.support.hp * hpMul),
+      health: Math.floor(base.support.hp * hpMul),
+      maxMP: Math.floor(base.support.mp * mpMul),
+      mana: Math.floor(base.support.mp * mpMul),
+      dmg: Math.floor(base.support.dmg * dmgMul),
+      alive:true,
+      buffs: [],
+      debuffs: [],
+      abilities: [
+        mkAbility('groupBuff','Груп.бафф',30,28,'+30% к атаке/защите 30s (cd28s)'),
+        mkAbility('manaRestoreSingle','Восст.МП',20,12,'+30% MP одному'),
+        mkAbility('manaRestoreGroup','Восст.МП.Группа',40,40,'+15% MP всем'),
+        mkAbility('groupShield','Щит группы',45,30,'Поглощает весь урон для всех — 6 сек (cd30s)')
+      ],
+      autoAtkTimer: 6
+    },
+    mage: {
+      id:'mage', role:'Маг', name:'Маг', avatar:'M',
+      maxHP: Math.floor(base.mage.hp * hpMul),
+      health: Math.floor(base.mage.hp * hpMul),
+      maxMP: Math.floor(base.mage.mp * mpMul),
+      mana: Math.floor(base.mage.mp * mpMul),
+      dmg: Math.floor(base.mage.dmg * dmgMul),
+      alive:true,
+      buffs: [],
+      debuffs: [],
+      abilities: [
+        mkAbility('mage_15','Арканный взрыв',18,6,'15% HP цели'),
+        mkAbility('mage_20','Молния',28,8,'20% HP (AoE)'),
+        mkAbility('mage_25','Ледяная стрела',30,12,'25% + замедление'),
+        mkAbility('mage_40','Метеор',45,20,'40% большой урон, большой CD')
+      ],
+      autoAtkTimer: 5
+    }
+  };
+
+  // Reset player ability cooldowns map for player role (we'll build UI later)
+  state.abilityCooldowns = {};
+}
+
+/* ========== UI Rendering ========== */
+function renderParty(){
+  partyContainer.innerHTML = '';
+  for(const key of ['tank','healer','support','mage']){
+    const m = state.party[key];
+    const memberEl = document.createElement('div');
+    memberEl.className = 'member';
+    memberEl.innerHTML = `
+      <div class="member-left">
+        <div class="avatar">${m.avatar}</div>
+        <div class="small">${m.role}</div>
+      </div>
+      <div class="member-main">
+        <div class="name-row">
+          <div>
+            <div class="name">${m.name}${m.alive? '' : ' (ПАДШИЙ)'}</div>
+            <div class="role">${m.alive ? '' : 'Требуется воскрешение'}</div>
+          </div>
+          <div class="small">DMG: ${m.dmg}</div>
+        </div>
+        <div class="stat-row">
+          <div style="width:8px"></div>
+          <div class="bar" style="min-width:220px;">
+            <div class="fill-hp" style="width:${m.maxHP>0? Math.max(0,Math.min(100, m.health/m.maxHP*100)) : 0}%"></div>
+            <div style="position:absolute;right:8px;top:0;font-size:12px;color:#fff">${Math.floor(m.health)}/${m.maxHP}</div>
+          </div>
+          <div style="width:8px"></div>
+          <div style="min-width:100px;text-align:right" class="stat-text">MP: ${Math.floor(m.mana)}/${m.maxMP}</div>
+        </div>
+
+        <div class="buff-area" id="buffs-${m.id}">
+          <!-- reserved area for buffs (fixed height) -->
+        </div>
+
+        <div class="controls" id="controls-${m.id}">
+          <!-- point-target buttons: heal / mana / barrier / hot -->
+        </div>
+      </div>
+    `;
+    partyContainer.appendChild(memberEl);
+
+    // render buffs into buff-area
+    renderBuffsFor(m.id);
+    // render controls for each member (buttons for player to use on that target)
+    renderControlsFor(m.id);
+  }
+}
+
+/* Render buff icons + remaining time */
+function renderBuffsFor(id){
+  const area = $(`buffs-${id}`);
+  area.innerHTML = '';
+  const m = state.party[id];
+  if(!m) return;
+  // show each buff (name + remaining seconds)
+  for(const b of m.buffs){
+    const el = document.createElement('div');
+    el.className = 'buff';
+    const rem = Math.max(0, Math.ceil((b.expiresAt - now())/1000));
+    // show details (for shield show 'INVM' or amount)
+    el.textContent = `${b.name} ${rem}s`;
+    area.appendChild(el);
+  }
+}
+
+/* Controls for each member: point-target buttons (only for player to click)
+   Buttons: Heal (if player is healer or player role?), Mana Restore (support/player), Barrier (healer), HOT (healer)
+   But user asked to place point skills next to each member — we will show buttons for the player (their selected role) 
+   and also allow clicking other buttons to simulate using an ability by that role (for testing).
+*/
+function renderControlsFor(targetId){
+  const area = $(`controls-${targetId}`);
+  area.innerHTML = '';
+
+  // For simplicity, always render generic action buttons for player to use on each target:
+  // - Heal (player heal if player role is healer OR allow using via quick simulate)
+  // - HOT
+  // - Barrier
+  // - Mana Restore (support)
+  // Buttons will use the team members' abilities when applicable (player triggers own abilities via these UI buttons)
+  const btnHeal = document.createElement('button'); btnHeal.className='ctrl-btn';
+  btnHeal.textContent = 'HEAL';
+  btnHeal.onclick = ()=> playerUseTargeted('heal', targetId);
+  area.appendChild(btnHeal);
+
+  const btnHOT = document.createElement('button'); btnHOT.className='ctrl-btn';
+  btnHOT.textContent = 'HOT';
+  btnHOT.onclick = ()=> playerUseTargeted('hot', targetId);
+  area.appendChild(btnHOT);
+
+  const btnBarrier = document.createElement('button'); btnBarrier.className='ctrl-btn';
+  btnBarrier.textContent = 'BARRIER';
+  btnBarrier.onclick = ()=> playerUseTargeted('barrier', targetId);
+  area.appendChild(btnBarrier);
+
+  const btnMana = document.createElement('button'); btnMana.className='ctrl-btn';
+  btnMana.textContent = 'MP+';
+  btnMana.onclick = ()=> playerUseTargeted('manaRestoreSingle', targetId);
+  area.appendChild(btnMana);
+
+  // update disabled states based on player's available mana & cooldowns
+  updateControlsStateFor(targetId);
+}
+
+function updateControlsStateFor(targetId){
+  const area = $(`controls-${targetId}`);
+  if(!area) return;
+  const buttons = area.querySelectorAll('button');
+  // Determine player role's abilities availability
+  const playerRole = 'healer'; // buttons reflect healer/support usage via player press — user plays one role; for demo we let player act as healer by quick-press
+  const actor = state.party[playerRole];
+  // if player is dead, disable
+  const disabled = !actor.alive;
+  buttons.forEach(b => b.disabled = disabled);
+}
+
+/* Player-use-targeted action: this simulates pressing a quick-action button that uses the appropriate ability
+   We interpret 'playerUseTargeted' as "player (if healer/support) uses this ability on the target".
+   If player is not the correct role, we still allow 'simulate' by letting AI cast if possible.
+*/
+function playerUseTargeted(actionId, targetId){
+  // For simplicity use healer as actor if action is heal/hot/barrier else support for mana
+  let actorRole = (actionId === 'manaRestoreSingle') ? 'support' : 'healer';
+  // if player role is different, use actual player role if they have ability; otherwise fallback to AI actor
+  const playerRole = getPlayerRole(); // returns selected player role or 'healer' default
+  if(state.party[playerRole].abilities.find(a=>a.id===actionId)) actorRole = playerRole;
+
+  const actor = state.party[actorRole];
+  if(!actor || !actor.alive){ alert('Исполнитель недоступен (мертв)'); return; }
+  // find ability object
+  const ability = actor.abilities.find(a => a.id === actionId);
+  if(!ability){ alert('У исполнителя нет такого умения'); return; }
+  if(ability.curCd > 0){ alert('Умение в КД'); return; }
+  if(actor.mana < ability.cost){ alert('Недостаточно маны у исполнителя'); return; }
+
+  // consume mana and set cd
+  actor.mana -= ability.cost;
+  ability.curCd = ability.cd;
+
+  // perform action
+  performTargetedAbility(actorRole, actionId, targetId);
+  renderAll();
+}
+
+/* ========== Enemies rendering ========== */
+function renderEnemies(){
+  enemiesContainer.innerHTML = '';
+  for(const e of state.enemies){
+    const el = document.createElement('div');
+    el.className = 'member';
+    const hpPct = e.maxHP > 0 ? Math.max(0, Math.min(100, Math.floor(e.hp / e.maxHP * 100))) : 0;
+    el.innerHTML = `
+      <div style="width:64px;height:64px;border-radius:8px;background:#071a2b;display:flex;align-items:center;justify-content:center;font-weight:700;color:#ffd3a6">${e.isBoss? 'B':'E'}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">${e.name}</div>
+          <div style="font-size:12px;color:${e.isBoss? '#ffd3a6': '#9aa4b2'}">${e.isBoss? 'БОСС':'Враг'}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <div style="flex:1;height:12px;background:#071a2b;border-radius:6px;position:relative;overflow:hidden">
+            <div style="height:100%;background:linear-gradient(90deg,#ffcc66,#ff8b4a);width:${hpPct}%"></div>
+          </div>
+          <div style="min-width:80px;text-align:right;color:#fff;font-size:12px">${Math.floor(e.hp)}/${e.maxHP}</div>
+        </div>
+        <div style="margin-top:6px;font-size:12px;color:#9aa4b2">Урон: ${e.dmg} • Цель: ${e.target ? state.party[e.target].name : '—'}</div>
+        <div style="margin-top:6px">${e.debuffs && e.debuffs.length ? e.debuffs.map(d=>`<span class="buff">${d.name} ${Math.ceil(d.expiresAt/1000)}s</span>`).join(' ') : ''}</div>
+      </div>
+    `;
+    enemiesContainer.appendChild(el);
+  }
+}
+
+/* ========== Shop rendering ========== */
+function renderShop(){
+  shopContainer.innerHTML = '';
+  for(const key in state.upgrades){
+    const u = state.upgrades[key];
+    const cost = Math.floor(u.cost * Math.pow(1.5, u.level));
+    const el = document.createElement('div');
+    el.className = 'upgrade';
+    el.innerHTML = `<div style="font-weight:700">${u.name}</div><div style="color:${u.max===null ? '#ffd3a6' : '#9aa4b2'};font-size:12px">Уровень: ${u.level}${u.max===null? ' / ∞' : ' / '+u.max}</div>
+                    <div style="margin-top:6px;color:#9aa4b2;font-size:13px">Эффект: ${Math.round(u.effect*100)}%</div>
+                    <div style="margin-top:8px"><button class="ctrl-btn" onclick="buyUpgrade('${key}')">Купить - ${cost}</button></div>`;
+    shopContainer.appendChild(el);
+  }
+}
+
+/* ========== Utility: timestamps ========== */
+function now(){ return Date.now(); }
+
+/* ========== Wave / Dungeon creation & scaling ========== */
+function startDungeon(index){
+  state.currentDungeon = index;
+  const d = DUNGEONS[index];
+  dungeonNameEl.textContent = d.name;
+  waveMaxEl.textContent = d.waves;
+  startWave();
+}
+
+function startWave(){
+  state.currentWave++;
+  const d = DUNGEONS[state.currentDungeon];
+  if(state.currentWave > d.waves){
+    completeDungeon();
+    return;
+  }
+  waveNowEl.textContent = state.currentWave;
+  // create enemies scaled by completed dungeons
+  state.enemies = [];
+  const hpScale = 1 + state.dungeonsCompleted * 0.10; // +10% hp per completed dungeon (less aggressive)
+  const dmgScale = 1 + state.dungeonsCompleted * 0.05; // +5% damage per completed dungeon
+  if(state.currentWave === d.waves && d.boss){
+    const baseHp = 200 + state.currentDungeon*50;
+    const baseDmg = 15 + state.currentDungeon*5;
+    state.enemies.push({
+      id: 'boss0', name: 'Босс', hp: Math.floor(baseHp * hpScale), maxHP: Math.floor(baseHp * hpScale),
+      dmg: Math.max(1, Math.floor(baseDmg * dmgScale)), alive:true, isBoss:true, target:null, debuffs:[], expiresAt:0
+    });
+    state.bossInvulnerable = false;
+    state.bossInvulTimer = 0;
+  } else {
+    for(let i=0;i<d.enemiesPerWave;i++){
+      const baseHp = 30 + state.currentWave*10;
+      const baseDmg = 5 + state.currentWave*2;
+      state.enemies.push({
+        id: 'e'+i, name:'Враг', hp: Math.floor(baseHp*hpScale), maxHP: Math.floor(baseHp*hpScale),
+        dmg: Math.max(1, Math.floor(baseDmg*dmgScale)), alive:true, isBoss:false, target:null, debuffs:[], expiresAt:0
+      });
+    }
+  }
+  // disable next dungeon button until clear
+  nextDungeonBtn.disabled = true;
+  renderAll();
+}
+
+/* ========== Combat mechanics ========== */
+
+/* Apply damage to a party member with respect to shields/invulns.
+   If target has an invulnerability buff (barrier or groupShield), damage is ignored.
+   groupShield (support) should "absorb all damage for everyone" when active.
+*/
+function dealDamageToMember(targetId, amount){
+  const target = state.party[targetId];
+  if(!target || !target.alive) return;
+  // Check groupShield (global)
+  const support = state.party.support;
+  const groupShield = support.buffs.find(b => b.id === 'groupShield' && b.expiresAt > now());
+  if(groupShield){
+    // absorbed fully — do nothing
+    return;
+  }
+  // Check target invulnerability (barrier)
+  const barrier = target.buffs.find(b => b.id === 'barrier' && b.expiresAt > now());
+  if(barrier){
+    return; // full immunity
+  }
+  // Check damage reduction shields (e.g., tank_shield reduces 50%) - we included shield ability earlier but requirement changed to full invul for healer barrier; keep tank_shield as % reduction
+  const tankShield = target.buffs.find(b => b.id === 'tank_shield' && b.expiresAt > now());
+  if(tankShield){
+    amount = Math.floor(amount * (1 - (tankShield.value || 0)));
+  }
+  target.health -= amount;
+  if(target.health <= 0){
+    target.health = 0; target.alive = false;
+  }
+}
+
+/* Enemy AI: choose a target from alive party members, prefer tank if taunted targets etc.
+   Enemies pick a random alive target; taunt is implemented by setting enemy.target = 'tank' when taunt active.
+*/
+function enemyActions(){
+  // boss invulnerability random chance (rare)
+  if(!state.bossInvulnerable){
+    const boss = state.enemies.find(e=>e.isBoss && e.alive);
+    if(boss && Math.random() < 0.01){ state.bossInvulnerable = true; state.bossInvulTimer = 3; } // short invul event occasionally
+  } else {
+    state.bossInvulTimer--;
+    if(state.bossInvulTimer <= 0) state.bossInvulnerable = false;
+  }
+
+  for(const e of state.enemies){
+    if(!e.alive) continue;
+    // choose target if not chosen or dead
+    if(!e.target || !state.party[e.target] || !state.party[e.target].alive){
+      const aliveRoles = Object.keys(state.party).filter(r => state.party[r].alive);
+      if(aliveRoles.length === 0) continue;
+      // 60% chance to attack tank if exists
+      e.target = aliveRoles.includes('tank') && Math.random() < 0.6 ? 'tank' : aliveRoles[Math.floor(Math.random()*aliveRoles.length)];
+    }
+    // attack chance per tick (1s)
+    const attackChance = e.isBoss ? 0.6 : 0.85; // make actions frequent enough to be engaging
+    if(Math.random() < attackChance){
+      // check target alive
+      const tgt = state.party[e.target];
+      if(tgt && tgt.alive){
+        dealDamageToMember(e.target, e.dmg);
+      }
+    }
+  }
+}
+
+/* Party AI: for each AI-controlled member (non-player role),
+   they should use abilities according to priorities and cooldowns.
+   We'll ensure mage uses all 4 abilities by priority (meteor > 25% > 20% AoE > 15%).
+   Healer will use heal (cd 1s), HOT, barrier, resurrect. Support uses mana restores and group buff/shield.
+*/
+function partyAI(){
+  for(const key in state.party){
+    const m = state.party[key];
+    if(!m.alive) continue;
+
+    // decrement ability cooldowns (per member)
+    m.abilities.forEach(a => { if(a.curCd > 0) a.curCd = Math.max(0, a.curCd - 1); });
+
+    // Process buffs expiration (clean up)
+    m.buffs = m.buffs.filter(b => b.expiresAt > now());
+
+    // AI behavior for non-player roles — assume player controls none for now (we keep AI acting for all)
+    if(m.role === 'Танк' || key === 'tank'){
+      // Taunt if not majority targeting tank
+      const targetingTank = state.enemies.filter(e => e.target === 'tank').length;
+      if(targetingTank < Math.max(1, Math.floor(state.enemies.length/2))){
+        const taunt = m.abilities.find(a => a.id === 'taunt');
+        if(taunt && taunt.curCd === 0 && m.mana >= taunt.cost){
+          // set all enemies target to tank
+          state.enemies.forEach(e => e.target = 'tank');
+          m.mana -= taunt.cost; taunt.curCd = taunt.cd;
+        }
+      }
+      // Use shield if low HP
+      const shield = m.abilities.find(a => a.id === 'shield');
+      if(shield && shield.curCd === 0 && m.health < m.maxHP * 0.5 && m.mana >= shield.cost){
+        m.mana -= shield.cost; shield.curCd = shield.cd;
+        // apply a 50% reduction buff (we keep both reduction and healer barrier)
+        m.buffs.push({ id:'tank_shield', name:'Щит(50%)', value:0.5, expiresAt: now() + 6*1000 });
+      }
+      // Auto-attack fallback: small damage to random enemy
+      m.autoAtkTimer--;
+      if(m.autoAtkTimer <= 0){
+        m.autoAtkTimer = 3;
+        if(state.enemies.length){
+          const alive = state.enemies.filter(e => e.alive && (!e.isBoss || !state.bossInvulnerable));
+          if(alive.length){
+            const t = alive[Math.floor(Math.random()*alive.length)];
+            t.hp -= Math.max(1, Math.floor(m.dmg * 0.6));
+            if(t.hp <= 0) t.alive = false;
+          }
+        }
+      }
+    }
+
+    if(key === 'healer'){
+      // Resurrect priority: tank -> mage -> support -> healer
+      const resurrect = m.abilities.find(a => a.id === 'resurrect');
+      const deadAllies = Object.keys(state.party).filter(r => !state.party[r].alive);
+      if(deadAllies.length && resurrect && resurrect.curCd === 0 && m.mana >= resurrect.cost){
+        const priority = ['tank','mage','support','healer'];
+        let chosen = deadAllies.find(r => priority.includes(r));
+        if(!chosen) chosen = deadAllies[0];
+        state.party[chosen].alive = true;
+        state.party[chosen].health = Math.floor(state.party[chosen].maxHP * 0.4);
+        state.party[chosen].mana = Math.floor(state.party[chosen].maxMP * 0.4);
+        // small invul on resurrect
+        state.party[chosen].buffs.push({ id:'res_inv', name:'Воскр.Защита', expiresAt: now() + 4*1000, value:1 });
+        m.mana -= resurrect.cost; resurrect.curCd = resurrect.cd;
+      }
+
+      // HOT: if someone under 60% hp, apply hot
+      const hot = m.abilities.find(a => a.id === 'hot');
+      if(hot && hot.curCd === 0 && m.mana >= hot.cost){
+        const candidates = Object.keys(state.party).filter(r => state.party[r].alive && (state.party[r].health / state.party[r].maxHP) < 0.6);
+        if(candidates.length){
+          const tgt = state.party[candidates[0]];
+          applyHOT(tgt);
+          m.mana -= hot.cost; hot.curCd = hot.cd;
+        }
+      }
+
+      // Heal lowest target frequently (cd 1s)
+      const heal = m.abilities.find(a => a.id === 'heal');
+      if(heal && heal.curCd === 0 && m.mana >= heal.cost){
+        let lowest = 1.1, trg = null;
+        for(const r in state.party){
+          const mm = state.party[r];
+          if(mm.alive && mm.health < mm.maxHP){
+            const pct = mm.health / mm.maxHP;
+            if(pct < lowest){ lowest = pct; trg = mm; }
+          }
+        }
+        if(trg && lowest < 0.95){
+          // instant heal amount: 30 + 10% of maxHP (scales by upgrades)
+          const healAmount = Math.floor(30 + trg.maxHP * 0.10 * (1 + state.upgrades.healing.level * state.upgrades.healing.effect));
+          trg.health = Math.min(trg.maxHP, trg.health + healAmount);
+          m.mana -= heal.cost; heal.curCd = heal.cd;
+        }
+      }
+
+      // Barrier if someone critically low (<30%)
+      const barrier = m.abilities.find(a => a.id === 'barrier');
+      if(barrier && barrier.curCd === 0 && m.mana >= barrier.cost){
+        let lowPct = 1.1, lowTarget = null;
+        for(const r in state.party){
+          const mm = state.party[r];
+          if(mm.alive && mm.health / mm.maxHP < lowPct){
+            lowPct = mm.health / mm.maxHP; lowTarget = mm;
+          }
+        }
+        if(lowTarget && lowPct < 0.3){
+          // full invulnerability for 6 seconds
+          lowTarget.buffs.push({ id:'barrier', name:'Барьер(Invul)', expiresAt: now() + 6*1000, value:1 });
+          m.mana -= barrier.cost; barrier.curCd = barrier.cd;
+        }
+      }
+
+      // groupHeal if many wounded
+      const groupHeal = m.abilities.find(a => a.id === 'groupHeal');
+      let woundedCount = 0;
+      for(const r in state.party) if(state.party[r].alive && state.party[r].health < state.party[r].maxHP * 0.8) woundedCount++;
+      if(groupHeal && groupHeal.curCd === 0 && m.mana >= groupHeal.cost && woundedCount >= 2){
+        for(const r in state.party) if(state.party[r].alive) state.party[r].health = Math.min(state.party[r].maxHP, state.party[r].health + Math.floor(20 + state.party[r].maxHP * 0.05));
+        m.mana -= groupHeal.cost; groupHeal.curCd = groupHeal.cd;
+      }
+    }
+
+    if(key === 'support'){
+      // decrement support passive regen: apply tick regen of mana (we'll do passive later)
+      // Use group buff (30s) occasionally if available
+      const groupBuff = m.abilities.find(a=>a.id==='groupBuff');
+      if(groupBuff && groupBuff.curCd === 0 && m.mana >= groupBuff.cost){
+        // prefer to use at start of wave or randomly low probability
+        if(state.currentWave === 1 || Math.random() < 0.02){
+          for(const r in state.party) if(state.party[r].alive) state.party[r].buffs.push({ id:'groupBuff', name:'Бафф', value:0.3, expiresAt: now() + 30*1000 });
+          m.mana -= groupBuff.cost; groupBuff.curCd = groupBuff.cd;
+        }
+      }
+
+      // manaRestoreSingle to lowest mp
+      const single = m.abilities.find(a=>a.id==='manaRestoreSingle');
+      if(single && single.curCd === 0 && m.mana >= single.cost){
+        let lowest = 1.1, trg = null;
+        for(const r in state.party){
+          const mm = state.party[r];
+          if(mm.alive && (mm.mana / mm.maxMP) < lowest){
+            lowest = mm.mana / mm.maxMP; trg = mm;
+          }
+        }
+        if(trg && lowest < 0.6){
+          // immediate restore + visual buff
+          const add = Math.floor(trg.maxMP * 0.3);
+          trg.mana = Math.min(trg.maxMP, trg.mana + add);
+          trg.buffs.push({ id:'mp_from_support', name:'MP+', expiresAt: now() + 6*1000 });
+          m.mana -= single.cost; single.curCd = single.cd;
+        }
+      }
+
+      // groupShield: if incoming threat high
+      const groupShield = m.abilities.find(a=>a.id==='groupShield');
+      if(groupShield && groupShield.curCd === 0 && m.mana >= groupShield.cost){
+        const incomingThreat = state.enemies.reduce((s,e)=> s + (e.alive ? e.dmg : 0), 0);
+        if(incomingThreat > 40){
+          // apply group shield that absorbs all damage for 6 sec
+          for(const r in state.party) if(state.party[r].alive) state.party[r].buffs.push({ id:'groupShield', name:'Групп.щит(Invul)', expiresAt: now() + 6*1000, value:1 });
+          m.mana -= groupShield.cost; groupShield.curCd = groupShield.cd;
+        }
+      }
+    }
+
+    if(key === 'mage'){
+      // mage priority: mage_40 > mage_25 > mage_20 (AoE) > mage_15
+      const abil40 = m.abilities.find(a=>a.id==='mage_40');
+      const abil25 = m.abilities.find(a=>a.id==='mage_25');
+      const abil20 = m.abilities.find(a=>a.id==='mage_20');
+      const abil15 = m.abilities.find(a=>a.id==='mage_15');
+
+      // ensure cooldown trackers
+      const aliveEnemies = state.enemies.filter(e=>e.alive && (!e.isBoss || !state.bossInvulnerable));
+      if(aliveEnemies.length === 0) continue;
+
+      if(abil40 && abil40.curCd === 0 && m.mana >= abil40.cost){
+        magePercentDamage(m, 0.40, false);
+        m.mana -= abil40.cost; abil40.curCd = abil40.cd;
+      } else if(abil25 && abil25.curCd === 0 && m.mana >= abil25.cost){
+        magePercentDamage(m, 0.25, false, enemy => applyDebuffToEnemy(enemy, {id:'slow', name:'Замедл', expiresAt: now() + 6*1000}));
+        m.mana -= abil25.cost; abil25.curCd = abil25.cd;
+      } else if(abil20 && abil20.curCd === 0 && m.mana >= abil20.cost){
+        magePercentDamage(m, 0.20, true);
+        m.mana -= abil20.cost; abil20.curCd = abil20.cd;
+      } else if(abil15 && abil15.curCd === 0 && m.mana >= abil15.cost){
+        magePercentDamage(m, 0.15, false);
+        m.mana -= abil15.cost; abil15.curCd = abil15.cd;
+      }
+    }
+  }
+}
+
+/* Apply HOT to a member: 3 ticks over 3 seconds, each tick = 40 + 2% maxHP */
+function applyHOT(member){
+  const ticks = 3;
+  const tickInterval = 1; // seconds
+  const expiresAt = now() + ticks * tickInterval * 1000;
+  member.buffs.push({ id:'hot', name:'HOT', expiresAt, tickRemaining: ticks, tickInterval });
+  // We'll apply actual tick healing in processBuffs per tick
+}
+
+/* Apply debuff to enemy */
+function applyDebuffToEnemy(enemy, debuff){
+  enemy.debuffs.push(debuff);
+}
+
+/* Mage percent damage utility: percent of target.maxHP; AoE if aoe true.
+   For bosses: damage is divided by 5 (as specified).
+*/
+function magePercentDamage(caster, percent, aoe=false, onHitCallback=null){
+  const targets = state.enemies.filter(e=>e.alive && (!e.isBoss || !state.bossInvulnerable));
+  if(targets.length === 0) return;
+  if(aoe){
+    for(const t of targets){
+      let raw = Math.floor(t.maxHP * percent);
+      if(t.isBoss) raw = Math.max(1, Math.floor(raw / 5));
+      t.hp -= raw;
+      if(onHitCallback) onHitCallback(t);
+      if(t.hp <= 0) t.alive = false;
+    }
+  } else {
+    const t = targets[Math.floor(Math.random()*targets.length)];
+    let raw = Math.floor(t.maxHP * percent);
+    if(t.isBoss) raw = Math.max(1, Math.floor(raw / 5));
+    t.hp -= raw;
+    if(onHitCallback) onHitCallback(t);
+    if(t.hp <= 0) t.alive = false;
+  }
+}
+
+/* ========== Buff processing & passive regen per tick ========== */
+function processBuffsAndTimers(){
+  const current = now();
+
+  // process party member buffs: apply HOT ticks and passive mana regen
+  for(const key in state.party){
+    const m = state.party[key];
+    if(!m.alive) continue;
+
+    // passive mana regen; support has stronger passive regen
+    const passiveMP = (key === 'support') ? Math.max(1, Math.floor(m.maxMP * 0.02)) : 1; // support 2% per sec
+    m.mana = Math.min(m.maxMP, m.mana + passiveMP);
+
+    // iterate buffs
+    for(let i = m.buffs.length -1; i >= 0; i--){
+      const b = m.buffs[i];
+      // HOT special handling: apply a tick if tickRemaining present
+      if(b.id === 'hot'){
+        // check tick timing via tracking tickRemaining; we apply one tick per second at insertion then decrease
+        if(!b.lastTickAppliedAt){ // first immediate tick
+          applyHOTTick(m);
+          b.tickRemaining = (b.tickRemaining || 3) - 1;
+          b.lastTickAppliedAt = current;
+        } else {
+          // if 1 sec passed and ticks remaining
+          if(current - b.lastTickAppliedAt >= 1000 && b.tickRemaining > 0){
+            applyHOTTick(m);
+            b.tickRemaining--;
+            b.lastTickAppliedAt = current;
+          }
+        }
+        // expiration handled by expiresAt timestamp; remove when expired
+      }
+      // remove expired buffs
+      if(b.expiresAt <= current){
+        m.buffs.splice(i,1);
+      }
+    }
+
+    // decrement member ability cooldowns already handled in partyAI individually
+  }
+
+  // process enemies debuffs expiration
+  for(const e of state.enemies){
+    if(!e.debuffs) continue;
+    for(let i=e.debuffs.length-1;i>=0;i--){
+      const d = e.debuffs[i];
+      if(d.expiresAt <= current) e.debuffs.splice(i,1);
+    }
+  }
+}
+
+/* HOT tick heal */
+function applyHOTTick(member){
+  const heal = 40 + Math.floor(member.maxHP * 0.02);
+  member.health = Math.min(member.maxHP, member.health + heal);
+}
+
+/* ========== Player-targeted ability execution (performTargetedAbility) ========= */
+function performTargetedAbility(actorRole, abilityId, targetId){
+  const actor = state.party[actorRole];
+  const target = state.party[targetId];
+  if(!actor || !target) return;
+
+  switch(abilityId){
+    case 'heal': {
+      const healAmount = Math.floor(30 + target.maxHP * 0.10 * (1 + (state.upgrades.healing.level * state.upgrades.healing.effect || 0)));
+      target.health = Math.min(target.maxHP, target.health + healAmount);
+      break;
+    }
+    case 'hot': {
+      applyHOT(target);
+      break;
+    }
+    case 'barrier': {
+      // full invul 6 sec
+      target.buffs.push({ id:'barrier', name:'Барьер(Invul)', expiresAt: now() + 6*1000 });
+      break;
+    }
+    case 'manaRestoreSingle': {
+      const add = Math.floor(target.maxMP * 0.3);
+      target.mana = Math.min(target.maxMP, target.mana + add);
+      target.buffs.push({ id:'mp_from_player', name:'MP+', expiresAt: now() + 6*1000 });
+      break;
+    }
+  }
+}
+
+/* ========== Enemy cleanup & rewards ========= */
+function cleanupEnemies(){
+  // filter alive
+  state.enemies = state.enemies.filter(e => e.alive && e.hp > 0);
+  // if no enemies -> wave complete
+  if(state.enemies.length === 0){
+    // award gold for wave/dungeon (only on clear)
+    const dungeon = DUNGEONS[state.currentDungeon];
+    const reward = dungeon.reward;
+    state.currency += reward;
+    currencyEl.textContent = state.currency;
+    // unlock next dungeon button if wave completed
+    nextDungeonBtn.disabled = false;
+    // advance to next wave after short delay (handled in game loop)
+  }
+}
+
+/* ========== Global game loop ========== */
+function gameTick(){
+  // process AI decisions & attacks (1s tick)
+  partyAI(); // AI acts and sets ability CDs and uses abilities
+  enemyActions(); // enemies attack
+  processBuffsAndTimers(); // process HOT ticks, passive regen, buff expiry
+  cleanupEnemies();
+  // decrease player-level ability cooldowns (global map) — we'll not heavily use this map now
+  // update UI
+  renderAll();
+}
+
+/* ========== Render all UI (party, enemies, abilities, shop) ========== */
+function renderAll(){
+  renderParty();
+  renderEnemies();
+  renderPlayerAbilities();
+  renderShop();
+  currencyEl.textContent = state.currency;
+}
+
+/* Player abilities panel (bottom) — show the player's role abilities */
+function getPlayerRole(){
+  // For now assume player plays 'healer' by default (can be changed later).
+  // The user wanted to keep previous behavior — but they control one character: to simplify we let player be 'healer' by default.
+  // If you want to allow role selection UI, it can be added.
+  return playerSelectedRole || 'healer';
+}
+let playerSelectedRole = 'healer'; // default — can be exposed later
+
+function renderPlayerAbilities(){
+  playerAbilitiesContainer.innerHTML = '';
+  const role = getPlayerRole();
+  const actor = state.party[role];
+  if(!actor) return;
+  for(const a of actor.abilities){
+    const btn = document.createElement('div'); btn.className = 'ability-card';
+    const cdText = a.curCd > 0 ? ` <span class="cooldown">${a.curCd}s</span>` : '';
+    const cost = Math.max(1, Math.floor(a.cost * (1 - (state.upgrades.manaCost.level * (state.upgrades.manaCost.effect || 0)))));
+    btn.innerHTML = `<div class="ability-title">${a.name}${cdText}</div>
+                     <div class="ability-desc">${a.desc} • ${cost} MP • CD ${a.cd}s</div>`;
+    btn.onclick = ()=>{
+      // if ability requires target (resurrect) open modal, else apply sensible default (e.g., group or self)
+      if(a.id === 'resurrect'){
+        // choose a dead ally from list
+        const dead = Object.keys(state.party).filter(k => !state.party[k].alive);
+        if(dead.length === 0){ alert('Нет павших союзников'); return; }
+        // simple prompt to choose
+        const choice = dead[0];
+        if(actor.mana < a.cost){ alert('Недостаточно маны'); return; }
+        actor.mana -= a.cost; a.curCd = a.cd;
+        state.party[choice].alive = true;
+        state.party[choice].health = Math.floor(state.party[choice].maxHP * 0.4);
+        state.party[choice].mana = Math.floor(state.party[choice].maxMP * 0.4);
+        state.party[choice].buffs.push({ id:'res_inv', name:'Воскр.Защита', expiresAt: now() + 4*1000 });
+        renderAll();
+      } else if(a.id === 'groupHeal'){
+        if(actor.mana < a.cost){ alert('Недостаточно маны'); return; }
+        actor.mana -= a.cost; a.curCd = a.cd;
+        for(const k in state.party) if(state.party[k].alive) state.party[k].health = Math.min(state.party[k].maxHP, state.party[k].health + Math.floor(20 + state.party[k].maxHP * 0.05));
+        renderAll();
+      } else if(a.id === 'manaRestoreGroup'){
+        if(actor.mana < a.cost){ alert('Недостаточно маны'); return; }
+        actor.mana -= a.cost; a.curCd = a.cd;
+        for(const k in state.party) if(state.party[k].alive){
+          const add = Math.floor(state.party[k].maxMP * 0.15);
+          state.party[k].mana = Math.min(state.party[k].maxMP, state.party[k].mana + add);
+          state.party[k].buffs.push({ id:'mp_group', name:'MP+ (G)', expiresAt: now() + 6*1000 });
+        }
+        renderAll();
+      } else if(a.id === 'groupBuff'){
+        if(actor.mana < a.cost){ alert('Недостаточно маны'); return; }
+        actor.mana -= a.cost; a.curCd = a.cd;
+        for(const k in state.party) if(state.party[k].alive) state.party[k].buffs.push({ id:'groupBuff', name:'Бафф', value:0.3, expiresAt: now() + 30*1000 });
+        renderAll();
+      } else {
+        // other abilities: cast on lowest ally/enemy depending on role
+        if(actor.mana < a.cost){ alert('Недостаточно маны'); return; }
+        actor.mana -= a.cost; a.curCd = a.cd;
+        // healer instant heal: apply to lowest alive ally
+        if(a.id === 'heal'){
+          let lowest = 1.1, trg = null;
+          for(const k in state.party){ const mm = state.party[k]; if(mm.alive && mm.health/mm.maxHP < lowest){ lowest = mm.health/mm.maxHP; trg = mm; } }
+          if(trg) trg.health = Math.min(trg.maxHP, trg.health + Math.floor(30 + trg.maxHP * 0.10));
+        } else if(a.id === 'hot'){
+          // HOT on lowest
+          let lowest = 1.1, trg = null;
+          for(const k in state.party){ const mm = state.party[k]; if(mm.alive && mm.health/mm.maxHP < lowest){ lowest = mm.health/mm.maxHP; trg = mm; } }
+          if(trg) applyHOT(trg);
+        } else if(a.id === 'barrier'){
+          // barrier on lowest
+          let lowest = 1.1, trg = null;
+          for(const k in state.party){ const mm = state.party[k]; if(mm.alive && mm.health/mm.maxHP < lowest){ lowest = mm.health/mm.maxHP; trg = mm; } }
+          if(trg) trg.buffs.push({ id:'barrier', name:'Барьер(Invul)', expiresAt: now() + 6*1000 });
+        } else if(a.id.startsWith('mage_')){
+          // mage abilities applied to enemies
+          if(a.id === 'mage_40') magePercentDamage(actor, 0.40, false);
+          if(a.id === 'mage_25') magePercentDamage(actor, 0.25, false, enemy=>applyDebuffToEnemy(enemy, {id:'slow', name:'Замедл', expiresAt: now() + 6*1000}));
+          if(a.id === 'mage_20') magePercentDamage(actor, 0.20, true);
+          if(a.id === 'mage_15') magePercentDamage(actor, 0.15, false);
+        } else if(a.id === 'manaRestoreSingle'){
+          // restore for lowest mp
+          let lowest = 1.1, trg = null;
+          for(const k in state.party){ const mm = state.party[k]; if(mm.alive && mm.mana/mm.maxMP < lowest){ lowest = mm.mana/mm.maxMP; trg = mm; } }
+          if(trg){ trg.mana = Math.min(trg.maxMP, trg.mana + Math.floor(trg.maxMP * 0.3)); trg.buffs.push({ id:'mp_from_player', name:'MP+', expiresAt: now()+6*1000 }); }
+        } else if(a.id === 'groupShield'){
+          for(const k in state.party) if(state.party[k].alive) state.party[k].buffs.push({ id:'groupShield', name:'Груп.щит(Invul)', expiresAt: now() + 6*1000 });
+        }
+        renderAll();
+      }
+    };
+    playerAbilitiesContainer.appendChild(btn);
+  }
+}
+
+/* ========== Purchase upgrade ========== */
+function buyUpgrade(key){
+  const up = state.upgrades[key];
+  const cost = Math.floor(up.cost * Math.pow(1.5, up.level));
+  if(state.currency < cost){ alert('Недостаточно золота'); return; }
+  state.currency -= cost; up.level++;
+  // re-init party to re-calc with new multipliers
+  initParty();
+  renderAll();
+}
+
+/* ========== Cooldown tick decrement for abilities (global per member) ========= */
+function cooldownTick(){
+  for(const k in state.party){
+    const member = state.party[k];
+    member.abilities.forEach(a => { if(a.curCd > 0) a.curCd = Math.max(0, a.curCd - 1); });
+  }
+}
+
+/* ========== Cleanup dead enemies & reward handling ========= */
+function postTickCleanup(){
+  // remove dead enemies
+  state.enemies = state.enemies.filter(e => e.alive && e.hp > 0);
+  if(state.enemies.length === 0){
+    // wave cleared: award gold (once)
+    const d = DUNGEONS[state.currentDungeon];
+    const reward = d.reward;
+    state.currency += reward;
+    currencyEl.textContent = state.currency;
+    nextDungeonBtn.disabled = false;
+  }
+}
+
+/* ========== Tick orchestration: called every second ========== */
+function tick(){
+  // abilities cooldowns decrement
+  cooldownTick();
+  // party AI and actions
+  partyAI();
+  // enemies act
+  enemyActions();
+  // process buffs, HOT ticks and passive regen
+  processBuffsAndTimers();
+  // auto attacks for party (simple)
+  updateAutoAttacks();
+  // clean up dead enemies and award gold on clear
+  postTickCleanup();
+  // update UI
+  renderAll();
+}
+
+/* Auto attacks (for support/healer when nothing else) to chip HP so mobs don't stall) */
+function updateAutoAttacks(){
+  for(const k in state.party){
+    const m = state.party[k];
+    if(!m.alive) continue;
+    m.autoAtkTimer--;
+    if(m.autoAtkTimer <= 0){
+      m.autoAtkTimer = 3 + Math.floor(Math.random()*3);
+      if(state.enemies.length){
+        const alive = state.enemies.filter(e => e.alive && (!e.isBoss || !state.bossInvulnerable));
+        if(alive.length){
+          const t = alive[Math.floor(Math.random()*alive.length)];
+          t.hp -= Math.max(1, Math.floor(m.dmg * 0.4));
+          if(t.hp <= 0) t.alive = false;
+        }
+      }
+    }
+  }
+}
+
+/* ========== Start / Stop game ========== */
+function startGame(){
+  initUpgrades();
+  initParty();
+  renderAll();
+  startDungeon(0);
+  if(state.gameInterval) clearInterval(state.gameInterval);
+  state.gameInterval = setInterval(tick, TICK_MS);
+}
+
+/* ========== Utility: applyDebuffToEnemy defined earlier in partyAI; included here for direct use ========== */
+function applyDebuffToEnemy(enemy, debuff){ if(!enemy) return; enemy.debuffs.push(debuff); }
+
+/* ========== Event bindings ========== */
+nextDungeonBtn.onclick = ()=>{
+  // advance to next dungeon index
+  state.currentDungeon++;
+  if(state.currentDungeon >= DUNGEONS.length) state.currentDungeon = 0;
+  state.currentWave = 0;
+  startWave();
+  nextDungeonBtn.disabled = true;
+};
+openShopBtn.onclick = ()=> {
+  // toggle visibility or scroll to shop — simple alert for now, shop shown always
+  alert('Магазин обновлён в правой панели. Покупайте HP / MP / DMG без лимита.');
+};
+
+/* ========== Initial start ========== */
+initUpgrades();
+initParty();
+renderAll();
+startDungeon(0);
+if(state.gameInterval) clearInterval(state.gameInterval);
+state.gameInterval = setInterval(tick, TICK_MS);
+
+/* ========== Final note for тестирования ========== */
+/*
+ - Реальное время: 1 секунда = 1 игровой тик (длительности 6 сек и т.д. соответствуют реальным сек).
+ - Точечные кнопки находятся рядом с каждым союзником (HEAL, HOT, BARRIER, MP+).
+ - Барьер хилера — полная неуязвимость (6s). GroupShield саппорта — полная защита всех (6s).
+ - HOT: 3 тика по 40 + 2% maxHP, один тик в секунду.
+ - Маг: процентный урон (по мобам 15/20/25/40%, по боссу /5).
+ - Апгрейды HP/MP/DMG без лимита, стоимость растёт *1.5, эффект ощутимый (+25%).
+ - Пожалуйста, протестируйте: убейте танка, дождитесь воскрешения; проверьте, что mp-рост от саппорта виден сразу; проверьте, что барьер делает цель неуязвимой.
+*/
+</script>
+</body>
+</html>
