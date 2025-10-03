@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Типография — Бизнес-симулятор</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    /* ========= THEME & LAYOUT ========= */
+    :root{
+      --bg: #071018;
+      --card: #0f1720;
+      --muted: #9aa5b1;
+      --accent: #0dcaf0;
+      --accent-2: #198754;
+      --danger: #ff6b6b;
+      --glass: rgba(255,255,255,0.03);
+    }
+    html,body{height:100%;margin:0;font-family:"Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#071018 0%,#08121a 100%);color:#e6eef6;-webkit-font-smoothing:antialiased;}
+    .container-game { max-width:1200px; margin:8px auto 80px; padding-left:10px; padding-right:10px; }
+
+    /* ===== Top empty area for notifications (40px) ===== */
+    .top-notify-space { height:40px; min-height:40px; } /* пустая зона сверху: сюда будут появляться тосты */
+
+    /* ===== Primary control block (5 actionable divs) ===== */
+    .controls-row { display:flex; gap:8px; width:100%; flex-wrap:wrap; margin-bottom:10px; }
+    .control-card {
+      flex: 1 1 150px;
+      min-width:120px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      padding:10px;
+      border-radius:10px;
+      text-align:left;
+      cursor:pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    }
+    .control-card:active { transform: translateY(1px); }
+    .control-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .control-large { font-size:1.25rem; font-weight:700; color:var(--accent-2); }
+    .control-small { font-size:0.82rem; color:var(--muted); }
+    .control-sub { font-size:0.85rem; color:var(--muted); margin-top:6px; }
+
+    /* thin progress bar under control (for find-order cooldown) */
+    .small-progress { height:6px; background: rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; margin-top:8px; }
+    .small-progress > .bar { height:100%; background: linear-gradient(90deg,var(--accent-2),var(--accent)); width:100%; transition:width .3s linear; }
+
+    /* ===== Header area with title and upgrade buttons ===== */
+    .title-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+    .title-block { flex:2 1 300px; }
+    .upgrades-block { flex:1 1 300px; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
+
+    .upgrade-btn { min-width:110px; font-weight:700; border-radius:8px; }
+
+    /* upgrade info small */
+    .upgrade-info { font-size:0.85rem; color:var(--muted); }
+
+    /* ===== Grid & Shop ===== */
+    .grid { display:grid; gap:6px; border-radius:8px; padding:8px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006)); border:1px solid rgba(255,255,255,0.03); }
+    .cell { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:8px; display:flex; align-items:center; justify-content:center; min-height:72px; cursor:pointer; position:relative; }
+    .cell .inner { width:92%; height:92%; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; font-weight:700; }
+    .cell .muted { color:var(--muted); font-size:0.82rem; }
+
+    .equipment { color:#fff; padding:6px; text-align:center; border-radius:8px; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+    .equipment.production { background: linear-gradient(135deg,#d9534f,#c82333); }
+    .equipment.storage { background: linear-gradient(135deg,#fd7e14,#e55a00); }
+    .equipment.advertising { background: linear-gradient(135deg,#198754,#0f7a43); }
+    .equipment.quality { background: linear-gradient(135deg,#0dcaf0,#0992b7); }
+    .equipment.broken { filter:grayscale(0.6) brightness(0.8); }
+    .equipment.broken::after { content: "⚡"; position:absolute; right:8px; top:8px; font-size:0.9rem; }
+
+    /* shop list */
+    .shop-list { max-height:300px; overflow:auto; padding:6px; }
+
+    /* logs */
+    .log-list { max-height:160px; overflow:auto; padding:6px; color:var(--muted); }
+
+    /* progress bars (materials & ready storage & quality) */
+    .big-progress { height:10px; background: rgba(255,255,255,0.03); border-radius:8px; overflow:hidden; }
+    .big-progress > .bar { height:100%; background: linear-gradient(90deg,var(--accent-2),var(--accent)); }
+
+    /* slider styling - large thumb for touch */
+    .slider-wrap { display:flex; align-items:center; gap:8px; }
+    input[type=range] { -webkit-appearance:none; width:140px; height:28px; background:transparent; }
+    input[type=range]::-webkit-slider-runnable-track { height:8px; background:rgba(255,255,255,0.12); border-radius:8px; }
+    input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:24px; height:24px; border-radius:50%; background:#fff; margin-top:-8px; box-shadow:0 3px 8px rgba(0,0,0,0.45); }
+
+    /* mobile-first compacting */
+    @media (max-width: 640px){
+      .control-card { flex-basis:100%; min-width:unset; }
+      .title-row { flex-direction:column; align-items:stretch; gap:8px; }
+      .upgrades-block { justify-content:flex-start; }
+      .grid { grid-template-columns: repeat(4,1fr); }
+      .cell { min-height:56px; }
+      input[type=range] { width:100%; }
+      .slider-wrap { width:100%; justify-content:space-between; }
+    }
+
+    @media (min-width: 641px) and (max-width: 900px){
+      .control-card { flex-basis:48%; }
+      .grid { grid-template-columns: repeat(6,1fr); }
+    }
+
+    @media (min-width: 901px){
+      .control-card { flex-basis: 18%; min-width:160px; }
+      .grid { grid-template-columns: repeat(8,1fr); }
+    }
+
+    /* toast area absolute positioning so toasts appear in top empty space */
+    .toast-area { position: fixed; top:6px; left:0; right:0; height:40px; pointer-events:none; display:flex; justify-content:center; align-items:flex-start; z-index:2000; }
+    .toast-area .toast { pointer-events:auto; margin-top:6px; }
+  </style>
+</head>
+<body>
+
+  <!-- 1) Пустая полоса 40px сверху для уведомлений (по требованию) -->
+  <div class="top-notify-space"></div>
+  <!-- toast area (toasts будут появляться визуально вверху, а пустая полоса гарантирует что они не перекроют контент) -->
+  <div class="toast-area" id="toastArea"></div>
+
+  <div class="container-game">
+
+    <!-- 2) Пять основных интерактивных дивов-кнопок (в одном блоке) -->
+    <div class="controls-row" id="primaryControls">
+
+      <!-- 1. Баланс: большая цифра + ниже сумма от отгрузки -->
+      <div class="control-card" id="ctl-balance" role="button" tabindex="0" aria-pressed="false" title="Нажать — отгрузить готовые заказы">
+        <div class="control-top">
+          <div>
+            <div class="control-large" id="ctl-balance-large">1 000 ₽</div>
+            <div class="control-small">При отгрузке: <span id="ctl-balance-pending">0 ₽</span></div>
+          </div>
+          <div><i class="bi bi-currency-dollar" style="font-size:1.4rem;color:var(--accent)"></i></div>
+        </div>
+        <div class="control-sub">Нажмите, чтобы отгрузить все готовые заказы</div>
+      </div>
+
+      <!-- 2. Склад: текущее/макс + при клике открывается окно с 4 кнопками -->
+      <div class="control-card" id="ctl-storage" role="button" tabindex="0" aria-pressed="false" title="Управление складом: быстро пополнить">
+        <div class="control-top">
+          <div>
+            <div class="control-large" id="ctl-storage-large">0/100</div>
+            <div class="control-small">Материалы на складе</div>
+          </div>
+          <div><i class="bi bi-box-seam" style="font-size:1.4rem;color:var(--accent)"></i></div>
+        </div>
+        <div class="control-sub">Нажмите для быстрых опций пополнения (25/50/75/100%)</div>
+      </div>
+
+      <!-- 3. Заказы: waiting / working / ready; при клике запускается поиск клиентов (КД 30s) -->
+      <div class="control-card" id="ctl-orders" role="button" tabindex="0" aria-pressed="false" title="Запустить поиск заказов (30s CD)">
+        <div class="control-top">
+          <div>
+            <div class="control-large" id="ctl-orders-large">0 / 0 / 0</div>
+            <div class="control-small">Ожид. • В работе • Готово</div>
+          </div>
+          <div><i class="bi bi-list-check" style="font-size:1.4rem;color:var(--accent)"></i></div>
+        </div>
+        <div class="control-sub">Нажмите — активировать поиск заказов (КД 30s)</div>
+        <div class="small-progress mt-2"><div class="bar" id="ctl-orders-cd" style="width:0%"></div></div>
+      </div>
+
+      <!-- 4. Качество: % и ниже сумма ремонта (динамически), при нажатии чинит все (если хватает) -->
+      <div class="control-card" id="ctl-quality" role="button" tabindex="0" aria-pressed="false" title="Починить оборудование">
+        <div class="control-top">
+          <div>
+            <div class="control-large" id="ctl-quality-large">100%</div>
+            <div class="control-small">Стоимость ремонта: <span id="ctl-repair-need">0 ₽</span></div>
+          </div>
+          <div><i class="bi bi-award" style="font-size:1.4rem;color:var(--accent)"></i></div>
+        </div>
+        <div class="control-sub">Нажмите — починить оборудование (если денег недостаточно — починяет частично)</div>
+      </div>
+
+      <!-- 5. Реклама: множитель и прибыль/мин; при клике запускается реклама -->
+      <div class="control-card" id="ctl-ad" role="button" tabindex="0" aria-pressed="false" title="Запустить рекламную кампанию">
+        <div class="control-top">
+          <div>
+            <div class="control-large" id="ctl-ad-large">1.0x</div>
+            <div class="control-small">Прогноз дохода: <span id="ctl-ad-income">0 ₽/мин</span></div>
+          </div>
+          <div><i class="bi bi-megaphone" style="font-size:1.4rem;color:var(--accent)"></i></div>
+        </div>
+        <div class="control-sub">Нажмите — потратить на рекламу и увеличить поток заказов</div>
+      </div>
+
+    </div>
+
+    <!-- 3) Далее блок с заголовком сайта и тремя кнопками апгрейда -->
+    <div class="title-row mb-2">
+      <div class="title-block">
+        <h4 class="mb-0">Типография — бизнес-симулятор</h4>
+        <div class="upgrade-info">Управляйте оборудованием, закупайте материалы и развивайте предприятие</div>
+      </div>
+
+      <div class="upgrades-block">
+        <!-- Upgrade buttons: show cost and how much не хватает -->
+        <button class="btn btn-outline-light upgrade-btn" id="upg-apartment" data-cost="75000">
+          Квартира<br><small class="upgrade-info">75000 ₽</small>
+        </button>
+        <button class="btn btn-outline-light upgrade-btn disabled" id="upg-salon" data-cost="1000000">
+          Салон<br><small class="upgrade-info">1 000 000 ₽</small>
+        </button>
+        <button class="btn btn-outline-light upgrade-btn disabled" id="upg-printing" data-cost="5000000">
+          Типография<br><small class="upgrade-info">5 000 000 ₽</small>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4) Grid of cells (equipment) — responsive -->
+    <div class="card p-2 mb-2" id="gridCard">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div><strong>Ячейки (установите оборудование)</strong></div>
+        <div class="small-muted">Клик по пустой — открыть магазин</div>
+      </div>
+      <div id="buildingGrid" class="grid"></div>
+    </div>
+
+    <!-- 5) Под grid: лог и события + магазин и очередь заказов -->
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="card p-2 mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>Очереди заказов</strong></div>
+            <div class="small-muted">Waiting • Working • Ready</div>
+          </div>
+          <div id="ordersColumns" class="row g-2">
+            <div class="col-4">
+              <div class="small-muted mb-1">Ожидают</div>
+              <div id="col-waiting" class="orders-list"></div>
+            </div>
+            <div class="col-4">
+              <div class="small-muted mb-1">В работе</div>
+              <div id="col-working" class="orders-list"></div>
+            </div>
+            <div class="col-4">
+              <div class="small-muted mb-1">Готовы</div>
+              <div id="col-ready" class="orders-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-2">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>Логи / События</strong></div>
+            <div class="small-muted">Последние события</div>
+          </div>
+          <div id="logArea" class="log-list"></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="card p-2 mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>Магазин оборудования</strong></div>
+            <div class="small-muted">Клик по элементу — установить</div>
+          </div>
+          <div id="shopList" class="shop-list list-group"></div>
+        </div>
+
+        <div class="card p-2">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div><strong>Состояние склада готовой продукции</strong></div>
+            <div class="small-muted" id="readyCount">Готовых: 0</div>
+          </div>
+          <div class="big-progress mb-2"><div id="readyBar" class="bar" style="width:0%"></div></div>
+          <div class="d-flex gap-2">
+            <button id="btnShipSmall" class="btn btn-success btn-compact">Отгрузить</button>
+            <button id="btnRepairSmall" class="btn btn-warning btn-compact">Починить всё</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Equipment modal (при клике на ячейку) -->
+  <div class="modal fade" id="modalShop" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Установить оборудование</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalShopList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Storage quick fill modal -->
+  <div class="modal fade" id="modalFill" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-0">
+          <h6 class="modal-title">Быстро заполнить склад</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body d-flex gap-2">
+          <div class="d-grid gap-2" style="grid-template-columns:1fr 1fr">
+            <button class="btn btn-outline-light" data-fill="0.25">25%</button>
+            <button class="btn btn-outline-light" data-fill="0.50">50%</button>
+            <button class="btn btn-outline-light" data-fill="0.75">75%</button>
+            <button class="btn btn-outline-light" data-fill="1.00">100%</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  /* ---------------------------
+     Конфиг и состояние
+     --------------------------- */
+  const CONFIG = {
+    MATERIAL_COST: 10,
+    BASE_ORDER_PRICE: 50,
+    FIND_COST: 100,
+    AD_COST: 500,
+    FIND_CD: 30, // seconds cooldown
+    BASE_PROD_TIME: 8, // seconds per order baseline
+    MAX_STORAGE_BASE: 100
+  };
+
+  let state = {
+    money: 1000,
+    materials: 0,
+    storageMax: CONFIG.MAX_STORAGE_BASE,
+    orders: [], // {id, required, state: 'waiting'|'working'|'ready', reserved, progress, assignedTime, spawn}
+    ready: [],
+    advertising: 0,
+    findCooldown: 0,
+    quality: 1.0, // factor (0.7..2.0)
+    buildings: {}, // equipment arrays in buildings
+    currentBuilding: 'apartment',
+    lastTick: Date.now()
+  };
+
+  // equipment templates & default available for current building
+  const TEMPLATES = {
+    small_printer:{ id:'small_printer', name:'Мал. принтер', type:'production', price:200, production:5, breakdown:0.01, desc:'+5 пр./мин'},
+    paper_shelf:{ id:'paper_shelf', name:'Полка', type:'storage', price:100, storage:50, breakdown:0.005, desc:'+50 мест'},
+    flyer_table:{ id:'flyer_table', name:'Стол', type:'advertising', price:150, advertising:0.1, breakdown:0.008, desc:'+10% рекл.'},
+    large_printer:{ id:'large_printer', name:'Большой принтер', type:'production', price:800, production:15, breakdown:0.015, desc:'+15 пр./мин'},
+    storage_rack:{ id:'storage_rack', name:'Стеллаж', type:'storage', price:400, storage:150, breakdown:0.01, desc:'+150'},
+    quality_scanner:{ id:'quality_scanner', name:'Сканер', type:'quality', price:500, quality:0.15, breakdown:0.02, desc:'+15% кач.'},
+    industrial_printer:{ id:'industrial_printer', name:'Пром. принтер', type:'production', price:3000, production:40, breakdown:0.03, desc:'+40 пр./мин'}
+  };
+
+  // buildings + available equipment
+  state.buildings = {
+    apartment:{ name:'Квартира', width:4, height:4, baseCapacity:100, equipment:[], available:['small_printer','paper_shelf','flyer_table'], upgradeCost:75000 },
+    salon:{ name:'Салон', width:6, height:6, baseCapacity:500, equipment:[], available:['large_printer','storage_rack','quality_scanner'], upgradeCost:1000000 },
+    printing_house:{ name:'Типография', width:8, height:8, baseCapacity:2000, equipment:[], available:['industrial_printer'], upgradeCost:null }
+  };
+
+  // generate starter equipment for playability
+  (function initStarter(){
+    const b = state.buildings[state.currentBuilding];
+    if(b.equipment.length===0){
+      b.equipment.push({ id:'start-pr', name:'Мал. принтер', type:'production', price:200, production:5, breakdown:0.01, x:0, y:0, broken:false });
+      b.equipment.push({ id:'start-sh', name:'Полка', type:'storage', price:100, storage:50, breakdown:0.005, x:1, y:0, broken:false });
+      state.materials = 0;
+    }
+    state.storageMax = b.baseCapacity + b.equipment.filter(e=>e.type==='storage' && !e.broken).reduce((s,e)=>s+(e.storage||0),0);
+  })();
+
+  /* ---------------------------
+     Утилиты и UI helpers
+     --------------------------- */
+  function moneyFmt(n){ return n.toLocaleString('ru-RU') + ' ₽'; }
+  function log(msg){ const area = document.getElementById('logArea'); const el = document.createElement('div'); el.textContent = new Date().toLocaleTimeString() + ' — ' + msg; area.prepend(el); while(area.children.length>200) area.removeChild(area.lastChild); }
+  function toast(msg, type='info'){
+    const area = document.getElementById('toastArea');
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast align-items-center text-bg-dark border-0';
+    toastEl.style.minWidth = '260px';
+    toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto"></button></div>`;
+    area.appendChild(toastEl);
+    toastEl.querySelector('.btn-close').onclick = ()=> toastEl.remove();
+    setTimeout(()=>{ try{ toastEl.remove(); } catch(e){} }, 4500);
+    log(msg);
+  }
+
+  /* ---------------------------
+     Orders: states and handling
+     --------------------------- */
+  let ORDER_ID = 1;
+  function createOrder(required = 1){
+    return { id: ORDER_ID++, required, state:'waiting', reserved:false, progress:0, assignedTime:0, spawn:Date.now(), startedAt:null, readyAt:null };
+  }
+
+  function enqueueOrders(count = 1){
+    for(let i=0;i<count;i++){
+      if(state.orders.length + state.ready.length >= 200) break;
+      const r = 1 + Math.floor(Math.random()*3);
+      state.orders.push(createOrder(r));
+      toast(`Новый заказ #${ORDER_ID-1} (${r} мат.)`, 'info');
+    }
+    updateUI();
+  }
+
+  function tryReserve(order){
+    if(order.reserved) return false;
+    if(state.materials >= order.required){
+      state.materials -= order.required;
+      order.reserved = true;
+      const prodPerMin = getProductionPerMin();
+      const speedMult = prodPerMin > 0 ? prodPerMin / 10 : 1;
+      order.assignedTime = Math.max(1, Math.floor(CONFIG.BASE_PROD_TIME / Math.max(0.25, speedMult)));
+      order.state = 'working';
+      order.startedAt = Date.now();
+      toast(`Заказ #${order.id} взят в работу (${order.assignedTime}s)`, 'success');
+      return true;
+    } else {
+      order.state = 'waiting';
+      return false;
+    }
+  }
+
+  function getProductionPerMin(){
+    const b = state.buildings[state.currentBuilding];
+    return b.equipment.filter(e=>e.type==='production' && !e.broken).reduce((s,e)=> s + (e.production||0), 0);
+  }
+  function getStorageCapacity(){ const b = state.buildings[state.currentBuilding]; return b.baseCapacity + b.equipment.filter(e=>e.type==='storage' && !e.broken).reduce((s,e)=> s + (e.storage||0), 0); }
+  function getAdvertisingPower(){ const b = state.buildings[state.currentBuilding]; return b.equipment.filter(e=>e.type==='advertising' && !e.broken).reduce((s,e)=> s + (e.advertising||0), 0); }
+  function getQualityBonus(){ const b = state.buildings[state.currentBuilding]; return b.equipment.filter(e=>e.type==='quality' && !e.broken).reduce((s,e)=> s + (e.quality||0), 0); }
+  function calcRepairCostAll(){ const b = state.buildings[state.currentBuilding]; return b.equipment.filter(e=>e.broken).reduce((s,e)=> s + Math.floor((e.price||0)*0.2), 0); }
+
+  /* ---------------------------
+     UI rendering
+     --------------------------- */
+  function updateUI(){
+    // top controls
+    document.getElementById('ctl-balance-large').textContent = moneyFmt(state.money);
+    // compute pending shipment value
+    const pendingVal = state.ready.reduce((s,o)=> s + (o.required * CONFIG.BASE_ORDER_PRICE), 0);
+    document.getElementById('ctl-balance-pending').textContent = moneyFmt(Math.floor(pendingVal * (1 + state.advertising * getAdvertisingPower()) * state.quality));
+
+    document.getElementById('ctl-storage-large').textContent = `${state.materials}/${getStorageCapacity()}`;
+    const waiting = state.orders.filter(o=>o.state==='waiting').length;
+    const working = state.orders.filter(o=>o.state==='working').length;
+    const ready = state.ready.length;
+    document.getElementById('ctl-orders-large').textContent = `${waiting} / ${working} / ${ready}`;
+
+    // orders CD bar
+    const cdEl = document.getElementById('ctl-orders-cd');
+    const cdPercent = state.findCooldown > 0 ? ((state.findCooldown / CONFIG.FIND_CD) * 100) : 0;
+    cdEl.style.width = (state.findCooldown>0 ? (100 - cdPercent) + '%' : '0%'); // shrinks to 0
+
+    // quality & repair need
+    const repairNeed = calcRepairCostAll();
+    document.getElementById('ctl-quality-large').textContent = Math.round(state.quality*100) + '%';
+    document.getElementById('ctl-repair-need').textContent = moneyFmt(repairNeed);
+
+    // ad multiplier & income/min (approx)
+    const prodMin = getProductionPerMin();
+    const incomeMin = Math.floor(prodMin * CONFIG.BASE_ORDER_PRICE * (1 + state.advertising * getAdvertisingPower()) * state.quality);
+    document.getElementById('ctl-ad-large').textContent = (1 + state.advertising).toFixed(2) + 'x';
+    document.getElementById('ctl-ad-income').textContent = moneyFmt(incomeMin) + '/мин';
+
+    // upgrades buttons (show deficit)
+    document.querySelectorAll('.upgrade-btn').forEach(btn=>{
+      const cost = parseInt(btn.dataset.cost || 0);
+      const deficit = Math.max(0, cost - state.money);
+      const small = btn.querySelector('.upgrade-info');
+      if(small) small.textContent = `${moneyFmt(cost)} / не хватает ${moneyFmt(deficit)}`;
+      // active state: simple logic for demo (first is active)
+      btn.classList.toggle('disabled', cost > state.money);
+    });
+
+    // grid render
+    renderGrid();
+
+    // shop list
+    renderShop();
+
+    // orders columns
+    renderOrdersColumns();
+
+    // ready bar
+    const readyCount = state.ready.length;
+    document.getElementById('readyCount').textContent = `Готовых: ${readyCount}`;
+    const readyBar = Math.min(100, Math.floor((readyCount / 20) * 100)); // arbitrary capacity visual
+    document.getElementById('readyBar').style.width = readyBar + '%';
+
+    // small buttons enable
+    document.getElementById('btnShipSmall').disabled = state.ready.length === 0;
+    document.getElementById('btnRepairSmall').disabled = calcRepairCostAll() === 0;
+  }
+
+  function renderGrid(){
+    const grid = document.getElementById('buildingGrid');
+    grid.innerHTML = '';
+    const b = state.buildings[state.currentBuilding];
+    // columns responsive: keep 4-8 cols depending on width
+    let cols = 4;
+    if(window.innerWidth >= 900) cols = Math.min(b.width, 8);
+    else if(window.innerWidth >= 640) cols = Math.min(b.width, 6);
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+    for(let y=0;y<b.height;y++){
+      for(let x=0;x<b.width;x++){
+        const cell = document.createElement('div'); cell.className = 'cell';
+        // find equipment by coords
+        const eq = b.equipment.find(e=>e.x===x && e.y===y);
+        if(eq){
+          const inner = document.createElement('div'); inner.className = 'inner equipment ' + (eq.type||'');
+          if(eq.broken) inner.classList.add('broken');
+          inner.innerHTML = `<div style="font-size:0.9rem">${eq.name}</div><div class="small-muted">${eq.type}</div>`;
+          inner.onclick = (ev)=>{ ev.stopPropagation(); showEquipmentModal(eq); };
+          cell.appendChild(inner);
+        } else {
+          const inner = document.createElement('div'); inner.className = 'inner muted';
+          inner.textContent = 'Пусто — нажмите';
+          inner.onclick = ()=> openShopModal(x,y);
+          cell.appendChild(inner);
+        }
+        grid.appendChild(cell);
+      }
+    }
+  }
+
+  function renderShop(){
+    const list = document.getElementById('shopList'); list.innerHTML = '';
+    // show templates available for current building
+    const avail = state.buildings[state.currentBuilding].available;
+    avail.forEach(id=>{
+      const t = TEMPLATES[id];
+      if(!t) return;
+      const item = document.createElement('div'); item.className = 'list-group-item d-flex justify-content-between align-items-start';
+      item.innerHTML = `<div><strong>${t.name}</strong><div class="small-muted">${t.desc}</div></div><div class="text-end"><div style="font-weight:700">${moneyFmt(t.price)}</div><div class="small-muted">${t.type}</div></div>`;
+      if(state.money >= t.price){ item.style.cursor='pointer'; item.onclick = ()=> autoPlaceEquipment(t.id); } else item.style.opacity = 0.6;
+      list.appendChild(item);
+    });
+  }
+
+  function renderOrdersColumns(){
+    const colWaiting = document.getElementById('col-waiting'); const colWorking = document.getElementById('col-working'); const colReady = document.getElementById('col-ready');
+    colWaiting.innerHTML = ''; colWorking.innerHTML = ''; colReady.innerHTML = '';
+    state.orders.filter(o=>o.state==='waiting').forEach(o=>{
+      const d = document.createElement('div'); d.className='mb-1 small-muted'; d.textContent = `#${o.id} • ${o.required} мат.`;
+      colWaiting.appendChild(d);
+    });
+    state.orders.filter(o=>o.state==='working').forEach(o=>{
+      const pct = Math.min(100, Math.floor((o.progress / o.assignedTime) * 100));
+      const wrapper = document.createElement('div'); wrapper.className='mb-2';
+      wrapper.innerHTML = `<div class="d-flex justify-content-between"><div>#${o.id} • ${o.required} мат.</div><div>${pct}%</div></div><div class="big-progress mt-1"><div class="bar" style="width:${pct}%"></div></div>`;
+      colWorking.appendChild(wrapper);
+    });
+    state.ready.forEach(o=>{
+      const d = document.createElement('div'); d.className='mb-1 small-muted'; d.textContent = `#${o.id} • ${o.required} мат.`;
+      colReady.appendChild(d);
+    });
+  }
+
+  /* ---------------------------
+     Actions (controls)
+     --------------------------- */
+  // 1: Balance -> Ship ready orders
+  document.getElementById('ctl-balance').addEventListener('click', ()=> shipAll());
+
+  // 2: Storage -> open fill modal
+  document.getElementById('ctl-storage').addEventListener('click', ()=> {
+    const modal = new bootstrap.Modal(document.getElementById('modalFill')); modal.show();
+  });
+  // fill modal options
+  document.querySelectorAll('#modalFill [data-fill]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const frac = parseFloat(e.target.dataset.fill);
+      const cap = getStorageCapacity();
+      const target = Math.floor(cap * frac);
+      const toBuy = Math.max(0, target - state.materials);
+      const cost = toBuy * CONFIG.MATERIAL_COST;
+      if(toBuy === 0){ toast('Склад уже заполнен на этот уровень', 'info'); return; }
+      if(state.money < cost){ toast('Недостаточно денег', 'danger'); return; }
+      state.money -= cost; state.materials += toBuy;
+      toast(`Куплено ${toBuy} мат. (${moneyFmt(cost)})`, 'success');
+      bootstrap.Modal.getInstance(document.getElementById('modalFill')).hide();
+      updateUI();
+    });
+  });
+
+  // 3: Orders -> Find orders (cooldown)
+  document.getElementById('ctl-orders').addEventListener('click', ()=> {
+    if(state.findCooldown > 0){ toast('Кнопка на перезарядке', 'info'); return; }
+    if(state.money < CONFIG.FIND_COST){ toast('Недостаточно денег', 'danger'); return; }
+    state.money -= CONFIG.FIND_COST;
+    const base = 2 + Math.floor(Math.random()*3);
+    const extra = Math.floor(state.advertising * 4);
+    const total = Math.min(20, base + extra);
+    enqueueOrders(total);
+    state.findCooldown = CONFIG.FIND_CD;
+    startFindCooldownVisual();
+    updateUI();
+  });
+
+  // 4: Quality -> Repair all (or partial)
+  document.getElementById('ctl-quality').addEventListener('click', ()=> repairAll());
+
+  // 5: Ad -> Launch ad
+  document.getElementById('ctl-ad').addEventListener('click', ()=> {
+    if(state.money < CONFIG.AD_COST){ toast('Недостаточно денег для рекламы', 'danger'); return; }
+    state.money -= CONFIG.AD_COST;
+    state.advertising = Math.min(1.0, state.advertising + 0.35);
+    toast('Реклама запущена', 'success');
+    updateUI();
+  });
+
+  // small ship & repair buttons
+  document.getElementById('btnShipSmall').addEventListener('click', ()=> shipAll());
+  document.getElementById('btnRepairSmall').addEventListener('click', ()=> repairAll());
+
+  // upgrade buttons (simple demo logic)
+  document.getElementById('upg-apartment').addEventListener('click', ()=> {
+    toast('Улучшение: пока заглушка (нужна экономика)', 'info');
+  });
+
+  /* ---------------------------
+     Shop & place equipment
+     --------------------------- */
+  let targetCell = null;
+  function openShopModal(x,y){
+    targetCell = {x,y};
+    const modalEl = document.getElementById('modalShop');
+    const list = document.getElementById('modalShopList'); list.innerHTML = '';
+    const avail = state.buildings[state.currentBuilding].available;
+    avail.forEach(id=>{
+      const t = TEMPLATES[id];
+      if(!t) return;
+      const row = document.createElement('div'); row.className='d-flex justify-content-between align-items-start p-2 mb-2 border rounded';
+      row.innerHTML = `<div><strong>${t.name}</strong><div class="small-muted">${t.desc}</div></div><div class="text-end"><div style="font-weight:700">${moneyFmt(t.price)}</div></div>`;
+      if(state.money >= t.price){ row.style.cursor='pointer'; row.onclick = ()=> { placeEquipment(t, x, y); bootstrap.Modal.getInstance(modalEl).hide(); }; } else row.style.opacity = 0.6;
+      list.appendChild(row);
+    });
+    const modal = new bootstrap.Modal(modalEl); modal.show();
+  }
+
+  function placeEquipment(template, x, y){
+    const b = state.buildings[state.currentBuilding];
+    if(b.equipment.some(e=>e.x===x && e.y===y)) { toast('Клетка занята', 'warning'); return; }
+    if(state.money < template.price){ toast('Не хватает денег', 'danger'); return; }
+    state.money -= template.price;
+    const newEq = Object.assign({ id: template.id + '-' + Date.now(), x, y, broken:false }, template);
+    // ensure properties are present
+    b.equipment.push(newEq);
+    // update storage capacity if storage type
+    state.storageMax = getStorageCapacity();
+    toast(`Установлено: ${template.name}`, 'success');
+    updateUI();
+  }
+
+  // auto place from shop list on right panel
+  function autoPlaceEquipment(templateId){
+    const t = TEMPLATES[templateId];
+    if(!t) return;
+    const b = state.buildings[state.currentBuilding];
+    for(let y=0;y<b.height;y++){
+      for(let x=0;x<b.width;x++){
+        if(b.equipment.some(e=>e.x===x && e.y===y)) continue;
+        placeEquipment(t, x, y);
+        return;
+      }
+    }
+    toast('Нет свободных клеток', 'warning');
+  }
+
+  /* ---------------------------
+     Equipment info modal (repair/sell)
+     --------------------------- */
+  function showEquipmentModal(eq){
+    // simple modal with info and repair option
+    const modalId = 'modalShop'; // reuse (quick)
+    // build inline modal content (quick implementation)
+    const content = document.getElementById('modalShopList');
+    content.innerHTML = `<div class="p-2"><strong>${eq.name}</strong><div class="small-muted mb-2">${eq.type}</div>
+      <div>Цена: ${moneyFmt(eq.price||0)}</div>
+      <div class="mt-2 d-flex gap-2"><button class="btn btn-warning" id="m-repair">${eq.broken ? 'Починить' : 'Починить (не нужно)'}</button><button class="btn btn-danger" id="m-sell">Продать 50%</button></div></div>`;
+    const modal = new bootstrap.Modal(document.getElementById('modalShop')); modal.show();
+    document.getElementById('m-repair').onclick = ()=>{
+      const cost = Math.floor((eq.price||0) * 0.2);
+      if(state.money < cost){ toast('Недостаточно денег для ремонта', 'danger'); return; }
+      state.money -= cost; eq.broken = false; updateUI(); toast(`Починен: ${eq.name}`, 'success'); modal.hide();
+    };
+    document.getElementById('m-sell').onclick = ()=>{
+      const b = state.buildings[state.currentBuilding];
+      const sell = Math.floor((eq.price||0) * 0.5);
+      state.money += sell; b.equipment = b.equipment.filter(e=>e !== eq);
+      updateUI(); toast(`Продано ${eq.name} за ${moneyFmt(sell)}`, 'info'); modal.hide();
+    };
+  }
+
+  /* ---------------------------
+     Production loop (tick)
+     --------------------------- */
+  function tick(){
+    const now = Date.now();
+    const dt = (now - state.lastTick) / 1000;
+    state.lastTick = now;
+
+    // degrade advertising slowly
+    state.advertising = Math.max(0, state.advertising - 0.05 * dt);
+
+    // organic spawn influenced by advertising
+    const baseChance = 0.06; // per sec
+    if(Math.random() < (baseChance + state.advertising * 0.04) * dt) enqueueOrders(1);
+
+    // attempt to reserve for waiting orders
+    state.orders.filter(o=>o.state==='waiting').forEach(o=> {
+      if(state.materials >= o.required) tryReserve(o);
+    });
+
+    // progress working orders
+    state.orders.filter(o=>o.state==='working').forEach(o=>{
+      o.progress += dt;
+      // small chance of equipment breakdown while working
+      const b = state.buildings[state.currentBuilding];
+      b.equipment.forEach(eq=>{
+        if(!eq.broken && Math.random() < (eq.breakdown * dt)) { eq.broken = true; toast(`Сломано: ${eq.name}`, 'warning'); }
+      });
+      if(o.progress >= o.assignedTime){
+        o.state = 'ready'; o.readyAt = Date.now(); state.ready.push(o);
+      }
+    });
+    // remove ready from orders
+    if(state.ready.length > 0){
+      const readyIds = new Set(state.ready.map(r=>r.id));
+      state.orders = state.orders.filter(o=>!readyIds.has(o.id));
+    }
+
+    // cooldown reduce
+    if(state.findCooldown > 0) state.findCooldown = Math.max(0, state.findCooldown - dt);
+
+    // recalc quality
+    recalcQuality();
+
+    updateUI();
+  }
+
+  /* ---------------------------
+     Quality calculation
+     --------------------------- */
+  function recalcQuality(){
+    const eqQuality = getQualityBonus(); // e.g. 0.15
+    let quality = 1 + eqQuality;
+    // penalty from waiting time
+    const wait = state.orders.filter(o=>o.state==='waiting' || o.state==='working');
+    let avgWait = 0;
+    if(wait.length){
+      const total = wait.reduce((s,o)=> s + ((Date.now() - o.spawn)/1000), 0);
+      avgWait = total / wait.length;
+    }
+    const waitPenalty = Math.min(0.3, (avgWait / 60) * 0.15); // after 60s => 15%
+    // ready storage penalty
+    let storagePenalty = 0;
+    if(state.ready.length){
+      const totalStored = state.ready.reduce((s,o)=> s + ((Date.now() - (o.readyAt||Date.now()))/1000), 0);
+      const avgStored = totalStored / state.ready.length;
+      storagePenalty = Math.min(0.1, (avgStored / 120) * 0.1);
+    }
+    // broken equipment penalty
+    const brokenCount = state.buildings[state.currentBuilding].equipment.filter(e=>e.broken).length;
+    const brokenPenalty = Math.min(0.3, brokenCount * 0.1);
+
+    const totalPenalty = Math.min(0.3, waitPenalty + storagePenalty + brokenPenalty);
+    quality = Math.max(0.7, quality - totalPenalty);
+    state.quality = Math.min(Math.max(quality, 0.7), 2.0);
+  }
+
+  /* ---------------------------
+     Ship ready orders
+     --------------------------- */
+  function shipAll(){
+    if(state.ready.length === 0){ toast('Нет готовых заказов', 'info'); return; }
+    let total = 0;
+    while(state.ready.length){
+      const o = state.ready.shift();
+      const base = CONFIG.BASE_ORDER_PRICE * o.required;
+      const adBonus = 1 + state.advertising * getAdvertisingPower();
+      const val = Math.floor(base * adBonus * state.quality);
+      total += val;
+    }
+    state.money += total;
+    toast(`Отгружено на ${moneyFmt(total)}`, 'success');
+    updateUI();
+  }
+
+  /* ---------------------------
+     Repair all (dynamic)
+     --------------------------- */
+  function repairAll(){
+    const cost = calcRepairCostAll();
+    if(cost === 0){ toast('Нет сломанного оборудования', 'info'); return; }
+    if(state.money >= cost){
+      state.money -= cost;
+      state.buildings[state.currentBuilding].equipment.forEach(e=> e.broken = false);
+      toast(`Все поломки устранены за ${moneyFmt(cost)}`, 'success');
+    } else {
+      // partial repair proportional to available money
+      let moneyLeft = state.money;
+      const broken = state.buildings[state.currentBuilding].equipment.filter(e=>e.broken).sort((a,b)=> (b.price||0) - (a.price||0));
+      for(const eq of broken){
+        const rc = Math.floor((eq.price||0) * 0.2);
+        if(moneyLeft >= rc){ eq.broken = false; moneyLeft -= rc; } else break;
+      }
+      const spent = state.money - moneyLeft;
+      state.money = moneyLeft;
+      toast(`Частичный ремонт выполнен. Потрачено ${moneyFmt(spent)}`, 'warning');
+    }
+    updateUI();
+  }
+
+  /* ---------------------------
+     Find cooldown visual
+     --------------------------- */
+  function startFindCooldownVisual(){
+    const bar = document.getElementById('ctl-orders-cd');
+    let start = Date.now();
+    const interval = setInterval(()=>{
+      const elapsed = (Date.now() - start) / 1000;
+      if(state.findCooldown <= 0){ bar.style.width = '0%'; clearInterval(interval); updateUI(); return; }
+      const pct = Math.max(0, (state.findCooldown / CONFIG.FIND_CD) * 100);
+      bar.style.width = (100 - pct) + '%';
+    }, 200);
+  }
+
+  /* ---------------------------
+     Init & intervals
+     --------------------------- */
+  function init(){
+    // fill shop right panel
+    const shopList = document.getElementById('shopList');
+    shopList.innerHTML = '';
+    Object.values(TEMPLATES).forEach(t=>{
+      const item = document.createElement('div'); item.className = 'list-group-item d-flex justify-content-between align-items-start';
+      item.innerHTML = `<div><strong>${t.name}</strong><div class="small-muted">${t.desc}</div></div><div><div style="font-weight:700">${moneyFmt(t.price)}</div></div>`;
+      if(state.money >= t.price){ item.style.cursor='pointer'; item.onclick = ()=> autoPlaceEquipment(t.id); } else item.style.opacity = 0.6;
+      shopList.appendChild(item);
+    });
+
+    updateUI();
+    state.lastTick = Date.now();
+    setInterval(tick, 250); // 4 ticks per second
+    setInterval(()=> { if(state.findCooldown > 0) state.findCooldown = Math.max(0, state.findCooldown - 1); updateUI(); }, 1000);
+    window.addEventListener('resize', updateUI);
+  }
+
+  // helper: auto place equipment by template id (used by shop right panel)
+  function autoPlaceEquipment(templateId){
+    const t = TEMPLATES[templateId];
+    if(!t) return;
+    const b = state.buildings[state.currentBuilding];
+    for(let y=0;y<b.height;y++){
+      for(let x=0;x<b.width;x++){
+        if(b.equipment.some(e=>e.x===x && e.y===y)) continue;
+        placeEquipment(t,x,y); return;
+      }
+    }
+    toast('Нет свободных ячеек', 'warning');
+  }
+  function placeEquipment(template, x, y){
+    if(state.money < template.price){ toast('Не хватает денег', 'danger'); return; }
+    const b = state.buildings[state.currentBuilding];
+    state.money -= template.price;
+    const eq = Object.assign({ x,y, broken:false }, template);
+    b.equipment.push(eq);
+    toast(`Установлено: ${template.name}`, 'success');
+    updateUI();
+  }
+
+  // simple enqueue wrapper
+  function enqueueOrders(n){ enqueue(n); }
+  function enqueue(n){
+    for(let i=0;i<n;i++) state.orders.push(createOrder(1 + Math.floor(Math.random()*3)));
+  }
+
+  // load initial UI
+  init();
+
+  // expose for debugging
+  window.gameState = state;
+
+  </script>
+</body>
+</html>
