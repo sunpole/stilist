@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Miner - Шахтёрский симулятор</title>
+    
+    <!-- Simple CSS для красивого интерфейса -->
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    
+    <!-- Наши стили -->
+    <style>
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .status-bar {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .resource {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mine-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 25px 50px;
+            font-size: 28px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 20px 0;
+        }
+        
+        .mine-btn:active {
+            transform: scale(0.95);
+            background: #d35400;
+        }
+        
+        .shop-item {
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .shop-item:hover {
+            background: #d5dbdb;
+            border-color: #95a5a6;
+        }
+        
+        .shop-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #bdc3c7;
+        }
+        
+        .workers-panel {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .mine-type {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+        
+        .coal { background: #2c3e50; color: white; }
+        .copper { background: #d35400; color: white; }
+        .iron { background: #7f8c8d; color: white; }
+        .gold { background: #f39c12; color: black; }
+        
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .mine-btn {
+                padding: 30px 20px;
+                font-size: 24px;
+                width: 100%;
+            }
+            
+            #game-canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+            
+            .mobile-controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin: 20px 0;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-controls {
+                display: none;
+            }
+        }
+        
+        .stats {
+            background: #16a085;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>⛏️ Idle Miner</h1>
+            <p>Шахтёрский симулятор с автоматической добычей</p>
+        </header>
+        
+        <main>
+            <!-- Статус-бар ресурсов -->
+            <div class="status-bar">
+                <div class="resource">
+                    <span>💰 Деньги:</span>
+                    <span id="money">0</span>
+                </div>
+                <div class="resource">
+                    <span>⛏️ Уголь:</span>
+                    <span id="coal">0</span>
+                </div>
+                <div class="resource">
+                    <span>🔶 Медь:</span>
+                    <span id="copper">0</span>
+                </div>
+                <div class="resource">
+                    <span>⚙️ Железо:</span>
+                    <span id="iron">0</span>
+                </div>
+                <div class="resource">
+                    <span>⭐ Золото:</span>
+                    <span id="gold">0</span>
+                </div>
+                <div class="resource">
+                    <span>👷 Рабочие:</span>
+                    <span id="workers">0</span>
+                </div>
+            </div>
+            
+            <!-- Время и статистика -->
+            <div class="stats">
+                <div>🕐 Время игры: <span id="play-time">00:00:00</span></div>
+                <div>📊 Доход/сек: $<span id="income-per-second">0</span></div>
+                <div>🏗️ Уровень шахты: <span id="mine-level">1</span></div>
+            </div>
+            
+            <!-- Канвас Phaser для анимаций -->
+            <div id="game-container"></div>
+            
+            <!-- Основная кнопка добычи -->
+            <div style="text-align: center;">
+                <button class="mine-btn" onclick="game.mine()">
+                    ⛏️ КОПАТЬ РУДУ!
+                </button>
+            </div>
+            
+            <!-- Мобильные кнопки -->
+            <div class="mobile-controls">
+                <button class="shop-item" onclick="game.hireWorker()">👷 Нанять рабочего</button>
+                <button class="shop-item" onclick="game.upgradeMine()">⬆️ Улучшить шахту</button>
+            </div>
+            
+            <!-- Панель рабочих -->
+            <div class="workers-panel">
+                <h3>👷 Автоматическая добыча</h3>
+                <div id="workers-stats">Нет рабочих</div>
+            </div>
+            
+            <!-- Магазин улучшений -->
+            <div class="shop">
+                <h3>🏪 Магазин улучшений</h3>
+                
+                <div class="shop-item" onclick="game.hireWorker()">
+                    <strong>👷 Нанять рабочего</strong><br>
+                    <small>Автоматически копает руду</small><br>
+                    💰 <span id="worker-cost">50</span> | Производительность: <span id="worker-power">1</span>/сек
+                </div>
+                
+                <div class="shop-item" onclick="game.upgradeMine()">
+                    <strong>⬆️ Улучшить шахту</strong><br>
+                    <small>Увеличивает добычу всей руды</small><br>
+                    💰 <span id="upgrade-cost">100</span> | Уровень: <span id="current-level">1</span>
+                </div>
+                
+                <div class="shop-item" onclick="game.unlockMine('copper')">
+                    <strong>🆕 Медная шахта</strong><br>
+                    <small>Открывает добычу меди</small><br>
+                    💰 <span id="copper-mine-cost">500</span> | <span class="mine-type copper">Медь</span>
+                </div>
+                
+                <div class="shop-item" onclick="game.unlockMine('iron')">
+                    <strong>🆕 Железная шахта</strong><br>
+                    <small>Открывает добычу железа</small><br>
+                    💰 <span id="iron-mine-cost">2000</span> | <span class="mine-type iron">Железо</span>
+                </div>
+                
+                <div class="shop-item" onclick="game.unlockMine('gold')">
+                    <strong>🆕 Золотая шахта</strong><br>
+                    <small>Открывает добычу золота</small><br>
+                    💰 <span id="gold-mine-cost">10000</span> | <span class="mine-type gold">Золото</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Библиотеки -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6,Array.prototype.includes,Promise,Object.values,Number.isFinite"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/plugin/duration.js"></script>
+    
+    <!-- Игра -->
+    <script src="game.js"></script>
+</body>
+</html>
