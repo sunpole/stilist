@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- 1. Viewport для мобилок -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Clicker RPG</title>
+    
+    <!-- 2. Simple CSS - для красивого интерфейса -->
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    
+    <!-- 3. Дополнительные наши стили -->
+    <style>
+        /* Контейнер игры */
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Статус-бар */
+        .status-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Кнопка атаки */
+        .attack-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .attack-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        /* Для мобилок - увеличиваем кнопки */
+        @media (max-width: 768px) {
+            .attack-btn {
+                padding: 30px 60px;
+                font-size: 28px;
+                width: 100%;
+            }
+            
+            #game-canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+            
+            .mobile-controls {
+                display: flex;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            
+            .mobile-btn {
+                flex: 1;
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
+        
+        /* Для ПК - скрываем мобильные кнопки */
+        @media (min-width: 769px) {
+            .mobile-controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>⚔️ Simple Clicker RPG</h1>
+            <p>Простая игра для демонстрации стека технологий</p>
+        </header>
+        
+        <main>
+            <!-- 4. Статус-бар игры -->
+            <div class="status-bar">
+                <div>💰 Золото: <span id="gold">0</span></div>
+                <div>⚔️ Уровень: <span id="level">1</span></div>
+                <div>❤️ Здоровье: <span id="health">100</span>/100</div>
+                <div>🕐 Время игры: <span id="play-time">00:00</span></div>
+            </div>
+            
+            <!-- 5. Канвас для Phaser -->
+            <div id="game-container"></div>
+            
+            <!-- 6. Основные кнопки управления -->
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="attack-btn" onclick="game.attack()">
+                    ⚔️ АТАКОВАТЬ!
+                </button>
+            </div>
+            
+            <!-- 7. Мобильные кнопки (только для телефонов) -->
+            <div class="mobile-controls">
+                <button class="mobile-btn" onclick="game.buyWeapon()">🛡️ Купить оружие</button>
+                <button class="mobile-btn" onclick="game.heal()">❤️ Лечиться</button>
+            </div>
+            
+            <!-- 8. Магазин улучшений -->
+            <div class="shop">
+                <h3>🏪 Магазин</h3>
+                <button onclick="game.buyWeapon()">Меч (+5 урона) - 50 золота</button>
+                <button onclick="game.buyArmor()">Броня (+20 здоровья) - 30 золота</button>
+            </div>
+        </main>
+        
+        <footer>
+            <p><small>Игра использует: Phaser, Day.js, LocalForage, Simple.css</small></p>
+        </footer>
+    </div>
+
+    <!-- 9. ПОЛИФИЛЫ - для старых Android -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6,Array.prototype.includes,Promise,Object.values"></script>
+    
+    <!-- 10. Modernizr - проверка возможностей браузера -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+    
+    <!-- 11. Библиотеки -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/plugin/duration.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/plugin/relativeTime.js"></script>
+    
+    <!-- 12. Наша игра -->
+    <script src="game.js"></script>
+</body>
+</html>
