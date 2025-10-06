@@ -14,6 +14,8 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            background: #f8f9fa;
+            min-height: 100vh;
         }
         
         .status-bar {
@@ -25,16 +27,18 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .resource {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-weight: bold;
         }
         
         .mine-btn {
-            background: #e67e22;
+            background: linear-gradient(135deg, #e67e22, #d35400);
             color: white;
             border: none;
             padding: 25px 50px;
@@ -43,48 +47,109 @@
             cursor: pointer;
             transition: all 0.2s;
             margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
+            font-weight: bold;
+        }
+        
+        .mine-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(230, 126, 34, 0.4);
         }
         
         .mine-btn:active {
-            transform: scale(0.95);
-            background: #d35400;
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(230, 126, 34, 0.3);
+        }
+        
+        /* ОСНОВНЫЕ ИСПРАВЛЕНИЯ - МАГАЗИН */
+        .shop {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+        }
+        
+        .shop h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+            border-bottom: 3px solid #e67e22;
+            padding-bottom: 10px;
         }
         
         .shop-item {
-            background: #ecf0f1;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            color: #2c3e50 !important;
+            text-decoration: none !important;
         }
         
         .shop-item:hover {
-            background: #d5dbdb;
-            border-color: #95a5a6;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-color: #2196f3;
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+        }
+        
+        .shop-item strong {
+            color: #2c3e50;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .shop-item small {
+            color: #6c757d !important;
+            display: block;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         
         .shop-item.disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
-            background: #bdc3c7;
+            background: #e9ecef !important;
+            border-color: #adb5bd !important;
+        }
+        
+        .shop-item.disabled:hover {
+            transform: none;
+            background: #e9ecef !important;
+            border-color: #adb5bd !important;
+            box-shadow: none;
         }
         
         .workers-panel {
-            background: #34495e;
+            background: linear-gradient(135deg, #34495e, #2c3e50);
             color: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
             margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .workers-panel h3 {
+            color: #f39c12;
+            margin-bottom: 15px;
+            text-align: center;
         }
         
         .mine-type {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
             margin: 0 5px;
             font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .coal { background: #2c3e50; color: white; }
@@ -92,16 +157,34 @@
         .iron { background: #7f8c8d; color: white; }
         .gold { background: #f39c12; color: black; }
         
+        .stats {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stats div {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        
         /* Мобильная адаптация */
         @media (max-width: 768px) {
             .status-bar {
                 grid-template-columns: 1fr;
+                gap: 8px;
             }
             
             .mine-btn {
-                padding: 30px 20px;
-                font-size: 24px;
+                padding: 25px 20px;
+                font-size: 22px;
                 width: 100%;
+                margin: 15px 0;
             }
             
             #game-canvas {
@@ -115,20 +198,86 @@
                 gap: 10px;
                 margin: 20px 0;
             }
+            
+            .shop-item {
+                padding: 15px;
+                margin: 10px 0;
+            }
+            
+            .shop-item strong {
+                font-size: 16px;
+            }
+            
+            .game-container {
+                padding: 15px;
+            }
         }
         
         @media (min-width: 769px) {
             .mobile-controls {
                 display: none;
             }
+            
+            .shop {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            
+            .shop h3 {
+                grid-column: 1 / -1;
+            }
         }
         
-        .stats {
-            background: #16a085;
+        /* Дополнительные улучшения */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+        
+        /* Цены в магазине - выделяем */
+        .shop-item [id$="-cost"],
+        .shop-item [id$="-level"],
+        .shop-item [id$="-power"] {
+            background: #e67e22;
             color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+        
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        /* Улучшаем читаемость текста */
+        body {
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        
+        .shop-item, .stats, .workers-panel, .status-bar {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
     </style>
 </head>
@@ -202,32 +351,32 @@
                 <h3>🏪 Магазин улучшений</h3>
                 
                 <div class="shop-item" onclick="game.hireWorker()">
-                    <strong>👷 Нанять рабочего</strong><br>
-                    <small>Автоматически копает руду</small><br>
+                    <strong>👷 Нанять рабочего</strong>
+                    <small>Автоматически копает руду</small>
                     💰 <span id="worker-cost">50</span> | Производительность: <span id="worker-power">1</span>/сек
                 </div>
                 
                 <div class="shop-item" onclick="game.upgradeMine()">
-                    <strong>⬆️ Улучшить шахту</strong><br>
-                    <small>Увеличивает добычу всей руды</small><br>
+                    <strong>⬆️ Улучшить шахту</strong>
+                    <small>Увеличивает добычу всей руды</small>
                     💰 <span id="upgrade-cost">100</span> | Уровень: <span id="current-level">1</span>
                 </div>
                 
                 <div class="shop-item" onclick="game.unlockMine('copper')">
-                    <strong>🆕 Медная шахта</strong><br>
-                    <small>Открывает добычу меди</small><br>
+                    <strong>🆕 Медная шахта</strong>
+                    <small>Открывает добычу меди</small>
                     💰 <span id="copper-mine-cost">500</span> | <span class="mine-type copper">Медь</span>
                 </div>
                 
                 <div class="shop-item" onclick="game.unlockMine('iron')">
-                    <strong>🆕 Железная шахта</strong><br>
-                    <small>Открывает добычу железа</small><br>
+                    <strong>🆕 Железная шахта</strong>
+                    <small>Открывает добычу железа</small>
                     💰 <span id="iron-mine-cost">2000</span> | <span class="mine-type iron">Железо</span>
                 </div>
                 
                 <div class="shop-item" onclick="game.unlockMine('gold')">
-                    <strong>🆕 Золотая шахта</strong><br>
-                    <small>Открывает добычу золота</small><br>
+                    <strong>🆕 Золотая шахта</strong>
+                    <small>Открывает добычу золота</small>
                     💰 <span id="gold-mine-cost">10000</span> | <span class="mine-type gold">Золото</span>
                 </div>
             </div>
