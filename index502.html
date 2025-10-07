@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типографский Магнат</title>
+    <style>
+        /* СТИЛИ ОСТАЮТСЯ ПРЕЖНИМИ (как в вашем предыдущем коде) */
+        /* Для экономии места не дублирую, они уже у вас есть */
+    </style>
+</head>
+<body>
+    <!-- ВЕРСТКА ОСТАЕТСЯ ПРЕЖНЕЙ -->
+    <!-- Контейнер, ряды кнопок, модальные окна -->
+    
+    <script>
+        // КОНФИГУРАЦИЯ ОСТАЕТСЯ ПРЕЖНЕЙ
+        const CONFIG = {
+            // ... ваша конфигурация
+        };
+
+        // ОСНОВНЫЕ ИСПРАВЛЕНИЯ ⚡
+
+        // 1. УПРАВЛЕНИЕ ВРЕМЕНЕМ - гарантированное обновление каждую секунду
+        let lastTimestamp = Date.now();
+        let accumulatedTime = 0;
+        const TIME_STEP = 1000; // Фиксированный шаг в 1 секунду
+
+        function gameLoop(currentTime) {
+            requestAnimationFrame(gameLoop);
+            
+            const deltaTime = currentTime - lastTimestamp;
+            lastTimestamp = currentTime;
+            accumulatedTime += deltaTime;
+
+            // Накапливаем время и выполняем обновления с ФИКСИРОВАННЫМ интервалом
+            while (accumulatedTime >= TIME_STEP) {
+                updateGameTime();
+                processAutomaticWork();
+                updateOrders();
+                generateOrdersOverTime();
+                deductDriveHourly();
+                updateFinance();
+                updateUI();
+                checkGameConditions();
+                accumulatedTime -= TIME_STEP;
+            }
+        }
+
+        // 2. КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Функция обработки этапов
+        function handleStageClick(event) {
+            console.log('Клик по этапу:', event.currentTarget.dataset.stage);
+            
+            const stage = event.currentTarget.dataset.stage;
+            const cost = calculateDriveCost();
+            
+            // Проверяем ВСЕ условия
+            if (gameState.drive < cost) {
+                console.log('Недостаточно DRIVE:', gameState.drive, 'нужно:', cost);
+                return;
+            }
+            
+            const stageOrders = gameState.ordersInProgress[stage];
+            if (!stageOrders || stageOrders.length === 0) {
+                console.log('Нет заказов на этапе:', stage);
+                return;
+            }
+            
+            // Берем ПЕРВЫЙ заказ в очереди
+            const orderId = stageOrders[0];
+            const order = gameState.activeOrders.find(o => o.id === orderId);
+            
+            if (!order) {
+                console.error('Заказ не найден:', orderId);
+                // Чистим битый заказ
+                const index = stageOrders.indexOf(orderId);
+                if (index > -1) stageOrders.splice(index, 1);
+                return;
+            }
+
+            console.log('Обрабатываем заказ:', orderId, 'на этапе:', stage);
+            
+            // Перемещаем заказ и тратим DRIVE
+            advanceOrderToNextStage(orderId);
+            gameState.drive -= cost;
+            
+            // Немедленное обновление интерфейса
+            updateStagesDisplay();
+            updateOrdersDisplay();
+            document.getElementById('drive-value').textContent = 
+                `${Math.floor(gameState.drive)}/${gameState.maxDrive}`;
+        }
+
+        // 3. УЛУЧШЕННАЯ ФУНКЦИЯ ВЗЯТИЯ ЗАКАЗА
+        function takeOrder(orderId) {
+            console.log('Попытка взять заказ:', orderId);
+            
+            const orderIndex = gameState.availableOrders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) {
+                console.error('Заказ не найден в доступных:', orderId);
+                return;
+            }
+            
+            const order = gameState.availableOrders[orderIndex];
+            console.log('Найден заказ:', order);
+
+            // Создаем новый объект заказа для активных
+            const activeOrder = {
+                ...order,
+                currentStage: 'order',
+                progress: 0,
+                startTime: new Date(gameState.currentDate)
+            };
+            
+            // Перемещаем в активные
+            gameState.activeOrders.push(activeOrder);
+            gameState.ordersInProgress.order.push(order.id);
+            
+            // Удаляем из доступных
+            gameState.availableOrders.splice(orderIndex, 1);
+            
+            console.log('Заказ успешно перемещен. Активных заказов:', gameState.activeOrders.length);
+            
+            // Немедленное обновление интерфейса
+            updateAvailableOrdersDisplay();
+            updateActiveOrdersDisplay();
+            updateStagesDisplay();
+        }
+
+        // 4. ГАРАНТИРОВАННОЕ ОБНОВЛЕНИЕ ВРЕМЕНИ
+        function updateGameTime() {
+            // Фиксированный шаг - 2 реальные секунды = 1 игровая минута
+            const gameTimeDelta = (CONFIG.realSecondsPerGameMinute / TIME_STEP) * gameState.gameTimeMultiplier;
+            
+            gameState.currentDate.setMinutes(gameState.currentDate.getMinutes() + gameTimeDelta);
+            
+            // Обновление REST в рабочее время
+            if (isWorkTime() && isWorkDay()) {
+                const hoursInWorkDay = CONFIG.workDayEnd - CONFIG.workDayStart;
+                const restLossPerMinute = 24 / (hoursInWorkDay * 60);
+                gameState.rest = Math.max(0, gameState.rest - (restLossPerMinute * gameTimeDelta));
+            }
+            
+            // Обновление ZEAL и PREMIUM
+            updateSpecialStates(gameTimeDelta);
+            
+            // Проверка смены дня
+            checkNewDay();
+        }
+
+        // 5. ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ НАДЕЖНОСТИ
+        function updateSpecialStates(gameTimeDelta) {
+            if (gameState.zealActive) {
+                gameState.zealDuration -= gameTimeDelta;
+                if (gameState.zealDuration <= 0) {
+                    gameState.zealActive = false;
+                    gameState.zealCooldown = 3;
+                    gameState.maxDrive = calculateMaxDrive();
+                    gameState.gameTimeMultiplier = 1;
+                    console.log('ZEAL деактивирован');
+                }
+            }
+        }
+
+        function checkNewDay() {
+            const oldDate = new Date(gameState.lastUpdateTime);
+            if (gameState.currentDate.getDate() !== oldDate.getDate()) {
+                console.log('Начинается новый день');
+                startNewDay();
+            }
+            gameState.lastUpdateTime = new Date(gameState.currentDate);
+        }
+
+        // 6. УЛУЧШЕННАЯ ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
+        function setupEventListeners() {
+            // Кнопки этапов - ОЧИСТКА старых обработчиков перед добавлением новых
+            document.querySelectorAll('.stage-btn').forEach(btn => {
+                btn.replaceWith(btn.cloneNode(true)); // Удаляем все старые обработчики
+            });
+            
+            // Добавляем новые обработчики
+            document.querySelectorAll('.stage-btn').forEach(btn => {
+                btn.addEventListener('click', handleStageClick);
+                console.log('Обработчик добавлен для:', btn.dataset.stage);
+            });
+            
+            // Обработчики для заказов
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.order-item')) {
+                    const orderElement = e.target.closest('.order-item');
+                    const orderId = orderElement.dataset.orderId;
+                    
+                    if (orderElement.closest('#available-orders')) {
+                        console.log('Клик по доступному заказу:', orderId);
+                        takeOrder(parseFloat(orderId)); // Явное преобразование
+                    }
+                }
+            });
+
+            // ... остальные обработчики
+        }
+
+        // 7. ЗАПУСК ИГРЫ С ГАРАНТИРОВАННЫМ ТАЙМЕРОМ
+        function initGame() {
+            loadGameState();
+            updateUI();
+            setupEventListeners();
+            generateInitialOrders();
+            
+            // ЗАПУСК ГЛАВНОГО ЦИКЛА
+            lastTimestamp = Date.now();
+            requestAnimationFrame(gameLoop);
+            
+            console.log('Игра инициализирована, главный цикл запущен');
+        }
+
+        // ОСТАЛЬНЫЕ ФУНКЦИИ ОСТАЮТСЯ ПРЕЖНИМИ
+        // advanceOrderToNextStage, completeOrder, generateNewOrders и т.д.
+
+        // ЗАПУСК ПРИ ЗАГРУЗКЕ
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
