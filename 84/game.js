@@ -22,7 +22,13 @@ class TypographyGame {
             // Система редких дней
             rareDayChance: 0.025, // 2.5% шанс на редкий день (1/40)
             rareDayMultiplier: { min: 1.1, max: 1.5 }, // Множитель для редких дней
-            normalDayMultiplier: { min: 0.2, max: 1.0 } // Множитель для обычных дней
+            normalDayMultiplier: { min: 0.2, max: 1.0 }, // Множитель для обычных дней
+            // Вероятности заказов по редкости
+            orderRarity: {
+                common: 0.75,      // 75%
+                rare: 0.20,        // 20%
+                legendary: 0.05    // 5%
+            }
         };
 
         this.state = {
@@ -128,6 +134,206 @@ class TypographyGame {
         });
     }
 
+    generateDepartmentsHTML() {
+        const container = document.getElementById('departmentsRow');
+        container.innerHTML = '';
+
+        this.state.departments.forEach(dept => {
+            const deptElement = document.createElement('div');
+            deptElement.className = 'department-card';
+            deptElement.innerHTML = `
+                <div class="department-name">${dept.name}</div>
+                <button class="department-btn" data-dept="${dept.id}">
+                    Обработать
+                    <div class="order-badges">
+                        <div class="order-badge badge-legendary" id="badge-legendary-${dept.id}" style="display: none">0</div>
+                        <div class="order-badge badge-rare" id="badge-rare-${dept.id}" style="display: none">0</div>
+                        <div class="order-badge badge-common" id="badge-common-${dept.id}" style="display: none">0</div>
+                    </div>
+                </button>
+                <div class="employee-controls">
+                    <button class="control-btn remove" data-dept="${dept.id}">-</button>
+                    <div class="employee-count">${dept.employees}</div>
+                    <button class="control-btn add" data-dept="${dept.id}">+</button>
+                </div>
+            `;
+            container.appendChild(deptElement);
+        });
+    }
+
+    setupEventListeners() {
+        // Обработчики кнопок отделов
+        document.querySelectorAll('.department-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const deptId = parseInt(e.currentTarget.dataset.dept);
+                this.processDepartment(deptId);
+            });
+        });
+
+        // Кнопки добавления/удаления сотрудников
+        document.querySelectorAll('.control-btn.add').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const deptId = parseInt(e.currentTarget.dataset.dept);
+                this.assignEmployee(deptId);
+            });
+        });
+
+        document.querySelectorAll('.control-btn.remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const deptId = parseInt(e.currentTarget.dataset.dept);
+                this.unassignEmployee(deptId);
+            });
+        });
+
+        // Кнопка найма
+        document.getElementById('hireButton').addEventListener('click', () => {
+            this.hireEmployee();
+        });
+
+        // Обработчики для старых Android (touch events)
+        document.querySelectorAll('.accept-btn').forEach(btn => {
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            btn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    startGameLoop() {
+        // Основной игровой цикл (обновление каждую секунду)
+        this.gameInterval = setInterval(() => {
+            this.updateGameTime();
+            this.updateDrive();
+            this.processEmployees();
+            this.updateDayProgress();
+            this.updateDisplay();
+            this.checkDayEnd();
+            this.removeExpiredOrders();
+        }, 1000);
+
+        // Генерация новых заказов - теперь зависит от дневного лимита
+        this.orderInterval = setInterval(() => {
+            if (this.isWorkTime()) {
+                // Генерируем заказы чаще, если у нас меньше 5 доступных и не достигнут дневной лимит
+                if (this.state.orders.available.length < 5 && 
+                    this.state.dailyOrders.generatedCount < this.state.dailyOrders.targetCount) {
+                    this.generateOrder();
+                }
+            }
+        }, 8000); // Увеличили интервал до 8 секунд
+
+        // Автоматическая обработка сотрудниками
+        this.employeeInterval = setInterval(() => {
+            if (this.isWorkTime()) {
+                this.processEmployeeWork();
+            }
+        }, this.config.baseEmployeeSpeed);
+    }
+
+    updateGameTime() {
+        // 1 игровой час = 7.5 реальных секунд
+        this.state.currentTime = this.state.currentTime.add(8, 'minute');
+        
+        // Обновляем календарь
+        document.getElementById('calendarPanel').textContent = 
+            this.state.currentTime.format('D MMMM YYYY, HH:mm (dddd)');
+    }
+
+    updateDrive() {
+        if (this.isWorkTime()) {
+            const now = Date.now();
+            const deltaTime = (now - this.state.lastDriveUpdate) / 1000;
+            
+            const totalEmployees = this.state.departments.reduce((sum, dept) => sum + dept.employees, 0);
+            const drainPerSecond = this.config.drivePerHour * (1 + totalEmployees) / 3600;
+            this.state.drive = Math.max(0, this.state.drive - (drainPerSecond * deltaTime));
+            
+            this.state.lastDriveUpdate = now;
+        }
+    }
+
+    updateDayProgress() {
+        if (!this.isWorkDay()) return;
+
+        const currentHour = this.state.currentTime.hour();
+        const currentMinute = this.state.currentTime.minute();
+        const currentTimeDecimal = currentHour + currentMinute / 60;
+        
+        const workStart = this.config.workDay.start;
+        const workEnd = this.config.workDay.end;
+        const workDuration = workEnd - workStart;
+        
+        const progress = Math.min(100, Math.max(0, 
+            ((currentTimeDecimal - workStart) / workDuration) * 100
+        ));
+
+        const progressBar = document.getElementById('dayProgressBar');
+        progressBar.style.width = `${progress}%`;
+    }
+
+    checkDayEnd() {
+        if (!this.isWorkDay()) return;
+
+        const currentHour = this.state.currentTime.hour();
+        const currentMinute = this.state.currentTime.minute();
+        
+        if (currentHour >= this.config.workDay.end && currentMinute >= 0) {
+            this.nextWorkDay();
+        }
+    }
+
+    // ОБНОВЛЕННАЯ ФУНКЦИЯ: Переход на следующий день
+    nextWorkDay() {
+        let nextDay = this.state.currentTime.add(1, 'day');
+        
+        while (!this.config.workDays.includes(nextDay.isoWeekday())) {
+            nextDay = nextDay.add(1, 'day');
+        }
+        
+        this.state.currentTime = nextDay.set('hour', this.config.workDay.start).set('minute', 0);
+        this.restoreDrive();
+        
+        // Пересчитываем заказы на новый день
+        this.calculateDailyOrders();
+        this.generateInitialOrders();
+        
+        const dayInfo = this.state.dailyOrders.isRareDay ? " (🌟 РЕДКИЙ ДЕНЬ)" : "";
+        this.showNotification(`Начался новый рабочий день! ${this.state.currentTime.format('D MMMM YYYY')}${dayInfo}\nЦелевое количество заказов: ${this.state.dailyOrders.targetCount}`);
+    }
+
+    isWorkDay() {
+        const dayOfWeek = this.state.currentTime.isoWeekday();
+        return this.config.workDays.includes(dayOfWeek);
+    }
+
+    isWorkTime() {
+        if (!this.isWorkDay()) return false;
+        
+        const currentHour = this.state.currentTime.hour();
+        const currentMinute = this.state.currentTime.minute() / 60;
+        const currentTime = currentHour + currentMinute;
+        
+        return currentTime >= this.config.workDay.start && 
+               currentTime < this.config.workDay.end;
+    }
+
+    restoreDrive() {
+        this.state.drive = this.state.maxDrive;
+    }
+
+    generateInitialOrders() {
+        // Генерируем первые заказы дня
+        const initialOrders = Math.min(3, this.state.dailyOrders.targetCount);
+        for (let i = 0; i < initialOrders; i++) {
+            this.generateOrder();
+        }
+    }
+
     // ОБНОВЛЕННАЯ ФУНКЦИЯ: Генерация заказа с учетом дневного лимита
     generateOrder() {
         // Проверяем, не превысили ли дневной лимит
@@ -140,8 +346,8 @@ class TypographyGame {
         let rarity, rewardMultiplier, timeMultiplier, reputationReward, reputationPenalty, expReward;
 
         // Базовая вероятность в обычные дни
-        let legendaryChance = 0.05;
-        let rareChance = 0.20;
+        let legendaryChance = this.config.orderRarity.legendary;
+        let rareChance = this.config.orderRarity.rare;
 
         // Увеличиваем шанс редких заказов в редкие дни
         if (this.state.dailyOrders.isRareDay) {
@@ -212,63 +418,222 @@ class TypographyGame {
         return true;
     }
 
-    generateInitialOrders() {
-        // Генерируем первые заказы дня
-        const initialOrders = Math.min(3, this.state.dailyOrders.targetCount);
-        for (let i = 0; i < initialOrders; i++) {
-            this.generateOrder();
-        }
+    removeExpiredOrders() {
+        const now = this.state.currentTime;
+        this.state.orders.available = this.state.orders.available.filter(order => {
+            const isExpired = now.isAfter(order.deadline);
+            if (isExpired) {
+                this.showNotification(`Заказ "${order.name}" просрочен и удален!`);
+            }
+            return !isExpired;
+        });
     }
 
-    // ОБНОВЛЕННАЯ ФУНКЦИЯ: Переход на следующий день
-    nextWorkDay() {
-        let nextDay = this.state.currentTime.add(1, 'day');
-        
-        while (!this.config.workDays.includes(nextDay.isoWeekday())) {
-            nextDay = nextDay.add(1, 'day');
+    acceptOrder(orderId) {
+        const orderIndex = this.state.orders.available.findIndex(o => o.id === orderId);
+        if (orderIndex === -1) {
+            this.showNotification('Заказ не найден!');
+            return;
         }
+
+        const order = this.state.orders.available[orderIndex];
         
-        this.state.currentTime = nextDay.set('hour', this.config.workDay.start).set('minute', 0);
-        this.restoreDrive();
-        
-        // Пересчитываем заказы на новый день
-        this.calculateDailyOrders();
-        this.generateInitialOrders();
-        
-        const dayInfo = this.state.dailyOrders.isRareDay ? " (🌟 РЕДКИЙ ДЕНЬ)" : "";
-        this.showNotification(`Начался новый рабочий день! ${this.state.currentTime.format('D MMMM YYYY')}${dayInfo}\nЦелевое количество заказов: ${this.state.dailyOrders.targetCount}`);
+        // Проверяем, есть ли драйв для обработки
+        if (this.state.drive < this.config.actionsPerOrder) {
+            this.showNotification(`Недостаточно драйва! Нужно ${this.config.actionsPerOrder} единиц.`);
+            return;
+        }
+
+        order.accepted = true;
+        order.currentDept = 1;
+        this.state.orders.available.splice(orderIndex, 1);
+        this.state.orders.active.push(order);
+
+        // Добавляем заказ в очередь первого отдела
+        this.state.departments[0].queue.push(order);
+
+        this.showNotification(`Заказ "${order.name}" принят!`);
+        this.updateDisplay();
     }
 
-    // ОБНОВЛЕННАЯ ФУНКЦИЯ: Старт игрового цикла
-    startGameLoop() {
-        // Основной игровой цикл (обновление каждую секунду)
-        this.gameInterval = setInterval(() => {
-            this.updateGameTime();
-            this.updateDrive();
-            this.processEmployees();
-            this.updateDayProgress();
-            this.updateDisplay();
-            this.checkDayEnd();
-            this.removeExpiredOrders();
-        }, 1000);
+    processDepartment(deptId) {
+        if (!this.isWorkTime() || this.state.drive < 1) {
+            if (this.state.drive < 1) {
+                this.showNotification('Недостаточно драйва!');
+            }
+            return;
+        }
 
-        // Генерация новых заказов - теперь зависит от дневного лимита
-        this.orderInterval = setInterval(() => {
-            if (this.isWorkTime()) {
-                // Генерируем заказы чаще, если у нас меньше 5 доступных и не достигнут дневной лимит
-                if (this.state.orders.available.length < 5 && 
-                    this.state.dailyOrders.generatedCount < this.state.dailyOrders.targetCount) {
-                    this.generateOrder();
+        const dept = this.state.departments[deptId - 1];
+        if (dept.queue.length === 0) return;
+
+        // Сортируем заказы по приоритету: легендарные -> редкие -> обычные
+        dept.queue.sort((a, b) => {
+            const rarityOrder = { legendary: 3, rare: 2, common: 1 };
+            return rarityOrder[b.rarity] - rarityOrder[a.rarity];
+        });
+
+        const order = dept.queue[0];
+        dept.queue.shift();
+        order.currentDept++;
+        
+        if (order.currentDept <= 7) {
+            this.state.departments[order.currentDept - 1].queue.push(order);
+        } else {
+            this.completeOrder(order.id);
+        }
+
+        this.state.drive -= 1;
+        this.updateDisplay();
+    }
+
+    processEmployeeWork() {
+        if (!this.isWorkTime() || this.state.drive < 1) return;
+
+        this.state.departments.forEach(dept => {
+            if (dept.employees > 0 && dept.queue.length > 0 && this.state.drive >= 1) {
+                // Сортируем заказы по приоритету
+                dept.queue.sort((a, b) => {
+                    const rarityOrder = { legendary: 3, rare: 2, common: 1 };
+                    return rarityOrder[b.rarity] - rarityOrder[a.rarity];
+                });
+
+                const ordersToProcess = Math.min(dept.employees, dept.queue.length);
+                
+                for (let i = 0; i < ordersToProcess; i++) {
+                    if (this.state.drive < 1) break;
+
+                    const order = dept.queue[0];
+                    dept.queue.shift();
+                    order.currentDept++;
+
+                    if (order.currentDept <= 7) {
+                        this.state.departments[order.currentDept - 1].queue.push(order);
+                    } else {
+                        this.completeOrder(order.id);
+                    }
+
+                    this.state.drive -= 1;
                 }
             }
-        }, 8000); // Увеличили интервал до 8 секунд
+        });
+        this.updateDisplay();
+    }
 
-        // Автоматическая обработка сотрудниками
-        this.employeeInterval = setInterval(() => {
-            if (this.isWorkTime()) {
-                this.processEmployeeWork();
+    completeOrder(orderId) {
+        const orderIndex = this.state.orders.active.findIndex(o => o.id === orderId);
+        if (orderIndex === -1) return;
+
+        const order = this.state.orders.active[orderIndex];
+        
+        const isOnTime = this.state.currentTime.isBefore(order.deadline);
+        const reward = isOnTime ? order.reward : Math.floor(order.reward * 0.5);
+        const reputationChange = isOnTime ? order.reputationReward : order.reputationPenalty;
+
+        this.state.money += reward;
+        this.state.exp += order.expReward;
+        this.state.reputation += reputationChange;
+        this.state.orders.completed++;
+
+        this.state.orders.active.splice(orderIndex, 1);
+        
+        const message = isOnTime 
+            ? `Заказ "${order.name}" завершен вовремя! +${reward}₽, +${reputationChange} репутации, +${order.expReward} опыта`
+            : `Заказ "${order.name}" завершен с опозданием! +${reward}₽, ${reputationChange} репутации, +${order.expReward} опыта`;
+        
+        this.showNotification(message);
+        this.updateDisplay();
+    }
+
+    hireEmployee() {
+        const cost = 500;
+        if (this.state.money < cost) {
+            this.showNotification('Недостаточно денег для найма!');
+            return;
+        }
+
+        this.state.money -= cost;
+        this.state.freeEmployees++;
+        this.state.maxDrive += this.config.employeeDriveBonus;
+        this.state.drive += this.config.employeeDriveBonus;
+
+        this.showNotification(`Нанят новый сотрудник! Свободных: ${this.state.freeEmployees}`);
+        this.updateDisplay();
+    }
+
+    assignEmployee(deptId) {
+        if (this.state.freeEmployees <= 0) {
+            this.showNotification('Нет свободных сотрудников!');
+            return;
+        }
+
+        const dept = this.state.departments[deptId - 1];
+        dept.employees++;
+        this.state.freeEmployees--;
+
+        this.showNotification(`Сотрудник назначен в отдел "${dept.name}"`);
+        this.updateEmployeeDisplays();
+    }
+
+    unassignEmployee(deptId) {
+        const dept = this.state.departments[deptId - 1];
+        if (dept.employees <= 0) return;
+
+        dept.employees--;
+        this.state.freeEmployees++;
+
+        this.showNotification(`Сотрудник удален из отдела "${dept.name}"`);
+        this.updateEmployeeDisplays();
+    }
+
+    updateEmployeeDisplays() {
+        document.querySelectorAll('.department-card').forEach((card, index) => {
+            const countElement = card.querySelector('.employee-count');
+            const dept = this.state.departments[index];
+            countElement.textContent = dept.employees;
+        });
+    }
+
+    updateOrderBadges() {
+        this.state.departments.forEach(dept => {
+            const legendaryCount = dept.queue.filter(order => order.rarity === 'legendary').length;
+            const rareCount = dept.queue.filter(order => order.rarity === 'rare').length;
+            const commonCount = dept.queue.filter(order => order.rarity === 'common').length;
+
+            const legendaryBadge = document.getElementById(`badge-legendary-${dept.id}`);
+            const rareBadge = document.getElementById(`badge-rare-${dept.id}`);
+            const commonBadge = document.getElementById(`badge-common-${dept.id}`);
+
+            if (legendaryBadge) {
+                legendaryBadge.textContent = legendaryCount;
+                legendaryBadge.style.display = legendaryCount > 0 ? 'flex' : 'none';
             }
-        }, this.config.baseEmployeeSpeed);
+            
+            if (rareBadge) {
+                rareBadge.textContent = rareCount;
+                rareBadge.style.display = rareCount > 0 ? 'flex' : 'none';
+            }
+            
+            if (commonBadge) {
+                commonBadge.textContent = commonCount;
+                commonBadge.style.display = commonCount > 0 ? 'flex' : 'none';
+            }
+        });
+    }
+
+    showNotification(message) {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        
+        container.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
     }
 
     // ОБНОВЛЕННАЯ ФУНКЦИЯ: Отображение информации о дне
@@ -296,15 +661,6 @@ class TypographyGame {
         this.updateDepartmentButtons();
         this.updateEmployeeDisplays();
     }
-
-    // Остальные функции остаются без изменений...
-    // [Здесь должны быть все остальные функции из предыдущей версии:
-    // setupEventListeners, updateGameTime, updateDrive, updateDayProgress, 
-    // checkDayEnd, isWorkDay, isWorkTime, restoreDrive, removeExpiredOrders,
-    // acceptOrder, processDepartment, processEmployeeWork, completeOrder,
-    // hireEmployee, assignEmployee, unassignEmployee, updateEmployeeDisplays,
-    // updateOrderBadges, showNotification, updateOrdersDisplay, updateActiveOrdersDisplay,
-    // updateDepartmentButtons, processEmployees, generateDepartmentsHTML, destroy]
 
     // ОБНОВЛЕННАЯ ФУНКЦИЯ: Отображение заказов с информацией о дневном лимите
     updateOrdersDisplay() {
@@ -369,7 +725,53 @@ class TypographyGame {
         }
     }
 
-    // ... остальные функции без изменений
+    updateActiveOrdersDisplay() {
+        const container = document.getElementById('activeOrders');
+        container.innerHTML = '';
+
+        this.state.orders.active.forEach(order => {
+            const orderElement = document.createElement('div');
+            orderElement.className = 'order';
+            orderElement.innerHTML = `
+                <div class="order-rarity rarity-${order.rarity}">${order.rarity}</div>
+                <strong>${order.name}</strong><br>
+                Текущий отдел: ${this.state.departments[order.currentDept - 1]?.name || 'Завершен'}<br>
+                Прогресс: ${order.currentDept}/7
+            `;
+            container.appendChild(orderElement);
+        });
+    }
+
+    updateDepartmentButtons() {
+        document.querySelectorAll('.department-btn').forEach(btn => {
+            const deptId = parseInt(btn.dataset.dept);
+            const dept = this.state.departments[deptId - 1];
+            const hasOrders = dept.queue.length > 0;
+            const hasDrive = this.state.drive >= 1;
+            const isWorkTime = this.isWorkTime();
+
+            btn.disabled = !hasOrders || !hasDrive || !isWorkTime;
+        });
+
+        // Подсвечиваем низкий драйв
+        const driveValue = document.getElementById('driveValue');
+        if (this.state.drive < 10) {
+            driveValue.classList.add('drive-warning');
+        } else {
+            driveValue.classList.remove('drive-warning');
+        }
+    }
+
+    processEmployees() {
+        this.updateEmployeeDisplays();
+    }
+
+    // Очистка при завершении
+    destroy() {
+        if (this.gameInterval) clearInterval(this.gameInterval);
+        if (this.orderInterval) clearInterval(this.orderInterval);
+        if (this.employeeInterval) clearInterval(this.employeeInterval);
+    }
 }
 
 // Запуск игры
