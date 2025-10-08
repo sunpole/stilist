@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Типография - Бизнес симулятор</title>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isoWeek.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isBetween.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ru.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 8px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Фиксированная панель календаря */
+        .calendar-panel {
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Широкий статус-бар дня */
+        .day-progress {
+            background: #34495e;
+            height: 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .day-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c);
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+
+        /* Панель ресурсов в одну строку */
+        .resource-panel {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            flex-wrap: nowrap;
+        }
+
+        .resource-item {
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+            padding: 0 2px;
+        }
+
+        .resource-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #f39c12;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 7 отделов в одну строку */
+        .departments-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 10px;
+            gap: 1px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .department-card {
+            flex: 0 0 12.5%;
+            min-width: 12.5%;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 4px;
+            text-align: center;
+            position: relative;
+        }
+
+        .department-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+
+        .department-btn {
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+            font-size: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .department-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .department-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Кружочки заказов на кнопках */
+        .order-badges {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .order-badge {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 1px rgba(0,0,0,0.5);
+        }
+
+        .badge-common {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        .badge-rare {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .badge-legendary {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .employee-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            margin-top: 3px;
+        }
+
+        .employee-count {
+            font-weight: bold;
+            color: #e74c3c;
+            min-width: 14px;
+            font-size: 10px;
+        }
+
+        .control-btn {
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 50%;
+            background: #95a5a6;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .control-btn.add {
+            background: #27ae60;
+        }
+
+        .control-btn.remove {
+            background: #e74c3c;
+        }
+
+        .panels-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #e9ecef;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .panel h3 {
+            color: #2c3e50;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #3498db;
+            padding-bottom: 3px;
+            font-size: 12px;
+        }
+
+        .order {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            position: relative;
+        }
+
+        .order-rarity {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 8px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .rarity-common {
+            background: #95a5a6;
+        }
+
+        .rarity-rare {
+            background: #9b59b6;
+        }
+
+        .rarity-legendary {
+            background: #f39c12;
+        }
+
+        .accept-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: 3px;
+            font-size: 10px;
+            width: 100%;
+        }
+
+        .hire-section {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .hire-btn {
+            background: #f1c40f;
+            color: #2c3e50;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        /* Уведомления */
+        .notification-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            max-width: 250px;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            font-size: 12px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Специальные стили для старых Android */
+        @media screen and (max-width: 360px) {
+            .resource-panel {
+                font-size: 10px;
+                padding: 4px 6px;
+            }
+            
+            .resource-value {
+                font-size: 10px;
+            }
+            
+            .department-name {
+                font-size: 9px;
+            }
+            
+            .department-btn {
+                height: 25px;
+                font-size: 9px;
+            }
+            
+            .calendar-panel {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+        }
+
+        /* Отключение выделения текста для старых Android */
+        .no-select {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .drive-warning {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="no-select">
+    <div class="notification-container" id="notificationContainer"></div>
+    
+    <div class="container">
+        <!-- Фиксированная панель календаря -->
+        <div class="calendar-panel" id="calendarPanel">
+            1 сентября 2025, 09:00 (Понедельник)
+        </div>
+        
+        <!-- Широкий статус-бар дня -->
+        <div class="day-progress">
+            <div class="day-progress-bar" id="dayProgressBar" style="width: 0%"></div>
+        </div>
+        
+        <!-- Панель ресурсов в одну строку -->
+        <div class="resource-panel">
+            <div class="resource-item">
+                <div>Драйв</div>
+                <div class="resource-value" id="driveValue">80/80</div>
+            </div>
+            <div class="resource-item">
+                <div>Деньги</div>
+                <div class="resource-value" id="moneyValue">1 000 ₽</div>
+            </div>
+            <div class="resource-item">
+                <div>Опыт</div>
+                <div class="resource-value" id="expValue">0</div>
+            </div>
+            <div class="resource-item">
+                <div>Репутация</div>
+                <div class="resource-value" id="reputationValue">0</div>
+            </div>
+        </div>
+
+        <!-- 7 отделов в одну строку -->
+        <div class="departments-row" id="departmentsRow">
+            <!-- Отделы будут сгенерированы в JS -->
+        </div>
+
+        <div class="panels-container">
+            <div class="panel">
+                <h3>📋 Доступные заказы</h3>
+                <div id="availableOrders">
+                    <!-- Заказы будут добавляться здесь -->
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3>🔄 Активные заказы</h3>
+                <div id="activeOrders">
+                    <!-- Активные заказы будут здесь -->
+                </div>
+            </div>
+        </div>
+
+        <div class="hire-section">
+            <h3>💼 Найм сотрудников</h3>
+            <p>Каждый сотрудник: +80 к максимуму драйва, работает автоматически</p>
+            <button class="hire-btn" id="hireButton">Нанять сотрудника (500 ₽)</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
