@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конвертер мм ↔ пиксели</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff7e5f;
+            --light-color: #f5f7fa;
+            --dark-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+        
+        .settings {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .settings label {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .settings input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        #resolution {
+            width: 100px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .converter-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .converter-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .converter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .converter-block {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .converter-block h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .result {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-top: 5px;
+            min-height: 22px;
+            padding: 5px;
+            text-align: center;
+            border: 1px dashed #ddd;
+            border-radius: 4px;
+        }
+        
+        .direction-label {
+            text-align: center;
+            margin: 5px 0;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Конвертер мм ↔ пиксели</h1>
+        </header>
+        
+        <section class="settings">
+            <label for="resolution">PPI (пикселей на дюйм):</label>
+            <input type="number" id="resolution" value="1080" min="1">
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="rounding">
+                <label for="rounding">Округлять пиксели вверх</label>
+            </div>
+        </section>
+        
+        <section class="converter-grid">
+            <div class="converter-block">
+                <h3>Конвертер 1</h3>
+                <div class="input-group">
+                    <label for="mm1">Миллиметры:</label>
+                    <input type="number" id="mm1" placeholder="Введите мм" step="0.01">
+                </div>
+                <div class="direction-label">↓</div>
+                <div class="result" id="result1"></div>
+                
+                <div class="direction-label">↑</div>
+                <div class="input-group">
+                    <label for="px1">Пиксели:</label>
+                    <input type="number" id="px1" placeholder="Введите пиксели" step="1">
+                </div>
+                <div class="result" id="result1b"></div>
+            </div>
+            
+            <div class="converter-block">
+                <h3>Конвертер 2</h3>
+                <div class="input-group">
+                    <label for="mm2">Миллиметры:</label>
+                    <input type="number" id="mm2" placeholder="Введите мм" step="0.01">
+                </div>
+                <div class="direction-label">↓</div>
+                <div class="result" id="result2"></div>
+                
+                <div class="direction-label">↑</div>
+                <div class="input-group">
+                    <label for="px2">Пиксели:</label>
+                    <input type="number" id="px2" placeholder="Введите пиксели" step="1">
+                </div>
+                <div class="result" id="result2b"></div>
+            </div>
+            
+            <div class="converter-block">
+                <h3>Конвертер 3</h3>
+                <div class="input-group">
+                    <label for="mm3">Миллиметры:</label>
+                    <input type="number" id="mm3" placeholder="Введите мм" step="0.01">
+                </div>
+                <div class="direction-label">↓</div>
+                <div class="result" id="result3"></div>
+                
+                <div class="direction-label">↑</div>
+                <div class="input-group">
+                    <label for="px3">Пиксели:</label>
+                    <input type="number" id="px3" placeholder="Введите пиксели" step="1">
+                </div>
+                <div class="result" id="result3b"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Получение текущего разрешения
+        function getResolution() {
+            return parseFloat(document.getElementById('resolution').value);
+        }
+        
+        // Проверка включено ли округление
+        function isRoundingEnabled() {
+            return document.getElementById('rounding').checked;
+        }
+        
+        // Округление пикселей вверх если включено
+        function roundPixels(value) {
+            if (isRoundingEnabled()) {
+                return Math.ceil(value);
+            }
+            return value;
+        }
+        
+        // Конвертация мм в пиксели
+        function convertMmToPx(converterId) {
+            const mmInput = document.getElementById(`mm${converterId}`);
+            const resultElement = document.getElementById(`result${converterId}`);
+            
+            if (!mmInput.value) {
+                resultElement.textContent = '';
+                return;
+            }
+            
+            const mm = parseFloat(mmInput.value);
+            const resolution = getResolution();
+            let pixels = (mm * resolution) / 25.4;
+            
+            // Округляем если включена опция
+            pixels = roundPixels(pixels);
+            
+            if (isRoundingEnabled()) {
+                resultElement.textContent = `${pixels} пикселей`;
+            } else {
+                resultElement.textContent = `${pixels.toFixed(2)} пикселей`;
+            }
+        }
+        
+        // Конвертация пикселей в мм
+        function convertPxToMm(converterId) {
+            const pxInput = document.getElementById(`px${converterId}`);
+            const resultElement = document.getElementById(`result${converterId}b`);
+            
+            if (!pxInput.value) {
+                resultElement.textContent = '';
+                return;
+            }
+            
+            const px = parseFloat(pxInput.value);
+            const resolution = getResolution();
+            const mm = (px * 25.4) / resolution;
+            
+            resultElement.textContent = `${mm.toFixed(2)} мм`;
+        }
+        
+        // Обновление всех результатов при изменении разрешения или округления
+        function updateAllResults() {
+            for (let i = 1; i <= 3; i++) {
+                convertMmToPx(i);
+                convertPxToMm(i);
+            }
+        }
+        
+        // Инициализация обработчиков событий
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем обработчики для всех полей ввода
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`mm${i}`).addEventListener('input', function() {
+                    convertMmToPx(i);
+                });
+                
+                document.getElementById(`px${i}`).addEventListener('input', function() {
+                    convertPxToMm(i);
+                });
+            }
+            
+            // Обновляем результаты при изменении разрешения
+            document.getElementById('resolution').addEventListener('input', updateAllResults);
+            
+            // Обновляем результаты при изменении состояния чекбокса
+            document.getElementById('rounding').addEventListener('change', updateAllResults);
+        });
+    </script>
+</body>
+</html>
