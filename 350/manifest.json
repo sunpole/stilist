@@ -1,0 +1,17 @@
+{
+  "name": "Конвертер мм ↔ пиксели",
+  "short_name": "MM-PX Converter",
+  "description": "Конвертер миллиметров в пиксели и обратно",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#4a6fa5",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
