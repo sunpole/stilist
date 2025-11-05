@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Essential viewport tag for mobile responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Mobile Spreadsheet</title>
+    <style>
+        /* === Base & Mobile-First Styles === */
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 15px;
+            background-color: #f0f0f0;
+            font-size: 16px; /* Good base size for readability */
+        }
+        .spreadsheet {
+            width: 100%;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* Allows horizontal scrolling on small screens */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px; /* Minimum width before scrolling kicks in */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 8px; /* Ample padding for touch */
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            left: 0;
+        }
+        input {
+            width: 100%;
+            border: none;
+            padding: 8px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            background: transparent;
+        }
+        .controls {
+            padding: 15px;
+            display: flex;
+            flex-direction: column; /* Stacks buttons vertically on mobile */
+            gap: 10px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px; /* Comfortable tap target */
+        }
+
+        /* === Styles for Larger Screens (e.g., PCs) === */
+        @media screen and (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .controls {
+                flex-direction: row; /* Places buttons side-by-side on larger screens */
+                flex-wrap: wrap;
+            }
+            button {
+                flex: 1; /* Buttons will grow to fill available space */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="spreadsheet">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                        <th>Calculation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" value="Length" class="param-name"></td>
+                        <td><input type="number" value="10" class="param-value"></td>
+                        <td><input type="text" readonly class="formula-display"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value="Width" class="param-name"></td>
+                        <td><input type="number" value="5" class="param-value"></td>
+                        <td><input type="text" readonly class="formula-display"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value="Area" class="param-name"></td>
+                        <td><input type="number" readonly class="calc-result"></td>
+                        <td><input type="text" value="Length * Width" class="formula-input" placeholder="e.g., A * B"></td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
+        <div class="controls">
+            <button onclick="addNewRow()">Add New Parameter</button>
+            <button onclick="calculateAll()">Calculate All</button>
+            <button onclick="clearAll()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple function to add a new, empty row to the table
+        function addNewRow() {
+            const tbody = document.querySelector('tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Name" class="param-name"></td>
+                <td><input type="number" placeholder="Value" class="param-value"></td>
+                <td><input type="text" placeholder="Formula" class="formula-input"></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        // Function to clear all input fields
+        function clearAll() {
+            document.querySelectorAll('.param-name').forEach(input => input.value = '');
+            document.querySelectorAll('.param-value').forEach(input => input.value = '');
+            document.querySelectorAll('.formula-input').forEach(input => input.value = '');
+            document.querySelectorAll('.calc-result').forEach(input => input.value = '');
+            document.querySelectorAll('.formula-display').forEach(input => input.value = '');
+        }
+
+        // Core calculation function
+        function calculateAll() {
+            const rows = document.querySelectorAll('tbody tr');
+            const params = {}; // Object to store all parameter values
+
+            // First pass: collect all simple values
+            rows.forEach((row, index) => {
+                const nameInput = row.querySelector('.param-name');
+                const valueInput = row.querySelector('.param-value');
+                if (nameInput.value && valueInput.value && !isNaN(valueInput.value)) {
+                    // Use the name (like "Length") or a default like "A", "B", etc.
+                    const paramKey = nameInput.value || String.fromCharCode(65 + index); // 65 is 'A'
+                    params[paramKey] = parseFloat(valueInput.value);
+                }
+            });
+
+            // Second pass: evaluate formulas
+            rows.forEach((row, index) => {
+                const formulaInput = row.querySelector('.formula-input');
+                const resultCell = row.querySelector('.calc-result');
+                const formulaDisplay = row.querySelector('.formula-display');
+
+                if (formulaInput && formulaInput.value && resultCell) {
+                    try {
+                        // A VERY SIMPLE and limited formula parser.
+                        // WARNING: Using eval() is dangerous. This is for demonstration only.
+                        let formula = formulaInput.value;
+                        // Replace parameter names with their values
+                        for (const key in params) {
+                            formula = formula.replace(new RegExp(key, 'g'), params[key]);
+                        }
+                        // Evaluate the safe part (arithmetic)
+                        // A safer alternative would be a proper expression evaluator library.
+                        const result = eval(formula);
+                        resultCell.value = isNaN(result) ? 'Error' : result;
+
+                        if(formulaDisplay) {
+                            formulaDisplay.value = formulaInput.value;
+                        }
+
+                    } catch (e) {
+                        resultCell.value = 'Error';
+                    }
+                }
+            });
+        }
+
+        // Initial calculation on load
+        calculateAll();
+    </script>
+</body>
+</html>
