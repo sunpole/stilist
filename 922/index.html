@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Калькулятор рулона фольги</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <style>
+        /* Базовые стили для всех устройств */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        #app {
+            height: 100vh;
+            height: -webkit-fill-available;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            max-width: 100%;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 14px 16px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .input-group {
+            margin-bottom: 18px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .input-group:active {
+            transform: scale(0.99);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+        
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: white;
+        }
+        
+        .input-with-unit:focus-within {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        input {
+            flex: 1;
+            border: none;
+            padding: 14px 16px;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+            min-width: 0;
+        }
+        
+        input:read-only {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .unit {
+            padding: 0 16px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-weight: 500;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            border-left: 1px solid #e1e5e9;
+            font-size: 0.9rem;
+        }
+        
+        .result {
+            margin-top: 10px;
+            padding: 16px;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .result-label {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+        
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .result-unit {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .hint {
+            text-align: center;
+            margin-top: 16px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            padding: 0 10px;
+        }
+        
+        /* Адаптивность для очень маленьких экранов */
+        @media (max-height: 600px) {
+            .header {
+                padding: 10px 16px;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .container {
+                padding: 12px;
+            }
+            
+            .input-group {
+                padding: 12px;
+                margin-bottom: 14px;
+            }
+            
+            input {
+                padding: 12px 14px;
+            }
+            
+            .result {
+                padding: 14px;
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            
+            input {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            
+            .unit {
+                padding: 0 12px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Поддержка старых браузеров */
+        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            #app {
+                height: 100%;
+            }
+        }
+        
+        /* Поддержка Safari */
+        @supports (-webkit-touch-callout: none) {
+            #app {
+                height: -webkit-fill-available;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Калькулятор рулона фольги</h1>
+        </div>
+        
+        <div class="container">
+            <div class="input-group">
+                <label for="diameterOuter">Внешний диаметр рулона</label>
+                <div class="input-with-unit">
+                    <input type="number" id="diameterOuter" min="0" step="0.1" value="65">
+                    <div class="unit">мм</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="diameterInner">Диаметр втулки</label>
+                <div class="input-with-unit">
+                    <input type="number" id="diameterInner" min="0" step="0.1" value="35">
+                    <div class="unit">мм</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="length">Длина фольги</label>
+                <div class="input-with-unit">
+                    <input type="number" id="length" min="0" step="1" value="200">
+                    <div class="unit">м</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="thickness">Толщина фольги</label>
+                <div class="input-with-unit">
+                    <input type="number" id="thickness" min="0" step="0.1" value="11.8">
+                    <div class="unit">мкм</div>
+                </div>
+            </div>
+            
+            <div class="result">
+                <div class="result-label">Расчетный параметр:</div>
+                <div class="result-value" id="resultValue">120.0</div>
+                <div class="result-unit" id="resultUnit">метров</div>
+            </div>
+            
+            <div class="hint">
+                Введите три параметра для расчета четвертого
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы ввода
+            const diameterOuterInput = document.getElementById('diameterOuter');
+            const diameterInnerInput = document.getElementById('diameterInner');
+            const lengthInput = document.getElementById('length');
+            const thicknessInput = document.getElementById('thickness');
+            
+            // Элементы результата
+            const resultValue = document.getElementById('resultValue');
+            const resultUnit = document.getElementById('resultUnit');
+            
+            // Переменные для отслеживания изменений
+            let lastChangedField = null;
+            let isCalculating = false;
+            
+            // Установка высоты приложения
+            function setAppHeight() {
+                const app = document.getElementById('app');
+                const header = document.querySelector('.header');
+                const container = document.querySelector('.container');
+                
+                // Устанавливаем высоту контейнера как оставшееся пространство
+                const headerHeight = header.offsetHeight;
+                const availableHeight = window.innerHeight - headerHeight;
+                container.style.height = availableHeight + 'px';
+            }
+            
+            // Вызываем при загрузке и изменении размера окна
+            setAppHeight();
+            window.addEventListener('resize', setAppHeight);
+            window.addEventListener('orientationchange', function() {
+                // Небольшая задержка для корректного определения высоты после поворота
+                setTimeout(setAppHeight, 300);
+            });
+            
+            // Функция для определения, какое поле вычислять
+            function determineCalculatedField() {
+                const fields = [
+                    { element: diameterOuterInput, name: 'diameterOuter' },
+                    { element: diameterInnerInput, name: 'diameterInner' },
+                    { element: lengthInput, name: 'length' },
+                    { element: thicknessInput, name: 'thickness' }
+                ];
+                
+                // Если есть последнее измененное поле, вычисляем его
+                if (lastChangedField) {
+                    return lastChangedField;
+                }
+                
+                // Иначе вычисляем длину по умолчанию
+                return 'length';
+            }
+            
+            // Функция для расчета всех значений
+            function calculate() {
+                if (isCalculating) return;
+                isCalculating = true;
+                
+                const D = parseFloat(diameterOuterInput.value);
+                const d = parseFloat(diameterInnerInput.value);
+                const L = parseFloat(lengthInput.value);
+                const h = parseFloat(thicknessInput.value);
+                
+                // Проверка на корректность введенных данных
+                if (isNaN(D) || isNaN(d) || isNaN(L) || isNaN(h) || D <= 0 || d <= 0) {
+                    resultValue.textContent = 'Ошибка';
+                    resultUnit.textContent = 'Проверьте ввод';
+                    isCalculating = false;
+                    return;
+                }
+                
+                // Определяем, какое поле вычислять
+                const calculatedField = determineCalculatedField();
+                
+                // Основная формула: π*(D² - d²)/4 = h * L
+                const leftPart = Math.PI * (D*D - d*d) / 4;
+                
+                let result, unit, fieldName;
+                
+                switch(calculatedField) {
+                    case 'thickness':
+                        // h = π*(D² - d²)/(4 * L)
+                        result = leftPart / L;
+                        unit = 'мкм';
+                        fieldName = 'Толщина';
+                        break;
+                    case 'length':
+                        // L = π*(D² - d²)/(4 * h)
+                        result = leftPart / h;
+                        unit = 'метров';
+                        fieldName = 'Длина';
+                        break;
+                    case 'diameterOuter':
+                        // D = √( (4 * h * L)/π + d² )
+                        result = Math.sqrt((4 * h * L) / Math.PI + d*d);
+                        unit = 'мм';
+                        fieldName = 'Внешний диаметр';
+                        break;
+                    default:
+                        result = leftPart / h;
+                        unit = 'метров';
+                        fieldName = 'Длина';
+                }
+                
+                // Форматирование результата
+                if (isNaN(result) || !isFinite(result)) {
+                    resultValue.textContent = 'Ошибка';
+                    resultUnit.textContent = 'Некорректные данные';
+                } else {
+                    resultValue.textContent = result.toFixed(2);
+                    resultUnit.textContent = unit;
+                }
+                
+                isCalculating = false;
+            }
+            
+            // Обработчики событий для полей ввода
+            function setupInputHandler(inputElement, fieldName) {
+                inputElement.addEventListener('input', function() {
+                    lastChangedField = fieldName;
+                    calculate();
+                });
+                
+                inputElement.addEventListener('focus', function() {
+                    lastChangedField = fieldName;
+                });
+            }
+            
+            setupInputHandler(diameterOuterInput, 'diameterOuter');
+            setupInputHandler(diameterInnerInput, 'diameterInner');
+            setupInputHandler(lengthInput, 'length');
+            setupInputHandler(thicknessInput, 'thickness');
+            
+            // Инициализация
+            calculate();
+            
+            // Дополнительная оптимизация для мобильных устройств
+            if ('virtualKeyboard' in navigator) {
+                // Поддержка API виртуальной клавиатуры
+                navigator.virtualKeyboard.overlaysContent = true;
+            }
+            
+            // Предотвращение масштабирования при фокусе на поле ввода (для iOS)
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.focus();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
