@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Расчет параметров рулона</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background: #f0f2f5;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .calc-container {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            color: white;
+            padding: 16px 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            height: 220px;
+            min-height: 220px;
+        }
+        
+        .header-title {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .params-row {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+        }
+        
+        .param-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .param-col.calculating {
+            background: rgba(52, 152, 219, 0.25);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+        }
+        
+        .param-label {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .param-input-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        
+        .param-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        .param-input:focus {
+            background: white;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.7);
+        }
+        
+        .param-input:read-only {
+            background: rgba(255, 255, 255, 0.7);
+            color: #7f8c8d;
+        }
+        
+        .param-display {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .toggle-btn {
+            padding: 6px 8px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .toggle-btn.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .unit {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+            text-align: center;
+        }
+        
+        @media (max-width: 380px) {
+            .calc-container {
+                padding: 12px 8px;
+                height: 200px;
+                min-height: 200px;
+            }
+            
+            .header-title {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+            
+            .params-row {
+                gap: 8px;
+            }
+            
+            .param-col {
+                padding: 8px 6px;
+            }
+            
+            .param-input, .param-display {
+                font-size: 1rem;
+                padding: 7px 5px;
+            }
+            
+            .param-label {
+                font-size: 0.7rem;
+            }
+            
+            .toggle-btn {
+                padding: 5px 6px;
+                font-size: 0.7rem;
+            }
+        }
+        
+        @media (max-width: 320px) {
+            .calc-container {
+                padding: 10px 6px;
+                height: 190px;
+                min-height: 190px;
+            }
+            
+            .params-row {
+                gap: 6px;
+            }
+            
+            .param-col {
+                padding: 6px 4px;
+            }
+            
+            .param-input, .param-display {
+                font-size: 0.9rem;
+                padding: 6px 4px;
+            }
+        }
+        
+        /* Поддержка старых браузеров */
+        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            .params-row {
+                display: -ms-flexbox;
+            }
+        }
+        
+        /* Поддержка очень старых Android */
+        @media screen and (-webkit-min-device-pixel-ratio:0) and (max-width: 480px) {
+            .param-input, .param-display {
+                font-size: 16px; /* Предотвращает масштабирование в iOS */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calc-container">
+        <div class="header-title">Расчет параметров рулона</div>
+        <div class="params-row">
+            <div class="param-col">
+                <div class="param-label">Длина рулона</div>
+                <div class="param-input-container">
+                    <input type="number" class="param-input" id="length" value="200" min="1" step="1">
+                </div>
+                <div class="unit">метров</div>
+                <button class="toggle-btn" data-param="length">Расчет</button>
+            </div>
+            
+            <div class="param-col">
+                <div class="param-label">Внешний диаметр</div>
+                <div class="param-input-container">
+                    <input type="number" class="param-input" id="diameterOuter" value="65" min="1" step="0.1">
+                </div>
+                <div class="unit">мм</div>
+                <button class="toggle-btn" data-param="diameterOuter">Расчет</button>
+            </div>
+            
+            <div class="param-col">
+                <div class="param-label">Внутренний диаметр</div>
+                <div class="param-input-container">
+                    <input type="number" class="param-input" id="diameterInner" value="35" min="1" step="0.1">
+                </div>
+                <div class="unit">мм</div>
+                <button class="toggle-btn" data-param="diameterInner">Расчет</button>
+            </div>
+            
+            <div class="param-col calculating">
+                <div class="param-label">Толщина пленки</div>
+                <div class="param-input-container">
+                    <div class="param-display" id="thicknessValue">11.80</div>
+                </div>
+                <div class="unit">микрон</div>
+                <button class="toggle-btn active" data-param="thickness">Расчет</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+            
+            // Элементы DOM
+            const lengthInput = document.getElementById('length');
+            const diameterOuterInput = document.getElementById('diameterOuter');
+            const diameterInnerInput = document.getElementById('diameterInner');
+            const thicknessValue = document.getElementById('thicknessValue');
+            const toggleButtons = document.querySelectorAll('.toggle-btn');
+            const paramCols = document.querySelectorAll('.param-col');
+            
+            // Стандартные значения
+            const DEFAULTS = {
+                length: 200,
+                diameterOuter: 65,
+                diameterInner: 35,
+                thickness: 11.8
+            };
+            
+            // Текущий вычисляемый параметр
+            let calculatingParam = 'thickness';
+            
+            // Инициализация
+            function init() {
+                setupEventListeners();
+                calculate();
+                adaptLayout();
+            }
+            
+            // Настройка обработчиков событий
+            function setupEventListeners() {
+                // Обработчики для полей ввода
+                lengthInput.addEventListener('input', calculate);
+                diameterOuterInput.addEventListener('input', calculate);
+                diameterInnerInput.addEventListener('input', calculate);
+                
+                // Обработчики для кнопок переключения
+                toggleButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const param = this.getAttribute('data-param');
+                        if (param !== calculatingParam) {
+                            setCalculatingParam(param);
+                        }
+                    });
+                });
+                
+                // Адаптация при изменении размера окна
+                window.addEventListener('resize', adaptLayout);
+            }
+            
+            // Установка вычисляемого параметра
+            function setCalculatingParam(param) {
+                calculatingParam = param;
+                
+                // Обновляем визуальное состояние
+                updateVisualState();
+                
+                // Пересчитываем
+                calculate();
+            }
+            
+            // Обновление визуального состояния
+            function updateVisualState() {
+                // Сбрасываем активное состояние
+                toggleButtons.forEach(btn => btn.classList.remove('active'));
+                paramCols.forEach(col => col.classList.remove('calculating'));
+                
+                // Устанавливаем активное состояние для вычисляемого параметра
+                const activeBtn = document.querySelector(`[data-param="${calculatingParam}"]`);
+                activeBtn.classList.add('active');
+                activeBtn.closest('.param-col').classList.add('calculating');
+                
+                // Обновляем состояние полей ввода
+                updateInputsState();
+            }
+            
+            // Обновление состояния полей ввода
+            function updateInputsState() {
+                lengthInput.readOnly = (calculatingParam === 'length');
+                diameterOuterInput.readOnly = (calculatingParam === 'diameterOuter');
+                diameterInnerInput.readOnly = (calculatingParam === 'diameterInner');
+                
+                // Заполняем пустые поля стандартными значениями
+                if (lengthInput.value === '' && calculatingParam !== 'length') {
+                    lengthInput.value = DEFAULTS.length;
+                }
+                if (diameterOuterInput.value === '' && calculatingParam !== 'diameterOuter') {
+                    diameterOuterInput.value = DEFAULTS.diameterOuter;
+                }
+                if (diameterInnerInput.value === '' && calculatingParam !== 'diameterInner') {
+                    diameterInnerInput.value = DEFAULTS.diameterInner;
+                }
+            }
+            
+            // Основная функция расчета
+            function calculate() {
+                // Получаем значения
+                const values = getInputValues();
+                
+                // Проверяем корректность данных
+                if (!validateInputs(values)) {
+                    displayError();
+                    return;
+                }
+                
+                // Выполняем расчет
+                const result = performCalculation(values);
+                
+                // Отображаем результат
+                displayResult(result);
+            }
+            
+            // Получение значений из полей ввода
+            function getInputValues() {
+                return {
+                    length: parseFloat(lengthInput.value),
+                    diameterOuter: parseFloat(diameterOuterInput.value),
+                    diameterInner: parseFloat(diameterInnerInput.value),
+                    thickness: parseFloat(thicknessValue.textContent) || DEFAULTS.thickness
+                };
+            }
+            
+            // Проверка корректности введенных данных
+            function validateInputs(values) {
+                // Проверяем, что все известные параметры положительные
+                if (calculatingParam !== 'length' && (isNaN(values.length) || values.length <= 0)) return false;
+                if (calculatingParam !== 'diameterOuter' && (isNaN(values.diameterOuter) || values.diameterOuter <= 0)) return false;
+                if (calculatingParam !== 'diameterInner' && (isNaN(values.diameterInner) || values.diameterInner <= 0)) return false;
+                if (calculatingParam !== 'thickness' && (isNaN(values.thickness) || values.thickness <= 0)) return false;
+                
+                // Проверяем, что внутренний диаметр меньше внешнего
+                if (calculatingParam !== 'diameterOuter' && calculatingParam !== 'diameterInner' && 
+                    values.diameterInner >= values.diameterOuter) return false;
+                
+                return true;
+            }
+            
+            // Выполнение расчета
+            function performCalculation(values) {
+                const { length, diameterOuter, diameterInner, thickness } = values;
+                
+                // Основная формула: π*(D² - d²)/4 = h * L
+                const leftPart = Math.PI * (diameterOuter * diameterOuter - diameterInner * diameterInner) / 4;
+                
+                let result;
+                
+                switch(calculatingParam) {
+                    case 'thickness':
+                        // h = π*(D² - d²)/(4 * L)
+                        result = leftPart / (length * 1000); // Учитываем, что длина в метрах, а толщина в микронах
+                        break;
+                    case 'length':
+                        // L = π*(D² - d²)/(4 * h)
+                        result = leftPart / (thickness / 1000); // Учитываем, что толщина в микронах
+                        break;
+                    case 'diameterOuter':
+                        // D = √( (4 * h * L)/π + d² )
+                        result = Math.sqrt((4 * (thickness / 1000) * length) / Math.PI + diameterInner * diameterInner);
+                        break;
+                    case 'diameterInner':
+                        // d = √( D² - (4 * h * L)/π )
+                        const inner = diameterOuter * diameterOuter - (4 * (thickness / 1000) * length) / Math.PI;
+                        result = inner > 0 ? Math.sqrt(inner) : 0;
+                        break;
+                }
+                
+                return result;
+            }
+            
+            // Отображение результата
+            function displayResult(result) {
+                if (isNaN(result) || !isFinite(result) || result <= 0) {
+                    displayError();
+                    return;
+                }
+                
+                switch(calculatingParam) {
+                    case 'thickness':
+                        thicknessValue.textContent = result.toFixed(2);
+                        break;
+                    case 'length':
+                        lengthInput.value = result.toFixed(2);
+                        break;
+                    case 'diameterOuter':
+                        diameterOuterInput.value = result.toFixed(2);
+                        break;
+                    case 'diameterInner':
+                        diameterInnerInput.value = result > 0 ? result.toFixed(2) : 'Ошибка';
+                        break;
+                }
+            }
+            
+            // Отображение ошибки
+            function displayError() {
+                switch(calculatingParam) {
+                    case 'thickness':
+                        thicknessValue.textContent = 'Ошибка';
+                        break;
+                    case 'length':
+                        lengthInput.value = 'Ошибка';
+                        break;
+                    case 'diameterOuter':
+                        diameterOuterInput.value = 'Ошибка';
+                        break;
+                    case 'diameterInner':
+                        diameterInnerInput.value = 'Ошибка';
+                        break;
+                }
+            }
+            
+            // Адаптация макета
+            function adaptLayout() {
+                // Для очень узких экранов уменьшаем отступы
+                if (window.innerWidth < 350) {
+                    document.querySelector('.calc-container').style.padding = '10px 6px';
+                    document.querySelector('.params-row').style.gap = '6px';
+                }
+            }
+            
+            // Запуск приложения
+            init();
+        })();
+    </script>
+</body>
+</html>
