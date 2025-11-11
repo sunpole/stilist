@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полная таблица гамм с пентатоникой</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 12px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px 4px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        th:hover {
+            background: #45a049;
+        }
+
+        th::after {
+            content: '↕';
+            position: absolute;
+            right: 4px;
+            opacity: 0.7;
+        }
+
+        th.asc::after {
+            content: '↑';
+        }
+
+        th.desc::after {
+            content: '↓';
+        }
+
+        .tonic {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .notes-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 2px;
+            justify-content: space-between;
+        }
+
+        .note-with-degree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .degree {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 1px;
+        }
+
+        .note {
+            font-weight: bold;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .pentatonic {
+            background: #ffeb3b;
+            border: 1px solid #ffc107;
+        }
+
+        .major-type { 
+            color: #2196F3;
+            font-weight: bold;
+        }
+        .minor-type { 
+            color: #E91E63;
+            font-weight: bold;
+        }
+
+        .signs {
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 12px;
+                padding: 5px;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+            
+            th, td {
+                padding: 4px 2px;
+            }
+            
+            .note {
+                font-size: 9px;
+            }
+            
+            .degree {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table id="scalesTable">
+            <thead>
+                <tr>
+                    <th data-sort="tonic">Тоника</th>
+                    <th data-sort="type">Тип</th>
+                    <th data-sort="notes">Ступени и ноты</th>
+                    <th data-sort="signs">Знаки при ключе</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Данные будут заполнены через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Полные данные для 30 тональностей (15 мажорных + 15 параллельных минорных)
+        const scalesData = [
+            // Диезные мажорные тональности
+            { tonic: "C", type: "major", signs: "0", notes: ["C", "D", "E", "F", "G", "A", "B"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "G", type: "major", signs: "1♯ (F♯)", notes: ["G", "A", "B", "C", "D", "E", "F♯"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "D", type: "major", signs: "2♯ (F♯,C♯)", notes: ["D", "E", "F♯", "G", "A", "B", "C♯"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "A", type: "major", signs: "3♯ (F♯,C♯,G♯)", notes: ["A", "B", "C♯", "D", "E", "F♯", "G♯"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "E", type: "major", signs: "4♯ (F♯,C♯,G♯,D♯)", notes: ["E", "F♯", "G♯", "A", "B", "C♯", "D♯"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "B", type: "major", signs: "5♯ (F♯,C♯,G♯,D♯,A♯)", notes: ["B", "C♯", "D♯", "E", "F♯", "G♯", "A♯"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "F♯", type: "major", signs: "6♯ (F♯,C♯,G♯,D♯,A♯,E♯)", notes: ["F♯", "G♯", "A♯", "B", "C♯", "D♯", "E♯"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "C♯", type: "major", signs: "7♯ (F♯,C♯,G♯,D♯,A♯,E♯,B♯)", notes: ["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"], pentatonic: [0, 1, 2, 4, 5] },
+            
+            // Бемольные мажорные тональности
+            { tonic: "F", type: "major", signs: "1♭ (B♭)", notes: ["F", "G", "A", "B♭", "C", "D", "E"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "B♭", type: "major", signs: "2♭ (B♭,E♭)", notes: ["B♭", "C", "D", "E♭", "F", "G", "A"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "E♭", type: "major", signs: "3♭ (B♭,E♭,A♭)", notes: ["E♭", "F", "G", "A♭", "B♭", "C", "D"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "A♭", type: "major", signs: "4♭ (B♭,E♭,A♭,D♭)", notes: ["A♭", "B♭", "C", "D♭", "E♭", "F", "G"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "D♭", type: "major", signs: "5♭ (B♭,E♭,A♭,D♭,G♭)", notes: ["D♭", "E♭", "F", "G♭", "A♭", "B♭", "C"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "G♭", type: "major", signs: "6♭ (B♭,E♭,A♭,D♭,G♭,C♭)", notes: ["G♭", "A♭", "B♭", "C♭", "D♭", "E♭", "F"], pentatonic: [0, 1, 2, 4, 5] },
+            { tonic: "C♭", type: "major", signs: "7♭ (B♭,E♭,A♭,D♭,G♭,C♭,F♭)", notes: ["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"], pentatonic: [0, 1, 2, 4, 5] },
+            
+            // Параллельные минорные тональности (диезные)
+            { tonic: "Am", type: "minor", signs: "0", notes: ["A", "B", "C", "D", "E", "F", "G"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "Em", type: "minor", signs: "1♯ (F♯)", notes: ["E", "F♯", "G", "A", "B", "C", "D"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "Bm", type: "minor", signs: "2♯ (F♯,C♯)", notes: ["B", "C♯", "D", "E", "F♯", "G", "A"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "F♯m", type: "minor", signs: "3♯ (F♯,C♯,G♯)", notes: ["F♯", "G♯", "A", "B", "C♯", "D", "E"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "C♯m", type: "minor", signs: "4♯ (F♯,C♯,G♯,D♯)", notes: ["C♯", "D♯", "E", "F♯", "G♯", "A", "B"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "G♯m", type: "minor", signs: "5♯ (F♯,C♯,G♯,D♯,A♯)", notes: ["G♯", "A♯", "B", "C♯", "D♯", "E", "F♯"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "D♯m", type: "minor", signs: "6♯ (F♯,C♯,G♯,D♯,A♯,E♯)", notes: ["D♯", "E♯", "F♯", "G♯", "A♯", "B", "C♯"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "A♯m", type: "minor", signs: "7♯ (F♯,C♯,G♯,D♯,A♯,E♯,B♯)", notes: ["A♯", "B♯", "C♯", "D♯", "E♯", "F♯", "G♯"], pentatonic: [0, 2, 3, 4, 6] },
+            
+            // Параллельные минорные тональности (бемольные)
+            { tonic: "Dm", type: "minor", signs: "1♭ (B♭)", notes: ["D", "E", "F", "G", "A", "B♭", "C"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "Gm", type: "minor", signs: "2♭ (B♭,E♭)", notes: ["G", "A", "B♭", "C", "D", "E♭", "F"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "Cm", type: "minor", signs: "3♭ (B♭,E♭,A♭)", notes: ["C", "D", "E♭", "F", "G", "A♭", "B♭"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "Fm", type: "minor", signs: "4♭ (B♭,E♭,A♭,D♭)", notes: ["F", "G", "A♭", "B♭", "C", "D♭", "E♭"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "B♭m", type: "minor", signs: "5♭ (B♭,E♭,A♭,D♭,G♭)", notes: ["B♭", "C", "D♭", "E♭", "F", "G♭", "A♭"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "E♭m", type: "minor", signs: "6♭ (B♭,E♭,A♭,D♭,G♭,C♭)", notes: ["E♭", "F", "G♭", "A♭", "B♭", "C♭", "D♭"], pentatonic: [0, 2, 3, 4, 6] },
+            { tonic: "A♭m", type: "minor", signs: "7♭ (B♭,E♭,A♭,D♭,G♭,C♭,F♭)", notes: ["A♭", "B♭", "C♭", "D♭", "E♭", "F♭", "G♭"], pentatonic: [0, 2, 3, 4, 6] }
+        ];
+
+        // Функция для создания HTML нот со ступенями
+        function createNotesHTML(notes, pentatonicIndices) {
+            let html = '<div class="notes-container">';
+            notes.forEach((note, index) => {
+                const degree = index + 1;
+                const isPentatonic = pentatonicIndices.includes(index);
+                const pentatonicClass = isPentatonic ? 'pentatonic' : '';
+                
+                html += `
+                    <div class="note-with-degree ${pentatonicClass}">
+                        <div class="degree">${degree}</div>
+                        <div class="note">${note}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // Функция для рендеринга таблицы
+        function renderTable(data) {
+            const tbody = document.querySelector('#scalesTable tbody');
+            tbody.innerHTML = '';
+            
+            data.forEach(scale => {
+                const row = document.createElement('tr');
+                
+                const typeClass = scale.type === 'major' ? 'major-type' : 'minor-type';
+                const typeText = scale.type === 'major' ? 'мажор' : 'минор';
+                
+                row.innerHTML = `
+                    <td class="tonic">${scale.tonic}</td>
+                    <td class="${typeClass}">${typeText}</td>
+                    <td>${createNotesHTML(scale.notes, scale.pentatonic)}</td>
+                    <td class="signs">${scale.signs}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Функции для сортировки
+        const sortFunctions = {
+            tonic: (a, b, direction) => {
+                // Приводим тоники к базовым нотам для сортировки
+                const baseNotes = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+                const getBaseNote = (tonic) => {
+                    if (tonic.endsWith('m')) return tonic.slice(0, -1);
+                    return tonic;
+                };
+                
+                const noteA = getBaseNote(a.tonic);
+                const noteB = getBaseNote(b.tonic);
+                
+                const indexA = baseNotes.indexOf(noteA);
+                const indexB = baseNotes.indexOf(noteB);
+                
+                if (indexA !== indexB) {
+                    return direction * (indexA - indexB);
+                }
+                // Если тоника одинаковая, сортируем по типу: мажор сначала
+                return direction * (a.type === 'major' ? -1 : 1);
+            },
+            type: (a, b, direction) => {
+                if (a.type !== b.type) {
+                    return direction * (a.type === 'major' ? -1 : 1);
+                }
+                // Если тип одинаковый, сортируем по тонике
+                return sortFunctions.tonic(a, b, direction);
+            },
+            notes: (a, b, direction) => {
+                return sortFunctions.tonic(a, b, direction);
+            },
+            signs: (a, b, direction) => {
+                // Сортировка по количеству знаков
+                const getSignCount = (signs) => {
+                    if (signs === '0') return 0;
+                    const sharpMatch = signs.match(/(\d+)♯/);
+                    if (sharpMatch) return parseInt(sharpMatch[1]);
+                    const flatMatch = signs.match(/(\d+)♭/);
+                    if (flatMatch) return -parseInt(flatMatch[1]);
+                    return 0;
+                };
+                
+                return direction * (getSignCount(a.signs) - getSignCount(b.signs));
+            }
+        };
+
+        // Инициализация сортировки
+        function initSorting() {
+            const headers = document.querySelectorAll('th[data-sort]');
+            let currentSort = { column: null, direction: 1 };
+            
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.getAttribute('data-sort');
+                    
+                    // Сбрасываем классы у всех заголовков
+                    headers.forEach(h => {
+                        h.classList.remove('asc', 'desc');
+                    });
+                    
+                    // Если кликаем по той же колонке, меняем направление
+                    if (currentSort.column === column) {
+                        currentSort.direction *= -1;
+                    } else {
+                        currentSort.column = column;
+                        currentSort.direction = 1;
+                    }
+                    
+                    // Добавляем класс для визуального отображения сортировки
+                    header.classList.add(currentSort.direction === 1 ? 'asc' : 'desc');
+                    
+                    // Сортируем и перерисовываем таблицу
+                    const sortedData = [...scalesData].sort((a, b) => 
+                        sortFunctions[column](a, b, currentSort.direction)
+                    );
+                    
+                    renderTable(sortedData);
+                });
+            });
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            // Начальная сортировка по тонике
+            const sortedData = [...scalesData].sort((a, b) => 
+                sortFunctions.tonic(a, b, 1)
+            );
+            renderTable(sortedData);
+            initSorting();
+        });
+    </script>
+</body>
+</html>
