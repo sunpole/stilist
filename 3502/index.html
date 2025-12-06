@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор 6 полиграфических операций</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: #f0f2f5;
+            padding: 10px;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Шапка */
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        
+        .subtitle {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        
+        /* Основной контент */
+        .content {
+            padding: 15px;
+        }
+        
+        /* Сетка с двумя колонками на ПК */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Блоки */
+        .block {
+            margin-bottom: 15px;
+        }
+        
+        .block-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        /* Форма данных */
+        .form-row {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .form-row label {
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* Добавление операции */
+        .add-op {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .add-row {
+            display: grid;
+            grid-template-columns: 1fr 70px 70px 80px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .add-row {
+                grid-template-columns: 1fr 70px;
+                gap: 6px;
+            }
+        }
+        
+        select.form-input {
+            font-size: 11px;
+            padding: 5px 6px;
+            height: 32px;
+        }
+        
+        .add-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 7px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            height: 32px;
+        }
+        
+        .add-btn:hover {
+            background: #219653;
+        }
+        
+        /* Таблица операций */
+        .ops-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        
+        .ops-table th {
+            background: #ecf0f1;
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .ops-table td {
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ops-table tr:hover td {
+            background: #f9f9f9;
+        }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+        
+        /* Результаты */
+        .results {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        
+        .result-row:last-child {
+            border-bottom: none;
+        }
+        
+        .total {
+            background: #2ecc71;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .total-value {
+            font-size: 18px;
+        }
+        
+        /* Кнопки экспорта */
+        .export-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .export-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        
+        .pdf-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .pdf-btn:hover {
+            background: #c0392b;
+        }
+        
+        .txt-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .txt-btn:hover {
+            background: #2980b9;
+        }
+        
+        /* Сообщение если нет операций */
+        .empty-msg {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 12px;
+        }
+        
+        /* Футер */
+        footer {
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+            font-size: 11px;
+        }
+        
+        /* Утилиты */
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <div class="header">
+            <h1>Калькулятор полиграфических операций</h1>
+            <div class="subtitle">6 операций УФ-лакирования и фольгирования</div>
+        </div>
+        
+        <div class="content">
+            <div class="main-grid">
+                <!-- Левая колонка -->
+                <div>
+                    <!-- Данные -->
+                    <div class="block">
+                        <div class="block-title">Данные</div>
+                        <div class="form-row">
+                            <label>ФИО:</label>
+                            <input type="text" id="fio" class="form-input" placeholder="Иванов И.И.">
+                        </div>
+                        <div class="form-row">
+                            <label>Дата:</label>
+                            <input type="date" id="date" class="form-input">
+                        </div>
+                        <div class="form-row">
+                            <label>ТК:</label>
+                            <input type="text" id="tk" class="form-input" placeholder="ТК-00001" value="ТК-00001">
+                        </div>
+                        <div class="form-row">
+                            <label>Описание:</label>
+                            <input type="text" id="desc" class="form-input" placeholder="Описание заказа">
+                        </div>
+                    </div>
+                    
+                    <!-- Добавление операции -->
+                    <div class="block">
+                        <div class="block-title">Добавить операцию</div>
+                        <div class="add-op">
+                            <div class="add-row">
+                                <select id="op-select" class="form-input">
+                                    <option value="0">УФл_0 - уф-лак приладка (7.000000 руб/шт)</option>
+                                    <option value="1">УФл_1 - уф-лак &lt;B3 (0.093333 руб/шт)</option>
+                                    <option value="2">УФл_2 - уф-лак &gt;B3 (0.140000 руб/шт)</option>
+                                    <option value="3">УФл+ф - фольгирование приладка (4.666667 руб/шт)</option>
+                                    <option value="4">УФлф1 - фольгирование А4 (0.042500 руб/шт)</option>
+                                    <option value="5">УФлф2 - фольгирование А3 (0.070833 руб/шт)</option>
+                                </select>
+                                <input type="number" id="op-qty" class="form-input" min="1" value="1" placeholder="шт">
+                                <input type="text" id="op-tk" class="form-input" placeholder="ТК">
+                                <button id="add-btn" class="add-btn">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Операции -->
+                    <div class="block">
+                        <div class="block-title">Операции</div>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <table class="ops-table" id="ops-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30px;">№</th>
+                                        <th>Код</th>
+                                        <th style="width: 60px;">ТК</th>
+                                        <th style="width: 50px;">Кол-во</th>
+                                        <th style="width: 70px;">Цена</th>
+                                        <th style="width: 70px;">Сумма</th>
+                                        <th style="width: 30px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ops-list">
+                                    <tr id="empty-row">
+                                        <td colspan="7" class="empty-msg">Нет операций</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="clear-btn" class="add-btn" style="background: #e74c3c; margin-top: 10px; width: 100%; display: none;">
+                            Очистить все
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Правая колонка -->
+                <div>
+                    <!-- Результаты -->
+                    <div class="block">
+                        <div class="block-title">Результаты</div>
+                        <div class="results">
+                            <div class="result-row">
+                                <span>Кол-во операций:</span>
+                                <span id="res-count">0</span>
+                            </div>
+                            <div class="result-row">
+                                <span>Всего штук:</span>
+                                <span id="res-qty">0</span>
+                            </div>
+                            <div class="result-row">
+                                <span>Средняя цена:</span>
+                                <span id="res-avg">0.00 руб</span>
+                            </div>
+                            <div class="result-row">
+                                <span>Макс. сумма:</span>
+                                <span id="res-max">0.00 руб</span>
+                            </div>
+                        </div>
+                        
+                        <div class="total">
+                            <span>ИТОГО:</span>
+                            <span class="total-value" id="res-total">0.00 руб</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Экспорт -->
+                    <div class="block">
+                        <div class="block-title">Экспорт</div>
+                        <div class="export-btns">
+                            <button class="export-btn pdf-btn" id="export-pdf">
+                                📄 PDF
+                            </button>
+                            <button class="export-btn txt-btn" id="export-txt">
+                                📝 TXT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div>Калькулятор полиграфических операций</div>
+        </footer>
+    </div>
+
+    <!-- Библиотека для PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Инициализация jsPDF
+        window.jsPDF = window.jspdf.jsPDF;
+        
+        // ВАЖНО: Полный список из 6 операций
+        const operationsData = [
+            { id: 0, code: "УФл_0", name: "уф-лак приладка", price: 7.000000, norm: "2 шт/час" },
+            { id: 1, code: "УФл_1", name: "уф-лак листопрогон <B3", price: 0.093333, norm: "150 шт/час" },
+            { id: 2, code: "УФл_2", name: "уф-лак листопрогон >B3", price: 0.140000, norm: "100 шт/час" },
+            { id: 3, code: "УФл+ф", name: "фольгирование приладка", price: 4.666667, norm: "3 шт/час" },
+            { id: 4, code: "УФлф1", name: "фольгирование по лаку А4", price: 0.042500, norm: "200 шт/час" },
+            { id: 5, code: "УФлф2", name: "фольгирование по лаку А3", price: 0.070833, norm: "120 шт/час" }
+        ];
+        
+        // Глобальные переменные
+        let operations = [];
+        let opCounter = 1;
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("=== ЗАГРУЗКА ПРИЛОЖЕНИЯ ===");
+            console.log("Всего операций в базе данных:", operationsData.length);
+            
+            // Установить сегодняшнюю дату
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // Обработчики
+            document.getElementById('add-btn').addEventListener('click', addOperation);
+            document.getElementById('clear-btn').addEventListener('click', clearAll);
+            document.getElementById('export-pdf').addEventListener('click', exportPDF);
+            document.getElementById('export-txt').addEventListener('click', exportTXT);
+            document.getElementById('tk').addEventListener('input', updateTkField);
+            
+            // Проверить select - ВАЖНО!
+            const select = document.getElementById('op-select');
+            const optionCount = select.options.length;
+            console.log("Проверка select:");
+            console.log("Количество option в select:", optionCount);
+            
+            if (optionCount !== 6) {
+                console.error("ОШИБКА: В select должно быть 6 опций, а сейчас:", optionCount);
+                console.log("Содержимое select:", select.innerHTML);
+                
+                // Восстановить опции программно
+                restoreSelectOptions();
+            } else {
+                console.log("✓ Select содержит 6 опций - OK");
+                for (let i = 0; i < select.options.length; i++) {
+                    console.log(`  ${i}. ${select.options[i].text}`);
+                }
+            }
+            
+            // Загрузить из localStorage
+            loadFromStorage();
+            
+            // Принудительно очистить кэш
+            localStorage.removeItem('poly_calc_old_version');
+        });
+        
+        // Восстановить опции select если они повреждены
+        function restoreSelectOptions() {
+            const select = document.getElementById('op-select');
+            console.log("Восстановление опций select...");
+            
+            // Очищаем select
+            select.innerHTML = '';
+            
+            // Добавляем все 6 опций
+            const options = [
+                {value: 0, text: "УФл_0 - уф-лак приладка (7.000000 руб/шт)"},
+                {value: 1, text: "УФл_1 - уф-лак <B3 (0.093333 руб/шт)"},
+                {value: 2, text: "УФл_2 - уф-лак >B3 (0.140000 руб/шт)"},
+                {value: 3, text: "УФл+ф - фольгирование приладка (4.666667 руб/шт)"},
+                {value: 4, text: "УФлф1 - фольгирование А4 (0.042500 руб/шт)"},
+                {value: 5, text: "УФлф2 - фольгирование А3 (0.070833 руб/шт)"}
+            ];
+            
+            options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                select.appendChild(option);
+            });
+            
+            console.log("✓ Опции восстановлены. Теперь опций:", select.options.length);
+        }
+        
+        // Обновить поле ТК
+        function updateTkField() {
+            const tk = document.getElementById('tk').value;
+            document.getElementById('op-tk').value = tk;
+        }
+        
+        // Добавить операцию
+        function addOperation() {
+            const type = parseInt(document.getElementById('op-select').value);
+            const qty = parseInt(document.getElementById('op-qty').value);
+            let tk = document.getElementById('op-tk').value.trim();
+            
+            console.log("Добавление операции - выбран тип:", type, "название:", operationsData[type]?.code);
+            
+            // Проверки
+            if (isNaN(type) || type < 0 || type > 5) {
+                alert('Выберите операцию из списка (0-5)');
+                return;
+            }
+            
+            if (!qty || qty < 1) {
+                alert('Введите корректное количество');
+                document.getElementById('op-qty').focus();
+                return;
+            }
+            
+            if (!tk) {
+                tk = document.getElementById('tk').value || 'ТК-00001';
+            }
+            
+            const op = operationsData[type];
+            
+            if (!op) {
+                alert('Ошибка: операция не найдена');
+                return;
+            }
+            
+            // Создаем объект операции
+            const newOp = {
+                id: opCounter++,
+                code: op.code,
+                name: op.name,
+                price: op.price,
+                quantity: qty,
+                tk: tk,
+                total: parseFloat((op.price * qty).toFixed(6))
+            };
+            
+            // Добавляем в массив
+            operations.push(newOp);
+            console.log("✓ Операция добавлена. Всего операций:", operations.length);
+            
+            // Обновляем интерфейс
+            updateOpsTable();
+            updateResults();
+            saveToStorage();
+            
+            // Сбрасываем количество
+            document.getElementById('op-qty').value = 1;
+        }
+        
+        // Удалить операцию
+        function deleteOperation(id) {
+            operations = operations.filter(op => op.id !== id);
+            updateOpsTable();
+            updateResults();
+            saveToStorage();
+        }
+        
+        // Очистить все
+        function clearAll() {
+            if (operations.length === 0) return;
+            if (confirm('Удалить все операции?')) {
+                operations = [];
+                opCounter = 1;
+                updateOpsTable();
+                updateResults();
+                saveToStorage();
+            }
+        }
+        
+        // Обновить таблицу операций
+        function updateOpsTable() {
+            const tbody = document.getElementById('ops-list');
+            const clearBtn = document.getElementById('clear-btn');
+            
+            if (operations.length === 0) {
+                tbody.innerHTML = '<tr id="empty-row"><td colspan="7" class="empty-msg">Нет операций</td></tr>';
+                clearBtn.style.display = 'none';
+                return;
+            }
+            
+            clearBtn.style.display = 'block';
+            
+            let html = '';
+            operations.forEach((op, index) => {
+                html += `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td><strong>${op.code}</strong><br><small>${op.name}</small></td>
+                        <td>${op.tk}</td>
+                        <td class="text-center">${op.quantity} шт</td>
+                        <td class="text-right">${op.price.toFixed(6)} руб</td>
+                        <td class="text-right" style="color: #2ecc71; font-weight: 600;">${op.total.toFixed(6)} руб</td>
+                        <td class="text-center">
+                            <button class="delete-btn" onclick="deleteOperation(${op.id})" title="Удалить">×</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Обновить результаты
+        function updateResults() {
+            if (operations.length === 0) {
+                document.getElementById('res-count').textContent = '0';
+                document.getElementById('res-qty').textContent = '0';
+                document.getElementById('res-avg').textContent = '0.00 руб';
+                document.getElementById('res-max').textContent = '0.00 руб';
+                document.getElementById('res-total').textContent = '0.00 руб';
+                return;
+            }
+            
+            const count = operations.length;
+            const totalQty = operations.reduce((sum, op) => sum + op.quantity, 0);
+            const totalSum = operations.reduce((sum, op) => sum + op.total, 0);
+            const avgPrice = totalSum / count;
+            const maxPrice = Math.max(...operations.map(op => op.total));
+            
+            document.getElementById('res-count').textContent = count;
+            document.getElementById('res-qty').textContent = totalQty;
+            document.getElementById('res-avg').textContent = avgPrice.toFixed(6) + ' руб';
+            document.getElementById('res-max').textContent = maxPrice.toFixed(6) + ' руб';
+            document.getElementById('res-total').textContent = totalSum.toFixed(6) + ' руб';
+        }
+        
+        // Сохранить в localStorage
+        function saveToStorage() {
+            try {
+                const data = {
+                    operations: operations,
+                    counter: opCounter,
+                    fio: document.getElementById('fio').value,
+                    date: document.getElementById('date').value,
+                    desc: document.getElementById('desc').value,
+                    tk: document.getElementById('tk').value
+                };
+                localStorage.setItem('poly_calc', JSON.stringify(data));
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+            }
+        }
+        
+        // Загрузить из localStorage
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('poly_calc');
+                if (!saved) {
+                    console.log("Нет сохраненных данных");
+                    return;
+                }
+                
+                const data = JSON.parse(saved);
+                operations = data.operations || [];
+                opCounter = data.counter || 1;
+                
+                if (data.fio) document.getElementById('fio').value = data.fio;
+                if (data.date) document.getElementById('date').value = data.date;
+                if (data.desc) document.getElementById('desc').value = data.desc;
+                if (data.tk) document.getElementById('tk').value = data.tk;
+                
+                updateTkField();
+                updateOpsTable();
+                updateResults();
+                
+                console.log("✓ Загружено операций из сохранения:", operations.length);
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+                localStorage.removeItem('poly_calc'); // Удаляем поврежденные данные
+            }
+        }
+        
+        // Экспорт в PDF
+        function exportPDF() {
+            if (operations.length === 0) {
+                alert('Добавьте хотя бы одну операцию');
+                return;
+            }
+            
+            const fio = document.getElementById('fio').value || 'Не указано';
+            const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+            const desc = document.getElementById('desc').value || 'Не указано';
+            const tk = document.getElementById('tk').value || 'ТК-00001';
+            
+            const doc = new jsPDF();
+            
+            // Заголовок
+            doc.setFontSize(14);
+            doc.setTextColor(26, 35, 126);
+            doc.text('РАПОРТИЧКА ПОЛИГРАФИЧЕСКИХ ОПЕРАЦИЙ', 105, 15, null, null, 'center');
+            
+            // Данные
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`ФИО: ${fio}`, 20, 25);
+            doc.text(`Дата: ${date}`, 20, 32);
+            doc.text(`Описание: ${desc}`, 20, 39);
+            doc.text(`ТК: ${tk}`, 20, 46);
+            
+            // Таблица
+            let y = 55;
+            doc.setFillColor(240, 240, 240);
+            doc.rect(20, y, 170, 8, 'F');
+            doc.setFontSize(9);
+            doc.text('№', 25, y + 6);
+            doc.text('Код операции', 35, y + 6);
+            doc.text('ТК', 90, y + 6);
+            doc.text('Кол-во', 120, y + 6);
+            doc.text('Цена/шт', 140, y + 6);
+            doc.text('Сумма', 170, y + 6);
+            
+            y += 10;
+            doc.setFontSize(8);
+            
+            operations.forEach((op, index) => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                
+                doc.text((index + 1).toString(), 25, y + 6);
+                doc.text(op.code, 35, y + 6);
+                doc.text(op.tk, 90, y + 6);
+                doc.text(`${op.quantity} шт`, 120, y + 6);
+                doc.text(`${op.price.toFixed(6)} руб`, 140, y + 6);
+                doc.text(`${op.total.toFixed(6)} руб`, 170, y + 6);
+                
+                y += 10;
+            });
+            
+            // Итог
+            const total = operations.reduce((sum, op) => sum + op.total, 0);
+            y = Math.max(y + 10, 260);
+            doc.setFontSize(12);
+            doc.setTextColor(0, 100, 0);
+            doc.text(`ИТОГО: ${total.toFixed(6)} руб`, 20, y);
+            
+            // Подписи
+            y += 15;
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Подпись исполнителя: ___________________', 20, y);
+            doc.text('Дата составления: ' + new Date().toLocaleDateString('ru-RU'), 120, y);
+            
+            // Сохраняем
+            doc.save(`рапортичка_${date}.pdf`);
+            console.log("✓ PDF экспортирован");
+        }
+        
+        // Экспорт в TXT
+        function exportTXT() {
+            if (operations.length === 0) {
+                alert('Добавьте хотя бы одну операцию');
+                return;
+            }
+            
+            const fio = document.getElementById('fio').value || 'Не указано';
+            const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+            const desc = document.getElementById('desc').value || 'Не указано';
+            const tk = document.getElementById('tk').value || 'ТК-00001';
+            
+            let content = 'РАПОРТИЧКА ПОЛИГРАФИЧЕСКИХ ОПЕРАЦИЙ\n';
+            content += '='.repeat(60) + '\n\n';
+            content += `ФИО: ${fio}\n`;
+            content += `Дата: ${date}\n`;
+            content += `Описание: ${desc}\n`;
+            content += `ТК: ${tk}\n\n`;
+            content += 'СПИСОК ОПЕРАЦИЙ:\n';
+            content += '-'.repeat(60) + '\n\n';
+            
+            let total = 0;
+            operations.forEach((op, index) => {
+                content += `${index + 1}. ${op.code} - ${op.name}\n`;
+                content += `   ТК: ${op.tk}\n`;
+                content += `   Количество: ${op.quantity} шт\n`;
+                content += `   Цена за шт: ${op.price.toFixed(6)} руб\n`;
+                content += `   Сумма: ${op.total.toFixed(6)} руб\n\n`;
+                total += op.total;
+            });
+            
+            content += '='.repeat(60) + '\n';
+            content += `ИТОГО: ${total.toFixed(6)} руб\n`;
+            content += '='.repeat(60) + '\n\n';
+            
+            content += `Дата составления: ${new Date().toLocaleDateString('ru-RU')}\n`;
+            content += 'Подпись исполнителя: ___________________\n';
+            
+            // Скачиваем файл
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `рапортичка_${date}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            console.log("✓ TXT экспортирован");
+        }
+        
+        // Проверка при загрузке
+        console.log("✓ Script loaded. Operations data count:", operationsData.length);
+        console.log("✓ Available operations:", operationsData.map(op => op.code).join(', '));
+    </script>
+</body>
+</html>
