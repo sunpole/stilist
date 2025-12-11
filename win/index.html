@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebOS - Веб-эмуляция операционной системы</title>
+    <style>
+        :root {
+            --primary-color: #0078d7;
+            --secondary-color: #106ebe;
+            --accent-color: #005a9e;
+            --bg-color: #f3f3f3;
+            --window-bg: #ffffff;
+            --text-color: #000000;
+            --border-color: #d6d6d6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --taskbar-height: 40px;
+            --startmenu-width: 300px;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dark-theme {
+            --primary-color: #0d6efd;
+            --secondary-color: #0b5ed7;
+            --accent-color: #0a58ca;
+            --bg-color: #1e1e1e;
+            --window-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #404040;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDc4ZDciIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzZIMjRMMzAgMjR6TTI0IDM2bDEyLTEyIDEyIDEyek0zNiAyNGwtMTIgMTItMTItMTJ6Ii8+PC9nPjwvZz48L3N2Zz4=');
+        }
+
+        /* ========== ЭКРАН ВХОДА ========== */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .login-container h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ========== РАБОЧИЙ СТОЛ ========== */
+        #desktop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - var(--taskbar-height));
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .desktop-icon {
+            width: 80px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(0, 120, 215, 0.1);
+        }
+
+        .desktop-icon.selected {
+            background: rgba(0, 120, 215, 0.2);
+        }
+
+        .icon-image {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .icon-label {
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ========== ПАНЕЛЬ ЗАДАЧ ========== */
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--taskbar-height);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 1000;
+        }
+
+        .start-button {
+            height: 32px;
+            padding: 0 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .start-button:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+        }
+
+        .taskbar-apps {
+            flex: 1;
+            display: flex;
+            gap: 2px;
+            margin: 0 10px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .taskbar-app {
+            height: 100%;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            min-width: 80px;
+        }
+
+        .taskbar-app:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .taskbar-app.active {
+            background: rgba(255, 255, 255, 0.15);
+            position: relative;
+        }
+
+        .taskbar-app.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 15px;
+            right: 15px;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        .system-tray {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            padding: 0 10px;
+        }
+
+        .tray-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        #clock {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* ========== МЕНЮ ПУСК ========== */
+        #start-menu {
+            position: fixed;
+            bottom: var(--taskbar-height);
+            left: 10px;
+            width: var(--startmenu-width);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .start-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .start-apps {
+            padding: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .start-app {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .start-app:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .app-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .start-footer {
+            padding: 10px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ========== ОКНА ========== */
+        .window {
+            position: absolute;
+            background: var(--window-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            min-width: 400px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .window-header {
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            cursor: move;
+            user-select: none;
+        }
+
+        .window-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-btn {
+            width: 30px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 3px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .window-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .window-btn.close:hover {
+            background: #e81123;
+        }
+
+        .window-content {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+        }
+
+        .window.active {
+            z-index: 101;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .window:hover .resize-handle {
+            opacity: 0.5;
+        }
+
+        .resize-handle:hover {
+            opacity: 1 !important;
+        }
+
+        .resize-nw { top: -5px; left: -5px; cursor: nw-resize; }
+        .resize-ne { top: -5px; right: -5px; cursor: ne-resize; }
+        .resize-sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+        .resize-se { bottom: -5px; right: -5px; cursor: se-resize; }
+        .resize-n { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; width: 50px; }
+        .resize-s { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; width: 50px; }
+        .resize-w { left: -5px; top: 50%; transform: translateY(-50%); cursor: w-resize; height: 50px; }
+        .resize-e { right: -5px; top: 50%; transform: translateY(-50%); cursor: e-resize; height: 50px; }
+
+        /* ========== ДИСПЕТЧЕР ЗАДАЧ ========== */
+        .task-manager {
+            width: 700px;
+            height: 500px;
+        }
+
+        .task-manager-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .task-manager-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--window-bg);
+        }
+
+        .task-tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-color);
+            border-bottom: 2px solid transparent;
+        }
+
+        .task-tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .task-tab-content {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+            display: none;
+        }
+
+        .task-tab-content.active {
+            display: block;
+        }
+
+        .process-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .process-table th,
+        .process-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .process-table th {
+            background: rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .process-row.running {
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .process-row.not-responding {
+            background: rgba(255, 0, 0, 0.1);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .cpu-graph {
+            height: 100px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cpu-bar {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to top, #44ff44, #ff4444);
+            transition: height 0.3s;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .metric-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .metric-progress {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .metric-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #44ff44, #ff4444);
+            width: 50%;
+            transition: width 0.3s;
+        }
+
+        /* ========== КАЛЬКУЛЯТОР ========== */
+        .calculator {
+            width: 320px;
+            height: 450px;
+        }
+
+        .calculator-display {
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            text-align: right;
+            font-size: 24px;
+            min-height: 80px;
+            word-break: break-all;
+            overflow: hidden;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            flex: 1;
+            background: #ddd;
+        }
+
+        .calc-btn {
+            border: none;
+            background: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+            height: 60px;
+        }
+
+        .calc-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .calc-btn.operator {
+            background: #f0f0f0;
+            color: var(--primary-color);
+        }
+
+        .calc-btn.equals {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .calc-btn.zero {
+            grid-column: span 2;
+        }
+
+        /* ========== ТЕКСТОВЫЙ РЕДАКТОР ========== */
+        .text-editor {
+            width: 600px;
+            height: 500px;
+        }
+
+        .editor-toolbar {
+            background: var(--bg-color);
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        .toolbar-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .toolbar-btn:hover {
+            background: #f0f0f0;
+        }
+
+        #editor-textarea {
+            width: 100%;
+            height: calc(100% - 50px);
+            border: none;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            background: var(--window-bg);
+            color: var(--text-color);
+        }
+
+        /* ========== БРАУЗЕР ========== */
+        .browser {
+            width: 800px;
+            height: 600px;
+        }
+
+        .browser-toolbar {
+            background: var(--bg-color);
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .browser-url {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .browser-content {
+            width: 100%;
+            height: calc(100% - 50px);
+            border: none;
+        }
+
+        /* ========== МЕДИАПЛЕЕР ========== */
+        .media-player {
+            width: 500px;
+            height: 400px;
+        }
+
+        .player-controls {
+            background: var(--bg-color);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .player-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .player-progress {
+            flex: 1;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .player-progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 30%;
+        }
+
+        #player-visualizer {
+            width: 100%;
+            height: 100px;
+            background: #1a1a1a;
+        }
+
+        /* ========== СИСТЕМНЫЕ УВЕДОМЛЕНИЯ ========== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 15px;
+            max-width: 300px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 10000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* ========== КОНТЕКСТНОЕ МЕНЮ ========== */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            min-width: 150px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .context-item:hover {
+            background: #f0f0f0;
+        }
+
+        .context-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 5px 0;
+        }
+
+        /* ========== СИНИЙ ЭКРАН ========== */
+        #bsod {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0078d7;
+            color: white;
+            z-index: 100000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .bsod-content {
+            max-width: 600px;
+        }
+
+        .bsod-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .bsod-message {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .bsod-error {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+
+        /* ========== ПОЛОСА ПРОКРУТКИ ========== */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Экран входа -->
+    <div id="login-screen">
+        <div class="login-container">
+            <div class="avatar">👤</div>
+            <h1>WebOS</h1>
+            <input type="text" class="login-input" id="username" placeholder="Имя пользователя" value="Студент">
+            <input type="password" class="login-input" id="password" placeholder="Пароль" value="диплом2024">
+            <button class="login-btn" id="login-btn">Войти</button>
+        </div>
+    </div>
+
+    <!-- Рабочий стол -->
+    <div id="desktop"></div>
+
+    <!-- Панель задач -->
+    <div id="taskbar">
+        <button class="start-button" id="start-btn">
+            <span>🪟</span>
+            <span>Пуск</span>
+        </button>
+        <div class="taskbar-apps" id="taskbar-apps"></div>
+        <div class="system-tray">
+            <div class="tray-icon" title="Диспетчер задач" onclick="OS.showTaskManager()">📊</div>
+            <div class="tray-icon" title="Настройки" onclick="OS.openApp('settings')">⚙️</div>
+            <div id="clock">00:00:00</div>
+        </div>
+    </div>
+
+    <!-- Меню Пуск -->
+    <div id="start-menu">
+        <div class="start-header">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">С</div>
+                <div>
+                    <div id="current-user">Студент</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Учётная запись</div>
+                </div>
+            </div>
+        </div>
+        <div class="start-apps" id="start-apps"></div>
+        <div class="start-footer">
+            <button onclick="OS.shutdown()">⏻ Выключение</button>
+            <button onclick="OS.lock()">🔒</button>
+        </div>
+    </div>
+
+    <!-- Шаблоны -->
+    <template id="window-template">
+        <div class="window" style="left: 100px; top: 100px;">
+            <div class="resize-handle resize-nw"></div>
+            <div class="resize-handle resize-ne"></div>
+            <div class="resize-handle resize-sw"></div>
+            <div class="resize-handle resize-se"></div>
+            <div class="resize-handle resize-n"></div>
+            <div class="resize-handle resize-s"></div>
+            <div class="resize-handle resize-w"></div>
+            <div class="resize-handle resize-e"></div>
+            <div class="window-header">
+                <div class="window-title"></div>
+                <div class="window-controls">
+                    <button class="window-btn minimize">—</button>
+                    <button class="window-btn maximize">□</button>
+                    <button class="window-btn close">✕</button>
+                </div>
+            </div>
+            <div class="window-content"></div>
+        </div>
+    </template>
+
+    <!-- Синий экран -->
+    <div id="bsod">
+        <div class="bsod-content">
+            <div class="bsod-title">:-(</div>
+            <div class="bsod-message">
+                В WebOS произошла критическая ошибка<br>
+                Мы собираем информацию об ошибке, после чего система будет перезагружена
+            </div>
+            <div class="bsod-error" id="bsod-error">ОШИБКА: 0x0000007B</div>
+            <div id="bsod-progress">Сбор данных: 0%</div>
+            <button onclick="location.reload()" style="margin-top: 30px; padding: 10px 20px;">Перезагрузить</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== ОСНОВНЫЕ КОНСТАНТЫ И КЛАССЫ ==========
+        class OperatingSystem {
+            constructor() {
+                this.applications = {};
+                this.windows = new Map();
+                this.processes = new Map();
+                this.nextPID = 1000;
+                this.systemLoad = {
+                    cpu: 0,
+                    memory: 0,
+                    storage: 0
+                };
+                this.currentUser = 'Студент';
+                this.isLocked = false;
+                this.theme = 'light';
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupDesktop();
+                this.updateClock();
+                this.loadState();
+                this.setupProcessMonitor();
+                console.log('WebOS инициализирована');
+            }
+
+            setupEventListeners() {
+                document.getElementById('login-btn').addEventListener('click', () => this.login());
+                document.getElementById('password').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.login();
+                });
+                document.getElementById('start-btn').addEventListener('click', (e) => this.toggleStartMenu(e));
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) {
+                        document.getElementById('start-menu').style.display = 'none';
+                    }
+                });
+                document.addEventListener('contextmenu', (e) => this.showContextMenu(e));
+                document.addEventListener('click', () => {
+                    const menu = document.getElementById('context-menu');
+                    if (menu) menu.style.display = 'none';
+                });
+            }
+
+            setupDesktop() {
+                const desktop = document.getElementById('desktop');
+                const apps = [
+                    { id: 'calculator', name: 'Калькулятор', icon: '🧮', x: 20, y: 20 },
+                    { id: 'notepad', name: 'Блокнот', icon: '📝', x: 20, y: 140 },
+                    { id: 'browser', name: 'Браузер', icon: '🌐', x: 20, y: 260 },
+                    { id: 'media', name: 'Медиаплеер', icon: '🎵', x: 20, y: 380 },
+                    { id: 'taskmanager', name: 'Диспетчер задач', icon: '📊', x: 20, y: 500 },
+                    { id: 'settings', name: 'Настройки', icon: '⚙️', x: 20, y: 620 },
+                    { id: 'paint', name: 'Рисование', icon: '🎨', x: 120, y: 20 },
+                    { id: 'terminal', name: 'Терминал', icon: '💻', x: 120, y: 140 }
+                ];
+
+                apps.forEach(app => {
+                    const icon = document.createElement('div');
+                    icon.className = 'desktop-icon';
+                    icon.style.left = `${app.x}px`;
+                    icon.style.top = `${app.y}px`;
+                    icon.innerHTML = `
+                        <div class="icon-image">${app.icon}</div>
+                        <div class="icon-label">${app.name}</div>
+                    `;
+                    icon.addEventListener('dblclick', () => this.openApp(app.id));
+                    icon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+                        icon.classList.add('selected');
+                    });
+                    desktop.appendChild(icon);
+                });
+
+                // Добавляем приложения в меню Пуск
+                const startApps = document.getElementById('start-apps');
+                apps.forEach(app => {
+                    const item = document.createElement('div');
+                    item.className = 'start-app';
+                    item.innerHTML = `
+                        <div class="app-icon">${app.icon}</div>
+                        <div>${app.name}</div>
+                    `;
+                    item.addEventListener('click', () => {
+                        this.openApp(app.id);
+                        document.getElementById('start-menu').style.display = 'none';
+                    });
+                    startApps.appendChild(item);
+                });
+            }
+
+            login() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (username && password) {
+                    this.currentUser = username;
+                    document.getElementById('current-user').textContent = username;
+                    document.getElementById('user-avatar').textContent = username[0];
+                    
+                    document.getElementById('login-screen').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('login-screen').style.display = 'none';
+                        this.showNotification(`Добро пожаловать, ${username}!`, 'Вход выполнен успешно');
+                    }, 500);
+                }
+            }
+
+            toggleStartMenu(e) {
+                e.stopPropagation();
+                const menu = document.getElementById('start-menu');
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+
+            openApp(appId) {
+                if (this.windows.has(appId)) {
+                    this.bringToFront(this.windows.get(appId));
+                    return;
+                }
+
+                let window;
+                switch(appId) {
+                    case 'calculator':
+                        window = this.createCalculator();
+                        break;
+                    case 'notepad':
+                        window = this.createNotepad();
+                        break;
+                    case 'browser':
+                        window = this.createBrowser();
+                        break;
+                    case 'media':
+                        window = this.createMediaPlayer();
+                        break;
+                    case 'taskmanager':
+                        window = this.createTaskManager();
+                        break;
+                    case 'settings':
+                        window = this.createSettings();
+                        break;
+                    case 'paint':
+                        window = this.createPaint();
+                        break;
+                    case 'terminal':
+                        window = this.createTerminal();
+                        break;
+                    default:
+                        return;
+                }
+
+                this.createProcess(appId, window.id);
+                this.windows.set(appId, window);
+                this.addToTaskbar(appId, window);
+            }
+
+            createProcess(appName, windowId) {
+                const pid = this.nextPID++;
+                const process = {
+                    pid,
+                    name: appName,
+                    windowId,
+                    state: 'running',
+                    startTime: Date.now(),
+                    cpuUsage: Math.random() * 30,
+                    memoryUsage: this.calculateMemoryUsage(appName),
+                    user: this.currentUser,
+                    priority: 'normal'
+                };
+                this.processes.set(pid, process);
+                this.updateSystemLoad();
+                return pid;
+            }
+
+            calculateMemoryUsage(appName) {
+                const baseMemory = {
+                    'calculator': 10 + Math.random() * 5,
+                    'notepad': 25 + Math.random() * 10,
+                    'browser': 150 + Math.random() * 50,
+                    'media': 80 + Math.random() * 20,
+                    'taskmanager': 40 + Math.random() * 10,
+                    'settings': 30 + Math.random() * 5,
+                    'paint': 120 + Math.random() * 30,
+                    'terminal': 50 + Math.random() * 10
+                };
+                return Math.round(baseMemory[appName] || 20);
+            }
+
+            updateSystemLoad() {
+                let totalCpu = 0;
+                let totalMemory = 0;
+                
+                this.processes.forEach(process => {
+                    totalCpu += process.cpuUsage;
+                    totalMemory += process.memoryUsage;
+                });
+
+                this.systemLoad.cpu = Math.min(100, totalCpu);
+                this.systemLoad.memory = Math.min(4096, totalMemory);
+                this.systemLoad.storage = Math.min(100, 
+                    (localStorage.length / 10000) * 100
+                );
+
+                this.updateTaskbarIndicators();
+            }
+
+            updateTaskbarIndicators() {
+                const cpuIndicator = document.querySelector('.cpu-indicator');
+                if (!cpuIndicator) return;
+                
+                cpuIndicator.style.width = `${this.systemLoad.cpu}%`;
+                cpuIndicator.style.background = 
+                    this.systemLoad.cpu > 80 ? '#ff4444' : 
+                    this.systemLoad.cpu > 50 ? '#ffff44' : '#44ff44';
+            }
+
+            addToTaskbar(appId, window) {
+                const taskbar = document.getElementById('taskbar-apps');
+                const existing = document.querySelector(`.taskbar-app[data-app="${appId}"]`);
+                if (existing) {
+                    existing.classList.add('active');
+                    return;
+                }
+
+                const app = document.createElement('div');
+                app.className = 'taskbar-app active';
+                app.dataset.app = appId;
+                app.innerHTML = `<span>${this.getAppName(appId)}</span>`;
+                
+                app.addEventListener('click', () => {
+                    if (window.style.display === 'none') {
+                        window.style.display = 'flex';
+                        app.classList.add('active');
+                    } else {
+                        this.bringToFront(window);
+                    }
+                });
+
+                taskbar.appendChild(app);
+            }
+
+            getAppName(appId) {
+                const names = {
+                    'calculator': 'Калькулятор',
+                    'notepad': 'Блокнот',
+                    'browser': 'Браузер',
+                    'media': 'Медиаплеер',
+                    'taskmanager': 'Диспетчер задач',
+                    'settings': 'Настройки',
+                    'paint': 'Рисование',
+                    'terminal': 'Терминал'
+                };
+                return names[appId] || appId;
+            }
+
+            createWindow(title, content, width = 600, height = 400) {
+                const template = document.getElementById('window-template');
+                const window = template.content.cloneNode(true).querySelector('.window');
+                
+                window.style.width = `${width}px`;
+                window.style.height = `${height}px`;
+                window.querySelector('.window-title').textContent = title;
+                window.querySelector('.window-content').appendChild(content);
+                
+                window.id = 'window-' + Date.now();
+                
+                this.setupWindowControls(window);
+                document.getElementById('desktop').appendChild(window);
+                
+                return window;
+            }
+
+            setupWindowControls(window) {
+                const header = window.querySelector('.window-header');
+                const minimize = window.querySelector('.minimize');
+                const maximize = window.querySelector('.maximize');
+                const close = window.querySelector('.close');
+                let isDragging = false;
+                let isResizing = false;
+                let dragOffset = { x: 0, y: 0 };
+                let originalSize = { width: 0, height: 0 };
+                let originalPos = { x: 0, y: 0 };
+                let resizeDirection = '';
+
+                header.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    dragOffset.x = e.clientX - window.offsetLeft;
+                    dragOffset.y = e.clientY - window.offsetTop;
+                    this.bringToFront(window);
+                });
+
+                minimize.addEventListener('click', () => {
+                    window.style.display = 'none';
+                    const appId = this.getWindowAppId(window);
+                    const taskbarApp = document.querySelector(`.taskbar-app[data-app="${appId}"]`);
+                    if (taskbarApp) {
+                        taskbarApp.classList.remove('active');
+                    }
+                });
+
+                maximize.addEventListener('click', () => {
+                    if (window.classList.contains('maximized')) {
+                        window.classList.remove('maximized');
+                        window.style.width = originalSize.width + 'px';
+                        window.style.height = originalSize.height + 'px';
+                        window.style.left = originalPos.x + 'px';
+                        window.style.top = originalPos.y + 'px';
+                    } else {
+                        originalSize = {
+                            width: window.offsetWidth,
+                            height: window.offsetHeight
+                        };
+                        originalPos = {
+                            x: window.offsetLeft,
+                            y: window.offsetTop
+                        };
+                        window.classList.add('maximized');
+                        window.style.width = 'calc(100% - 40px)';
+                        window.style.height = 'calc(100% - 80px)';
+                        window.style.left = '20px';
+                        window.style.top = '20px';
+                    }
+                });
+
+                close.addEventListener('click', () => {
+                    const appId = this.getWindowAppId(window);
+                    this.windows.delete(appId);
+                    
+                    // Удаляем процесс
+                    for (const [pid, process] of this.processes) {
+                        if (process.windowId === window.id) {
+                            this.processes.delete(pid);
+                            break;
+                        }
+                    }
+                    
+                    // Удаляем из панели задач
+                    const taskbarApp = document.querySelector(`.taskbar-app[data-app="${appId}"]`);
+                    if (taskbarApp) {
+                        taskbarApp.remove();
+                    }
+                    
+                    window.remove();
+                    this.updateSystemLoad();
+                });
+
+                // Обработчики для изменения размера
+                const resizeHandles = window.querySelectorAll('.resize-handle');
+                resizeHandles.forEach(handle => {
+                    handle.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        isResizing = true;
+                        resizeDirection = handle.className.split(' ')[1].replace('resize-', '');
+                        originalSize = {
+                            width: window.offsetWidth,
+                            height: window.offsetHeight
+                        };
+                        originalPos = {
+                            x: window.offsetLeft,
+                            y: window.offsetTop
+                        };
+                        this.bringToFront(window);
+                    });
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging && !window.classList.contains('maximized')) {
+                        window.style.left = (e.clientX - dragOffset.x) + 'px';
+                        window.style.top = (e.clientY - dragOffset.y) + 'px';
+                    }
+                    
+                    if (isResizing) {
+                        const dx = e.clientX - originalPos.x;
+                        const dy = e.clientY - originalPos.y;
+                        
+                        switch(resizeDirection) {
+                            case 'nw':
+                                window.style.width = (originalSize.width - dx) + 'px';
+                                window.style.height = (originalSize.height - dy) + 'px';
+                                window.style.left = (originalPos.x + dx) + 'px';
+                                window.style.top = (originalPos.y + dy) + 'px';
+                                break;
+                            case 'ne':
+                                window.style.width = (originalSize.width + dx) + 'px';
+                                window.style.height = (originalSize.height - dy) + 'px';
+                                window.style.top = (originalPos.y + dy) + 'px';
+                                break;
+                            case 'sw':
+                                window.style.width = (originalSize.width - dx) + 'px';
+                                window.style.height = (originalSize.height + dy) + 'px';
+                                window.style.left = (originalPos.x + dx) + 'px';
+                                break;
+                            case 'se':
+                                window.style.width = (originalSize.width + dx) + 'px';
+                                window.style.height = (originalSize.height + dy) + 'px';
+                                break;
+                            case 'n':
+                                window.style.height = (originalSize.height - dy) + 'px';
+                                window.style.top = (originalPos.y + dy) + 'px';
+                                break;
+                            case 's':
+                                window.style.height = (originalSize.height + dy) + 'px';
+                                break;
+                            case 'w':
+                                window.style.width = (originalSize.width - dx) + 'px';
+                                window.style.left = (originalPos.x + dx) + 'px';
+                                break;
+                            case 'e':
+                                window.style.width = (originalSize.width + dx) + 'px';
+                                break;
+                        }
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    isResizing = false;
+                });
+
+                window.addEventListener('mousedown', () => this.bringToFront(window));
+            }
+
+            bringToFront(window) {
+                document.querySelectorAll('.window').forEach(w => {
+                    w.classList.remove('active');
+                    w.style.zIndex = '100';
+                });
+                window.classList.add('active');
+                window.style.zIndex = '101';
+                window.style.display = 'flex';
+                
+                const appId = this.getWindowAppId(window);
+                const taskbarApp = document.querySelector(`.taskbar-app[data-app="${appId}"]`);
+                if (taskbarApp) {
+                    document.querySelectorAll('.taskbar-app').forEach(a => a.classList.remove('active'));
+                    taskbarApp.classList.add('active');
+                }
+            }
+
+            getWindowAppId(window) {
+                for (const [appId, win] of this.windows) {
+                    if (win === window) return appId;
+                }
+                return null;
+            }
+
+            // ========== ПРИЛОЖЕНИЯ ==========
+            createCalculator() {
+                const content = document.createElement('div');
+                content.className = 'calculator-content';
+                content.innerHTML = `
+                    <div class="calculator-display">
+                        <div style="font-size: 14px; opacity: 0.7;" id="calc-history"></div>
+                        <div id="calc-display">0</div>
+                    </div>
+                    <div class="calculator-buttons">
+                        <button class="calc-btn" data-action="clear">C</button>
+                        <button class="calc-btn" data-action="backspace">⌫</button>
+                        <button class="calc-btn operator" data-action="percent">%</button>
+                        <button class="calc-btn operator" data-action="divide">÷</button>
+                        
+                        <button class="calc-btn" data-number="7">7</button>
+                        <button class="calc-btn" data-number="8">8</button>
+                        <button class="calc-btn" data-number="9">9</button>
+                        <button class="calc-btn operator" data-action="multiply">×</button>
+                        
+                        <button class="calc-btn" data-number="4">4</button>
+                        <button class="calc-btn" data-number="5">5</button>
+                        <button class="calc-btn" data-number="6">6</button>
+                        <button class="calc-btn operator" data-action="subtract">-</button>
+                        
+                        <button class="calc-btn" data-number="1">1</button>
+                        <button class="calc-btn" data-number="2">2</button>
+                        <button class="calc-btn" data-number="3">3</button>
+                        <button class="calc-btn operator" data-action="add">+</button>
+                        
+                        <button class="calc-btn zero" data-number="0">0</button>
+                        <button class="calc-btn" data-action="decimal">.</button>
+                        <button class="calc-btn equals" data-action="equals">=</button>
+                    </div>
+                `;
+
+                const window = this.createWindow('Калькулятор', content, 320, 450);
+                this.setupCalculator(window);
+                return window;
+            }
+
+            setupCalculator(window) {
+                let currentInput = '0';
+                let previousInput = '';
+                let operation = null;
+                let shouldResetInput = false;
+
+                const display = window.querySelector('#calc-display');
+                const history = window.querySelector('#calc-history');
+
+                const updateDisplay = () => {
+                    display.textContent = currentInput;
+                    history.textContent = previousInput + (operation ? ` ${this.getOperationSymbol(operation)}` : '');
+                };
+
+                const inputNumber = (num) => {
+                    if (currentInput === '0' || shouldResetInput) {
+                        currentInput = num;
+                        shouldResetInput = false;
+                    } else {
+                        currentInput += num;
+                    }
+                    updateDisplay();
+                };
+
+                const inputDecimal = () => {
+                    if (shouldResetInput) {
+                        currentInput = '0.';
+                        shouldResetInput = false;
+                    } else if (!currentInput.includes('.')) {
+                        currentInput += '.';
+                    }
+                    updateDisplay();
+                };
+
+                const clear = () => {
+                    currentInput = '0';
+                    previousInput = '';
+                    operation = null;
+                    updateDisplay();
+                };
+
+                const backspace = () => {
+                    if (currentInput.length > 1) {
+                        currentInput = currentInput.slice(0, -1);
+                    } else {
+                        currentInput = '0';
+                    }
+                    updateDisplay();
+                };
+
+                const performOperation = (nextOperation) => {
+                    if (previousInput !== '' && operation && !shouldResetInput) {
+                        calculate();
+                    }
+                    
+                    previousInput = currentInput;
+                    operation = nextOperation;
+                    shouldResetInput = true;
+                    updateDisplay();
+                };
+
+                const calculate = () => {
+                    let computation;
+                    const prev = parseFloat(previousInput);
+                    const current = parseFloat(currentInput);
+                    
+                    if (isNaN(prev) || isNaN(current)) return;
+
+                    switch(operation) {
+                        case 'add':
+                            computation = prev + current;
+                            break;
+                        case 'subtract':
+                            computation = prev - current;
+                            break;
+                        case 'multiply':
+                            computation = prev * current;
+                            break;
+                        case 'divide':
+                            computation = current !== 0 ? prev / current : 'Ошибка';
+                            break;
+                        case 'percent':
+                            computation = prev * (current / 100);
+                            break;
+                        default:
+                            return;
+                    }
+
+                    currentInput = computation.toString();
+                    operation = null;
+                    previousInput = '';
+                    shouldResetInput = true;
+                    updateDisplay();
+                };
+
+                const getOperationSymbol = (op) => {
+                    const symbols = {
+                        'add': '+',
+                        'subtract': '-',
+                        'multiply': '×',
+                        'divide': '÷',
+                        'percent': '%'
+                    };
+                    return symbols[op] || op;
+                };
+
+                window.querySelectorAll('.calc-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        if (button.dataset.number) {
+                            inputNumber(button.dataset.number);
+                        } else if (button.dataset.action === 'decimal') {
+                            inputDecimal();
+                        } else if (button.dataset.action === 'clear') {
+                            clear();
+                        } else if (button.dataset.action === 'backspace') {
+                            backspace();
+                        } else if (button.dataset.action === 'equals') {
+                            calculate();
+                        } else {
+                            performOperation(button.dataset.action);
+                        }
+                    });
+                });
+            }
+
+            createNotepad() {
+                const content = document.createElement('div');
+                content.className = 'editor-content';
+                content.innerHTML = `
+                    <div class="editor-toolbar">
+                        <button class="toolbar-btn" data-action="new">📄 Новый</button>
+                        <button class="toolbar-btn" data-action="open">📂 Открыть</button>
+                        <button class="toolbar-btn" data-action="save">💾 Сохранить</button>
+                        <button class="toolbar-btn" data-action="print">🖨️ Печать</button>
+                    </div>
+                    <textarea id="editor-textarea" placeholder="Введите текст здесь..."></textarea>
+                `;
+
+                const window = this.createWindow('Блокнот', content, 600, 500);
+                this.setupNotepad(window);
+                return window;
+            }
+
+            setupNotepad(window) {
+                const textarea = window.querySelector('#editor-textarea');
+                const toolbar = window.querySelector('.editor-toolbar');
+
+                // Загружаем сохраненный текст
+                const savedText = localStorage.getItem('notepad_content');
+                if (savedText) {
+                    textarea.value = savedText;
+                }
+
+                textarea.addEventListener('input', () => {
+                    localStorage.setItem('notepad_content', textarea.value);
+                });
+
+                toolbar.addEventListener('click', (e) => {
+                    if (!e.target.closest('.toolbar-btn')) return;
+                    
+                    const action = e.target.closest('.toolbar-btn').dataset.action;
+                    switch(action) {
+                        case 'new':
+                            if (textarea.value && !confirm('Удалить текущий текст?')) return;
+                            textarea.value = '';
+                            break;
+                        case 'save':
+                            localStorage.setItem('notepad_content', textarea.value);
+                            this.showNotification('Блокнот', 'Документ сохранен');
+                            break;
+                        case 'print':
+                            window.print();
+                            break;
+                        case 'open':
+                            // Эмуляция открытия файла
+                            const files = ['Документ1.txt', 'Заметки.txt', 'Проект.md'];
+                            const fileList = files.map(f => `<div class="context-item" onclick="document.getElementById('editor-textarea').value='Содержимое ${f}'">${f}</div>`).join('');
+                            this.showContextMenu({
+                                clientX: e.clientX,
+                                clientY: e.clientY
+                            }, fileList);
+                            break;
+                    }
+                });
+            }
+
+            createBrowser() {
+                const content = document.createElement('div');
+                content.className = 'browser-content';
+                content.innerHTML = `
+                    <div class="browser-toolbar">
+                        <button class="toolbar-btn" onclick="this.closest('.window').querySelector('iframe').contentWindow.history.back()">←</button>
+                        <button class="toolbar-btn" onclick="this.closest('.window').querySelector('iframe').contentWindow.history.forward()">→</button>
+                        <button class="toolbar-btn" onclick="this.closest('.window').querySelector('iframe').contentWindow.location.reload()">↻</button>
+                        <input type="text" class="browser-url" value="https://example.com" id="browser-url">
+                        <button class="toolbar-btn" onclick="this.closest('.window').querySelector('iframe').src = document.getElementById('browser-url').value">↵</button>
+                    </div>
+                    <iframe class="browser-content" src="https://example.com" id="browser-frame"></iframe>
+                `;
+
+                const window = this.createWindow('Браузер', content, 800, 600);
+                return window;
+            }
+
+            createMediaPlayer() {
+                const content = document.createElement('div');
+                content.className = 'media-player-content';
+                content.innerHTML = `
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #000; color: white;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px;">🎵</div>
+                            <div style="margin-top: 20px;">Медиаплеер WebOS</div>
+                            <div style="margin-top: 10px; opacity: 0.7;">Выберите файл для воспроизведения</div>
+                        </div>
+                    </div>
+                    <div class="player-controls">
+                        <button class="player-btn" onclick="alert('Воспроизведение')">▶️</button>
+                        <button class="player-btn" onclick="alert('Пауза')">⏸️</button>
+                        <button class="player-btn" onclick="alert('Стоп')">⏹️</button>
+                        <div class="player-progress">
+                            <div class="player-progress-fill"></div>
+                        </div>
+                        <div style="color: var(--text-color); font-size: 12px;">0:00 / 3:45</div>
+                    </div>
+                    <canvas id="player-visualizer"></canvas>
+                `;
+
+                const window = this.createWindow('Медиаплеер', content, 500, 400);
+                return window;
+            }
+
+            createTaskManager() {
+                const content = document.createElement('div');
+                content.className = 'task-manager-content';
+                content.innerHTML = `
+                    <div class="task-manager-tabs">
+                        <button class="task-tab active" data-tab="processes">Процессы</button>
+                        <button class="task-tab" data-tab="performance">Производительность</button>
+                        <button class="task-tab" data-tab="history">История приложений</button>
+                        <button class="task-tab" data-tab="startup">Автозагрузка</button>
+                    </div>
+                    <div class="task-tab-content active" id="tab-processes">
+                        <table class="process-table">
+                            <thead>
+                                <tr>
+                                    <th>Имя</th>
+                                    <th>PID</th>
+                                    <th>Состояние</th>
+                                    <th>ЦП, %</th>
+                                    <th>Память (МБ)</th>
+                                    <th>Пользователь</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="process-list"></tbody>
+                        </table>
+                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button class="toolbar-btn" onclick="OS.endProcess()">Завершить процесс</button>
+                            <button class="toolbar-btn" onclick="OS.endProcessTree()">Завершить дерево</button>
+                            <button class="toolbar-btn" onclick="OS.refreshTaskManager()">Обновить</button>
+                        </div>
+                    </div>
+                    <div class="task-tab-content" id="tab-performance">
+                        <div class="performance-grid">
+                            <div class="metric-card">
+                                <div class="metric-title">Загрузка ЦП</div>
+                                <div class="metric-value" id="cpu-value">0%</div>
+                                <div class="metric-progress">
+                                    <div class="metric-progress-fill" id="cpu-bar"></div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-title">Использование памяти</div>
+                                <div class="metric-value" id="memory-value">0 МБ</div>
+                                <div class="metric-progress">
+                                    <div class="metric-progress-fill" id="memory-bar"></div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-title">Хранилище</div>
+                                <div class="metric-value" id="storage-value">0%</div>
+                                <div class="metric-progress">
+                                    <div class="metric-progress-fill" id="storage-bar"></div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-title">Время работы</div>
+                                <div class="metric-value" id="uptime">00:00:00</div>
+                            </div>
+                        </div>
+                        <div class="metric-card" style="grid-column: span 2; margin-top: 20px;">
+                            <div class="metric-title">График загрузки ЦП (последние 60 сек)</div>
+                            <div class="cpu-graph" id="cpu-graph"></div>
+                        </div>
+                    </div>
+                    <div class="task-tab-content" id="tab-history">
+                        <div>История запуска приложений:</div>
+                        <ul id="app-history" style="margin-top: 10px; list-style: none; padding: 0;"></ul>
+                    </div>
+                    <div class="task-tab-content" id="tab-startup">
+                        <div>Программы в автозагрузке:</div>
+                        <div style="margin-top: 10px;">
+                            <label><input type="checkbox" checked> Диспетчер задач</label><br>
+                            <label><input type="checkbox"> Настройки звука</label><br>
+                            <label><input type="checkbox"> Фоновая синхронизация</label>
+                        </div>
+                    </div>
+                `;
+
+                const window = this.createWindow('Диспетчер задач', content, 700, 500);
+                this.setupTaskManager(window);
+                return window;
+            }
+
+            setupTaskManager(window) {
+                const tabs = window.querySelectorAll('.task-tab');
+                const tabContents = window.querySelectorAll('.task-tab-content');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabId = tab.dataset.tab;
+                        
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === `tab-${tabId}`) {
+                                content.classList.add('active');
+                            }
+                        });
+
+                        if (tabId === 'processes') {
+                            this.updateProcessList();
+                        } else if (tabId === 'performance') {
+                            this.updatePerformanceMetrics();
+                        }
+                    });
+                });
+
+                this.updateProcessList();
+                this.updatePerformanceMetrics();
+                this.updateAppHistory();
+            }
+
+            updateProcessList() {
+                const list = document.getElementById('process-list');
+                if (!list) return;
+
+                list.innerHTML = '';
+                this.processes.forEach(process => {
+                    const row = document.createElement('tr');
+                    row.className = `process-row ${process.state}`;
+                    row.innerHTML = `
+                        <td>${process.name}</td>
+                        <td>${process.pid}</td>
+                        <td><span style="color: ${process.state === 'running' ? 'green' : 'red'}">●</span> ${process.state}</td>
+                        <td>${process.cpuUsage.toFixed(1)}%</td>
+                        <td>${process.memoryUsage} МБ</td>
+                        <td>${process.user}</td>
+                        <td><button onclick="OS.terminateProcess(${process.pid})" style="padding: 2px 8px; font-size: 12px;">Завершить</button></td>
+                    `;
+                    list.appendChild(row);
+                });
+            }
+
+            updatePerformanceMetrics() {
+                document.getElementById('cpu-value').textContent = `${this.systemLoad.cpu.toFixed(1)}%`;
+                document.getElementById('cpu-bar').style.width = `${this.systemLoad.cpu}%`;
+                
+                document.getElementById('memory-value').textContent = `${Math.round(this.systemLoad.memory)} МБ / 4096 МБ`;
+                document.getElementById('memory-bar').style.width = `${(this.systemLoad.memory / 4096) * 100}%`;
+                
+                document.getElementById('storage-value').textContent = `${this.systemLoad.storage.toFixed(1)}%`;
+                document.getElementById('storage-bar').style.width = `${this.systemLoad.storage}%`;
+
+                // Обновляем график ЦП
+                const graph = document.getElementById('cpu-graph');
+                if (graph) {
+                    graph.innerHTML = '';
+                    for (let i = 0; i < 60; i++) {
+                        const bar = document.createElement('div');
+                        bar.className = 'cpu-bar';
+                        bar.style.left = `${i * 5}px`;
+                        bar.style.height = `${Math.random() * 80 + 10}px`;
+                        graph.appendChild(bar);
+                    }
+                }
+
+                // Время работы системы
+                const startTime = Date.now() - (30 * 60 * 1000); // 30 минут назад
+                const uptime = Math.floor((Date.now() - startTime) / 1000);
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                const seconds = uptime % 60;
+                document.getElementById('uptime').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            updateAppHistory() {
+                const history = document.getElementById('app-history');
+                if (!history) return;
+
+                const apps = ['Калькулятор', 'Блокнот', 'Браузер', 'Диспетчер задач', 'Медиаплеер'];
+                history.innerHTML = apps.map(app => 
+                    `<li>🕐 ${new Date().toLocaleTimeString()} - Запущено: ${app}</li>`
+                ).join('');
+            }
+
+            terminateProcess(pid) {
+                const process = this.processes.get(pid);
+                if (process) {
+                    const window = document.getElementById(process.windowId);
+                    if (window) {
+                        window.querySelector('.close').click();
+                    }
+                    this.processes.delete(pid);
+                    this.updateProcessList();
+                    this.updateSystemLoad();
+                    this.showNotification('Диспетчер задач', `Процесс "${process.name}" завершен`);
+                }
+            }
+
+            createSettings() {
+                const content = document.createElement('div');
+                content.className = 'settings-content';
+                content.innerHTML = `
+                    <div style="display: flex; height: 100%;">
+                        <div style="width: 200px; border-right: 1px solid var(--border-color); padding: 20px;">
+                            <div style="font-weight: bold; margin-bottom: 20px;">Настройки</div>
+                            <div class="settings-item" data-section="system">💻 Система</div>
+                            <div class="settings-item" data-section="personalization">🎨 Персонализация</div>
+                            <div class="settings-item" data-section="accounts">👥 Учётные записи</div>
+                            <div class="settings-item" data-section="privacy">🔒 Конфиденциальность</div>
+                        </div>
+                        <div style="flex: 1; padding: 20px;" id="settings-content">
+                            <h3>Система</h3>
+                            <div style="margin-top: 20px;">
+                                <label style="display: block; margin-bottom: 10px;">
+                                    <input type="checkbox" id="dark-mode"> Тёмная тема
+                                </label>
+                                <label style="display: block; margin-bottom: 10px;">
+                                    <input type="checkbox" id="auto-start"> Запускать Диспетчер задач при старте
+                                </label>
+                                <div style="margin-top: 20px;">
+                                    <div>Виртуальная память: 4096 МБ</div>
+                                    <div style="margin-top: 10px;">
+                                        <button onclick="OS.clearStorage()" style="padding: 8px 16px;">Очистить хранилище</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const window = this.createWindow('Настройки', content, 600, 400);
+                this.setupSettings(window);
+                return window;
+            }
+
+            setupSettings(window) {
+                const darkModeToggle = window.querySelector('#dark-mode');
+                darkModeToggle.checked = this.theme === 'dark';
+                
+                darkModeToggle.addEventListener('change', () => {
+                    this.toggleTheme();
+                });
+
+                const settingsItems = window.querySelectorAll('.settings-item');
+                settingsItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        settingsItems.forEach(i => i.style.background = 'none');
+                        item.style.background = 'rgba(0, 120, 215, 0.1)';
+                        
+                        const section = item.dataset.section;
+                        const content = document.getElementById('settings-content');
+                        content.innerHTML = this.getSettingsSection(section);
+                    });
+                });
+            }
+
+            getSettingsSection(section) {
+                const sections = {
+                    'system': `
+                        <h3>Система</h3>
+                        <div style="margin-top: 20px;">
+                            <div style="margin-bottom: 15px;">
+                                <strong>О WebOS</strong>
+                                <div style="margin-top: 5px; font-size: 14px; color: #666;">
+                                    Версия 1.0.0<br>
+                                    Для дипломной работы
+                                </div>
+                            </div>
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" id="dark-mode" ${this.theme === 'dark' ? 'checked' : ''} onchange="OS.toggleTheme()"> Тёмная тема
+                            </label>
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" id="auto-start" checked> Запускать Диспетчер задач при старте
+                            </label>
+                        </div>
+                    `,
+                    'personalization': `
+                        <h3>Персонализация</h3>
+                        <div style="margin-top: 20px;">
+                            <div style="margin-bottom: 15px;">
+                                <strong>Обои рабочего стола</strong>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <div style="width: 100px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 5px; cursor: pointer;" onclick="OS.setWallpaper('gradient')"></div>
+                                    <div style="width: 100px; height: 60px; background: #0078d7; border-radius: 5px; cursor: pointer;" onclick="OS.setWallpaper('blue')"></div>
+                                    <div style="width: 100px; height: 60px; background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDc4ZDciIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzZIMjRMMzAgMjR6TTI0IDM2bDEyLTEyIDEyIDEyek0zNiAyNGwtMTIgMTItMTItMTJ6Ii8+PC9nPjwvZz48L3N2Zz4='); border-radius: 5px; cursor: pointer;" onclick="OS.setWallpaper('pattern')"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    'accounts': `
+                        <h3>Учётные записи</h3>
+                        <div style="margin-top: 20px;">
+                            <div style="margin-bottom: 15px;">
+                                <strong>Текущий пользователь: ${this.currentUser}</strong>
+                            </div>
+                            <div style="background: var(--bg-color); padding: 15px; border-radius: 5px;">
+                                <div>Создать нового пользователя:</div>
+                                <input type="text" placeholder="Имя пользователя" style="margin-top: 10px; padding: 8px; width: 200px;">
+                                <button style="margin-left: 10px; padding: 8px 16px;">Создать</button>
+                            </div>
+                        </div>
+                    `,
+                    'privacy': `
+                        <h3>Конфиденциальность</h3>
+                        <div style="margin-top: 20px;">
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" checked> Сбор данных для улучшения WebOS
+                            </label>
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox"> Отправлять отчеты об ошибках
+                            </label>
+                            <div style="margin-top: 20px;">
+                                <button onclick="OS.clearAllData()" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 5px;">Очистить все данные</button>
+                            </div>
+                        </div>
+                    `
+                };
+                return sections[section] || '<h3>Раздел в разработке</h3>';
+            }
+
+            createPaint() {
+                const content = document.createElement('div');
+                content.innerHTML = `
+                    <div style="display: flex; height: 100%;">
+                        <div style="width: 60px; background: var(--bg-color); padding: 10px; border-right: 1px solid var(--border-color);">
+                            <div style="text-align: center; padding: 10px 0; cursor: pointer;" title="Кисть" onclick="OS.selectTool('brush')">🖌️</div>
+                            <div style="text-align: center; padding: 10px 0; cursor: pointer;" title="Линия" onclick="OS.selectTool('line')">📏</div>
+                            <div style="text-align: center; padding: 10px 0; cursor: pointer;" title="Прямоугольник" onclick="OS.selectTool('rect')">⬜</div>
+                            <div style="text-align: center; padding: 10px 0; cursor: pointer;" title="Круг" onclick="OS.selectTool('circle')">⭕</div>
+                            <div style="text-align: center; padding: 10px 0; cursor: pointer;" title="Заливка" onclick="OS.selectTool('fill')">🎨</div>
+                            <hr style="margin: 10px 0;">
+                            <input type="color" id="paint-color" value="#0078d7" style="width: 100%;">
+                            <input type="range" id="brush-size" min="1" max="20" value="3" style="width: 100%; margin-top: 10px;">
+                        </div>
+                        <canvas id="paint-canvas" style="flex: 1; cursor: crosshair;"></canvas>
+                    </div>
+                `;
+
+                const window = this.createWindow('Рисование', content, 600, 400);
+                this.setupPaint(window);
+                return window;
+            }
+
+            setupPaint(window) {
+                const canvas = window.querySelector('#paint-canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // Белый фон
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                let painting = false;
+                let currentTool = 'brush';
+                let color = '#0078d7';
+                let brushSize = 3;
+                let startX, startY;
+
+                canvas.addEventListener('mousedown', (e) => {
+                    painting = true;
+                    startX = e.offsetX;
+                    startY = e.offsetY;
+                    
+                    if (currentTool === 'brush') {
+                        ctx.beginPath();
+                        ctx.moveTo(startX, startY);
+                    }
+                });
+
+                canvas.addEventListener('mouseup', () => {
+                    painting = false;
+                    ctx.beginPath();
+                });
+
+                canvas.addEventListener('mousemove', (e) => {
+                    if (!painting) return;
+                    
+                    ctx.lineWidth = brushSize;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = color;
+                    
+                    if (currentTool === 'brush') {
+                        ctx.lineTo(e.offsetX, e.offsetY);
+                        ctx.stroke();
+                    } else if (currentTool === 'line') {
+                        // Рисуем временную линию
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = canvas.height;
+                        tempCtx.drawImage(canvas, 0, 0);
+                        tempCtx.beginPath();
+                        tempCtx.moveTo(startX, startY);
+                        tempCtx.lineTo(e.offsetX, e.offsetY);
+                        tempCtx.strokeStyle = color;
+                        tempCtx.lineWidth = brushSize;
+                        tempCtx.stroke();
+                        ctx.drawImage(tempCanvas, 0, 0);
+                    }
+                });
+
+                // Обработчики для инструментов
+                window.querySelector('#paint-color').addEventListener('input', (e) => {
+                    color = e.target.value;
+                });
+
+                window.querySelector('#brush-size').addEventListener('input', (e) => {
+                    brushSize = parseInt(e.target.value);
+                });
+            }
+
+            createTerminal() {
+                const content = document.createElement('div');
+                content.innerHTML = `
+                    <div style="background: #1e1e1e; color: #00ff00; font-family: monospace; height: 100%; padding: 10px; overflow: auto;" id="terminal-output">
+                        <div>WebOS Terminal v1.0</div>
+                        <div>Введите "help" для списка команд</div>
+                        <br>
+                        <div>
+                            <span>user@webos:~$ </span>
+                            <input type="text" id="terminal-input" style="background: none; border: none; color: #00ff00; font-family: monospace; outline: none; width: calc(100% - 150px);">
+                        </div>
+                    </div>
+                `;
+
+                const window = this.createWindow('Терминал', content, 500, 300);
+                this.setupTerminal(window);
+                return window;
+            }
+
+            setupTerminal(window) {
+                const input = window.querySelector('#terminal-input');
+                const output = window.querySelector('#terminal-output');
+                
+                const commands = {
+                    'help': 'Доступные команды: help, clear, date, echo, ls, ps, whoami, shutdown',
+                    'clear': () => { output.innerHTML = '<div>WebOS Terminal v1.0</div><div>Введите "help" для списка команд</div><br>'; },
+                    'date': () => new Date().toLocaleString(),
+                    'echo': (args) => args.join(' '),
+                    'ls': 'Документы/ Изображения/ Музыка/ Видео/',
+                    'ps': () => {
+                        let result = 'PID\tИмя\t\tСостояние\n';
+                        this.processes.forEach(p => {
+                            result += `${p.pid}\t${p.name}\t${p.state}\n`;
+                        });
+                        return result;
+                    },
+                    'whoami': () => this.currentUser,
+                    'shutdown': () => { this.shutdown(); return 'Выключение системы...'; }
+                };
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const command = input.value.trim().toLowerCase();
+                        const [cmd, ...args] = command.split(' ');
+                        
+                        let response = 'Команда не найдена. Введите "help" для списка команд.';
+                        
+                        if (commands[cmd]) {
+                            if (typeof commands[cmd] === 'function') {
+                                response = commands[cmd](args);
+                            } else {
+                                response = commands[cmd];
+                            }
+                        }
+                        
+                        output.innerHTML += `<div><span>user@webos:~$ </span>${command}</div>`;
+                        output.innerHTML += `<div>${response}</div><br>`;
+                        output.innerHTML += `<div><span>user@webos:~$ </span><input type="text" id="terminal-input" style="background: none; border: none; color: #00ff00; font-family: monospace; outline: none; width: calc(100% - 150px);"></div>`;
+                        
+                        output.scrollTop = output.scrollHeight;
+                        
+                        const newInput = output.querySelector('#terminal-input');
+                        newInput.focus();
+                        newInput.addEventListener('keypress', input.removeEventListener('keypress', arguments.callee));
+                        this.setupTerminal(window); // Повторная привязка событий
+                    }
+                });
+            }
+
+            // ========== СИСТЕМНЫЕ ФУНКЦИИ ==========
+            showTaskManager() {
+                this.openApp('taskmanager');
+            }
+
+            showNotification(title, message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.innerHTML = `
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+
+            showContextMenu(e, customContent = null) {
+                e.preventDefault();
+                
+                let menu = document.getElementById('context-menu');
+                if (menu) menu.remove();
+                
+                menu = document.createElement('div');
+                menu.id = 'context-menu';
+                menu.className = 'context-menu';
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                
+                if (customContent) {
+                    menu.innerHTML = customContent;
+                } else {
+                    menu.innerHTML = `
+                        <div class="context-item" onclick="OS.refreshDesktop()">⟳ Обновить</div>
+                        <div class="context-item" onclick="OS.createFolder()">📁 Создать папку</div>
+                        <div class="context-item" onclick="OS.createFile()">📄 Создать файл</div>
+                        <div class="context-divider"></div>
+                        <div class="context-item" onclick="OS.openSettings()">⚙️ Параметры отображения</div>
+                    `;
+                }
+                
+                document.body.appendChild(menu);
+                menu.style.display = 'block';
+            }
+
+            toggleTheme() {
+                this.theme = this.theme === 'light' ? 'dark' : 'light';
+                document.body.classList.toggle('dark-theme', this.theme === 'dark');
+                localStorage.setItem('webos_theme', this.theme);
+                this.showNotification('Настройки', `Тема изменена на ${this.theme === 'dark' ? 'тёмную' : 'светлую'}`);
+            }
+
+            setWallpaper(type) {
+                const wallpapers = {
+                    'gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'blue': '#0078d7',
+                    'pattern': 'url(\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDc4ZDciIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzZIMjRMMzAgMjR6TTI0IDM2bDEyLTEyIDEyIDEyek0zNiAyNGwtMTIgMTItMTItMTJ6Ii8+PC9nPjwvZz48L3N2Zz4=\')'
+                };
+                
+                document.body.style.background = wallpapers[type];
+                document.body.style.backgroundSize = type === 'pattern' ? '60px 60px' : 'cover';
+                localStorage.setItem('webos_wallpaper', type);
+                this.showNotification('Персонализация', 'Обои рабочего стола изменены');
+            }
+
+            clearStorage() {
+                if (confirm('Очистить локальное хранилище?')) {
+                    localStorage.clear();
+                    this.showNotification('Система', 'Хранилище очищено');
+                }
+            }
+
+            clearAllData() {
+                if (confirm('Это удалит все настройки и данные. Продолжить?')) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    indexedDB.deleteDatabase('webos');
+                    this.showNotification('Конфиденциальность', 'Все данные удалены');
+                }
+            }
+
+            refreshDesktop() {
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    icon.classList.remove('selected');
+                });
+            }
+
+            createFolder() {
+                this.showNotification('Рабочий стол', 'Папка создана');
+            }
+
+            createFile() {
+                this.showNotification('Рабочий стол', 'Файл создан');
+            }
+
+            openSettings() {
+                this.openApp('settings');
+            }
+
+            lock() {
+                this.isLocked = true;
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('login-screen').style.opacity = '1';
+                document.getElementById('username').style.display = 'none';
+                document.getElementById('password').style.display = 'none';
+                document.querySelector('.login-container h1').textContent = 'Заблокировано';
+                document.querySelector('.login-btn').textContent = 'Разблокировать';
+            }
+
+            shutdown() {
+                if (confirm('Вы действительно хотите выключить систему?')) {
+                    this.showNotification('Система', 'Выключение WebOS...');
+                    setTimeout(() => {
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.innerHTML = `
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: black; color: white; font-size: 24px;">
+                                    <div>Система выключена. Обновите страницу для повторного запуска.</div>
+                                </div>
+                            `;
+                        }, 1000);
+                    }, 2000);
+                }
+            }
+
+            crashSystem() {
+                document.getElementById('bsod').style.display = 'flex';
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    document.getElementById('bsod-progress').textContent = `Сбор данных: ${Math.min(100, Math.round(progress))}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    }
+                }, 300);
+            }
+
+            setupProcessMonitor() {
+                setInterval(() => {
+                    // Симуляция активности процессов
+                    this.processes.forEach(process => {
+                        if (process.state === 'running') {
+                            process.cpuUsage = Math.max(0.1, Math.min(100, 
+                                process.cpuUsage + (Math.random() * 4 - 2)
+                            ));
+                            
+                            // Случайное зависание процесса
+                            if (Math.random() < 0.001) {
+                                process.state = 'not-responding';
+                                this.showNotification('Система', 
+                                    `Приложение "${process.name}" не отвечает`, 
+                                    'error');
+                            }
+                        }
+                    });
+                    
+                    this.updateSystemLoad();
+                    
+                    // Обновляем диспетчер задач, если он открыт
+                    const taskManager = document.querySelector('.task-manager-content');
+                    if (taskManager && taskManager.style.display !== 'none') {
+                        this.updateProcessList();
+                        this.updatePerformanceMetrics();
+                    }
+                }, 2000);
+            }
+
+            updateClock() {
+                const update = () => {
+                    const now = new Date();
+                    const time = now.toLocaleTimeString('ru-RU', { 
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    document.getElementById('clock').textContent = time;
+                };
+                update();
+                setInterval(update, 1000);
+            }
+
+            loadState() {
+                // Загрузка темы
+                const savedTheme = localStorage.getItem('webos_theme');
+                if (savedTheme) {
+                    this.theme = savedTheme;
+                    document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+                }
+                
+                // Загрузка обоев
+                const savedWallpaper = localStorage.getItem('webos_wallpaper');
+                if (savedWallpaper) {
+                    this.setWallpaper(savedWallpaper);
+                }
+            }
+        }
+
+        // Инициализация системы
+        let OS;
+        window.addEventListener('DOMContentLoaded', () => {
+            OS = new OperatingSystem();
+            window.OS = OS; // Для доступа из консоли
+            
+            // Глобальные функции
+            window.selectTool = (tool) => {
+                console.log(`Выбран инструмент: ${tool}`);
+            };
+        });
+
+        // Глобальные функции для кнопок
+        window.endProcess = () => {
+            const pid = prompt('Введите PID процесса для завершения:');
+            if (pid) OS.terminateProcess(parseInt(pid));
+        };
+
+        window.endProcessTree = () => {
+            alert('Завершение дерева процессов (эмуляция)');
+        };
+
+        window.refreshTaskManager = () => {
+            OS.updateProcessList();
+            OS.updatePerformanceMetrics();
+        };
+    </script>
+</body>
+</html>
