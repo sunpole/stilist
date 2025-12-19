@@ -1,8 +1,8 @@
 {
   "name": "Калькулятор полиграфических операций",
   "short_name": "Полиграфия",
-  "description": "Расчет операций УФ-лакирования и фольгирования",
-  "start_url": "./index.html",
+  "description": "Расчет 6 операций УФ-лакирования и фольгирования",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#2c3e50",
