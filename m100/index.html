@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Миссия: Община - Интерфейс</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Сброс и базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f4e9 0%, #e8e4d8 100%);
+            color: #5a4a3a;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Заголовок */
+        .header {
+            text-align: center;
+            padding: 20px 0 30px;
+            border-bottom: 2px solid rgba(139, 107, 70, 0.2);
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            color: #8b6b46;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .header h1 i {
+            color: #a88c5d;
+            margin-right: 15px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #7a6a55;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .header::after {
+            content: "✝";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f8f4e9;
+            padding: 0 15px;
+            color: #a88c5d;
+            font-size: 1.5rem;
+        }
+        
+        /* Основной макет */
+        .game-interface {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        @media (min-width: 992px) {
+            .game-interface {
+                flex-direction: row;
+            }
+        }
+        
+        /* Левая часть - Игровое поле */
+        .game-field {
+            flex: 3;
+            background-color: #f1ecdf;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(139, 107, 70, 0.15);
+            border: 2px solid #d4c9b4;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #d4c9b4;
+        }
+        
+        .field-title {
+            font-size: 1.8rem;
+            color: #8b6b46;
+            font-weight: 600;
+        }
+        
+        .date-display {
+            font-size: 1.1rem;
+            background: #e8dfcc;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: #7a6a55;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* Сетка 3x3 */
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px auto;
+            max-width: 700px;
+            position: relative;
+        }
+        
+        /* Визуальные линии сетки */
+        .grid-line.horizontal {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent 10%, rgba(168, 140, 93, 0.3) 50%, transparent 90%);
+            z-index: 1;
+        }
+        
+        .grid-line.horizontal:nth-child(1) { top: 33.33%; }
+        .grid-line.horizontal:nth-child(2) { top: 66.66%; }
+        
+        .grid-line.vertical {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent 10%, rgba(168, 140, 93, 0.3) 50%, transparent 90%);
+            z-index: 1;
+        }
+        
+        .grid-line.vertical:nth-child(3) { left: 33.33%; }
+        .grid-line.vertical:nth-child(4) { left: 66.66%; }
+        
+        .grid-line.diagonal {
+            position: absolute;
+            background: linear-gradient(to bottom right, transparent 45%, rgba(205, 92, 92, 0.15) 50%, transparent 55%);
+            z-index: 1;
+        }
+        
+        .grid-line.diagonal:nth-child(5) {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(45deg);
+            transform-origin: 0 0;
+        }
+        
+        .grid-line.diagonal:nth-child(6) {
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-45deg);
+            transform-origin: 100% 0;
+        }
+        
+        /* Клетки организаций */
+        .grid-cell {
+            aspect-ratio: 1/1;
+            background: linear-gradient(145deg, #f5f0e1, #e8e0cd);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 
+                inset 0 2px 5px rgba(255, 255, 255, 0.8),
+                0 4px 8px rgba(139, 107, 70, 0.2);
+            transition: all 0.3s ease;
+            border: 2px solid #d4c9b4;
+            overflow: hidden;
+        }
+        
+        .grid-cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                inset 0 2px 5px rgba(255, 255, 255, 0.8),
+                0 8px 16px rgba(139, 107, 70, 0.25);
+            border-color: #a88c5d;
+        }
+        
+        /* Цвета улиц (горизонтальные линии) */
+        .street-1 { border-top: 4px solid #a8c686; }
+        .street-2 { border-top: 4px solid #8bb174; }
+        .street-3 { border-top: 4px solid #6f9560; }
+        
+        /* Emoji организаций */
+        .cell-emoji {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+        }
+        
+        /* Индикатор успеха */
+        .success-indicator {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 3px 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .success-high { color: #4a7c59; }
+        .success-medium { color: #d4a017; }
+        .success-low { color: #c44d4d; }
+        
+        /* Полоска успеха */
+        .success-bar {
+            width: 80%;
+            height: 6px;
+            background: #e0d6c2;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .success-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .success-high .success-fill { background: linear-gradient(to right, #7bb992, #4a7c59); width: 87%; }
+        .success-medium .success-fill { background: linear-gradient(to right, #f2c94c, #d4a017); width: 52%; }
+        .success-low .success-fill { background: linear-gradient(to right, #e57373, #c44d4d); width: 23%; }
+        
+        /* Кнопка помощи */
+        .help-btn {
+            position: absolute;
+            bottom: 10px;
+            background: linear-gradient(to bottom, #8bb174, #6f9560);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(111, 149, 96, 0.3);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .help-btn:hover {
+            background: linear-gradient(to bottom, #9bc784, #7fa56a);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(111, 149, 96, 0.4);
+        }
+        
+        /* Ваша церковь */
+        .church-cell {
+            border: 3px solid #a88c5d;
+            background: linear-gradient(145deg, #f9f3e5, #f0e7d2);
+            box-shadow: 
+                inset 0 2px 5px rgba(255, 255, 255, 0.9),
+                0 6px 12px rgba(168, 140, 93, 0.3);
+        }
+        
+        .church-cell .cell-emoji {
+            color: #a88c5d;
+        }
+        
+        /* Правая часть - Панель управления */
+        .control-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        /* Карточки ресурсов */
+        .resource-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .resource-card {
+            background: #f1ecdf;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(139, 107, 70, 0.15);
+            border: 2px solid #d4c9b4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(139, 107, 70, 0.2);
+        }
+        
+        .resource-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .resource-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #8b6b46;
+            margin-bottom: 5px;
+        }
+        
+        .resource-label {
+            font-size: 1rem;
+            color: #7a6a55;
+            text-align: center;
+        }
+        
+        /* Вкладки */
+        .tabs-container {
+            background: #f1ecdf;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(139, 107, 70, 0.15);
+            border: 2px solid #d4c9b4;
+        }
+        
+        .tabs-header {
+            display: flex;
+            background: #e8dfcc;
+            border-bottom: 2px solid #d4c9b4;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 18px 5px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #7a6a55;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .tab-btn.active {
+            background: #f1ecdf;
+            color: #8b6b46;
+            font-weight: 600;
+            border-bottom: 3px solid #a88c5d;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: rgba(232, 223, 204, 0.7);
+            color: #8b6b46;
+        }
+        
+        .tab-content {
+            padding: 25px;
+            min-height: 300px;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .tab-pane h3 {
+            color: #8b6b46;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #d4c9b4;
+            font-size: 1.5rem;
+        }
+        
+        .development-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .dev-slot {
+            aspect-ratio: 1/1;
+            background: #e8dfcc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #d4c9b4;
+            transition: all 0.3s ease;
+        }
+        
+        .dev-slot:hover {
+            background: #e0d6c2;
+            border-color: #a88c5d;
+        }
+        
+        .dev-slot.filled {
+            background: linear-gradient(145deg, #d4c9b4, #c8bc9f);
+            border: 2px solid #a88c5d;
+        }
+        
+        /* Нижняя панель */
+        .bottom-panel {
+            background: #f1ecdf;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(139, 107, 70, 0.15);
+            border: 2px solid #d4c9b4;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .city-health {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .health-bar {
+            flex: 1;
+            height: 20px;
+            background: #e0d6c2;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(to right, #7bb992, #4a7c59);
+            border-radius: 10px;
+            width: 72%;
+        }
+        
+        .crisis-risk {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .risk-indicator {
+            padding: 8px 15px;
+            background: #e8dfcc;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #7a6a55;
+        }
+        
+        .risk-low { color: #4a7c59; }
+        .risk-medium { color: #d4a017; }
+        .risk-high { color: #c44d4d; }
+        
+        /* Мобильная адаптация */
+        @media (max-width: 991px) {
+            .game-interface {
+                flex-direction: column;
+            }
+            
+            .city-grid {
+                max-width: 500px;
+            }
+            
+            .field-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .city-grid {
+                gap: 10px;
+            }
+            
+            .grid-cell {
+                padding: 10px;
+            }
+            
+            .cell-emoji {
+                font-size: 2.2rem;
+            }
+            
+            .help-btn {
+                font-size: 0.8rem;
+                padding: 5px 8px;
+            }
+            
+            .resource-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .resource-card {
+                padding: 15px 10px;
+            }
+            
+            .resource-icon {
+                font-size: 1.8rem;
+            }
+            
+            .resource-value {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .city-grid {
+                gap: 8px;
+            }
+            
+            .grid-cell {
+                border-radius: 8px;
+            }
+            
+            .cell-emoji {
+                font-size: 1.8rem;
+                margin-bottom: 5px;
+            }
+            
+            .success-indicator {
+                font-size: 0.8rem;
+                padding: 2px 6px;
+            }
+            
+            .resource-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tabs-header {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                padding: 12px;
+                justify-content: flex-start;
+                padding-left: 20px;
+            }
+        }
+        
+        /* Сообщение о повороте экрана */
+        .rotate-message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f4e9;
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) and (orientation: portrait) {
+            .rotate-message {
+                display: flex;
+            }
+            
+            .container {
+                display: none;
+            }
+        }
+        
+        .rotate-icon {
+            font-size: 4rem;
+            color: #a88c5d;
+            margin-bottom: 30px;
+            animation: rotate 3s infinite ease-in-out;
+        }
+        
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-90deg); }
+        }
+        
+        .rotate-message h2 {
+            color: #8b6b46;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .rotate-message p {
+            color: #7a6a55;
+            font-size: 1.2rem;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        
+        /* Декоративные элементы */
+        .cross-decoration {
+            position: absolute;
+            color: rgba(168, 140, 93, 0.05);
+            font-size: 8rem;
+            z-index: 0;
+        }
+        
+        .cross-1 { top: 10%; left: 5%; }
+        .cross-2 { bottom: 10%; right: 5%; transform: rotate(45deg); }
+        
+        .game-field .cross-decoration {
+            font-size: 5rem;
+        }
+        
+        .cross-3 { top: 15%; right: 10%; }
+        .cross-4 { bottom: 20%; left: 15%; transform: rotate(90deg); }
+        
+        /* Информационные подсказки */
+        .info-hint {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #a88c5d;
+            font-size: 1.2rem;
+            cursor: help;
+        }
+        
+        /* Анимация бонусной линии */
+        @keyframes bonusGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); }
+        }
+        
+        .bonus-line {
+            animation: bonusGlow 2s infinite;
+        }
+        
+        /* Анимация кризисной линии */
+        @keyframes crisisPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(205, 92, 92, 0); }
+            50% { box-shadow: 0 0 15px rgba(205, 92, 92, 0.7); }
+        }
+        
+        .crisis-line {
+            animation: crisisPulse 1.5s infinite;
+        }
+        
+        /* Улучшения для старых браузеров */
+        .no-grid .city-grid {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .no-grid .grid-cell {
+            width: calc(33.33% - 10px);
+            margin: 5px;
+        }
+        
+        .no-flexbox .game-interface {
+            display: block;
+        }
+        
+        .no-flexbox .game-field,
+        .no-flexbox .control-panel {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Сообщение о повороте экрана -->
+    <div class="rotate-message">
+        <div class="rotate-icon">
+            <i class="fas fa-mobile-alt"></i>
+            <i class="fas fa-sync-alt" style="margin-left: -30px; font-size: 2rem;"></i>
+        </div>
+        <h2>Поверните устройство</h2>
+        <p>Для оптимального отображения игры "Миссия: Община" поверните ваше устройство в горизонтальное положение (альбомная ориентация).</p>
+        <p style="margin-top: 20px; font-size: 1rem; color: #a88c5d;">
+            <i class="fas fa-info-circle"></i> Интерфейс игры оптимизирован для широкоформатного отображения
+        </p>
+    </div>
+    
+    <div class="container">
+        <!-- Декоративные кресты -->
+        <div class="cross-decoration cross-1">✝</div>
+        <div class="cross-decoration cross-2">✝</div>
+        
+        <!-- Заголовок -->
+        <header class="header">
+            <h1><i class="fas fa-church"></i> Миссия: Община</h1>
+            <p>Стратегический симулятор развития церкви в динамичном городе. Управляйте ресурсами, развивайте общину и влияйте на городскую среду.</p>
+        </header>
+        
+        <!-- Основной интерфейс -->
+        <main class="game-interface">
+            <!-- Левая часть: Игровое поле -->
+            <section class="game-field">
+                <div class="cross-decoration cross-3">✝</div>
+                <div class="cross-decoration cross-4">✝</div>
+                
+                <div class="field-header">
+                    <h2 class="field-title">Карта города 3x3</h2>
+                    <div class="date-display">
+                        <i class="far fa-calendar-alt"></i> Год 2, Месяц 7, День 15
+                    </div>
+                </div>
+                
+                <!-- Сетка города -->
+                <div class="city-grid">
+                    <!-- Визуальные линии сетки -->
+                    <div class="grid-line horizontal"></div>
+                    <div class="grid-line horizontal"></div>
+                    <div class="grid-line vertical"></div>
+                    <div class="grid-line vertical"></div>
+                    <div class="grid-line diagonal"></div>
+                    <div class="grid-line diagonal"></div>
+                    
+                    <!-- Клетки организаций -->
+                    <!-- Улица 1 -->
+                    <div class="grid-cell street-1">
+                        <div class="cell-emoji">🏫</div>
+                        <div class="success-indicator success-high">87%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <button class="help-btn"><i class="fas fa-hands-helping"></i> Помочь</button>
+                    </div>
+                    
+                    <div class="grid-cell street-1">
+                        <div class="cell-emoji">🏭</div>
+                        <div class="success-indicator success-medium">52%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <button class="help-btn"><i class="fas fa-hands-helping"></i> Помочь</button>
+                    </div>
+                    
+                    <div class="grid-cell street-1 bonus-line">
+                        <div class="cell-emoji">🏪</div>
+                        <div class="success-indicator success-high">94%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <div class="info-hint" title="Активен бонус на этой вертикали">✨</div>
+                    </div>
+                    
+                    <!-- Улица 2 -->
+                    <div class="grid-cell street-2 crisis-line">
+                        <div class="cell-emoji">🎭</div>
+                        <div class="success-indicator success-medium">65%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <button class="help-btn"><i class="fas fa-hands-helping"></i> Помочь</button>
+                        <div class="info-hint" title="Активен кризис на этой диагонали">⚠️</div>
+                    </div>
+                    
+                    <div class="grid-cell street-2 church-cell">
+                        <div class="cell-emoji">⛪</div>
+                        <div class="success-indicator success-high">100%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <div style="position: absolute; bottom: 10px; font-size: 0.9rem; color: #a88c5d; font-weight: 600;">Ваша церковь</div>
+                    </div>
+                    
+                    <div class="grid-cell street-2">
+                        <div class="cell-emoji">🚗</div>
+                        <div class="success-indicator success-low">23%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <button class="help-btn"><i class="fas fa-hands-helping"></i> Помочь</button>
+                    </div>
+                    
+                    <!-- Улица 3 -->
+                    <div class="grid-cell street-3">
+                        <div class="cell-emoji">🏥</div>
+                        <div class="success-indicator success-high">78%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                    </div>
+                    
+                    <div class="grid-cell street-3">
+                        <div class="cell-emoji">📚</div>
+                        <div class="success-indicator success-medium">41%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                        <button class="help-btn"><i class="fas fa-hands-helping"></i> Помочь</button>
+                    </div>
+                    
+                    <div class="grid-cell street-3">
+                        <div class="cell-emoji">🌳</div>
+                        <div class="success-indicator success-high">89%</div>
+                        <div class="success-bar"><div class="success-fill"></div></div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 25px; color: #7a6a55; font-size: 0.95rem;">
+                    <p><i class="fas fa-info-circle" style="color: #a88c5d;"></i> Нажмите на организацию для подробной информации. Линии с бонусами и кризисами подсвечиваются.</p>
+                </div>
+            </section>
+            
+            <!-- Правая часть: Панель управления -->
+            <section class="control-panel">
+                <!-- Карточки ресурсов -->
+                <div class="resource-cards">
+                    <div class="resource-card">
+                        <div class="resource-icon">👥</div>
+                        <div class="resource-value">427</div>
+                        <div class="resource-label">Души</div>
+                        <div style="font-size: 0.9rem; color: #8b6b46; margin-top: 5px;">+2.1/сек</div>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <div class="resource-icon">✝️</div>
+                        <div class="resource-value">89</div>
+                        <div class="resource-label">Вера</div>
+                        <div style="font-size: 0.9rem; color: #8b6b46; margin-top: 5px;">+0.5/сек</div>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <div class="resource-icon">💰</div>
+                        <div class="resource-value">1,580</div>
+                        <div class="resource-label">Пожертвования</div>
+                        <div style="font-size: 0.9rem; color: #8b6b46; margin-top: 5px;">+10/день</div>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <div class="resource-icon">🌍</div>
+                        <div class="resource-value">112</div>
+                        <div class="resource-label">Влияние</div>
+                        <div style="font-size: 0.9rem; color: #8b6b46; margin-top: 5px;">+1.2/день</div>
+                    </div>
+                </div>
+                
+                <!-- Вкладки -->
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="church">
+                            <i class="fas fa-church"></i> Церковь
+                        </button>
+                        <button class="tab-btn" data-tab="city">
+                            <i class="fas fa-city"></i> Город
+                        </button>
+                        <button class="tab-btn" data-tab="actions">
+                            <i class="fas fa-tasks"></i> Действия
+                        </button>
+                    </div>
+                    
+                    <div class="tab-content">
+                        <!-- Вкладка Церковь -->
+                        <div class="tab-pane active" id="church-tab">
+                            <h3>Развитие церкви</h3>
+                            <p style="margin-bottom: 15px; color: #7a6a55;">Уровень церкви: <strong style="color: #8b6b46;">3 (8 слотов)</strong></p>
+                            
+                            <div class="development-grid">
+                                <div class="dev-slot filled">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 1.5rem;">🤝</div>
+                                        <div style="font-size: 0.8rem; margin-top: 5px;">Домашняя группа</div>
+                                    </div>
+                                </div>
+                                <div class="dev-slot filled">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 1.5rem;">🙏</div>
+                                        <div style="font-size: 0.8rem; margin-top: 5px;">Молитвенная комната</div>
+                                    </div>
+                                </div>
+                                <div class="dev-slot filled">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 1.5rem;">☕</div>
+                                        <div style="font-size: 0.8rem; margin-top: 5px;">Кофейня</div>
+                                    </div>
+                                </div>
+                                <div class="dev-slot"></div>
+                                <div class="dev-slot filled">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 1.5rem;">📖</div>
+                                        <div style="font-size: 0.8rem; margin-top: 5px;">Воскресная школа</div>
+                                    </div>
+                                </div>
+                                <div class="dev-slot"></div>
+                                <div class="dev-slot"></div>
+                                <div class="dev-slot filled">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 1.5rem;">🎵</div>
+                                        <div style="font-size: 0.8rem; margin-top: 5px;">Прославление</div>
+                                    </div>
+                                </div>
+                                <div class="dev-slot"></div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <h4>Активные лидеры:</h4>
+                                <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                    <div style="background: #e8dfcc; padding: 10px; border-radius: 8px; flex: 1;">
+                                        <div style="font-weight: 600; color: #8b6b46;">🤵 Помощник пастора</div>
+                                        <div style="font-size: 0.9rem; color: #7a6a55;">+5 ✝️/день</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Вкладка Город -->
+                        <div class="tab-pane" id="city-tab">
+                            <h3>Состояние города</h3>
+                            <div style="margin-bottom: 20px;">
+                                <p style="margin-bottom: 10px; color: #7a6a55;">Улицы:</p>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #e8dfcc; border-radius: 6px;">
+                                        <span>Ул. "Сион"</span>
+                                        <span style="color: #4a7c59; font-weight: 600;">▲ Высокий поток</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #e8dfcc; border-radius: 6px;">
+                                        <span>Ул. "Кедрон"</span>
+                                        <span style="color: #d4a017; font-weight: 600;">▶ Средний поток</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #e8dfcc; border-radius: 6px;">
+                                        <span>Ул. "Гефсимания"</span>
+                                        <span style="color: #c44d4d; font-weight: 600;">▼ Низкий поток</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <p style="margin-bottom: 10px; color: #7a6a55;">Бонусные линии:</p>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255, 215, 0, 0.1); border-radius: 6px; border-left: 4px solid #FFD700;">
+                                        <span>Линия 3-6-9</span>
+                                        <span>Бонус активен</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #e8dfcc; border-radius: 6px;">
+                                        <span>Линия 1-4-7</span>
+                                        <span>23 дня назад</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #e8dfcc; border-radius: 6px;">
+                                        <span>Линия 2-5-8</span>
+                                        <span>41 день назад</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Вкладка Действия -->
+                        <div class="tab-pane" id="actions-tab">
+                            <h3>Активные действия</h3>
+                            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                                <button style="padding: 15px; background: linear-gradient(to bottom, #8bb174, #6f9560); color: white; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-pray"></i> Провести служение
+                                </button>
+                                
+                                <button style="padding: 15px; background: linear-gradient(to bottom, #a88c5d, #8b6b46); color: white; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-book-bible"></i> Изучить Писание
+                                </button>
+                                
+                                <button style="padding: 15px; background: linear-gradient(to bottom, #d4c9b4, #c8bc9f); color: #5a4a3a; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-ticket-alt"></i> Просмотреть тикеты (3)
+                                </button>
+                            </div>
+                            
+                            <div style="margin-top: 25px;">
+                                <h4>Календарь событий:</h4>
+                                <div style="display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;">
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">1</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">2</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(255, 215, 0, 0.2); border-radius: 5px; border: 1px solid #FFD700;">3</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">4</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">5</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(205, 92, 92, 0.2); border-radius: 5px; border: 1px solid #cd5c5c;">6</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">7</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">8</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">9</div>
+                                    <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #e8dfcc; border-radius: 5px;">10</div>
+                                </div>
+                                <div style="display: flex; gap: 15px; margin-top: 15px; font-size: 0.9rem;">
+                                    <div><span style="display: inline-block; width: 12px; height: 12px; background: rgba(255, 215, 0, 0.3); border: 1px solid #FFD700; margin-right: 5px;"></span> Бонус</div>
+                                    <div><span style="display: inline-block; width: 12px; height: 12px; background: rgba(205, 92, 92, 0.3); border: 1px solid #cd5c5c; margin-right: 5px;"></span> Кризис</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Нижняя панель -->
+                <div class="bottom-panel">
+                    <div class="city-health">
+                        <span style="font-weight: 600; color: #7a6a55;">Здоровье города:</span>
+                        <div class="health-bar">
+                            <div class="health-fill"></div>
+                        </div>
+                        <span style="font-weight: 600; color: #4a7c59;">72%</span>
+                    </div>
+                    
+                    <div class="crisis-risk">
+                        <span style="font-weight: 600; color: #7a6a55;">Риск кризиса в этом году:</span>
+                        <div class="risk-indicator risk-low">~18% (НИЗКИЙ)</div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <button style="padding: 10px 15px; background: #e8dfcc; border: 1px solid #d4c9b4; border-radius: 8px; color: #7a6a55; cursor: pointer; font-size: 0.95rem;">
+                            <i class="fas fa-store"></i> Магазин
+                        </button>
+                        <button style="padding: 10px 15px; background: #e8dfcc; border: 1px solid #d4c9b4; border-radius: 8px; color: #7a6a55; cursor: pointer; font-size: 0.95rem;">
+                            <i class="fas fa-scroll"></i> Летопись
+                        </button>
+                        <button style="padding: 10px 15px; background: #e8dfcc; border: 1px solid #d4c9b4; border-radius: 8px; color: #7a6a55; cursor: pointer; font-size: 0.95rem;">
+                            <i class="fas fa-cog"></i> Настройки
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer style="text-align: center; padding: 25px 0 15px; color: #7a6a55; font-size: 0.9rem; border-top: 1px solid rgba(139, 107, 70, 0.2); margin-top: 20px;">
+            <p>Интерфейс игры "Миссия: Община" | Адаптирован для мобильных устройств и десктопа</p>
+            <p style="margin-top: 5px; font-size: 0.85rem;">Используйте горизонтальную ориентацию на мобильных устройствах для оптимального отображения</p>
+        </footer>
+    </div>
+
+    <script>
+        // Переключение вкладок
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Убираем активный класс у всех кнопок и панелей
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                
+                // Активируем текущую кнопку
+                button.classList.add('active');
+                
+                // Показываем соответствующую панель
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Имитация нажатия кнопок помощи
+        document.querySelectorAll('.help-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Помощь отправлена';
+                this.style.background = 'linear-gradient(to bottom, #4a7c59, #3a6549)';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.background = 'linear-gradient(to bottom, #8bb174, #6f9560)';
+                }, 2000);
+            });
+        });
+        
+        // Визуализация наведения на клетку
+        document.querySelectorAll('.grid-cell').forEach(cell => {
+            cell.addEventListener('mouseenter', function() {
+                // Добавляем класс для визуального выделения
+                this.style.transform = 'translateY(-8px) scale(1.03)';
+                this.style.zIndex = '10';
+            });
+            
+            cell.addEventListener('mouseleave', function() {
+                // Убираем выделение
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.zIndex = '2';
+            });
+        });
+        
+        // Обнаружение старых браузеров
+        function detectOldBrowser() {
+            const isIE = /*@cc_on!@*/false || !!document.documentMode;
+            const isOldFirefox = typeof InstallTrigger !== 'undefined' && parseFloat(navigator.userAgent.match(/Firefox\/(\d+\.\d+)/)?.[1] || '100') < 50;
+            
+            if (isIE || isOldFirefox) {
+                document.body.classList.add('no-grid', 'no-flexbox');
+            }
+        }
+        
+        // Запуск при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            detectOldBrowser();
+            
+            // Проверка ориентации экрана
+            function checkOrientation() {
+                if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
+                    document.querySelector('.rotate-message').style.display = 'flex';
+                    document.querySelector('.container').style.display = 'none';
+                } else {
+                    document.querySelector('.rotate-message').style.display = 'none';
+                    document.querySelector('.container').style.display = 'block';
+                }
+            }
+            
+            checkOrientation();
+            window.addEventListener('resize', checkOrientation);
+            window.addEventListener('orientationchange', checkOrientation);
+        });
+    </script>
+</body>
+</html>
