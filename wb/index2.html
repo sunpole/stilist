@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор WB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .header {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .form-section {
+            padding: 20px;
+        }
+        
+        .input-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .input-card:focus-within {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .input-label {
+            flex: 1;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+        
+        .input-field {
+            width: 120px;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: right;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        
+        .unit {
+            margin-left: 8px;
+            color: #718096;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4CAF50;
+            margin: 20px 0 10px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .fixed-discount-card {
+            background: #fff3e0;
+            border: 2px solid #ffb74d;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 12px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+        
+        .calculate-btn:hover, .calculate-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .results-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: none;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .result-main {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4CAF50;
+        }
+        
+        .result-title {
+            font-size: 15px;
+            color: #4a5568;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .result-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            line-height: 1.2;
+        }
+        
+        .result-sub {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 3px;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .result-item .label {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+        
+        .result-item .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .mobile-optimized {
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .calculator {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+            
+            .input-field {
+                width: 110px;
+                font-size: 14px;
+                padding: 9px 10px;
+            }
+            
+            .result-value {
+                font-size: 24px;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-optimized {
+                display: block;
+                text-align: center;
+                font-size: 12px;
+                color: #667eea;
+                margin-top: 10px;
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>Калькулятор цены для Wildberries</h1>
+            <p>Мобильная оптимизация + ваша скидка</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="input-card">
+                <div class="input-row">
+                    <span class="input-label">Себестоимость товара</span>
+                    <input type="number" id="cost" class="input-field" value="10" step="0.01">
+                    <span class="unit">BYN</span>
+                </div>
+            </div>
+            
+            <div class="input-card">
+                <div class="input-row">
+                    <span class="input-label">Желаемая чистая прибыль</span>
+                    <input type="number" id="profit" class="input-field" value="10" step="0.01">
+                    <span class="unit">BYN</span>
+                </div>
+            </div>
+            
+            <div class="input-card fixed-discount-card">
+                <div class="input-row">
+                    <span class="input-label">Ваша фиксированная скидка</span>
+                    <input type="number" id="fixed_discount" class="input-field" value="5" step="0.01">
+                    <span class="unit">BYN</span>
+                </div>
+                <div class="mobile-optimized">Вычтет указанную сумму из цены</div>
+            </div>
+            
+            <div class="section-title">Затраты и налоги</div>
+            
+            <div class="input-card">
+                <div class="input-row">
+                    <span class="input-label">Логистика и доставка</span>
+                    <input type="number" id="logistics_percent" class="input-field" value="10" step="0.1">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            
+            <div class="input-card">
+                <div class="input-row">
+                    <span class="input-label">Комиссия Wildberries</span>
+                    <input type="number" id="wb_commission" class="input-field" value="14" step="0.1">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            
+            <div class="input-card">
+                <div class="input-row">
+                    <span class="input-label">Макс. скидка WB (СПП)</span>
+                    <input type="number" id="wb_discount" class="input-field" value="40" step="0.1">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            
+            <div class="input-card">
+                <div class="input-row">
+                    <span class="input-label">Налог НДС</span>
+                    <input type="number" id="nds_rate" class="input-field" value="20" step="0.1">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculate()">РАССЧИТАТЬ ЦЕНУ</button>
+            <div class="mobile-optimized">Оптимизировано для мобильных устройств</div>
+        </div>
+        
+        <div class="results-section" id="results">
+            <div class="result-card result-main">
+                <div class="result-title">Цена на витрине WB (до СПП)</div>
+                <div class="result-value" id="final_price">0.00 BYN</div>
+                <div class="result-sub">Цена, которую вы устанавливаете в кабинете</div>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-title">Минимальная цена для покупателя</div>
+                <div class="result-value" id="min_customer_price">0.00 BYN</div>
+                <div class="result-sub">После скидки WB (СПП)</div>
+            </div>
+            
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="label">Ваша скидка</div>
+                    <div class="value" id="your_discount">-5.00 BYN</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Логистика</div>
+                    <div class="value" id="logistics_cost">0.00 BYN</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Комиссия WB</div>
+                    <div class="value" id="commission_cost">0.00 BYN</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">НДС к уплате</div>
+                    <div class="value" id="nds_cost">0.00 BYN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            // Получаем значения из полей
+            const cost = parseFloat(document.getElementById('cost').value);
+            const desiredProfit = parseFloat(document.getElementById('profit').value);
+            const fixedDiscount = parseFloat(document.getElementById('fixed_discount').value);
+            const logisticsPercent = parseFloat(document.getElementById('logistics_percent').value);
+            const wbCommission = parseFloat(document.getElementById('wb_commission').value);
+            const wbDiscount = parseFloat(document.getElementById('wb_discount').value);
+            const ndsRate = parseFloat(document.getElementById('nds_rate').value);
+            
+            // Расчет логистики
+            const logisticsCost = cost * (logisticsPercent / 100);
+            
+            // Расчет прибыли до налога (упрощенная модель)
+            const profitBeforeTax = desiredProfit * 1.25; // Примерный коэффициент
+            
+            // Расчет цены до применения скидки и комиссий
+            let basePrice = cost + logisticsCost + profitBeforeTax;
+            
+            // Учет НДС
+            basePrice = basePrice / (1 - ndsRate/100);
+            
+            // Учет комиссии WB
+            let priceBeforeDiscount = basePrice / (1 - wbCommission/100);
+            
+            // Применяем вашу фиксированную скидку
+            let priceAfterYourDiscount = priceBeforeDiscount - fixedDiscount;
+            
+            // Рассчет скидки WB (СПП)
+            let finalCustomerPrice = priceAfterYourDiscount * (1 - wbDiscount/100);
+            
+            // Расчет отдельных компонентов для отображения
+            const commissionCost = priceBeforeDiscount * (wbCommission/100);
+            const ndsCost = basePrice * (ndsRate/100);
+            
+            // Отображаем результаты
+            document.getElementById('final_price').textContent = priceBeforeDiscount.toFixed(2) + ' BYN';
+            document.getElementById('min_customer_price').textContent = finalCustomerPrice.toFixed(2) + ' BYN';
+            document.getElementById('your_discount').textContent = '-' + fixedDiscount.toFixed(2) + ' BYN';
+            document.getElementById('logistics_cost').textContent = logisticsCost.toFixed(2) + ' BYN';
+            document.getElementById('commission_cost').textContent = commissionCost.toFixed(2) + ' BYN';
+            document.getElementById('nds_cost').textContent = ndsCost.toFixed(2) + ' BYN';
+            
+            // Показываем секцию с результатами
+            document.getElementById('results').style.display = 'block';
+            
+            // Плавная прокрутка к результатам на мобильных
+            if (window.innerWidth < 768) {
+                document.getElementById('results').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+        
+        // Авторасчет при загрузке
+        window.onload = function() {
+            calculate();
+            
+            // Авторасчет при изменении любого поля
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculate);
+            });
+        };
+        
+        // Оптимизация для мобильных устройств
+        document.addEventListener('touchstart', function() {}, {passive: true});
+    </script>
+</body>
+</html>
