@@ -1,3 +1,5 @@
+https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/102/stilist_102.jpg
+
 # 📁 Idle Miner - Шахтёрский симулятор
 
 ## 🎮 ОПИСАНИЕ ИГРЫ
