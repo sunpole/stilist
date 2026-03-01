@@ -132,7 +132,7 @@
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 25px;
         }
 
@@ -156,9 +156,11 @@
             border-color: var(--steam-accent);
         }
 
-        /* область изображения / заглушка */
+        /* область изображения – теперь всегда квадратная пропорция */
         .card-image {
-            height: 140px;
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1; /* квадрат */
             background: linear-gradient(145deg, #2a4a5a, #1f2e3a);
             display: flex;
             align-items: center;
@@ -168,10 +170,20 @@
             color: var(--steam-accent);
             text-shadow: 0 0 15px var(--steam-accent);
             border-bottom: 2px solid var(--steam-accent);
-            position: relative;
+            overflow: hidden;
         }
 
-        /* эмблема "новинка" / "проект" */
+        .card-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* заполняет весь квадрат, обрезая лишнее */
+            object-position: center;
+        }
+
+        /* эмблема "новинка" / бейдж */
         .card-badge {
             position: absolute;
             top: 10px;
@@ -184,19 +196,20 @@
             font-weight: 700;
             text-transform: uppercase;
             box-shadow: 0 0 10px var(--steam-accent);
+            z-index: 2;
         }
 
         .card-content {
-            padding: 18px 16px 16px;
+            padding: 16px 14px 14px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .card-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--steam-text-light);
             white-space: nowrap;
             overflow: hidden;
@@ -207,8 +220,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 12px;
-            font-size: 0.85rem;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
             color: #8ba0b0;
         }
 
@@ -219,6 +232,24 @@
             text-transform: uppercase;
             font-size: 0.7rem;
             font-weight: 600;
+        }
+
+        /* теги */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 6px;
+            margin-bottom: 10px;
+        }
+
+        .card-tag {
+            background: #2a3f4e;
+            color: #acbfcc;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: lowercase;
         }
 
         .card-description {
@@ -305,15 +336,14 @@
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                 gap: 15px;
             }
+            .card-image {
+                font-size: 2.8rem;
+            }
         }
 
         @media (max-width: 450px) {
             .logo h1 {
                 font-size: 1.6rem;
-            }
-            .card-image {
-                height: 110px;
-                font-size: 2.8rem;
             }
         }
 
@@ -351,23 +381,20 @@
         // =====================================================================
         // МАССИВ ПРОЕКТОВ – добавляй сюда новые папки в формате:
         // {
-        //   name: "Название",                  // отображаемое имя
-        //   folder: "путь/к/папке",            // папка где лежит index.html (относительно корня)
-        //   description: "Краткое описание",    // появится под названием
-        //   image: "🚀",                         // эмодзи или путь к картинке (заглушка)
-        //   platform: "WEB",                     // например "PC", "WEB", "MOBILE"
-        //   price: "FREE",                        // можно "FREE" или "0₽" или скидку
-        //   badge: "НОВИНКА"                      // необязательно
+        //   name: "Название",
+        //   folder: "путь/к/папке" (если файл .html — указывай полное имя),
+        //   description: "Краткое описание",
+        //   image: "🚀" (эмодзи-заглушка, если нет скриншота),
+        //   imageUrl: "https://...", // ссылка на скриншот (необязательно)
+        //   platform: "WEB",
+        //   tags: ["web", "игра", ...], // массив тегов (необязательно)
+        //   price: "FREE",
+        //   badge: "НОВИНКА" (необязательно)
         // }
         // =====================================================================
         const projects = [
-            // Папки из вашего списка (наиболее значимые / с index.html)
-
             { name: "Simple Clicker RPG", folder: ".", description: "RPG-кликер с магазином, сохранениями и Phaser", image: "📦", imageUrl: "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/101/stilist_101.jpg", platform: "WEB", tags: ["web", "игра", "кликер", "rpg", "phaser", "сохранения"], price: "1,00$", badge: "RPG" },
-
-            { name: "Генератор паролей 2026", folder: "pass", description: "Неоновый генератор с военным стилем, 7 категорий символов, бусты, счётчики.", image: "🔐", platform: "WEB", price: "FREE", badge: "НОВИНКА" },
-            // Можно добавить все остальные папки по желанию (из списка их очень много)
-            // Формат: { name: "Имя папки", folder: "имя папки", description: "", image: "📂", platform: "WEB", price: "FREE" },
+            { name: "Генератор паролей 2026", folder: "pass", description: "Неоновый генератор с военным стилем, 7 категорий символов, бусты, счётчики.", image: "🔐", platform: "WEB", price: "FREE", badge: "НОВИНКА" }
         ];
 
         // Функция рендеринга карточек
@@ -379,7 +406,8 @@
             if (searchLower !== "") {
                 filtered = projects.filter(p => 
                     p.name.toLowerCase().includes(searchLower) || 
-                    (p.description && p.description.toLowerCase().includes(searchLower))
+                    (p.description && p.description.toLowerCase().includes(searchLower)) ||
+                    (p.tags && p.tags.some(tag => tag.toLowerCase().includes(searchLower)))
                 );
             }
 
@@ -398,19 +426,33 @@
                     link = `${proj.folder}/index.html`;
                 }
 
-                // бейдж (новинка/скидка)
+                // бейдж
                 const badgeHtml = proj.badge ? `<span class="card-badge">${proj.badge}</span>` : "";
 
-                // цена (FREE или псевдо-скидка)
+                // изображение: если есть imageUrl, ставим <img>, иначе эмодзи
+                let imageHtml = proj.image || "📦";
+                if (proj.imageUrl) {
+                    imageHtml = `<img src="${proj.imageUrl}" alt="${proj.name}" onerror="this.style.display='none'; this.parentNode.innerHTML='${proj.image || '📦'}';">`;
+                }
+
+                // цена
                 let priceHtml = `<span class="card-price">${proj.price}</span>`;
                 if (proj.price === "FREE") {
                     priceHtml = `<span class="card-price">Бесплатно</span>`;
                 }
 
+                // теги
+                let tagsHtml = "";
+                if (proj.tags && Array.isArray(proj.tags) && proj.tags.length) {
+                    tagsHtml = '<div class="card-tags">' + 
+                        proj.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') + 
+                    '</div>';
+                }
+
                 html += `
                     <div class="project-card" onclick="window.location.href='${link}'">
                         <div class="card-image">
-                            ${proj.image || "📦"}
+                            ${imageHtml}
                             ${badgeHtml}
                         </div>
                         <div class="card-content">
@@ -419,6 +461,7 @@
                                 <span class="card-platform">${proj.platform || "WEB"}</span>
                                 <span>🌐 онлайн</span>
                             </div>
+                            ${tagsHtml}
                             <p class="card-description">${proj.description || "Нет описания"}</p>
                             <div class="card-footer">
                                 ${priceHtml}
@@ -448,7 +491,7 @@
         // Инициализация
         renderProjects();
 
-        // (Опционально) можно добавить сброс поиска при клике на лого
+        // Сброс поиска при клике на лого
         document.querySelector('.logo').addEventListener('click', () => {
             searchInput.value = "";
             renderProjects();
