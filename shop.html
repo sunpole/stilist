@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>SUNPOLE · STEAM-ХАБ</title>
+    <!-- Open Graph / предпросмотр (укажите свои ссылки) -->
+    <meta property="og:title" content="SUNPOLE Game Store — коллекция проектов">
+    <meta property="og:description" content="Все мои эксперименты, игры и генераторы в стиле Steam">
+    <meta property="og:image" content="https://github.com/sunpole/stilist/raw/main/pass/Screenshot.jpg">
+    <meta property="og:url" content="https://sunpole.github.io/stilist/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        /* ===== СБРОС И ПЕРЕМЕННЫЕ ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --steam-bg: #1b2838;
+            --steam-dark: #171a21;
+            --steam-panel: #2a3f4e;
+            --steam-card: #1f2e3a;
+            --steam-card-hover: #2a475e;
+            --steam-text: #c7d5e0;
+            --steam-text-light: #e9f2f7;
+            --steam-accent: #66c0f4;
+            --steam-accent-glow: rgba(102, 192, 244, 0.4);
+            --steam-discount: #4c6b22;
+            --steam-price: #beee11;
+            --radius: 8px;
+            --transition: 0.2s ease;
+        }
+
+        body {
+            background-color: var(--steam-bg);
+            background-image: radial-gradient(circle at 20% 30%, #2a4a5a 0%, #1b2838 80%);
+            color: var(--steam-text);
+            min-height: 100vh;
+            line-height: 1.5;
+            padding: 0 20px 40px;
+        }
+
+        /* ===== ШАПКА (STEAM STYLE) ===== */
+        .header {
+            max-width: 1400px;
+            margin: 0 auto 30px;
+            padding: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid #2a3f4e;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px var(--steam-accent));
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--steam-text-light);
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            font-weight: 700;
+            color: var(--steam-accent);
+        }
+
+        .search-bar {
+            display: flex;
+            background: var(--steam-dark);
+            border-radius: 30px;
+            border: 1px solid #3a4f5e;
+            overflow: hidden;
+            width: 300px;
+            transition: var(--transition);
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--steam-accent);
+            box-shadow: 0 0 15px var(--steam-accent-glow);
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--steam-text);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: #5a7a8a;
+            font-style: italic;
+        }
+
+        .search-bar button {
+            background: var(--steam-panel);
+            border: none;
+            color: var(--steam-text);
+            padding: 0 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .search-bar button:hover {
+            background: var(--steam-accent);
+            color: #000;
+        }
+
+        /* ===== СЕТКА ПРОЕКТОВ ===== */
+        .projects-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        /* КАРТОЧКА (STEAM ИГРЫ) */
+        .project-card {
+            background: var(--steam-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+            cursor: pointer;
+            border: 1px solid #2a3f4e;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8), 0 0 0 2px var(--steam-accent) inset;
+            border-color: var(--steam-accent);
+        }
+
+        /* область изображения / заглушка */
+        .card-image {
+            height: 140px;
+            background: linear-gradient(145deg, #2a4a5a, #1f2e3a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--steam-accent);
+            text-shadow: 0 0 15px var(--steam-accent);
+            border-bottom: 2px solid var(--steam-accent);
+            position: relative;
+        }
+
+        /* эмблема "новинка" / "проект" */
+        .card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--steam-accent);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px var(--steam-accent);
+        }
+
+        .card-content {
+            padding: 18px 16px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--steam-text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #8ba0b0;
+        }
+
+        .card-platform {
+            background: var(--steam-panel);
+            padding: 4px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: #acbfcc;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #2a3f4e;
+            padding-top: 12px;
+            margin-top: auto;
+        }
+
+        .card-price {
+            font-weight: 700;
+            color: var(--steam-price);
+            font-size: 1.2rem;
+        }
+
+        .card-price small {
+            font-size: 0.7rem;
+            color: #5a7a8a;
+            text-decoration: line-through;
+            margin-right: 6px;
+        }
+
+        .card-btn {
+            background: var(--steam-accent);
+            border: none;
+            color: #000;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            box-shadow: 0 3px 0 #1a4c6e;
+        }
+
+        .card-btn:hover {
+            background: #7ac6f5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #1a4c6e;
+        }
+
+        .card-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #1a4c6e;
+        }
+
+        /* сообщение если ничего не найдено */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px;
+            font-size: 1.4rem;
+            color: #5a7a8a;
+            background: var(--steam-card);
+            border-radius: var(--radius);
+            border: 2px dashed #2a3f4e;
+        }
+
+        /* ===== АДАПТАЦИЯ ===== */
+        @media (max-width: 700px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-bar {
+                width: 100%;
+            }
+            .projects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .logo h1 {
+                font-size: 1.6rem;
+            }
+            .card-image {
+                height: 110px;
+                font-size: 2.8rem;
+            }
+        }
+
+        /* полоса прокрутки как в steam */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--steam-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--steam-panel);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--steam-accent);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🎮</span>
+            <h1><span>SUN</span>POLE · HUB</h1>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="поиск проектов...">
+            <button id="searchBtn">🔍</button>
+        </div>
+    </header>
+
+    <main class="projects-grid" id="projectsGrid"></main>
+
+    <script>
+        // =====================================================================
+        // МАССИВ ПРОЕКТОВ – добавляй сюда новые папки в формате:
+        // {
+        //   name: "Название",                  // отображаемое имя
+        //   folder: "путь/к/папке",            // папка где лежит index.html (относительно корня)
+        //   description: "Краткое описание",    // появится под названием
+        //   image: "🚀",                         // эмодзи или путь к картинке (заглушка)
+        //   platform: "WEB",                     // например "PC", "WEB", "MOBILE"
+        //   price: "FREE",                        // можно "FREE" или "0₽" или скидку
+        //   badge: "НОВИНКА"                      // необязательно
+        // }
+        // =====================================================================
+        const projects = [
+            // Папки из вашего списка (наиболее значимые / с index.html)
+            { name: "Генератор паролей 2026", folder: "pass", description: "Неоновый генератор с военным стилем, 7 категорий символов, бусты, счётчики.", image: "🔐", platform: "WEB", price: "FREE", badge: "НОВИНКА" },
+            { name: "Семейные хлопоты", folder: "Семейные Хлопоты Расширенная Версия.html", description: "Расширенная версия семейной игры (файл .html, не папка)", image: "👪", platform: "WEB", price: "FREE" },
+            { name: "Собираем игрушки", folder: "Собираем игрушки.html", description: "Мини-игра для детей", image: "🧸", platform: "WEB", price: "FREE" },
+            { name: "Albion Online helper", folder: "albion", description: "Инструменты для Albion Online", image: "⚔️", platform: "WEB", price: "FREE" },
+            { name: "Albion 2", folder: "albion2", description: "Дополнительные утилиты", image: "🛡️", platform: "WEB", price: "FREE" },
+            { name: "Muz", folder: "muz", description: "Музыкальный плеер/подборка", image: "🎵", platform: "WEB", price: "FREE" },
+            { name: "Muz 2", folder: "muz2", description: "Вторая версия плеера", image: "🎶", platform: "WEB", price: "FREE" },
+            { name: "Админка", folder: "admin", description: "Панель администратора", image: "⚙️", platform: "WEB", price: "FREE" },
+            { name: "Root1", folder: "root1", description: "Корневой проект №1", image: "📁", platform: "WEB", price: "FREE" },
+            { name: "Ru", folder: "ru", description: "Русскоязычная версия", image: "🇷🇺", platform: "WEB", price: "FREE" },
+            { name: "Wb", folder: "wb", description: "Wildberries парсер/инструмент", image: "📦", platform: "WEB", price: "FREE" },
+            { name: "Win", folder: "win", description: "Windows утилиты", image: "🪟", platform: "WEB", price: "FREE" },
+            { name: "320", folder: "320", description: "Проект 320", image: "📐", platform: "WEB", price: "FREE" },
+            { name: "350", folder: "350", description: "Проект 350", image: "🔧", platform: "WEB", price: "FREE" },
+            { name: "3501", folder: "3501", description: "Проект 3501", image: "⚡", platform: "WEB", price: "FREE" },
+            { name: "3502", folder: "3502", description: "Проект 3502", image: "🔥", platform: "WEB", price: "FREE" },
+            { name: "370", folder: "370", description: "Проект 370", image: "💡", platform: "WEB", price: "FREE" },
+            { name: "400", folder: "400", description: "Проект 400", image: "⭐", platform: "WEB", price: "FREE" },
+            { name: "5", folder: "5", description: "Проект 5", image: "5️⃣", platform: "WEB", price: "FREE" },
+            { name: "80", folder: "80", description: "Проект 80", image: "8️⃣0️⃣", platform: "WEB", price: "FREE" },
+            { name: "81", folder: "81", description: "Проект 81", image: "8️⃣1️⃣", platform: "WEB", price: "FREE" },
+            { name: "82", folder: "82", description: "Проект 82", image: "8️⃣2️⃣", platform: "WEB", price: "FREE" },
+            { name: "83", folder: "83", description: "Проект 83", image: "8️⃣3️⃣", platform: "WEB", price: "FREE" },
+            { name: "84", folder: "84", description: "Проект 84", image: "8️⃣4️⃣", platform: "WEB", price: "FREE" },
+            { name: "85", folder: "85", description: "Проект 85", image: "8️⃣5️⃣", platform: "WEB", price: "FREE" },
+            { name: "86", folder: "86", description: "Проект 86", image: "8️⃣6️⃣", platform: "WEB", price: "FREE" },
+            { name: "87", folder: "87", description: "Проект 87", image: "8️⃣7️⃣", platform: "WEB", price: "FREE" },
+            { name: "920", folder: "920", description: "Проект 920", image: "9️⃣2️⃣0️⃣", platform: "WEB", price: "FREE" },
+            { name: "921", folder: "921", description: "Проект 921", image: "9️⃣2️⃣1️⃣", platform: "WEB", price: "FREE" },
+            { name: "922", folder: "922", description: "Проект 922", image: "9️⃣2️⃣2️⃣", platform: "WEB", price: "FREE" },
+            { name: "923", folder: "923", description: "Проект 923", image: "9️⃣2️⃣3️⃣", platform: "WEB", price: "FREE" },
+            { name: "924", folder: "924", description: "Проект 924", image: "9️⃣2️⃣4️⃣", platform: "WEB", price: "FREE" },
+            { name: "925", folder: "925", description: "Проект 925", image: "9️⃣2️⃣5️⃣", platform: "WEB", price: "FREE" },
+            { name: "926", folder: "926", description: "Проект 926", image: "9️⃣2️⃣6️⃣", platform: "WEB", price: "FREE" },
+            { name: "927", folder: "927", description: "Проект 927", image: "9️⃣2️⃣7️⃣", platform: "WEB", price: "FREE" },
+            { name: "add", folder: "add", description: "Дополнительный проект", image: "➕", platform: "WEB", price: "FREE" },
+            { name: "m100", folder: "m100", description: "M100", image: "💯", platform: "WEB", price: "FREE" },
+            { name: "101", folder: "101", description: "Проект 101", image: "1️⃣0️⃣1️⃣", platform: "WEB", price: "FREE" },
+            { name: "102", folder: "102", description: "Проект 102", image: "1️⃣0️⃣2️⃣", platform: "WEB", price: "FREE" },
+            { name: "2025", folder: "2025", description: "Проект 2025", image: "📅", platform: "WEB", price: "FREE" },
+            // Можно добавить все остальные папки по желанию (из списка их очень много)
+            // Формат: { name: "Имя папки", folder: "имя папки", description: "", image: "📂", platform: "WEB", price: "FREE" },
+        ];
+
+        // Функция рендеринга карточек
+        function renderProjects(filterText = "") {
+            const grid = document.getElementById("projectsGrid");
+            const searchLower = filterText.toLowerCase().trim();
+            
+            let filtered = projects;
+            if (searchLower !== "") {
+                filtered = projects.filter(p => 
+                    p.name.toLowerCase().includes(searchLower) || 
+                    (p.description && p.description.toLowerCase().includes(searchLower))
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="no-results">🔍 По запросу «${filterText}» ничего не найдено</div>`;
+                return;
+            }
+
+            let html = "";
+            filtered.forEach(proj => {
+                // формируем ссылку: если folder заканчивается на .html, то прямой файл, иначе папка + /index.html
+                let link;
+                if (proj.folder.endsWith('.html')) {
+                    link = proj.folder;
+                } else {
+                    link = `${proj.folder}/index.html`;
+                }
+
+                // бейдж (новинка/скидка)
+                const badgeHtml = proj.badge ? `<span class="card-badge">${proj.badge}</span>` : "";
+
+                // цена (FREE или псевдо-скидка)
+                let priceHtml = `<span class="card-price">${proj.price}</span>`;
+                if (proj.price === "FREE") {
+                    priceHtml = `<span class="card-price">Бесплатно</span>`;
+                }
+
+                html += `
+                    <div class="project-card" onclick="window.location.href='${link}'">
+                        <div class="card-image">
+                            ${proj.image || "📦"}
+                            ${badgeHtml}
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">${proj.name}</h3>
+                            <div class="card-meta">
+                                <span class="card-platform">${proj.platform || "WEB"}</span>
+                                <span>🌐 онлайн</span>
+                            </div>
+                            <p class="card-description">${proj.description || "Нет описания"}</p>
+                            <div class="card-footer">
+                                ${priceHtml}
+                                <button class="card-btn" onclick="event.stopPropagation(); window.location.href='${link}';">▶ запустить</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Обработчики поиска
+        const searchInput = document.getElementById("searchInput");
+        const searchBtn = document.getElementById("searchBtn");
+
+        function handleSearch() {
+            renderProjects(searchInput.value);
+        }
+
+        searchBtn.addEventListener("click", handleSearch);
+        searchInput.addEventListener("keyup", (e) => {
+            if (e.key === "Enter") handleSearch();
+        });
+
+        // Инициализация
+        renderProjects();
+
+        // (Опционально) можно добавить сброс поиска при клике на лого
+        document.querySelector('.logo').addEventListener('click', () => {
+            searchInput.value = "";
+            renderProjects();
+        });
+    </script>
+    <!-- Добавление плавности при загрузке -->
+    <style>
+        .project-card { opacity: 0; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+    </style>
+</body>
+</html>
