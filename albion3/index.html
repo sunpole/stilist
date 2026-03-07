@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Albion Craft Calculator</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f0f0f; /* глубокий чёрный фон как у steam */
+            color: #e0e0e0;
+            line-height: 1.5;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        #app {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* шапка */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 12px 16px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, #b0b0b0, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #ddd;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .btn:hover {
+            background: #3a3a3a;
+            border-color: #6a6a6a;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: #2a4e77;
+            border-color: #3a6ea5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a6ea5;
+            border-color: #5b8ec9;
+        }
+
+        .btn-warning {
+            background: #5a3a2a;
+            border-color: #8b5e3c;
+        }
+
+        .btn-warning:hover {
+            background: #7b4e3a;
+            border-color: #a57c5a;
+        }
+
+        /* основная сетка */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* общие стили панелей */
+        .panel {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 20px 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+            border: 1px solid #2a2a2a;
+            transition: all 0.2s;
+        }
+
+        .panel h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #333;
+            color: #bbb;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            background: #202020;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* чтобы на мобильных скроллилось */
+            font-size: 0.95rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 8px;
+            background-color: #2b2b2b;
+            color: #aaa;
+            font-weight: 500;
+            border-bottom: 2px solid #3a3a3a;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* поля ввода */
+        input, select {
+            width: 100%;
+            padding: 10px 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #eaeaea;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border 0.15s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6a8fbd;
+            background: #2f2f2f;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #b55a5a;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0 6px;
+            border-radius: 30px;
+            transition: all 0.1s;
+            line-height: 1;
+        }
+
+        .delete-btn:hover {
+            color: #ff7b7b;
+            background: #330000;
+            transform: scale(1.1);
+        }
+
+        .add-btn {
+            background: #2a2a2a;
+            border: 1px dashed #5a5a5a;
+            color: #b0b0b0;
+            padding: 12px;
+            width: 100%;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 12px;
+        }
+
+        .add-btn:hover {
+            background: #2f2f2f;
+            border-color: #7a7a7a;
+            color: #fff;
+        }
+
+        .total-row {
+            background: #252525;
+            font-weight: 500;
+            color: #cfcfcf;
+        }
+
+        .total-row td {
+            border-top: 2px solid #444;
+        }
+
+        /* datalist не стилизуется напрямую, но input его использует */
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* мобильная адаптация */
+        @media screen and (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .btn-group {
+                justify-content: center;
+            }
+
+            .panel {
+                padding: 16px 10px;
+            }
+
+            table {
+                min-width: 500px; /* всё ещё скролл, но удобно */
+            }
+        }
+
+        /* совсем маленькие */
+        @media screen and (max-width: 480px) {
+            table {
+                min-width: 400px;
+            }
+            .btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* уберём стрелки в number для красоты */
+        .price-cell, .qty-cell {
+            min-width: 100px;
+        }
+        .tag-cell {
+            min-width: 120px;
+        }
+        .resource-cell {
+            min-width: 160px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>🧾 ALBION CRAFT BENCH</h1>
+            <div class="btn-group">
+                <button class="btn btn-primary" @click="exportData">📤 Экспорт</button>
+                <button class="btn btn-primary" @click="triggerImport">📥 Импорт</button>
+                <input type="file" ref="fileInput" accept=".json" style="display: none" @change="importData">
+                <button class="btn btn-warning" @click="clearAll">🗑️ Очистить всё</button>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- Левая панель: ресурсы -->
+            <div class="panel">
+                <h2>📦 Ресурсы / предметы</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Цена (серебро)</th>
+                                <th>Тег</th>
+                                <th style="width: 50px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(res, idx) in resources" :key="res.id">
+                                <td><input type="text" v-model="res.name" placeholder="Например: Железный слиток"></td>
+                                <td class="price-cell"><input type="number" min="0" step="1" v-model.number="res.price" placeholder="0"></td>
+                                <td class="tag-cell">
+                                    <input type="text" v-model="res.tag" list="tag-datalist" placeholder="тег">
+                                </td>
+                                <td><button class="delete-btn" @click="deleteResource(idx)" title="Удалить">✖</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- datalist для подсказок тегов (уникальные) -->
+                <datalist id="tag-datalist">
+                    <option v-for="tag in uniqueTags" :key="tag" :value="tag"></option>
+                </datalist>
+                <button class="add-btn" @click="addResource">+ Добавить ресурс</button>
+            </div>
+
+            <!-- Правая панель: крафт (рецепты) -->
+            <div class="panel">
+                <h2>⚒️ Крафт / расчёт</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Тег (фильтр)</th>
+                                <th>Ресурс</th>
+                                <th>Кол-во</th>
+                                <th>Стоимость</th>
+                                <th style="width: 50px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(craft, idx) in crafts" :key="craft.id">
+                                <!-- выбор тега для фильтрации -->
+                                <td>
+                                    <select v-model="craft.tag" @change="craft.resourceId = ''">
+                                        <option value="">— Все —</option>
+                                        <option v-for="tag in uniqueTags" :key="tag" :value="tag">{{ tag }}</option>
+                                    </select>
+                                </td>
+                                <!-- выбор ресурса, отфильтрованного по тегу -->
+                                <td>
+                                    <select v-model="craft.resourceId">
+                                        <option value="" disabled>— выберите —</option>
+                                        <option v-for="res in filteredResources(craft.tag)" :key="res.id" :value="res.id">
+                                            {{ res.name }} <span v-if="res.tag">({{ res.tag }})</span>
+                                        </option>
+                                    </select>
+                                </td>
+                                <!-- количество -->
+                                <td class="qty-cell"><input type="number" min="0" step="1" v-model.number="craft.quantity" placeholder="1"></td>
+                                <!-- итоговая стоимость -->
+                                <td>{{ getTotal(craft) }} 🪙</td>
+                                <td><button class="delete-btn" @click="deleteCraft(idx)" title="Удалить">✖</button></td>
+                            </tr>
+                            <!-- строка итого -->
+                            <tr class="total-row">
+                                <td colspan="3" style="text-align: right; font-weight: bold;">ИТОГО:</td>
+                                <td>{{ totalCraftCost }} 🪙</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="add-btn" @click="addCraft">+ Добавить позицию крафта</button>
+                <div class="footer-info">
+                    <span>⚡ Цены обновляются автоматически</span>
+                    <span>📌 Всего позиций: {{ crafts.length }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch } = Vue;
+
+        const app = createApp({
+            setup() {
+                // состояние: ресурсы и крафты
+                const resources = ref([]);
+                const crafts = ref([]);
+                const fileInput = ref(null);
+
+                // --- загрузка из localStorage при старте ---
+                const savedResources = localStorage.getItem('albion_resources');
+                const savedCrafts = localStorage.getItem('albion_crafts');
+                if (savedResources) {
+                    try { resources.value = JSON.parse(savedResources); } catch { resources.value = []; }
+                } else {
+                    // пара примеров для демо (необязательно)
+                    resources.value = [
+                        { id: 'r1_' + Date.now(), name: 'Железная руда', price: 45, tag: 'руда' },
+                        { id: 'r2_' + Date.now(), name: 'Медная руда', price: 38, tag: 'руда' },
+                        { id: 'r3_' + Date.now(), name: 'Дубовая доска', price: 120, tag: 'древесина' },
+                    ];
+                }
+
+                if (savedCrafts) {
+                    try { crafts.value = JSON.parse(savedCrafts); } catch { crafts.value = []; }
+                } else {
+                    crafts.value = [
+                        { id: 'c1_' + Date.now(), tag: 'руда', resourceId: resources.value[0]?.id || '', quantity: 10 },
+                        { id: 'c2_' + Date.now(), tag: '', resourceId: '', quantity: 1 },
+                    ];
+                }
+
+                // --- уникальные теги (для выпадающих списков и datalist) ---
+                const uniqueTags = computed(() => {
+                    const tags = resources.value.map(r => r.tag).filter(t => t && t.trim() !== '');
+                    return [...new Set(tags)].sort((a, b) => a.localeCompare(b));
+                });
+
+                // --- фильтрация ресурсов по тегу (для правой таблицы) ---
+                const filteredResources = (tag) => {
+                    if (!tag || tag === '') {
+                        return resources.value; // все ресурсы
+                    }
+                    return resources.value.filter(r => r.tag === tag);
+                };
+
+                // --- получение цены ресурса по id ---
+                const getResourcePrice = (resId) => {
+                    if (!resId) return 0;
+                    const res = resources.value.find(r => r.id === resId);
+                    return res ? res.price : 0;
+                };
+
+                // --- итог для одной строки крафта ---
+                const getTotal = (craft) => {
+                    const price = getResourcePrice(craft.resourceId);
+                    return (price * (craft.quantity || 0)).toFixed(0);
+                };
+
+                // --- общая стоимость всех крафтов ---
+                const totalCraftCost = computed(() => {
+                    return crafts.value.reduce((sum, craft) => {
+                        const price = getResourcePrice(craft.resourceId);
+                        return sum + price * (craft.quantity || 0);
+                    }, 0).toFixed(0);
+                });
+
+                // --- добавление строки ресурса ---
+                const addResource = () => {
+                    resources.value.push({
+                        id: 'res_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                        name: '',
+                        price: 0,
+                        tag: ''
+                    });
+                };
+
+                // --- удаление ресурса с проверкой зависимостей ---
+                const deleteResource = (index) => {
+                    const deletedId = resources.value[index]?.id;
+                    resources.value.splice(index, 1);
+                    // удаляем ссылки на удалённый ресурс в крафтах
+                    if (deletedId) {
+                        crafts.value.forEach(c => {
+                            if (c.resourceId === deletedId) {
+                                c.resourceId = '';
+                            }
+                        });
+                    }
+                };
+
+                // --- добавление строки крафта ---
+                const addCraft = () => {
+                    crafts.value.push({
+                        id: 'craft_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                        tag: '',
+                        resourceId: '',
+                        quantity: 1
+                    });
+                };
+
+                // --- удаление строки крафта ---
+                const deleteCraft = (index) => {
+                    crafts.value.splice(index, 1);
+                };
+
+                // --- очистка всех данных с подтверждением ---
+                const clearAll = () => {
+                    if (confirm('Удалить все ресурсы и позиции крафта?')) {
+                        resources.value = [];
+                        crafts.value = [];
+                    }
+                };
+
+                // --- экспорт в JSON файл ---
+                const exportData = () => {
+                    const data = {
+                        resources: resources.value,
+                        crafts: crafts.value
+                    };
+                    const json = JSON.stringify(data, null, 2);
+                    const blob = new Blob([json], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+
+                    const now = new Date();
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const dateStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+                    const filename = `albion_craft_${dateStr}.json`;
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                };
+
+                // --- имитация клика по скрытому input file ---
+                const triggerImport = () => {
+                    fileInput.value.click();
+                };
+
+                // --- импорт из файла ---
+                const importData = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const json = JSON.parse(e.target.result);
+                            if (Array.isArray(json.resources) && Array.isArray(json.crafts)) {
+                                // простая валидация: проверим, что объекты имеют нужные поля
+                                const validResources = json.resources.every(r => typeof r === 'object' && r.id && typeof r.name === 'string' && typeof r.price === 'number');
+                                const validCrafts = json.crafts.every(c => typeof c === 'object' && c.id && typeof c.tag === 'string' && typeof c.resourceId === 'string' && typeof c.quantity === 'number');
+                                if (validResources && validCrafts) {
+                                    // очищаем мёртвые ссылки (resourceId может указывать на несуществующий id)
+                                    const existingIds = new Set(json.resources.map(r => r.id));
+                                    json.crafts.forEach(c => {
+                                        if (c.resourceId && !existingIds.has(c.resourceId)) {
+                                            c.resourceId = '';
+                                        }
+                                    });
+                                    resources.value = json.resources;
+                                    crafts.value = json.crafts;
+                                } else {
+                                    alert('Файл содержит некорректные данные. Проверьте структуру.');
+                                }
+                            } else {
+                                alert('Неверный формат: ожидается объект с ключами "resources" и "crafts" (массивы)');
+                            }
+                        } catch (error) {
+                            alert('Ошибка чтения файла: ' + error.message);
+                        }
+                        // очистить input, чтобы можно было загрузить тот же файл повторно
+                        event.target.value = '';
+                    };
+                    reader.readAsText(file);
+                };
+
+                // --- автосохранение в localStorage ---
+                watch([resources, crafts], () => {
+                    localStorage.setItem('albion_resources', JSON.stringify(resources.value));
+                    localStorage.setItem('albion_crafts', JSON.stringify(crafts.value));
+                }, { deep: true });
+
+                // --- валидация при изменении ресурсов: сбрасываем несуществующие теги в крафтах ---
+                watch(resources, () => {
+                    const currentTagsSet = new Set(uniqueTags.value);
+                    crafts.value.forEach(c => {
+                        // если тег не пуст и отсутствует среди уникальных — сбрасываем
+                        if (c.tag && !currentTagsSet.has(c.tag)) {
+                            c.tag = '';
+                            c.resourceId = ''; // также сбрасываем ресурс, так как тег изменился
+                        }
+                        // если resourceId указывает на отсутствующий ресурс — сбрасываем
+                        if (c.resourceId && !resources.value.some(r => r.id === c.resourceId)) {
+                            c.resourceId = '';
+                        }
+                    });
+                }, { deep: true });
+
+                return {
+                    resources,
+                    crafts,
+                    fileInput,
+                    uniqueTags,
+                    filteredResources,
+                    getTotal,
+                    totalCraftCost,
+                    addResource,
+                    deleteResource,
+                    addCraft,
+                    deleteCraft,
+                    clearAll,
+                    exportData,
+                    triggerImport,
+                    importData
+                };
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>
