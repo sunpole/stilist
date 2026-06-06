@@ -3,34 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SUNPOLE HUB v0.2.2-alpha</title>
+  <title>SUNPOLE HUB v0.3.0-alpha</title>
   <style>
-    body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top left,rgba(99,243,255,.16),transparent 28rem),#111827;color:#f3f4f6;max-width:980px;margin:auto;padding:32px;line-height:1.6}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top left,rgba(99,243,255,.16),transparent 28rem),radial-gradient(circle at top right,rgba(184,146,255,.14),transparent 26rem),#111827;color:#f3f4f6;max-width:980px;margin:auto;padding:32px;line-height:1.6}
     .card{background:#1f2937;border:1px solid rgba(255,255,255,.1);padding:24px;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.35)}
-    h1{margin-top:0}.muted{color:#9ca3af}.back{display:inline-flex;margin-bottom:18px;color:#08111d;background:linear-gradient(135deg,#63f3ff,#66c0f4);text-decoration:none;font-weight:900;border-radius:999px;padding:10px 14px}.tag{display:inline-block;background:rgba(99,243,255,.12);border:1px solid rgba(99,243,255,.25);border-radius:999px;padding:4px 9px;margin:2px;color:#dffaff}
+    h1{margin-top:0}.muted{color:#9ca3af}.back{display:inline-flex;margin-bottom:18px;color:#08111d;background:linear-gradient(135deg,#63f3ff,#66c0f4);text-decoration:none;font-weight:900;border-radius:999px;padding:10px 14px}.tag{display:inline-block;background:rgba(99,243,255,.12);border:1px solid rgba(99,243,255,.25);border-radius:999px;padding:4px 9px;margin:2px;color:#dffaff}.warn{background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.28);border-radius:14px;padding:12px;color:#ffe7ad}
   </style>
 </head>
 <body>
-  <a class="back" href="../hub-v2.html">← Вернуться в SUNPOLE HUB</a>
+  <a class="back" href="../hub-v3.html">← Вернуться в SUNPOLE HUB v0.3.0</a>
   <div class="card">
-    <h1>SUNPOLE HUB v0.2.2-alpha</h1>
+    <h1>SUNPOLE HUB v0.3.0-alpha</h1>
     <p><b>Кодовое имя:</b> Project Passport</p>
-    <p><b>Статус:</b> visual-prototype / alpha</p>
-    <p class="muted">Эта страница фиксирует текущую контрольную версию HUB. Номер версии на главной странице должен соответствовать этой странице.</p>
-    <h2>Что входит в версию 0.2.2-alpha</h2>
+    <p><b>Статус:</b> visual-prototype / alpha / control point</p>
+    <p class="muted">Эта страница фиксирует контрольную версию HUB. Номер версии на главной странице, в документации и в changelog должен совпадать.</p>
+    <div class="warn">Контрольная точка: v0.3.0-alpha создана как отдельная тестовая страница <code>hub-v3.html</code>. Старые версии <code>shop.html</code>, <code>hub.html</code> и <code>hub-v2.html</code> сохранены.</div>
+    <h2>Что входит в версию 0.3.0-alpha</h2>
     <ul>
-      <li>Создана визуальная витрина <code>hub-v2.html</code>.</li>
-      <li>Добавлена база проектов <code>data/projects-hub.js</code>.</li>
-      <li>Добавлены статусы проектов: основной, эксперимент, архив, проверка.</li>
-      <li>Добавлена система качества A/B/C со звёздами ✶.</li>
-      <li>Добавлены карточки проектов со скриншотами и hover-просмотром.</li>
-      <li>Добавлены HP-бары качества, готовности, визуала и техники.</li>
-      <li>Добавлены языковые бары HTML / JavaScript / CSS.</li>
-      <li>Добавлен первый Project Passport через кнопку ⋯.</li>
-      <li>Добавлены ступенчатые теги и выбранные фильтры.</li>
+      <li>Создана отдельная тестовая витрина <code>hub-v3.html</code>.</li>
+      <li>Project Passport открывается рядом с карточкой, а не у края экрана.</li>
+      <li>Повторное нажатие на <code>⋯</code> закрывает Project Passport.</li>
+      <li>Теги работают как переключатели ON/OFF.</li>
+      <li>Связанные теги скрыты, пока не выбран первый тег.</li>
+      <li>Добавлена цветовая классификация тегов.</li>
+      <li>Качество отделено тёплым терракотово-золотым цветом.</li>
+      <li>Готовность, визуал и техника получили разные цвета HP-баров.</li>
+      <li>HTML, JavaScript и CSS получили отдельные цвета в языковых барах.</li>
+      <li>Добавлен GitHub-бейдж на карточку проекта.</li>
+      <li>Добавлена кнопка будущего сравнения проектов <code>⇄</code>.</li>
+      <li>Заголовок <code>SUNPOLE HUB</code> стал кликабельным возвратом к началу.</li>
+      <li>Добавлена первая пасхалка <code>✶ hidden layer</code>.</li>
     </ul>
     <h2>Следующие цели</h2>
-    <p><span class="tag">Project Passport V2</span><span class="tag">сравнение проектов</span><span class="tag">ручная админка</span><span class="tag">локальный builder</span></p>
+    <p><span class="tag">Project Passport V2</span><span class="tag">рабочее сравнение проектов</span><span class="tag">ручная админка</span><span class="tag">локальный builder</span><span class="tag">автоскриншоты</span></p>
   </div>
 </body>
 </html>
