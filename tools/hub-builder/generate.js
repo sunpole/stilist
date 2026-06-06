@@ -40,11 +40,7 @@ const projects = (report.projects || []).map((item, index) => {
     versionOf: null,
     related: [],
     isVisible: true,
-    links: {
-      launch: pathValue,
-      hub: 'hub-current.html',
-      source: ''
-    },
+    links: { launch: pathValue, hub: 'hub-current.html', source: '' },
     metrics: {
       readiness: item.readinessScore || 0,
       visual: item.hasScreenshot ? 65 : 20,
@@ -71,10 +67,13 @@ const projects = (report.projects || []).map((item, index) => {
       cssLinks: item.cssLinks || [],
       jsLinks: item.jsLinks || [],
       generatedAt: report.generatedAt,
-      needsHumanReview: true
+      needsHumanReview: true,
+      relationReasons: []
     }
   };
 });
+
+applyRelated(projects);
 
 const output = `window.SUNPOLE_HUB_META = {
   name: "SUNPOLE HUB",
@@ -89,6 +88,56 @@ window.SUNPOLE_PROJECTS = ${JSON.stringify(projects, null, 2)};
 fs.writeFileSync(OUTPUT, output);
 console.log('Generated:', OUTPUT);
 console.log('Projects generated:', projects.length);
+
+function applyRelated(projects) {
+  for (const a of projects) {
+    const scores = [];
+    for (const b of projects) {
+      if (a.id === b.id) continue;
+      const result = relationScore(a, b);
+      if (result.score >= 35) scores.push({ id: b.id, ...result });
+    }
+    scores.sort((x, y) => y.score - x.score);
+    a.related = scores.slice(0, 6).map(x => x.id);
+    a.builder.relationReasons = scores.slice(0, 6).map(x => ({ id: x.id, score: x.score, reasons: x.reasons }));
+  }
+}
+
+function relationScore(a, b) {
+  let score = 0;
+  const reasons = [];
+  const aDir = parentDir(a.path);
+  const bDir = parentDir(b.path);
+  if (aDir && aDir === bDir) { score += 35; reasons.push('same-folder'); }
+  if (baseFamily(a.id) && baseFamily(a.id) === baseFamily(b.id)) { score += 35; reasons.push('same-id-family'); }
+  const sharedTags = (a.tags || []).filter(t => (b.tags || []).includes(t) && t !== 'auto-scan');
+  if (sharedTags.length) { score += Math.min(30, sharedTags.length * 10); reasons.push(`shared-tags:${sharedTags.join(',')}`); }
+  if (a.category === b.category && a.category !== 'Нужно разобрать') { score += 15; reasons.push('same-category'); }
+  const titleSimilarity = wordSimilarity(a.title, b.title);
+  if (titleSimilarity >= 0.35) { score += Math.round(titleSimilarity * 25); reasons.push(`similar-title:${titleSimilarity.toFixed(2)}`); }
+  return { score, reasons };
+}
+
+function parentDir(value) {
+  const dir = path.dirname(String(value || '').replace(/\\/g, '/'));
+  return dir === '.' ? '' : dir;
+}
+
+function baseFamily(id) {
+  return String(id || '').replace(/[-_]?v?\d+$/i, '').replace(/[-_]?index\d+$/i, '').replace(/[-_]+$/g, '');
+}
+
+function wordSimilarity(a, b) {
+  const aw = words(a);
+  const bw = words(b);
+  if (!aw.length || !bw.length) return 0;
+  const shared = aw.filter(w => bw.includes(w));
+  return shared.length / Math.max(aw.length, bw.length);
+}
+
+function words(value) {
+  return String(value || '').toLowerCase().split(/[^a-zа-яё0-9]+/i).filter(w => w.length >= 3);
+}
 
 function buildTags(item) {
   const tags = new Set(['auto-scan']);
@@ -125,6 +174,5 @@ function makeId(file, index) {
     .replace(/[^a-zA-Z0-9а-яА-ЯёЁ]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .toLowerCase();
-
   return clean || `project-${index + 1}`;
 }
