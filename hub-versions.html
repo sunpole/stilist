@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SUNPOLE HUB — переключатель версий</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080d18;--panel:#121b2f;--card:#172338;--line:rgba(159,204,255,.16);--text:#f5f7fb;--muted:#9fb0c7;--cyan:#63f3ff;--blue:#66c0f4;--green:#8cffc1;--gold:#ffd166;--violet:#b892ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,rgba(99,243,255,.18),transparent 34rem),radial-gradient(circle at 90% 8%,rgba(184,146,255,.14),transparent 28rem),linear-gradient(180deg,#060a12,#0b1120 45%,#0e1526);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.wrap{max-width:1100px;margin:0 auto;padding:28px 18px 70px}.hero{border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,rgba(23,35,56,.9),rgba(11,17,31,.92));box-shadow:0 24px 80px rgba(0,0,0,.45);padding:28px;margin-bottom:18px}.kicker{color:var(--cyan);font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:12px}.title{font-size:clamp(34px,6vw,72px);line-height:.9;margin:10px 0 12px;letter-spacing:.04em;text-shadow:0 0 28px rgba(99,243,255,.25)}.lead{max-width:780px;color:var(--muted);font-size:17px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#172338,#18243a);border:1px solid var(--line);border-radius:22px;padding:18px;text-decoration:none;color:var(--text);box-shadow:0 18px 45px rgba(0,0,0,.26);transition:.18s}.card:hover{transform:translateY(-4px);border-color:rgba(99,243,255,.55);box-shadow:0 22px 70px rgba(0,0,0,.45),0 0 35px rgba(99,243,255,.12)}.ver{font-size:26px;font-weight:950;color:var(--cyan)}.badge{width:max-content;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;color:#08111d;background:var(--gold)}.badge.current{background:var(--green)}.desc{color:var(--muted);line-height:1.45}.actions{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px}.btn{display:inline-flex;text-decoration:none;color:#08111d;background:linear-gradient(135deg,var(--cyan),var(--blue));font-weight:950;border-radius:999px;padding:10px 14px}.btn.alt{color:var(--text);background:rgba(255,255,255,.08);border:1px solid var(--line)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="kicker">Control Points / HTML Versions</div>
+      <h1 class="title">SUNPOLE HUB Versions</h1>
+      <p class="lead">Быстрый переключатель между контрольными HTML-версиями HUB. Он нужен, чтобы сравнивать направление дизайна и функционала без ручного ввода адресов.</p>
+      <div class="actions">
+        <a class="btn" href="hub-v4.html">Открыть текущую v0.4.0</a>
+        <a class="btn alt" href="docs/hub-version.html">История версии</a>
+      </div>
+    </section>
+
+    <main class="grid">
+      <a class="card" href="shop.html"><span class="badge">OLD SHOP</span><span class="ver">shop.html</span><span class="desc">Старая витрина/магазин проектов. Важный визуальный источник и рабочая версия.</span></a>
+      <a class="card" href="hub.html"><span class="badge">v0.1</span><span class="ver">hub.html</span><span class="desc">Первый технический прототип: статусы, архив, простые карточки.</span></a>
+      <a class="card" href="hub-v2.html"><span class="badge">v0.2</span><span class="ver">hub-v2.html</span><span class="desc">Первая визуальная витрина: крупные карточки, теги, статусбары, Project Passport V1.</span></a>
+      <a class="card" href="hub-v3.html"><span class="badge">v0.3</span><span class="ver">hub-v3.html</span><span class="desc">Цветовые группы, Project Passport возле карточки, toggle-теги, GitHub-бейджи.</span></a>
+      <a class="card" href="hub-v4.html"><span class="badge current">CURRENT</span><span class="ver">hub-v4.html</span><span class="desc">Текущая контрольная версия: добавлен рабочий режим сравнения проектов.</span></a>
+    </main>
+  </div>
+</body>
+</html>
