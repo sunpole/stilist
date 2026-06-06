@@ -55,14 +55,30 @@ function scanHtml(full) {
     const inlineStyleCount = (html.match(/<style/gi) || []).length;
     const screenshots = findScreenshots(dir, rel, ogImage);
     const recommendedImage = screenshots[0] || ogImage || '';
+    const sizeBytes = fs.statSync(full).size;
+    const assessment = assessProject({
+      sizeBytes,
+      hasManifest,
+      hasOpenGraph,
+      hasScreenshot: screenshots.length > 0,
+      cssCount: cssLinks.length + inlineStyleCount,
+      jsCount: jsLinks.length + inlineScriptCount,
+      description,
+      title: title || ogTitle || '',
+      rel
+    });
 
     projects.push({
       file: rel,
       title: title || ogTitle || '',
       description,
-      sizeBytes: fs.statSync(full).size,
+      sizeBytes,
       categoryGuess: guessCategory([title, description, rel].join(' ')),
-      statusGuess: rel.includes('archive') ? 'archive' : 'review',
+      statusGuess: assessment.statusGuess,
+      maturityGuess: assessment.maturityGuess,
+      qualityGuess: assessment.qualityGuess,
+      complexityScore: assessment.complexityScore,
+      readinessScore: assessment.readinessScore,
       hasManifest,
       hasOpenGraph,
       hasScreenshot: screenshots.length > 0,
@@ -85,6 +101,54 @@ function scanHtml(full) {
     });
   }
 }
+
+function assessProject(info) {
+  let complexityScore = 0;
+  let readinessScore = 0;
+
+  if (info.sizeBytes > 20_000) complexityScore += 20;
+  if (info.sizeBytes > 80_000) complexityScore += 20;
+  if (info.sizeBytes > 180_000) complexityScore += 20;
+  complexityScore += Math.min(20, info.jsCount * 4);
+  complexityScore += Math.min(15, info.cssCount * 3);
+  if (info.hasManifest) complexityScore += 5;
+
+  if (info.title) readinessScore += 20;
+  if (info.description) readinessScore += 15;
+  if (info.hasScreenshot) readinessScore += 20;
+  if (info.hasOpenGraph) readinessScore += 10;
+  if (info.hasManifest) readinessScore += 10;
+  if (info.jsCount > 0) readinessScore += 10;
+  if (info.cssCount > 0) readinessScore += 10;
+  if (info.sizeBytes > 20_000) readinessScore += 5;
+
+  complexityScore = clamp(complexityScore);
+  readinessScore = clamp(readinessScore);
+
+  const total = Math.round((complexityScore * 0.35) + (readinessScore * 0.65));
+  const qualityGuess = scoreToQuality(total);
+  const maturityGuess = readinessScore >= 75 ? 'ready' : readinessScore >= 45 ? 'beta' : 'draft';
+  const statusGuess = info.rel.includes('archive') ? 'archive' : readinessScore >= 70 ? 'main' : 'review';
+
+  return { complexityScore, readinessScore, qualityGuess, maturityGuess, statusGuess };
+}
+
+function scoreToQuality(score) {
+  if (score >= 90) return { grade: 'A4', stars: 4, score, label: 'Автооценка: витринный проект' };
+  if (score >= 82) return { grade: 'A3', stars: 3, score, label: 'Автооценка: очень сильный проект' };
+  if (score >= 74) return { grade: 'A2', stars: 2, score, label: 'Автооценка: качественный проект' };
+  if (score >= 66) return { grade: 'A1', stars: 1, score, label: 'Автооценка: сильный проект' };
+  if (score >= 58) return { grade: 'B4', stars: 4, score, label: 'Автооценка: почти готовый проект' };
+  if (score >= 50) return { grade: 'B3', stars: 3, score, label: 'Автооценка: хороший рабочий проект' };
+  if (score >= 42) return { grade: 'B2', stars: 2, score, label: 'Автооценка: рабочий проект' };
+  if (score >= 34) return { grade: 'B1', stars: 1, score, label: 'Автооценка: простой рабочий проект' };
+  if (score >= 25) return { grade: 'C4', stars: 4, score, label: 'Автооценка: хороший прототип' };
+  if (score >= 18) return { grade: 'C3', stars: 3, score, label: 'Автооценка: прототип' };
+  if (score >= 10) return { grade: 'C2', stars: 2, score, label: 'Автооценка: ранний прототип' };
+  return { grade: 'C1', stars: 1, score, label: 'Автооценка: требует проверки' };
+}
+
+function clamp(n) { return Math.max(0, Math.min(100, Math.round(n))); }
 
 function findScreenshots(dir, htmlRel, ogImage = '') {
   const found = new Set();
