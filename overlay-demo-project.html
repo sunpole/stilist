@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru" data-hub-project-id="3502">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Калькулятор полиграфических операций — демо с Overlay</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1120;--panel:#172338;--line:rgba(159,204,255,.16);--text:#f5f7fb;--muted:#9fb0c7;--cyan:#63f3ff;--blue:#66c0f4;--gold:#ffd166}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,rgba(99,243,255,.16),transparent 30rem),linear-gradient(180deg,#060a12,#0b1120 55%,#101827);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.wrap{max-width:980px;margin:0 auto;padding:96px 18px 70px}.tool{background:linear-gradient(135deg,rgba(23,35,56,.92),rgba(11,17,31,.94));border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.45)}.kicker{color:var(--cyan);font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:12px}h1{font-size:clamp(34px,6vw,64px);line-height:.9;margin:12px 0}.muted{color:var(--muted);line-height:1.65}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}.box{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:16px}.box b{display:block;color:var(--gold);font-size:24px}.btn{display:inline-flex;text-decoration:none;color:#08111d;background:linear-gradient(135deg,var(--cyan),var(--blue));font-weight:950;border-radius:999px;padding:10px 14px;margin-top:18px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="tool">
+      <div class="kicker">Demo Project / Real Overlay Test</div>
+      <h1>Калькулятор полиграфических операций</h1>
+      <p class="muted">Это безопасная демо-страница, имитирующая реальный проект. Она нужна, чтобы проверить, как HUB Overlay ведёт себя поверх обычного инструмента: не мешает ли работе, удобно ли сворачивается, правильно ли ведёт в HUB и в паспорт проекта.</p>
+      <div class="grid">
+        <div class="box"><b>92/100</b><span>Готовность</span></div>
+        <div class="box"><b>A2 ✶✶</b><span>Качество</span></div>
+        <div class="box"><b>3502</b><span>ID проекта</span></div>
+      </div>
+      <a class="btn" href="3502/">Открыть оригинальный проект</a>
+    </section>
+  </main>
+  <script src="assets/hub/hub-project-overlay.js"></script>
+</body>
+</html>
