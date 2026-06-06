@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SUNPOLE HUB — каталог проектов</title>
+  <meta name="description" content="Каталог мини-проектов SUNPOLE: игры, инструменты, полиграфия, дизайн, файлы и архив.">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111827;
+      --bg-soft: #172033;
+      --card: #1f2937;
+      --card-2: #243244;
+      --line: rgba(255,255,255,.1);
+      --text: #f9fafb;
+      --muted: #aab4c3;
+      --accent: #66c0f4;
+      --green: #86efac;
+      --yellow: #fde68a;
+      --gray: #cbd5e1;
+      --red: #fca5a5;
+      --shadow: 0 18px 60px rgba(0,0,0,.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(102,192,244,.18), transparent 34rem),
+        linear-gradient(180deg, #0b1220 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: end;
+      padding: 24px;
+      border: 1px solid var(--line);
+      background: rgba(31,41,55,.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 54px);
+      letter-spacing: .04em;
+      line-height: .95;
+    }
+
+    .lead {
+      max-width: 780px;
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(82px, 1fr));
+      gap: 10px;
+      min-width: min(480px, 100%);
+    }
+
+    .stat {
+      background: rgba(17,24,39,.72);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat strong { display: block; font-size: 24px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .search {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(31,41,55,.88);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .filter-btn {
+      border: 1px solid var(--line);
+      background: rgba(31,41,55,.75);
+      color: var(--text);
+      padding: 10px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: .15s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: rgba(102,192,244,.8);
+      background: rgba(102,192,244,.14);
+      color: #dff4ff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      min-height: 260px;
+      background: linear-gradient(180deg, var(--card-2), var(--card));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .cover {
+      min-height: 108px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(102,192,244,.2), transparent 12rem),
+        rgba(17,24,39,.4);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .icon { font-size: 44px; }
+
+    .status {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 999px;
+      color: #111827;
+    }
+    .status-main { background: var(--green); }
+    .status-archive { background: var(--gray); }
+    .status-experiment { background: var(--yellow); }
+    .status-review { background: var(--red); }
+
+    .body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .category {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      flex: 1;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      color: #c9d5e4;
+      font-size: 12px;
+    }
+
+    .open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #06111f;
+      background: var(--accent);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      background: rgba(31,41,55,.5);
+    }
+
+    .safe-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <h1>SUNPOLE HUB</h1>
+        <p class="lead">Безопасная новая витрина проектов. Старый `shop.html` не изменён. Архив здесь означает только статус в каталоге: файлы не удаляются и остаются на своих местах.</p>
+      </div>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="toolbar" aria-label="Поиск и фильтры">
+      <input class="search" id="search" type="search" placeholder="Поиск: полиграфия, игра, JSON, церковь, PDF...">
+      <div class="filters" id="filters"></div>
+    </section>
+
+    <main class="grid" id="grid"></main>
+
+    <p class="safe-note">Тестовая страница. Для отката достаточно удалить `hub.html` в рабочей ветке или не сливать ветку в `main`.</p>
+  </div>
+
+  <script src="data/projects-catalog-draft.js"></script>
+  <script>
+    const STATUS_LABELS = {
+      main: "Основной",
+      archive: "Архив",
+      experiment: "Эксперимент",
+      review: "Проверить"
+    };
+
+    const STATUS_ICONS = {
+      "Полиграфия": "🖨️",
+      "Полиграфия / Дизайн": "🎨",
+      "Полиграфия / Игры": "🏭",
+      "Церковь / Игры": "⛪",
+      "Текст / Telegram": "✍️",
+      "Текст": "🔤",
+      "Игры / Обучение": "🧮",
+      "Файлы / PDF": "📄",
+      "Файлы / JSON": "🗂️",
+      "Дизайн / Цвет": "🌈",
+      "Файлы / Метаданные": "🔎",
+      "Обучение / Эксперимент": "🧠",
+      "Игры": "🎮",
+      "Игры / Семья": "👨‍👩‍👧‍👦",
+      "Игры / Стратегия": "🏰",
+      "Игры / Аркада": "🪰"
+    };
+
+    const projects = Array.isArray(window.PROJECTS_CATALOG_DRAFT)
+      ? window.PROJECTS_CATALOG_DRAFT
+      : (typeof PROJECTS_CATALOG_DRAFT !== "undefined" ? PROJECTS_CATALOG_DRAFT : []);
+
+    let currentFilter = "main";
+
+    const grid = document.getElementById("grid");
+    const search = document.getElementById("search");
+    const filters = document.getElementById("filters");
+    const stats = document.getElementById("stats");
+
+    function normalize(value) {
+      return String(value || "").toLowerCase().trim();
+    }
+
+    function buildFilters() {
+      const items = [
+        ["main", "Основные"],
+        ["experiment", "Эксперименты"],
+        ["archive", "Архив"],
+        ["all", "Все"]
+      ];
+
+      filters.innerHTML = items.map(([key, label]) =>
+        `<button class="filter-btn ${key === currentFilter ? "active" : ""}" data-filter="${key}">${label}</button>`
+      ).join("");
+
+      filters.querySelectorAll("button").forEach(button => {
+        button.addEventListener("click", () => {
+          currentFilter = button.dataset.filter;
+          buildFilters();
+          render();
+        });
+      });
+    }
+
+    function buildStats() {
+      const counts = projects.reduce((acc, project) => {
+        acc[project.status] = (acc[project.status] || 0) + 1;
+        acc.all += 1;
+        return acc;
+      }, { all: 0 });
+
+      stats.innerHTML = [
+        [counts.main || 0, "основных"],
+        [counts.experiment || 0, "экспериментов"],
+        [counts.archive || 0, "в архиве"],
+        [counts.all || 0, "всего"]
+      ].map(([num, label]) => `<div class="stat"><strong>${num}</strong><span>${label}</span></div>`).join("");
+    }
+
+    function projectMatches(project, text) {
+      if (!text) return true;
+      const source = [
+        project.title,
+        project.category,
+        project.status,
+        project.note,
+        ...(project.tags || [])
+      ].map(normalize).join(" ");
+      return source.includes(text);
+    }
+
+    function render() {
+      const text = normalize(search.value);
+      const visible = projects.filter(project => {
+        const byStatus = currentFilter === "all" || project.status === currentFilter;
+        return byStatus && projectMatches(project, text);
+      });
+
+      if (!visible.length) {
+        grid.innerHTML = `<div class="empty">Ничего не найдено. Попробуй другой фильтр или поисковый запрос.</div>`;
+        return;
+      }
+
+      grid.innerHTML = visible.map(project => {
+        const status = project.status || "review";
+        const icon = STATUS_ICONS[project.category] || "📦";
+        const tags = (project.tags || []).slice(0, 6).map(tag => `<span class="tag">${tag}</span>`).join("");
+        return `
+          <article class="card">
+            <div class="cover">
+              <div class="icon">${icon}</div>
+              <span class="status status-${status}">${STATUS_LABELS[status] || status}</span>
+            </div>
+            <div class="body">
+              <div class="category">${project.category}</div>
+              <h2 class="title">${project.title}</h2>
+              <p class="note">${project.note || "Без описания."}</p>
+              <div class="tags">${tags}</div>
+              <a class="open" href="${project.path}">Открыть</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    search.addEventListener("input", render);
+    buildStats();
+    buildFilters();
+    render();
+  </script>
+</body>
+</html>
