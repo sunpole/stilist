@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SUNPOLE HUB v0.4.0-alpha</title>
+  <title>SUNPOLE HUB v0.5.0-alpha</title>
   <style>
     body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top left,rgba(99,243,255,.16),transparent 28rem),radial-gradient(circle at top right,rgba(184,146,255,.14),transparent 26rem),#111827;color:#f3f4f6;max-width:980px;margin:auto;padding:32px;line-height:1.6}
     .card{background:#1f2937;border:1px solid rgba(255,255,255,.1);padding:24px;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.35)}
@@ -11,27 +11,30 @@
   </style>
 </head>
 <body>
-  <a class="back" href="../hub-v4.html">← Вернуться в SUNPOLE HUB v0.4.0</a>
+  <a class="back" href="../hub-current.html">← Вернуться в текущий SUNPOLE HUB</a>
   <div class="card">
-    <h1>SUNPOLE HUB v0.4.0-alpha</h1>
-    <p><b>Кодовое имя:</b> Project Passport / Compare Layer</p>
+    <h1>SUNPOLE HUB v0.5.0-alpha</h1>
+    <p><b>Кодовое имя:</b> Project View Connected / Gallery Layer</p>
     <p><b>Статус:</b> visual-prototype / alpha / control point</p>
-    <p class="muted">Эта страница фиксирует контрольную версию HUB. Номер версии на главной странице, в документации и в changelog должен совпадать.</p>
-    <div class="warn">Контрольная точка: v0.4.0-alpha создана как отдельная тестовая страница <code>hub-v4.html</code>. Старые версии <code>shop.html</code>, <code>hub.html</code>, <code>hub-v2.html</code> и <code>hub-v3.html</code> сохранены.</div>
-    <h2>Что входит в версию 0.4.0-alpha</h2>
+    <p class="muted">Эта страница фиксирует контрольную версию HUB. Номер версии на текущей странице, в документации и в changelog должен совпадать.</p>
+    <div class="warn">Контрольная точка: v0.5.0-alpha связала HUB-карточки со страницей проекта. Старые версии <code>shop.html</code>, <code>hub.html</code>, <code>hub-v2.html</code>, <code>hub-v3.html</code> и <code>hub-v4.html</code> сохранены.</div>
+    <h2>Что входит в версию 0.5.0-alpha</h2>
     <ul>
-      <li>Создана отдельная тестовая витрина <code>hub-v4.html</code>.</li>
-      <li>Добавлен рабочий режим сравнения проектов через кнопку <code>⇄</code>.</li>
-      <li>Можно выбрать до 4 проектов для сравнения.</li>
-      <li>Выбранные карточки подсвечиваются.</li>
-      <li>Появляется нижняя панель сравнения.</li>
-      <li>Добавлена таблица сравнения: статус, категория, качество, готовность, визуал, техника, документация, теги, languages и связанные версии.</li>
-      <li>Сохранены функции v0.3.0: Project Passport возле карточки, toggle-теги, цветовые группы, GitHub-бейджи и пасхалка.</li>
+      <li>Создана страница <code>hub-v5.html</code>.</li>
+      <li>Создана единая точка входа <code>hub-current.html</code>.</li>
+      <li>Карточки получили кнопку <code>Паспорт проекта</code>.</li>
+      <li>Кнопка <code>Паспорт проекта</code> ведёт на <code>project-view.html?id=...</code>.</li>
+      <li>Создана страница проекта <code>project-view.html</code>.</li>
+      <li>Создана расширенная страница проекта <code>project-view-v2.html</code> с галереей.</li>
+      <li>Создан первый прототип <code>HUB Overlay</code>: <code>assets/hub/hub-project-overlay.js</code>.</li>
+      <li>Обновлён переключатель контрольных версий <code>hub-versions.html</code>.</li>
     </ul>
     <h2>Быстрые ссылки</h2>
+    <p><a class="link" href="../hub-current.html">Текущий HUB</a></p>
+    <p><a class="link" href="../project-view-v2.html?id=3502">Пример Project View V2</a></p>
     <p><a class="link" href="../hub-versions.html">Переключатель HTML-версий</a></p>
     <h2>Следующие цели</h2>
-    <p><span class="tag">Project Page</span><span class="tag">Project Passport V2</span><span class="tag">ручная админка</span><span class="tag">локальный builder</span><span class="tag">автоскриншоты</span></p>
+    <p><span class="tag">Overlay v2</span><span class="tag">Project Passport V2</span><span class="tag">Project Gallery V2</span><span class="tag">ручная админка</span><span class="tag">локальный builder</span><span class="tag">автоскриншоты</span></p>
   </div>
 </body>
 </html>
