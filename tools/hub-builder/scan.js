@@ -5,6 +5,8 @@ const ROOT = process.cwd();
 const REPORT = path.join(ROOT, 'tools', 'hub-builder', 'hub-builder-report.json');
 
 const ignore = new Set(['.git', 'node_modules']);
+const imageExt = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+const screenshotKeywords = ['preview', 'screenshot', 'screen', 'cover', 'thumb', 'thumbnail', 'stilist'];
 const screenshotNames = ['preview.jpg', 'preview.png', 'screenshot.jpg', 'screenshot.png', 'Screenshot.jpg', 'Screenshot.png'];
 const projects = [];
 
@@ -44,13 +46,15 @@ function scanHtml(full) {
     const title = matchContent(html, /<title>(.*?)<\/title>/i);
     const description = matchContent(html, /<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i);
     const ogTitle = matchContent(html, /<meta\s+property=["']og:title["']\s+content=["']([^"']*)["']/i);
+    const ogImage = matchContent(html, /<meta\s+property=["']og:image["']\s+content=["']([^"']*)["']/i);
     const hasManifest = /rel=["']manifest["']/i.test(html);
     const hasOpenGraph = /property=["']og:/i.test(html);
     const cssLinks = [...html.matchAll(/<link[^>]+href=["']([^"']+\.css[^"']*)["']/gi)].map(m => m[1]);
     const jsLinks = [...html.matchAll(/<script[^>]+src=["']([^"']+\.js[^"']*)["']/gi)].map(m => m[1]);
     const inlineScriptCount = (html.match(/<script(?![^>]+src=)/gi) || []).length;
     const inlineStyleCount = (html.match(/<style/gi) || []).length;
-    const screenshots = findScreenshots(dir, rel);
+    const screenshots = findScreenshots(dir, rel, ogImage);
+    const recommendedImage = screenshots[0] || ogImage || '';
 
     projects.push({
       file: rel,
@@ -62,6 +66,7 @@ function scanHtml(full) {
       hasManifest,
       hasOpenGraph,
       hasScreenshot: screenshots.length > 0,
+      recommendedImage,
       screenshots,
       cssLinks,
       jsLinks,
@@ -81,14 +86,45 @@ function scanHtml(full) {
   }
 }
 
-function findScreenshots(dir, htmlRel) {
-  const found = [];
+function findScreenshots(dir, htmlRel, ogImage = '') {
+  const found = new Set();
   const htmlDirRel = path.dirname(htmlRel).replace(/\\/g, '/');
+
+  if (ogImage && !/^https?:\/\//i.test(ogImage)) {
+    found.add(path.join(htmlDirRel, ogImage).replace(/\\/g, '/').replace(/^\.\//, ''));
+  }
+
   for (const name of screenshotNames) {
     const full = path.join(dir, name);
-    if (fs.existsSync(full)) found.push(path.join(htmlDirRel, name).replace(/\\/g, '/').replace(/^\.\//, ''));
+    if (fs.existsSync(full)) found.add(path.join(htmlDirRel, name).replace(/\\/g, '/').replace(/^\.\//, ''));
   }
-  return found;
+
+  scanImages(dir, htmlDirRel, found, 2);
+  return [...found];
+}
+
+function scanImages(dir, relDir, found, depth) {
+  if (depth < 0) return;
+  let items = [];
+  try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { return; }
+
+  for (const item of items) {
+    const full = path.join(dir, item.name);
+    const rel = path.join(relDir, item.name).replace(/\\/g, '/').replace(/^\.\//, '');
+
+    if (item.isDirectory()) {
+      if (ignore.has(item.name)) continue;
+      scanImages(full, rel, found, depth - 1);
+      continue;
+    }
+
+    const ext = path.extname(item.name).toLowerCase();
+    if (!imageExt.has(ext)) continue;
+
+    const low = item.name.toLowerCase();
+    const likelyScreenshot = screenshotKeywords.some(k => low.includes(k));
+    if (likelyScreenshot) found.add(rel);
+  }
 }
 
 function matchContent(text, re) {
