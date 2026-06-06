@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SUNPOLE HUB Admin</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080d18;--panel:#121b2f;--card:#172338;--line:rgba(159,204,255,.16);--text:#f5f7fb;--muted:#9fb0c7;--cyan:#63f3ff;--blue:#66c0f4;--green:#8cffc1;--gold:#ffd166;--red:#ff7b93}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,rgba(99,243,255,.18),transparent 34rem),linear-gradient(180deg,#060a12,#0b1120 45%,#0e1526);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.wrap{max-width:1320px;margin:0 auto;padding:24px 18px 80px}.hero{border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,rgba(23,35,56,.92),rgba(11,17,31,.94));box-shadow:0 24px 80px rgba(0,0,0,.45);padding:26px;margin-bottom:18px}.kicker{color:var(--cyan);font-weight:950;letter-spacing:.18em;text-transform:uppercase;font-size:12px}h1{font-size:clamp(34px,6vw,72px);line-height:.9;margin:10px 0}.muted{color:var(--muted);line-height:1.6}.grid{display:grid;grid-template-columns:360px 1fr;gap:16px}.panel{background:rgba(23,35,56,.78);border:1px solid var(--line);border-radius:22px;padding:16px}.list{display:grid;gap:8px;max-height:72vh;overflow:auto}.item{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:14px;padding:10px;cursor:pointer;color:var(--text);text-align:left}.item.active{outline:2px solid var(--cyan)}.item b{display:block}.item span{color:var(--muted);font-size:12px}.form{display:grid;gap:12px}label{display:grid;gap:6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}input,textarea,select{width:100%;border:1px solid var(--line);background:#0d1628;color:var(--text);border-radius:12px;padding:10px;font:inherit}textarea{min-height:86px;resize:vertical}.row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{border:0;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#08111d;border-radius:999px;padding:10px 14px;font-weight:950;cursor:pointer;text-decoration:none}.btn.alt{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}.btn.danger{background:linear-gradient(135deg,#ff7b93,#ffd166)}.preview{white-space:pre-wrap;background:#07101f;border:1px solid var(--line);border-radius:16px;padding:12px;max-height:320px;overflow:auto;font-family:ui-monospace,Consolas,monospace;font-size:12px}.note{background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.28);border-radius:14px;padding:12px;color:#ffe7ad}@media(max-width:900px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="kicker">SUNPOLE HUB / Manual Admin</div>
+      <h1>HUB Admin</h1>
+      <p class="muted">Первая безопасная админка. Она не записывает данные в GitHub напрямую, а помогает редактировать карточки и экспортировать готовый файл базы.</p>
+      <div class="actions"><a class="btn" href="hub-current.html">← HUB</a><a class="btn alt" href="docs/sunpole-hub-roadmap.md">Roadmap</a></div>
+    </section>
+
+    <div class="grid">
+      <aside class="panel">
+        <h2>Проекты</h2>
+        <input id="search" placeholder="Поиск проекта...">
+        <div class="actions"><button class="btn" id="newBtn">+ Новый</button><button class="btn alt" id="resetBtn">Сброс</button></div>
+        <div class="list" id="list"></div>
+      </aside>
+
+      <main class="panel">
+        <div class="note">Пока это локальный редактор в браузере. После правок нажмите «Сформировать экспорт», скопируйте результат и замените содержимое <b>data/projects-hub.js</b> вручную или через GitHub.</div>
+        <form class="form" id="form">
+          <div class="row"><label>ID<input id="id"></label><label>Название<input id="title"></label></div>
+          <div class="row"><label>Путь<input id="path"></label><label>Launch URL<input id="launchUrl"></label></div>
+          <div class="row"><label>Категория<input id="category"></label><label>Статус<select id="status"><option value="main">main</option><option value="experiment">experiment</option><option value="archive">archive</option><option value="review">review</option></select></label></div>
+          <div class="row"><label>Готовность<select id="maturity"><option value="ready">ready</option><option value="beta">beta</option><option value="draft">draft</option><option value="broken">broken</option></select></label><label>Качество<input id="qualityGrade" placeholder="A2, B3, C1"></label></div>
+          <div class="row"><label>Звёзды<input id="qualityStars" type="number" min="1" max="4"></label><label>Балл<input id="qualityScore" type="number" min="0" max="100"></label></div>
+          <label>Описание<textarea id="description"></textarea></label>
+          <label>Теги через запятую<input id="tags"></label>
+          <div class="row"><label>Скриншот<input id="imageUrl"></label><label>Иконка<input id="icon"></label></div>
+          <div class="row"><label>GitHub source<input id="sourceLink"></label><label>Связанные ID через запятую<input id="related"></label></div>
+          <div class="actions"><button class="btn" type="button" id="saveBtn">Сохранить в памяти</button><button class="btn alt" type="button" id="exportBtn">Сформировать экспорт</button><button class="btn danger" type="button" id="deleteBtn">Пометить архивом</button></div>
+        </form>
+        <h2>Экспорт</h2>
+        <pre class="preview" id="output">Пока пусто.</pre>
+      </main>
+    </div>
+  </div>
+  <script src="data/projects-hub.js"></script>
+  <script>
+    let projects = JSON.parse(JSON.stringify(window.SUNPOLE_PROJECTS || []));
+    let currentId = projects[0]?.id || null;
+    const $ = id => document.getElementById(id);
+    const fields = ['id','title','path','launchUrl','category','status','maturity','qualityGrade','qualityStars','qualityScore','description','tags','imageUrl','icon','sourceLink','related'];
+    function current(){return projects.find(p=>p.id===currentId) || projects[0]}
+    function renderList(){const q=$('search').value.toLowerCase();$('list').innerHTML=projects.filter(p=>!q||[p.id,p.title,p.category,(p.tags||[]).join(' ')].join(' ').toLowerCase().includes(q)).map(p=>`<button class="item ${p.id===currentId?'active':''}" data-id="${p.id}"><b>${p.title}</b><span>${p.id} · ${p.status} · ${p.category}</span></button>`).join('');document.querySelectorAll('.item').forEach(b=>b.onclick=()=>{currentId=b.dataset.id;loadForm();renderList()})}
+    function loadForm(){const p=current();if(!p)return;$('id').value=p.id||'';$('title').value=p.title||'';$('path').value=p.path||'';$('launchUrl').value=p.launchUrl||'';$('category').value=p.category||'';$('status').value=p.status||'main';$('maturity').value=p.maturity||'ready';$('qualityGrade').value=p.quality?.grade||'C1';$('qualityStars').value=p.quality?.stars||1;$('qualityScore').value=p.quality?.score||0;$('description').value=p.description||'';$('tags').value=(p.tags||[]).join(', ');$('imageUrl').value=p.imageUrl||'';$('icon').value=p.icon||'';$('sourceLink').value=p.links?.source||'';$('related').value=(p.related||[]).join(', ')}
+    function saveForm(){let p=current();if(!p){p={};projects.push(p)}const old=p.id;p.id=$('id').value.trim();p.title=$('title').value.trim();p.path=$('path').value.trim();p.launchUrl=$('launchUrl').value.trim();p.category=$('category').value.trim();p.status=$('status').value;p.maturity=$('maturity').value;p.quality={...(p.quality||{}),grade:$('qualityGrade').value.trim(),stars:Number($('qualityStars').value||1),score:Number($('qualityScore').value||0),label:p.quality?.label||'Ручная оценка'};p.description=$('description').value.trim();p.tags=$('tags').value.split(',').map(x=>x.trim()).filter(Boolean);p.imageUrl=$('imageUrl').value.trim();p.icon=$('icon').value.trim();p.links={...(p.links||{}),source:$('sourceLink').value.trim(),launch:p.launchUrl,hub:'hub-current.html'};p.related=$('related').value.split(',').map(x=>x.trim()).filter(Boolean);p.isVisible=true;if(old!==p.id)currentId=p.id;renderList();exportData()}
+    function exportData(){const content='window.SUNPOLE_HUB_META = '+JSON.stringify(window.SUNPOLE_HUB_META||{},null,2)+';\n\nwindow.SUNPOLE_PROJECTS = '+JSON.stringify(projects,null,2)+';\n';$('output').textContent=content}
+    $('search').oninput=renderList;$('saveBtn').onclick=saveForm;$('exportBtn').onclick=exportData;$('deleteBtn').onclick=()=>{const p=current();if(p){p.status='archive';loadForm();renderList();exportData()}};$('newBtn').onclick=()=>{const id='new-'+Date.now();projects.unshift({id,title:'Новый проект',path:'',launchUrl:'',category:'Без категории',status:'review',maturity:'draft',quality:{grade:'C1',stars:1,score:0,label:'Новый проект'},tags:[],description:'',imageUrl:'',icon:'📦',links:{hub:'hub-current.html'},related:[],isVisible:true});currentId=id;loadForm();renderList()};$('resetBtn').onclick=()=>{projects=JSON.parse(JSON.stringify(window.SUNPOLE_PROJECTS||[]));currentId=projects[0]?.id;loadForm();renderList();$('output').textContent='Сброшено к исходной базе.'};
+    renderList();loadForm();
+  </script>
+</body>
+</html>
