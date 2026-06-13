@@ -1,14 +1,14 @@
 window.SUNPOLE_HUB_META = {
-  name: "SUNPOLE HUB",
-  version: "0.7.0-auto-catalog",
-  updatedAt: "2026-06-13",
-  theme: "auto-catalog",
-  repository: "sunpole/stilist",
-  homeUrl: "hub-current.html",
-  projectCount: 194,
-  source: "tools/hub-builder/generate.js",
-  output: "data/projects-hub.js",
-  safeMode: true
+  "name": "SUNPOLE HUB",
+  "version": "0.7.0-auto-catalog",
+  "updatedAt": "2026-06-13",
+  "theme": "auto-catalog",
+  "repository": "sunpole/stilist",
+  "homeUrl": "hub-current.html",
+  "projectCount": 194,
+  "source": "tools/hub-builder/generate.js",
+  "output": "data/projects-hub.js",
+  "safeMode": true
 };
 
 window.SUNPOLE_PROJECTS = [
@@ -217,7 +217,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "350",
@@ -412,7 +415,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "pass",
@@ -604,7 +610,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "category needs manual review"
   },
   {
     "id": "index90",
@@ -828,7 +837,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "2025",
@@ -1007,7 +1019,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "index10",
@@ -1220,7 +1235,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; demo or service page, not a storefront project"
   },
   {
     "id": "index70",
@@ -1429,7 +1447,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "5",
@@ -1609,7 +1630,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "320",
@@ -1734,7 +1758,10 @@ window.SUNPOLE_PROJECTS = [
         }
       ],
       "relationReasons": []
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "category needs manual review"
   },
   {
     "id": "370",
@@ -1765,7 +1792,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index2",
       "370-index3",
@@ -1934,7 +1961,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index2",
@@ -1965,7 +1995,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index3",
       "370-index4",
@@ -2140,7 +2170,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index3",
@@ -2171,7 +2204,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index2",
       "370-index4",
@@ -2346,7 +2379,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index4",
@@ -2377,7 +2413,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index2",
       "370-index3",
@@ -2552,7 +2588,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index5",
@@ -2583,7 +2622,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index2",
       "370-index3",
@@ -2758,7 +2797,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index6",
@@ -2789,7 +2831,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index2",
       "370-index3",
@@ -2964,7 +3006,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "370-index5",
+    "hasRealScreenshot": true,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index7",
@@ -2995,7 +3040,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index2",
       "370-index3",
@@ -3170,7 +3215,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index8",
@@ -3201,7 +3249,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index10",
       "370-index9",
@@ -3381,7 +3429,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "370-index10",
+    "hasRealScreenshot": true,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index9",
@@ -3412,7 +3463,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "370-index10",
     "related": [
       "370-index10",
       "370-index8",
@@ -3587,7 +3638,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "370-index10",
@@ -3798,7 +3852,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "400",
@@ -3984,7 +4041,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "400-index2",
@@ -4015,7 +4075,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/400/stilist_400.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "400",
     "related": [
       "400",
       "index116",
@@ -4170,7 +4230,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "3501",
@@ -4202,7 +4265,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/3501/stilist_3501.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "3502",
     "related": [
       "3502",
       "350",
@@ -4353,7 +4416,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "index5",
@@ -4561,7 +4627,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index6",
@@ -4592,7 +4661,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index11",
     "related": [
       "index11",
       "index7",
@@ -4766,7 +4835,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot; category needs manual review"
   },
   {
     "id": "index11",
@@ -4971,7 +5043,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index14",
@@ -5178,7 +5253,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index18",
@@ -5381,7 +5459,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index19",
@@ -5412,7 +5493,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index22",
     "related": [
       "index21",
       "index22",
@@ -5589,7 +5670,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index21",
@@ -5620,7 +5704,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index22",
     "related": [
       "index19",
       "index22",
@@ -5797,7 +5881,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index22",
@@ -6000,7 +6087,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index23",
@@ -6214,7 +6304,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index24",
@@ -6246,7 +6339,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎨",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index25",
     "related": [
       "index25",
       "index100",
@@ -6429,7 +6522,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot; category needs manual review"
   },
   {
     "id": "index25",
@@ -6642,7 +6738,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index27",
@@ -6843,7 +6942,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index28",
@@ -7045,7 +7147,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index29",
@@ -7076,7 +7181,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index28",
     "related": [
       "index28",
       "index102",
@@ -7252,7 +7357,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index34",
@@ -7460,7 +7568,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index35",
@@ -7668,7 +7779,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index36",
@@ -7699,7 +7813,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index37",
     "related": [
       "index37",
       "index40",
@@ -7877,7 +7991,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index37",
@@ -8086,7 +8203,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index40",
@@ -8295,7 +8415,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index41",
@@ -8506,7 +8629,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index43",
@@ -8717,7 +8843,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index47",
@@ -8919,7 +9048,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index52",
@@ -9126,7 +9258,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index60",
@@ -9333,7 +9468,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index65",
@@ -9540,7 +9678,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index66",
@@ -9571,7 +9712,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index68",
     "related": [
       "index67",
       "index68",
@@ -9750,7 +9891,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index67",
@@ -9781,7 +9925,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index68",
     "related": [
       "index66",
       "index68",
@@ -9960,7 +10104,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index68",
@@ -10170,7 +10317,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index69",
@@ -10380,7 +10530,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index71",
@@ -10587,7 +10740,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index86",
@@ -10619,7 +10775,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🔎",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index90",
     "related": [
       "index87",
       "index88",
@@ -10801,7 +10957,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index87",
@@ -10833,7 +10992,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🔎",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index90",
     "related": [
       "index86",
       "index88",
@@ -11012,7 +11171,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index89",
@@ -11043,7 +11205,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index91",
       "index92",
@@ -11221,7 +11383,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index91",
@@ -11252,7 +11417,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index89",
       "index92",
@@ -11430,7 +11595,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index92",
@@ -11461,7 +11629,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index89",
       "index91",
@@ -11639,7 +11807,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index93",
@@ -11670,7 +11841,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index89",
       "index91",
@@ -11848,7 +12019,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index94",
@@ -11879,7 +12053,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index89",
       "index91",
@@ -12057,7 +12231,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index93",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index95",
@@ -12088,7 +12265,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index89",
       "index91",
@@ -12266,7 +12443,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index96",
@@ -12298,7 +12478,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "✍️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index99",
       "index89",
@@ -12477,7 +12657,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot; category needs manual review"
   },
   {
     "id": "index97",
@@ -12509,7 +12692,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index98",
       "index89",
@@ -12688,7 +12871,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index98",
@@ -12899,7 +13085,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index99",
@@ -12931,7 +13120,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "✍️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index98",
     "related": [
       "index96",
       "index89",
@@ -13108,7 +13297,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot; category needs manual review"
   },
   {
     "id": "index100",
@@ -13316,7 +13508,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index104",
@@ -13534,7 +13729,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index105",
@@ -13747,7 +13945,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index106",
@@ -13965,7 +14166,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index107",
@@ -14183,7 +14387,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index108",
@@ -14401,7 +14608,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index109",
@@ -14609,7 +14819,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index110",
@@ -14822,7 +15035,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index111",
@@ -14853,7 +15069,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index110",
     "related": [
       "index110",
       "index106",
@@ -15035,7 +15251,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index110",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index112",
@@ -15248,7 +15467,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index113",
@@ -15456,7 +15678,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index114",
@@ -15487,7 +15712,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🎮",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index115",
     "related": [
       "index115",
       "index104",
@@ -15669,7 +15894,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index115",
@@ -15882,7 +16110,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index116",
@@ -15913,7 +16144,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "400",
     "related": [
       "index119",
       "index120",
@@ -16095,7 +16326,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "400",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index117",
@@ -16308,7 +16542,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index118",
@@ -16521,7 +16758,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index119",
@@ -16552,7 +16792,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index127",
     "related": [
       "index120",
       "index121",
@@ -16734,7 +16974,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index120",
@@ -16765,7 +17008,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index127",
     "related": [
       "index119",
       "index121",
@@ -16947,7 +17190,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index121",
@@ -16978,7 +17224,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index127",
     "related": [
       "index119",
       "index120",
@@ -17160,7 +17406,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index122",
@@ -17191,7 +17440,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index127",
     "related": [
       "index119",
       "index120",
@@ -17373,7 +17622,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index123",
@@ -17580,7 +17832,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index124",
@@ -17787,7 +18042,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index125",
@@ -17818,7 +18076,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index127",
     "related": [
       "index119",
       "index120",
@@ -18000,7 +18258,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index126",
@@ -18213,7 +18474,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index127",
@@ -18426,7 +18690,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index128",
@@ -18633,7 +18900,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index129",
@@ -18834,7 +19104,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index130",
@@ -19041,7 +19314,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index131",
@@ -19255,7 +19531,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index132",
@@ -19287,7 +19566,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index133",
       "index134",
@@ -19469,7 +19748,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index133",
@@ -19501,7 +19783,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index132",
       "index134",
@@ -19683,7 +19965,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index132",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index134",
@@ -19715,7 +20000,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index132",
       "index133",
@@ -19897,7 +20182,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index135",
@@ -19929,7 +20217,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index136",
       "index101",
@@ -20117,7 +20405,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index136",
@@ -20149,7 +20440,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index135",
       "index101",
@@ -20337,7 +20628,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index137",
@@ -20369,7 +20663,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index132",
       "index133",
@@ -20557,7 +20851,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index138",
@@ -20589,7 +20886,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index139",
     "related": [
       "index132",
       "index133",
@@ -20777,7 +21074,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index137",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index139",
@@ -20996,7 +21296,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index140",
@@ -21215,7 +21518,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index142",
@@ -21434,7 +21740,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index143",
@@ -21466,7 +21775,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index147",
     "related": [
       "index144",
       "index145",
@@ -21653,7 +21962,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index145",
@@ -21685,7 +21997,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index147",
     "related": [
       "index143",
       "index144",
@@ -21872,7 +22184,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index146",
@@ -21904,7 +22219,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index147",
     "related": [
       "index143",
       "index144",
@@ -22091,7 +22406,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index145",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index147",
@@ -22310,7 +22628,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index148",
@@ -22518,7 +22839,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index150",
@@ -22550,7 +22874,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index152",
     "related": [
       "index151",
       "index152",
@@ -22732,7 +23056,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index151",
@@ -22764,7 +23091,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index152",
     "related": [
       "index150",
       "index152",
@@ -22946,7 +23273,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index152",
@@ -23165,7 +23495,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index154",
@@ -23375,7 +23708,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index200",
@@ -23407,7 +23743,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index152",
     "related": [
       "index150",
       "index151",
@@ -23594,7 +23930,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index500",
@@ -23626,7 +23965,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index152",
     "related": [
       "index150",
       "index151",
@@ -23813,7 +24152,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index200",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index501",
@@ -23845,7 +24187,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index152",
     "related": [
       "index150",
       "index151",
@@ -24032,7 +24374,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "index200",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "80",
@@ -24064,7 +24409,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/80/stilist_80.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "81",
       "82",
@@ -24214,7 +24559,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "81",
@@ -24396,7 +24744,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "101",
@@ -24577,7 +24928,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "102",
@@ -24756,7 +25110,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
   },
   {
     "id": "350-index1",
@@ -24788,7 +25145,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "350",
     "related": [
       "350",
       "3501",
@@ -24928,7 +25285,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": "older or alternative version; confirm canonical project"
   },
   {
     "id": "index",
@@ -25119,7 +25479,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index2",
@@ -25318,7 +25681,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index3",
@@ -25517,7 +25883,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index4",
@@ -25715,7 +26084,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index7",
@@ -25746,7 +26118,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index11",
     "related": [
       "index11",
       "index6",
@@ -25910,7 +26282,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index8",
@@ -25941,7 +26316,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index11",
     "related": [
       "index11",
       "index6",
@@ -26105,7 +26480,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index9",
@@ -26136,7 +26514,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index11",
     "related": [
       "index11",
       "index6",
@@ -26300,7 +26678,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index12",
@@ -26492,7 +26873,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index13",
@@ -26692,7 +27076,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index15",
@@ -26885,7 +27272,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index16",
@@ -27078,7 +27468,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index17",
@@ -27270,7 +27663,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index20",
@@ -27468,7 +27864,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index26",
@@ -27666,7 +28065,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index30",
@@ -27868,7 +28270,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index31",
@@ -28070,7 +28475,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index32",
@@ -28267,7 +28675,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index33",
@@ -28466,7 +28877,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index38",
@@ -28497,7 +28911,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index52",
     "related": [
       "index52",
       "index124",
@@ -28663,7 +29077,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index39",
@@ -28861,7 +29278,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index42",
@@ -29062,7 +29482,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index44",
@@ -29253,7 +29676,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index45",
@@ -29450,7 +29876,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index46",
@@ -29481,7 +29910,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index47",
     "related": [
       "index47",
       "index",
@@ -29642,7 +30071,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index48",
@@ -29846,7 +30278,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index49",
@@ -30044,7 +30479,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index50",
@@ -30249,7 +30687,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index51",
@@ -30454,7 +30895,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index53",
@@ -30646,7 +31090,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index54",
@@ -30838,7 +31285,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index55",
@@ -31029,7 +31479,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index56",
@@ -31221,7 +31674,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index57",
@@ -31413,7 +31869,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index58",
@@ -31610,7 +32069,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index59",
@@ -31809,7 +32271,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index61",
@@ -32002,7 +32467,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index62",
@@ -32197,7 +32665,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index63",
@@ -32392,7 +32863,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index64",
@@ -32591,7 +33065,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index88",
@@ -32623,7 +33100,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🔎",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index90",
     "related": [
       "index86",
       "index87",
@@ -32792,7 +33269,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "index101",
@@ -32996,7 +33476,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index102",
@@ -33193,7 +33676,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index103",
@@ -33390,7 +33876,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index141",
@@ -33598,7 +34087,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index144",
@@ -33807,7 +34299,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index149",
@@ -34005,7 +34500,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; category needs manual review"
   },
   {
     "id": "index153",
@@ -34196,7 +34694,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "index502",
@@ -34228,7 +34729,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "index152",
     "related": [
       "index150",
       "index151",
@@ -34400,7 +34901,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "m100",
@@ -34578,7 +35082,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "925",
@@ -34608,7 +35115,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "927",
     "related": [
       "924",
       "926",
@@ -34733,7 +35240,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "926",
@@ -34763,7 +35273,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "927",
     "related": [
       "924",
       "925",
@@ -34888,7 +35398,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "albion",
@@ -34918,7 +35431,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "albion3",
     "related": [
       "albion2",
       "albion3",
@@ -35075,7 +35588,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "albion2",
@@ -35105,7 +35621,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "⛪",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "albion3",
     "related": [
       "albion",
       "albion3",
@@ -35261,7 +35777,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "albion3",
@@ -35400,7 +35919,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "ru",
@@ -35567,7 +36089,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "win",
@@ -35687,7 +36212,10 @@ window.SUNPOLE_PROJECTS = [
         }
       ],
       "relationReasons": []
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "82",
@@ -35718,7 +36246,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "80",
       "81",
@@ -35861,7 +36389,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "83",
@@ -35892,7 +36423,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "80",
       "81",
@@ -36035,7 +36566,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "84",
@@ -36066,7 +36600,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "80",
       "81",
@@ -36209,7 +36743,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "83",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "85",
@@ -36240,7 +36777,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "80",
       "81",
@@ -36383,7 +36920,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": "83",
+    "hasRealScreenshot": false,
+    "needsReviewReason": "exact duplicate of canonical project; older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "86",
@@ -36414,7 +36954,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "80",
       "81",
@@ -36557,7 +37097,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "87",
@@ -36588,7 +37131,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "81",
     "related": [
       "80",
       "81",
@@ -36731,7 +37274,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "920",
@@ -36836,7 +37382,10 @@ window.SUNPOLE_PROJECTS = [
         }
       ],
       "relationReasons": []
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "921",
@@ -36999,7 +37548,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "922",
@@ -37164,7 +37716,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "924",
@@ -37194,7 +37749,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "927",
     "related": [
       "925",
       "926",
@@ -37309,7 +37864,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "927",
@@ -37454,7 +38012,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "muz",
@@ -37571,7 +38132,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "muz2",
@@ -37601,7 +38165,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "muz",
     "related": [
       "muz"
     ],
@@ -37688,7 +38252,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "root1",
@@ -37793,7 +38360,10 @@ window.SUNPOLE_PROJECTS = [
         }
       ],
       "relationReasons": []
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "wb",
@@ -37918,7 +38488,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot"
   },
   {
     "id": "wb-index2",
@@ -37948,7 +38521,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "wb",
     "related": [
       "wb-index3",
       "wb"
@@ -38044,7 +38617,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "wb-index3",
@@ -38074,7 +38650,7 @@ window.SUNPOLE_PROJECTS = [
     "fallbackImageUrl": "",
     "icon": "🧠",
     "source": "hub-builder",
-    "versionOf": null,
+    "versionOf": "wb",
     "related": [
       "wb-index2",
       "wb",
@@ -38206,7 +38782,10 @@ window.SUNPOLE_PROJECTS = [
           ]
         }
       ]
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "923",
@@ -38280,6 +38859,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ],
       "relationReasons": []
-    }
+    },
+    "canonicalOf": null,
+    "hasRealScreenshot": false,
+    "needsReviewReason": "missing real project screenshot; technical title needs human-readable name"
   }
 ];
