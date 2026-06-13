@@ -14,6 +14,15 @@
   <a class="back" href="../hub-current.html">← Вернуться в текущий SUNPOLE HUB</a>
   <div class="card">
     <h1>SUNPOLE HUB v0.5.0-alpha</h1>
+    <h2>v0.7.0-auto-catalog</h2>
+    <p><b>Code name:</b> Auto Catalog</p>
+    <p><b>Status:</b> catalog-generation / alpha / reproducible builder output</p>
+    <ul>
+      <li>Builder now scans likely project HTML entry points and skips service HUB/admin/docs pages.</li>
+      <li>`data/projects-hub.js` can be regenerated with `node tools/hub-builder/scan.js` and `node tools/hub-builder/generate.js --write-data`.</li>
+      <li>The generated catalog currently contains 194 project entries, with uncertain items marked for review.</li>
+      <li>No existing project files are deleted, moved, or renamed by the builder.</li>
+    </ul>
     <p><b>Кодовое имя:</b> Project View Connected / Gallery Layer</p>
     <p><b>Статус:</b> visual-prototype / alpha / control point</p>
     <p class="muted">Эта страница фиксирует контрольную версию HUB. Номер версии на текущей странице, в документации и в changelog должен совпадать.</p>
