@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вселенная Правил</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-bottom: 2px solid #4cc9f0;
+        }
+        h1 {
+            color: #4cc9f0;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+            margin-bottom: 10px;
+        }
+        .panel {
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #4cc9f0;
+        }
+        .stats {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        .main-content {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #4cc9f0;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover {
+            background: rgba(76, 201, 240, 0.2);
+        }
+        .tab-btn.active {
+            background: #4cc9f0;
+            color: #1a1a2e;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4cc9f0 0%, #4361ee 100%);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        button {
+            background: linear-gradient(to right, #4361ee, #4cc9f0);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 201, 240, 0.4);
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .item {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            background-color: rgba(40, 40, 60, 0.8);
+            border-radius: 5px;
+            text-align: center;
+            width: 120px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .item:hover {
+            transform: scale(1.05);
+        }
+        .common { border-left: 4px solid #ffffff; }
+        .uncommon { border-left: 4px solid #1eff00; }
+        .rare { border-left: 4px solid #0070dd; }
+        .epic { border-left: 4px solid #a335ee; }
+        .legendary { border-left: 4px solid #ff8000; }
+        .resource-grid, .inventory-grid, .auction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .resource, .currency {
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.8);
+            border-radius: 5px;
+            text-align: center;
+        }
+        .recipe {
+            padding: 15px;
+            background: rgba(40, 40, 60, 0.8);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .requirements {
+            font-size: 0.9em;
+            color: #aaa;
+            margin: 10px 0;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #4cc9f0;
+            background: rgba(30, 30, 46, 0.8);
+            color: white;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background: rgba(30, 30, 46, 0.9);
+            border-left: 4px solid #4cc9f0;
+            border-radius: 5px;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        .common-badge { background: #555; }
+        .uncommon-badge { background: #1eff00; color: black; }
+        .rare-badge { background: #0070dd; }
+        .epic-badge { background: #a335ee; }
+        .legendary-badge { background: #ff8000; color: black; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .highlight {
+            animation: highlight 1s;
+        }
+        @keyframes highlight {
+            0% { background-color: initial; }
+            50% { background-color: rgba(76, 201, 240, 0.3); }
+            100% { background-color: initial; }
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Вселенная Правил</h1>
+            <p>Создавайте свои правила, предметы и валюту в этой уникальной браузерной игре!</p>
+        </header>
+        
+        <div class="panel stats">
+            <h2>Ресурсы</h2>
+            <div class="resource-grid" id="resources">
+                <!-- Динамически генерируемые ресурсы -->
+            </div>
+            
+            <h2>Валюты</h2>
+            <div class="resource-grid" id="currencies">
+                <!-- Динамически генерируемые валюты -->
+            </div>
+            
+            <h2>Характеристики</h2>
+            <div id="stats">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%;"></div>
+                </div>
+                <p>Уровень: <span id="level">1</span></p>
+                <p>Опыт: <span id="exp">0</span>/<span id="exp-needed">100</span></p>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="saveGame()">Сохранить</button>
+                <button onclick="resetGame()">Новая игра</button>
+            </div>
+        </div>
+        
+        <div class="panel main-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('crafting')">Крафт</button>
+                <button class="tab-btn" onclick="switchTab('dismantling')">Разбор</button>
+                <button class="tab-btn" onclick="switchTab('auction')">Аукцион</button>
+                <button class="tab-btn" onclick="switchTab('rules')">Правила</button>
+            </div>
+            
+            <div id="crafting" class="tab-content active">
+                <h2>Крафт предметов</h2>
+                <div id="crafting-recipes">
+                    <!-- Рецепты крафта -->
+                </div>
+            </div>
+            
+            <div id="dismantling" class="tab-content">
+                <h2>Разбор предметов</h2>
+                <p>Выберите предмет для разбора и получите материалы с шансом в зависимости от редкости</p>
+                <div class="inventory-grid" id="inventory-items">
+                    <!-- Инвентарь для разбора -->
+                </div>
+            </div>
+            
+            <div id="auction" class="tab-content">
+                <h2>Торговая площадка</h2>
+                <div class="auction-grid" id="auction-items">
+                    <!-- Предметы на аукционе -->
+                </div>
+                <div style="margin-top: 20px;">
+                    <h3>Продать предмет</h3>
+                    <select id="sell-item-select">
+                        <option value="">Выберите предмет</option>
+                    </select>
+                    <input type="number" id="sell-price" placeholder="Цена" min="1">
+                    <select id="sell-currency-select">
+                        <option value="gold">Золото</option>
+                    </select>
+                    <button onclick="sellItem()">Выставить на продажу</button>
+                </div>
+            </div>
+            
+            <div id="rules" class="tab-content">
+                <h2>Создание правил</h2>
+                <div class="recipe">
+                    <h3>Создать новую валюту</h3>
+                    <input type="text" id="new-currency-name" placeholder="Название валюты">
+                    <button onclick="createNewCurrency()">Создать валюту</button>
+                </div>
+                
+                <div class="recipe">
+                    <h3>Создать правило крафта</h3>
+                    <input type="text" id="new-recipe-name" placeholder="Название предмета">
+                    <div id="resource-inputs">
+                        <div class="requirements">
+                            <select class="resource-select">
+                                <option value="">Выберите ресурс</option>
+                            </select>
+                            <input type="number" class="resource-quantity" placeholder="Кол-во" min="1">
+                        </div>
+                    </div>
+                    <button onclick="addResourceInput()">+ Добавить ресурс</button>
+                    <button onclick="createNewRecipe()">Создать рецепт</button>
+                </div>
+                
+                <div class="recipe">
+                    <h3>Ваши правила</h3>
+                    <div id="custom-rules">
+                        <!-- Созданные правила -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Основная структура данных игры
+        let gameState = {
+            resources: {
+                'дерево': 50,
+                'камень': 30,
+                'железо': 10,
+                'кожа': 5
+            },
+            currencies: {
+                'gold': 100
+            },
+            items: [],
+            recipes: [
+                {
+                    id: 'wooden_sword',
+                    name: 'Деревянный меч',
+                    type: 'weapon',
+                    requirements: { 'дерево': 5 },
+                    baseProperties: { 
+                        damage: { value: 5, variance: 0.2 },
+                        durability: { value: 20, variance: 0.3 }
+                    }
+                },
+                {
+                    id: 'stone_hammer',
+                    name: 'Каменный молот',
+                    type: 'tool',
+                    requirements: { 'дерево': 3, 'камень': 5 },
+                    baseProperties: { 
+                        strength: { value: 8, variance: 0.25 },
+                        durability: { value: 30, variance: 0.4 }
+                    }
+                },
+                {
+                    id: 'iron_axe',
+                    name: 'Железный топор',
+                    type: 'tool',
+                    requirements: { 'дерево': 5, 'железо': 3 },
+                    baseProperties: { 
+                        strength: { value: 12, variance: 0.3 },
+                        durability: { value: 40, variance: 0.35 }
+                    }
+                }
+            ],
+            customCurrencies: [],
+            customRecipes: [],
+            auction: [],
+            stats: {
+                level: 1,
+                exp: 0,
+                expNeeded: 100
+            }
+        };
+
+        // Загрузка состояния игры из localStorage
+        function loadGame() {
+            const savedGame = localStorage.getItem('universeOfRules');
+            if (savedGame) {
+                try {
+                    gameState = JSON.parse(savedGame);
+                    showNotification('Игра загружена!');
+                } catch (e) {
+                    console.error('Ошибка загрузки игры:', e);
+                    showNotification('Ошибка загрузки сохранения');
+                }
+            }
+            updateUI();
+        }
+
+        // Сохранение состояния игры в localStorage
+        function saveGame() {
+            localStorage.setItem('universeOfRules', JSON.stringify(gameState));
+            showNotification('Игра сохранена!');
+        }
+
+        // Сброс игры
+        function resetGame() {
+            if (confirm('Вы уверены? Весь прогресс будет потерян!')) {
+                localStorage.removeItem('universeOfRules');
+                gameState = {
+                    resources: {
+                        'дерево': 50,
+                        'камень': 30,
+                        'железо': 10,
+                        'кожа': 5
+                    },
+                    currencies: {
+                        'gold': 100
+                    },
+                    items: [],
+                    recipes: [
+                        {
+                            id: 'wooden_sword',
+                            name: 'Деревянный меч',
+                            type: 'weapon',
+                            requirements: { 'дерево': 5 },
+                            baseProperties: { 
+                                damage: { value: 5, variance: 0.2 },
+                                durability: { value: 20, variance: 0.3 }
+                            }
+                        },
+                        {
+                            id: 'stone_hammer',
+                            name: 'Каменный молот',
+                            type: 'tool',
+                            requirements: { 'дерево': 3, 'камень': 5 },
+                            baseProperties: { 
+                                strength: { value: 8, variance: 0.25 },
+                                durability: { value: 30, variance: 0.4 }
+                            }
+                        },
+                        {
+                            id: 'iron_axe',
+                            name: 'Железный топор',
+                            type: 'tool',
+                            requirements: { 'дерево': 5, 'железо': 3 },
+                            baseProperties: { 
+                                strength: { value: 12, variance: 0.3 },
+                                durability: { value: 40, variance: 0.35 }
+                            }
+                        }
+                    ],
+                    customCurrencies: [],
+                    customRecipes: [],
+                    auction: [],
+                    stats: {
+                        level: 1,
+                        exp: 0,
+                        expNeeded: 100
+                    }
+                };
+                updateUI();
+                showNotification('Новая игра начата!');
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            updateResources();
+            updateCurrencies();
+            updateCrafting();
+            updateInventory();
+            updateAuction();
+            updateRules();
+            updateStats();
+        }
+
+        // Обновление отображения ресурсов
+        function updateResources() {
+            const resourcesContainer = document.getElementById('resources');
+            resourcesContainer.innerHTML = '';
+            
+            for (const [resource, quantity] of Object.entries(gameState.resources)) {
+                const resourceEl = document.createElement('div');
+                resourceEl.className = 'resource';
+                resourceEl.innerHTML = `
+                    <div>${resource}</div>
+                    <div>${quantity}</div>
+                `;
+                resourcesContainer.appendChild(resourceEl);
+            }
+        }
+
+        // Обновление отображения валют
+        function updateCurrencies() {
+            const currenciesContainer = document.getElementById('currencies');
+            currenciesContainer.innerHTML = '';
+            
+            for (const [currency, quantity] of Object.entries(gameState.currencies)) {
+                const currencyEl = document.createElement('div');
+                currencyEl.className = 'currency';
+                currencyEl.innerHTML = `
+                    <div>${currency}</div>
+                    <div>${quantity}</div>
+                `;
+                currenciesContainer.appendChild(currencyEl);
+            }
+            
+            // Обновляем селекторы валют
+            const currencySelects = document.querySelectorAll('#sell-currency-select, .currency-select');
+            currencySelects.forEach(select => {
+                if (select.id === 'sell-currency-select') {
+                    select.innerHTML = '';
+                    for (const currency of Object.keys(gameState.currencies)) {
+                        const option = document.createElement('option');
+                        option.value = currency;
+                        option.textContent = currency;
+                        select.appendChild(option);
+                    }
+                }
+            });
+        }
+
+        // Обновление отображения крафта
+        function updateCrafting() {
+            const craftingContainer = document.getElementById('crafting-recipes');
+            craftingContainer.innerHTML = '';
+            
+            // Добавляем стандартные рецепты
+            gameState.recipes.forEach(recipe => {
+                const recipeEl = document.createElement('div');
+                recipeEl.className = 'recipe';
+                
+                let requirementsHTML = '';
+                for (const [resource, quantity] of Object.entries(recipe.requirements)) {
+                    requirementsHTML += `<div>${resource}: ${quantity}</div>`;
+                }
+                
+                recipeEl.innerHTML = `
+                    <h3>${recipe.name}</h3>
+                    <div class="requirements">${requirementsHTML}</div>
+                    <button onclick="craftItem('${recipe.id}')">Создать</button>
+                `;
+                
+                craftingContainer.appendChild(recipeEl);
+            });
+            
+            // Добавляем пользовательские рецепты
+            gameState.customRecipes.forEach(recipe => {
+                const recipeEl = document.createElement('div');
+                recipeEl.className = 'recipe';
+                
+                let requirementsHTML = '';
+                for (const [resource, quantity] of Object.entries(recipe.requirements)) {
+                    requirementsHTML += `<div>${resource}: ${quantity}</div>`;
+                }
+                
+                recipeEl.innerHTML = `
+                    <h3>${recipe.name} (пользовательский)</h3>
+                    <div class="requirements">${requirementsHTML}</div>
+                    <button onclick="craftItem('${recipe.id}')">Создать</button>
+                `;
+                
+                craftingContainer.appendChild(recipeEl);
+            });
+        }
+
+        // Обновление инвентаря
+        function updateInventory() {
+            const inventoryContainer = document.getElementById('inventory-items');
+            inventoryContainer.innerHTML = '';
+            
+            const sellItemSelect = document.getElementById('sell-item-select');
+            sellItemSelect.innerHTML = '<option value="">Выберите предмет</option>';
+            
+            gameState.items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = `item ${item.rarity}`;
+                
+                const rarityNames = {
+                    'common': 'Обычный',
+                    'uncommon': 'Необычный',
+                    'rare': 'Редкий',
+                    'epic': 'Эпический',
+                    'legendary': 'Легендарный'
+                };
+                
+                let propertiesHTML = '';
+                for (const [prop, value] of Object.entries(item.properties)) {
+                    propertiesHTML += `<div>${prop}: ${value}</div>`;
+                }
+                
+                itemEl.innerHTML = `
+                    <div>${item.name}</div>
+                    <span class="rarity-badge ${item.rarity}-badge">${rarityNames[item.rarity]}</span>
+                    ${propertiesHTML}
+                    <button onclick="dismantleItem(${item.id})">Разобрать</button>
+                `;
+                
+                inventoryContainer.appendChild(itemEl);
+                
+                // Добавляем в селектор для продажи
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name} (${rarityNames[item.rarity]})`;
+                sellItemSelect.appendChild(option);
+            });
+        }
+
+        // Обновление аукциона
+        function updateAuction() {
+            const auctionContainer = document.getElementById('auction-items');
+            auctionContainer.innerHTML = '';
+            
+            // Генерируем несколько случайных предложений от NPC
+            if (gameState.auction.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    generateAuctionItem();
+                }
+            }
+            
+            gameState.auction.forEach((item, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = `item ${item.rarity}`;
+                
+                const rarityNames = {
+                    'common': 'Обычный',
+                    'uncommon': 'Необычный',
+                    'rare': 'Редкий',
+                    'epic': 'Эпический',
+                    'legendary': 'Легендарный'
+                };
+                
+                let propertiesHTML = '';
+                for (const [prop, value] of Object.entries(item.properties)) {
+                    propertiesHTML += `<div>${prop}: ${value}</div>`;
+                }
+                
+                itemEl.innerHTML = `
+                    <div>${item.name}</div>
+                    <span class="rarity-badge ${item.rarity}-badge">${rarityNames[item.rarity]}</span>
+                    ${propertiesHTML}
+                    <div>Цена: ${item.price} ${item.currency}</div>
+                    <button onclick="buyItem(${index})">Купить</button>
+                `;
+                
+                auctionContainer.appendChild(itemEl);
+            });
+        }
+
+        // Обновление раздела правил
+        function updateRules() {
+            const rulesContainer = document.getElementById('custom-rules');
+            rulesContainer.innerHTML = '';
+            
+            // Показываем пользовательские валюты
+            if (gameState.customCurrencies.length > 0) {
+                const currenciesHeader = document.createElement('h4');
+                currenciesHeader.textContent = 'Пользовательские валюты:';
+                rulesContainer.appendChild(currenciesHeader);
+                
+                gameState.customCurrencies.forEach(currency => {
+                    const currencyEl = document.createElement('div');
+                    currencyEl.textContent = currency;
+                    rulesContainer.appendChild(currencyEl);
+                });
+            }
+            
+            // Показываем пользовательские рецепты
+            if (gameState.customRecipes.length > 0) {
+                const recipesHeader = document.createElement('h4');
+                recipesHeader.textContent = 'Пользовательские рецепты:';
+                rulesContainer.appendChild(recipesHeader);
+                
+                gameState.customRecipes.forEach(recipe => {
+                    const recipeEl = document.createElement('div');
+                    recipeEl.textContent = `${recipe.name} (ID: ${recipe.id})`;
+                    rulesContainer.appendChild(recipeEl);
+                });
+            }
+            
+            // Обновляем селекторы ресурсов
+            const resourceSelects = document.querySelectorAll('.resource-select');
+            resourceSelects.forEach(select => {
+                select.innerHTML = '<option value="">Выберите ресурс</option>';
+                for (const resource of Object.keys(gameState.resources)) {
+                    const option = document.createElement('option');
+                    option.value = resource;
+                    option.textContent = resource;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            document.getElementById('level').textContent = gameState.stats.level;
+            document.getElementById('exp').textContent = gameState.stats.exp;
+            document.getElementById('exp-needed').textContent = gameState.stats.expNeeded;
+            
+            const expPercent = (gameState.stats.exp / gameState.stats.expNeeded) * 100;
+            document.querySelector('#stats .progress-fill').style.width = `${expPercent}%`;
+        }
+
+        // Создание предмета
+        function craftItem(recipeId) {
+            let recipe;
+            
+            // Ищем рецепт в стандартных
+            recipe = gameState.recipes.find(r => r.id === recipeId);
+            
+            // Если не нашли, ищем в пользовательских
+            if (!recipe) {
+                recipe = gameState.customRecipes.find(r => r.id === recipeId);
+            }
+            
+            if (!recipe) {
+                showNotification('Рецепт не найден!');
+                return;
+            }
+            
+            // Проверяем достаточно ли ресурсов
+            for (const [resource, quantity] of Object.entries(recipe.requirements)) {
+                if (!gameState.resources[resource] || gameState.resources[resource] < quantity) {
+                    showNotification(`Недостаточно ${resource}!`);
+                    return;
+                }
+            }
+            
+            // Вычитаем ресурсы
+            for (const [resource, quantity] of Object.entries(recipe.requirements)) {
+                gameState.resources[resource] -= quantity;
+            }
+            
+            // Определяем редкость
+            const rarityRoll = Math.random();
+            let rarity = 'common';
+            
+            if (rarityRoll < 0.0001) rarity = 'legendary';      // 0.01%
+            else if (rarityRoll < 0.01) rarity = 'epic';        // 0.99%
+            else if (rarityRoll < 0.1) rarity = 'rare';         // 9%
+            else if (rarityRoll < 0.3) rarity = 'uncommon';     // 20%
+            
+            // Создаем предмет
+            const newItem = {
+                id: Date.now(),
+                recipeId: recipeId,
+                name: recipe.name,
+                rarity: rarity,
+                properties: generateItemProperties(recipe, rarity)
+            };
+            
+            gameState.items.push(newItem);
+            
+            // Добавляем опыт
+            addExperience(5);
+            
+            saveGame();
+            updateUI();
+            
+            const rarityNames = {
+                'common': 'Обычный',
+                'uncommon': 'Необычный',
+                'rare': 'Редкий',
+                'epic': 'Эпический',
+                'legendary': 'Легендарный'
+            };
+            
+            showNotification(`Предмет создан: ${recipe.name} (${rarityNames[rarity]})!`);
+        }
+
+        // Генерация свойств предмета
+        function generateItemProperties(recipe, rarity) {
+            const properties = {};
+            const rarityMultiplier = {
+                common: 1,
+                uncommon: 1.2,
+                rare: 1.5,
+                epic: 2,
+                legendary: 3
+            };
+            
+            for (const [prop, valueInfo] of Object.entries(recipe.baseProperties)) {
+                const variance = valueInfo.variance * rarityMultiplier[rarity];
+                const min = valueInfo.value * (1 - variance);
+                const max = valueInfo.value * (1 + variance);
+                properties[prop] = Math.floor(Math.random() * (max - min + 1) + min);
+            }
+            
+            return properties;
+        }
+
+        // Разбор предмета
+        function dismantleItem(itemId) {
+            const itemIndex = gameState.items.findIndex(item => item.id === itemId);
+            if (itemIndex === -1) return;
+            
+            const item = gameState.items[itemIndex];
+            let recipe;
+            
+            // Ищем рецепт в стандартных
+            recipe = gameState.recipes.find(r => r.id === item.recipeId);
+            
+            // Если не нашли, ищем в пользовательских
+            if (!recipe) {
+                recipe = gameState.customRecipes.find(r => r.id === item.recipeId);
+            }
+            
+            if (!recipe) {
+                showNotification('Рецепт для разбора не найден!');
+                return;
+            }
+            
+            // Шансы на получение материалов при разборе
+            const dismantleChances = {
+                common: { common: 0.8, uncommon: 0.15, rare: 0.05, epic: 0, legendary: 0 },
+                uncommon: { common: 0.6, uncommon: 0.3, rare: 0.08, epic: 0.02, legendary: 0 },
+                rare: { common: 0.3, uncommon: 0.4, rare: 0.2, epic: 0.08, legendary: 0.02 },
+                epic: { common: 0.1, uncommon: 0.3, rare: 0.3, epic: 0.25, legendary: 0.05 },
+                legendary: { common: 0.05, uncommon: 0.15, rare: 0.25, epic: 0.3, legendary: 0.25 }
+            };
+            
+            // Получение материалов на основе редкости предмета
+            const chances = dismantleChances[item.rarity];
+            let obtainedMaterials = false;
+            
+            for (const [material, chance] of Object.entries(chances)) {
+                if (Math.random() < chance) {
+                    // Добавляем материал в ресурсы
+                    const materialName = `${recipe.name.split(' ')[0]}_${material}`;
+                    gameState.resources[materialName] = (gameState.resources[materialName] || 0) + 1;
+                    obtainedMaterials = true;
+                }
+            }
+            
+            // Удаляем предмет из инвентаря
+            gameState.items.splice(itemIndex, 1);
+            
+            // Добавляем опыт
+            addExperience(3);
+            
+            saveGame();
+            updateUI();
+            
+            if (obtainedMaterials) {
+                showNotification('Предмет разобран! Получены материалы.');
+            } else {
+                showNotification('Предмет разобран, но материалы не получены.');
+            }
+        }
+
+        // Покупка предмета на аукционе
+        function buyItem(auctionIndex) {
+            const item = gameState.auction[auctionIndex];
+            
+            if (!gameState.currencies[item.currency] || gameState.currencies[item.currency] < item.price) {
+                showNotification(`Недостаточно ${item.currency} для покупки!`);
+                return;
+            }
+            
+            // Вычитаем валюту
+            gameState.currencies[item.currency] -= item.price;
+            
+            // Добавляем предмет в инвентарь
+            gameState.items.push({
+                id: Date.now(),
+                name: item.name,
+                rarity: item.rarity,
+                properties: item.properties
+            });
+            
+            // Удаляем с аукциона
+            gameState.auction.splice(auctionIndex, 1);
+            
+            // Добавляем опыт
+            addExperience(2);
+            
+            saveGame();
+            updateUI();
+            showNotification('Предмет куплен!');
+        }
+
+        // Продажа предмета на аукционе
+        function sellItem() {
+            const itemId = parseInt(document.getElementById('sell-item-select').value);
+            const price = parseInt(document.getElementById('sell-price').value);
+            const currency = document.getElementById('sell-currency-select').value;
+            
+            if (!itemId || !price || price < 1) {
+                showNotification('Заполните все поля корректно!');
+                return;
+            }
+            
+            const itemIndex = gameState.items.findIndex(item => item.id === itemId);
+            if (itemIndex === -1) {
+                showNotification('Предмет не найден!');
+                return;
+            }
+            
+            const item = gameState.items[itemIndex];
+            
+            // Добавляем на аукцион
+            gameState.auction.push({
+                name: item.name,
+                rarity: item.rarity,
+                properties: item.properties,
+                price: price,
+                currency: currency
+            });
+            
+            // Удаляем из инвентаря
+            gameState.items.splice(itemIndex, 1);
+            
+            // Добавляем опыт
+            addExperience(1);
+            
+            saveGame();
+            updateUI();
+            showNotification('Предмет выставлен на продажу!');
+        }
+
+        // Генерация предмета для аукциона
+        function generateAuctionItem() {
+            const recipes = [...gameState.recipes, ...gameState.customRecipes];
+            const recipe = recipes[Math.floor(Math.random() * recipes.length)];
+            
+            // Определяем редкость с меньшим шансом на высокую редкость
+            const rarityRoll = Math.random();
+            let rarity = 'common';
+            
+            if (rarityRoll < 0.00001) rarity = 'legendary';     // 0.001%
+            else if (rarityRoll < 0.001) rarity = 'epic';       // 0.099%
+            else if (rarityRoll < 0.01) rarity = 'rare';        // 0.99%
+            else if (rarityRoll < 0.1) rarity = 'uncommon';     // 9%
+            
+            // Создаем предмет
+            const item = {
+                name: recipe.name,
+                rarity: rarity,
+                properties: generateItemProperties(recipe, rarity),
+                price: Math.floor(Math.random() * 50) + 10,
+                currency: 'gold'
+            };
+            
+            gameState.auction.push(item);
+        }
+
+        // Создание новой валюты
+        function createNewCurrency() {
+            const name = document.getElementById('new-currency-name').value.trim();
+            
+            if (!name) {
+                showNotification('Введите название валюты!');
+                return;
+            }
+            
+            if (gameState.currencies[name] || gameState.customCurrencies.includes(name)) {
+                showNotification('Валюта с таким названием уже существует!');
+                return;
+            }
+            
+            // Добавляем валюту
+            gameState.currencies[name] = 0;
+            gameState.customCurrencies.push(name);
+            
+            // Добавляем опыт
+            addExperience(10);
+            
+            document.getElementById('new-currency-name').value = '';
+            saveGame();
+            updateUI();
+            showNotification(`Создана новая валюта: ${name}`);
+        }
+
+        // Добавление поля для ресурса при создании рецепта
+        function addResourceInput() {
+            const resourceInputs = document.getElementById('resource-inputs');
+            const newInput = document.createElement('div');
+            newInput.className = 'requirements';
+            newInput.innerHTML = `
+                <select class="resource-select">
+                    <option value="">Выберите ресурс</option>
+                </select>
+                <input type="number" class="resource-quantity" placeholder="Кол-во" min="1">
+            `;
+            resourceInputs.appendChild(newInput);
+            
+            // Обновляем селектор в новом поле
+            const select = newInput.querySelector('.resource-select');
+            for (const resource of Object.keys(gameState.resources)) {
+                const option = document.createElement('option');
+                option.value = resource;
+                option.textContent = resource;
+                select.appendChild(option);
+            }
+        }
+
+        // Создание нового рецепта
+        function createNewRecipe() {
+            const name = document.getElementById('new-recipe-name').value.trim();
+            
+            if (!name) {
+                showNotification('Введите название предмета!');
+                return;
+            }
+            
+            const resourceInputs = document.querySelectorAll('#resource-inputs .requirements');
+            const requirements = {};
+            let valid = true;
+            
+            resourceInputs.forEach(input => {
+                const resource = input.querySelector('.resource-select').value;
+                const quantity = parseInt(input.querySelector('.resource-quantity').value);
+                
+                if (resource && quantity > 0) {
+                    requirements[resource] = quantity;
+                } else if (resource || quantity) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid || Object.keys(requirements).length === 0) {
+                showNotification('Заполните все поля ресурсов корректно!');
+                return;
+            }
+            
+            // Создаем рецепт
+            const newRecipe = {
+                id: `custom_${Date.now()}`,
+                name: name,
+                type: 'tool',
+                requirements: requirements,
+                baseProperties: { 
+                    power: { value: 10, variance: 0.2 },
+                    durability: { value: 25, variance: 0.3 }
+                }
+            };
+            
+            gameState.customRecipes.push(newRecipe);
+            
+            // Добавляем опыт
+            addExperience(15);
+            
+            // Очищаем форму
+            document.getElementById('new-recipe-name').value = '';
+            document.getElementById('resource-inputs').innerHTML = `
+                <div class="requirements">
+                    <select class="resource-select">
+                        <option value="">Выберите ресурс</option>
+                    </select>
+                    <input type="number" class="resource-quantity" placeholder="Кол-во" min="1">
+                </div>
+            `;
+            
+            // Обновляем селекторы
+            updateRules();
+            
+            saveGame();
+            updateUI();
+            showNotification(`Создан новый рецепт: ${name}`);
+        }
+
+        // Добавление опыта и повышение уровня
+        function addExperience(amount) {
+            gameState.stats.exp += amount;
+            
+            if (gameState.stats.exp >= gameState.stats.expNeeded) {
+                gameState.stats.level++;
+                gameState.stats.exp -= gameState.stats.expNeeded;
+                gameState.stats.expNeeded = Math.floor(gameState.stats.expNeeded * 1.5);
+                
+                showNotification(`Поздравляем! Вы достигли уровня ${gameState.stats.level}!`);
+            }
+        }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убрать активный класс у всех кнопок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabName).classList.add('active');
+            
+            // Активировать кнопку
+            document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // Если открыли аукцион, обновляем его
+            if (tabName === 'auction') {
+                updateAuction();
+            }
+        }
+
+        // Инициализация игры при загрузке
+        window.onload = function() {
+            loadGame();
+            
+            // Генерируем начальные предметы на аукционе
+            if (gameState.auction.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    generateAuctionItem();
+                }
+                saveGame();
+            }
+            
+            // Добавляем обработчики для обновления селекторов при переключении вкладок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    setTimeout(updateRules, 50);
+                });
+            });
+        };
+    </script>
+</body>
+</html>

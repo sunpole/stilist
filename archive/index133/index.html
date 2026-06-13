@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Бизнес-Типография</title>
+    <style>
+        /* Modern CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* Modern Variables */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --border-radius: 8px;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--secondary));
+            transition: width 0.5s ease;
+        }
+
+        /* Building Grid */
+        .building-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .building-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 4px;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            border: 2px solid #bdc3c7;
+            touch-action: none;
+        }
+
+        .cell {
+            background: white;
+            aspect-ratio: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell:hover {
+            background: #f8f9fa;
+        }
+
+        .cell.empty {
+            background: #f8f9fa;
+            border: 1px dashed #bdc3c7;
+        }
+
+        .equipment {
+            width: 100%;
+            height: 100%;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            padding: 2px;
+            position: relative;
+        }
+
+        .equipment.production { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .equipment.storage { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .equipment.advertising { background: linear-gradient(135deg, #27ae60, #229954); }
+        .equipment.quality { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+
+        .equipment-size {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 0.6rem;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            background: var(--secondary);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--warning); }
+        .btn-danger { background: var(--danger); }
+
+        .btn-cost {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Equipment Shop */
+        .shop-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .shop-categories {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .category-btn {
+            padding: 8px 15px;
+            background: var(--light);
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .category-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .shop-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .shop-item:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .shop-item:active {
+            transform: translateY(0);
+        }
+
+        .shop-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #e9ecef;
+            transform: none;
+        }
+
+        .equipment-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .equipment-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .equipment-price {
+            color: var(--success);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .equipment-stats {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .stat-value {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .equipment-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 720px;
+            }
+            
+            .control-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1140px;
+            }
+            
+            .main-grid {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 15px;
+            }
+            
+            .building-section {
+                margin-bottom: 0;
+            }
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        /* Game Over */
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Бизнес-Типография</h1>
+            <div id="building-level">Квартира • Уровень 1</div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-value" id="money">1,000 ₽</div>
+                <div class="stat-label">Капитал</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="income">0 ₽/мин</div>
+                <div class="stat-label">Доход</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="orders">0</div>
+                <div class="stat-label">Активные заказы</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="materials">0/100</div>
+                <div class="stat-label">Материалы</div>
+            </div>
+        </div>
+
+        <!-- Progress Bars -->
+        <div class="progress-container">
+            <div>Заполненность склада</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="storage-bar" style="width: 0%"></div>
+            </div>
+            <div>Эффективность рекламы</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="ad-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div>
+                <!-- Building Grid -->
+                <div class="building-section">
+                    <div class="building-header">
+                        <h3 id="current-building">Квартира</h3>
+                        <button class="btn btn-warning" id="upgrade-btn" onclick="upgradeBuilding()" disabled>
+                            Улучшить до Салона
+                            <span class="btn-cost" id="upgrade-cost">75,000 ₽</span>
+                        </button>
+                    </div>
+                    <div class="grid" id="building-grid"></div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="control-panel">
+                    <div class="control-grid">
+                        <button class="btn btn-success" onclick="buyMaterials()">
+                            📦 Закупить материалы
+                            <span class="btn-cost">10 ₽/ед.</span>
+                        </button>
+                        <button class="btn btn-warning" onclick="shipOrders()">
+                            🚚 Отгрузить заказы
+                            <span class="btn-cost" id="ship-value">0 ₽</span>
+                        </button>
+                        <button class="btn" onclick="launchAdvertising()">
+                            📢 Запустить рекламу
+                            <span class="btn-cost">500 ₽</span>
+                        </button>
+                        <button class="btn btn-danger" onclick="sellAllEquipment()">
+                            💰 Продать всё (50%)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Equipment Shop -->
+                <div class="shop-section">
+                    <h3>🛍️ Магазин оборудования</h3>
+                    <div class="shop-categories">
+                        <button class="category-btn active" onclick="setCategory('all')">Все</button>
+                        <button class="category-btn" onclick="setCategory('production')">Производство</button>
+                        <button class="category-btn" onclick="setCategory('storage')">Склад</button>
+                        <button class="category-btn" onclick="setCategory('advertising')">Реклама</button>
+                        <button class="category-btn" onclick="setCategory('quality')">Качество</button>
+                    </div>
+                    <div class="equipment-grid" id="equipment-shop"></div>
+                </div>
+
+                <!-- Stats Panel -->
+                <div class="stats-panel">
+                    <h3>📊 Статистика производства</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            Производство: <span class="stat-value" id="stat-production">0/цикл</span>
+                        </div>
+                        <div class="stat-item">
+                            Множитель цены: <span class="stat-value" id="stat-multiplier">1.0x</span>
+                        </div>
+                        <div class="stat-item">
+                            Вместимость: <span class="stat-value" id="stat-storage">100</span>
+                        </div>
+                        <div class="stat-item">
+                            Качество: <span class="stat-value" id="stat-quality">100%</span>
+                        </div>
+                        <div class="stat-item">
+                            Эффективность: <span class="stat-value" id="stat-efficiency">100%</span>
+                        </div>
+                        <div class="stat-item">
+                            Заказов/мин: <span class="stat-value" id="stat-orders-min">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipment Info Modal -->
+    <div class="modal" id="equipment-modal">
+        <div class="modal-content">
+            <h3>Информация об оборудовании</h3>
+            <div id="equipment-info"></div>
+            <button class="btn" onclick="hideEquipmentModal()" style="margin-top: 15px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="game-over" id="game-over" style="display: none;">
+        <div class="game-over-content">
+            <h2>💸 Банкротство!</h2>
+            <p>Ваш бизнес не выдержал конкуренции...</p>
+            <p>Долг: <span id="debt-amount">0 ₽</span></p>
+            <button class="btn btn-success" onclick="resetGame()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        // Игровое состояние
+        const gameState = {
+            money: 1000,
+            materials: 0,
+            currentOrders: 0,
+            baseOrderPrice: 50,
+            advertisingMultiplier: 1.0,
+            qualityMultiplier: 1.0,
+            efficiency: 1.0,
+            currentBuilding: 'apartment',
+            selectedEquipment: null,
+            currentCategory: 'all',
+            lastIncome: 0,
+            totalShipped: 0,
+            gameStartTime: Date.now(),
+            
+            buildings: {
+                apartment: {
+                    name: "Квартира",
+                    width: 2,
+                    height: 2,
+                    baseCapacity: 100,
+                    equipment: [],
+                    upgradeCost: 75000,
+                    level: 1
+                },
+                salon: {
+                    name: "Салон печати",
+                    width: 4,
+                    height: 3,
+                    baseCapacity: 500,
+                    equipment: [],
+                    upgradeCost: 1000000,
+                    level: 2
+                },
+                printing_house: {
+                    name: "Типография",
+                    width: 6,
+                    height: 4,
+                    baseCapacity: 2000,
+                    equipment: [],
+                    upgradeCost: null,
+                    level: 3
+                }
+            },
+
+            equipment: {
+                // Производство
+                'small_printer': { 
+                    name: 'Маленький принтер', 
+                    type: 'production', 
+                    size: 1, 
+                    price: 200, 
+                    production: 5,
+                    description: 'Базовый принтер для мелких заказов'
+                },
+                'large_printer': { 
+                    name: 'Большой принтер', 
+                    type: 'production', 
+                    size: 2, 
+                    price: 800, 
+                    production: 20,
+                    description: 'Производительный принтер для средних заказов'
+                },
+                
+                // Склад
+                'paper_shelf': { 
+                    name: 'Полка для бумаги', 
+                    type: 'storage', 
+                    size: 1, 
+                    price: 150, 
+                    storage: 50,
+                    description: 'Увеличивает вместимость склада'
+                },
+                'storage_rack': { 
+                    name: 'Стеллаж', 
+                    type: 'storage', 
+                    size: 2, 
+                    price: 600, 
+                    storage: 200,
+                    description: 'Большая вместимость для материалов'
+                },
+                
+                // Реклама
+                'client_table': { 
+                    name: 'Стол для клиентов', 
+                    type: 'advertising', 
+                    size: 1, 
+                    price: 300, 
+                    advertising: 0.2,
+                    description: 'Привлекает больше клиентов'
+                },
+                'marketing_pc': { 
+                    name: 'Рекламный ПК', 
+                    type: 'advertising', 
+                    size: 2, 
+                    price: 1200, 
+                    advertising: 0.5,
+                    description: 'Увеличивает эффективность рекламы'
+                },
+                
+                // Качество
+                'quality_scanner': { 
+                    name: 'Сканер качества', 
+                    type: 'quality', 
+                    size: 1, 
+                    price: 400, 
+                    quality: 0.1,
+                    description: 'Улучшает качество продукции'
+                },
+                'color_calibrator': { 
+                    name: 'Калибратор цвета', 
+                    type: 'quality', 
+                    size: 2, 
+                    price: 1500, 
+                    quality: 0.3,
+                    description: 'Обеспечивает точную цветопередачу'
+                }
+            }
+        };
+
+        // Инициализация игры
+        function initGame() {
+            renderBuilding();
+            updateEquipmentShop();
+            updateUI();
+            startGameLoop();
+            loadGame();
+        }
+
+        // Отрисовка здания
+        function renderBuilding() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const grid = document.getElementById('building-grid');
+            
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${building.width}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${building.height}, 1fr)`;
+            
+            // Создаем клетки
+            for (let y = 0; y < building.height; y++) {
+                for (let x = 0; x < building.width; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell empty';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    cell.onclick = () => handleCellClick(x, y);
+                    grid.appendChild(cell);
+                }
+            }
+            
+            // Размещаем оборудование
+            building.equipment.forEach(eq => {
+                placeEquipment(eq);
+            });
+            
+            updateBuildingInfo();
+        }
+
+        // Размещение оборудования
+        function placeEquipment(equipment) {
+            const grid = document.getElementById('building-grid');
+            const building = gameState.buildings[gameState.currentBuilding];
+            
+            for (let y = equipment.y; y < equipment.y + equipment.height; y++) {
+                for (let x = equipment.x; x < equipment.x + equipment.width; x++) {
+                    const cellIndex = y * building.width + x;
+                    if (grid.children[cellIndex]) {
+                        const cell = grid.children[cellIndex];
+                        cell.classList.remove('empty');
+                        
+                        const eqElement = document.createElement('div');
+                        eqElement.className = `equipment ${equipment.type}`;
+                        eqElement.innerHTML = `
+                            ${equipment.name}
+                            <div class="equipment-size">${equipment.width}×${equipment.height}</div>
+                        `;
+                        eqElement.onclick = (e) => {
+                            e.stopPropagation();
+                            showEquipmentInfo(equipment);
+                        };
+                        cell.appendChild(eqElement);
+                    }
+                }
+            }
+        }
+
+        // Обработка клика по клетке
+        function handleCellClick(x, y) {
+            if (!gameState.selectedEquipment) return;
+            
+            const building = gameState.buildings[gameState.currentBuilding];
+            const equipmentType = gameState.equipment[gameState.selectedEquipment];
+            
+            // Проверяем, помещается ли оборудование
+            if (!canPlaceEquipment(equipmentType, x, y)) {
+                return;
+            }
+            
+            // Покупаем оборудование
+            if (gameState.money < equipmentType.price) {
+                alert('Недостаточно денег!');
+                return;
+            }
+            
+            gameState.money -= equipmentType.price;
+            
+            // Добавляем оборудование
+            const newEquipment = {
+                ...equipmentType,
+                id: gameState.selectedEquipment + Date.now(),
+                x: x,
+                y: y,
+                width: equipmentType.size,
+                height: equipmentType.size
+            };
+            
+            building.equipment.push(newEquipment);
+            renderBuilding();
+            updateUI();
+            gameState.selectedEquipment = null;
+        }
+
+        // Проверка возможности размещения
+        function canPlaceEquipment(equipment, x, y) {
+            const building = gameState.buildings[gameState.currentBuilding];
+            
+            if (x + equipment.size > building.width || y + equipment.size > building.height) {
+                alert('Оборудование не помещается!');
+                return false;
+            }
+            
+            // Проверяем, свободно ли место
+            for (let dy = 0; dy < equipment.size; dy++) {
+                for (let dx = 0; dx < equipment.size; dx++) {
+                    const cellX = x + dx;
+                    const cellY = y + dy;
+                    
+                    const isOccupied = building.equipment.some(eq => 
+                        cellX >= eq.x && cellX < eq.x + eq.width &&
+                        cellY >= eq.y && cellY < eq.y + eq.height
+                    );
+                    
+                    if (isOccupied) {
+                        alert('Место занято другим оборудованием!');
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        // Покупка материалов
+        function buyMaterials() {
+            const storageCapacity = getTotalStorage();
+            const availableSpace = storageCapacity - gameState.materials;
+            const materialCost = 10;
+            const maxAffordable = Math.min(availableSpace, Math.floor(gameState.money / materialCost));
+            
+            if (maxAffordable > 0) {
+                gameState.materials += maxAffordable;
+                gameState.money -= maxAffordable * materialCost;
+                updateUI();
+            } else {
+                alert('Недостаточно места или денег для закупки материалов!');
+            }
+        }
+
+        // Отгрузка заказов
+        function shipOrders() {
+            if (gameState.currentOrders === 0) {
+                alert('Нет заказов для отгрузки!');
+                return;
+            }
+            
+            const orderValue = calculateOrderValue();
+            gameState.money += orderValue;
+            gameState.lastIncome = orderValue;
+            gameState.totalShipped += gameState.currentOrders;
+            gameState.currentOrders = 0;
+            
+            updateUI();
+        }
+
+        // Запуск рекламы
+        function launchAdvertising() {
+            const advertisingCost = 500;
+            
+            if (gameState.money >= advertisingCost) {
+                gameState.money -= advertisingCost;
+                gameState.advertisingMultiplier += getTotalAdvertising();
+                updateUI();
+            } else {
+                alert('Недостаточно денег для запуска рекламы!');
+            }
+        }
+
+        // Улучшение здания
+        function upgradeBuilding() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            
+            if (!building.upgradeCost) {
+                alert('Достигнут максимальный уровень!');
+                return;
+            }
+            
+            if (gameState.money >= building.upgradeCost) {
+                gameState.money -= building.upgradeCost;
+                
+                if (gameState.currentBuilding === 'apartment') {
+                    gameState.currentBuilding = 'salon';
+                } else if (gameState.currentBuilding === 'salon') {
+                    gameState.currentBuilding = 'printing_house';
+                }
+                
+                renderBuilding();
+                updateUI();
+            }
+        }
+
+        // Продажа всего оборудования
+        function sellAllEquipment() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const totalValue = building.equipment.reduce((sum, eq) => sum + eq.price, 0) * 0.5;
+            
+            if (building.equipment.length === 0) {
+                alert('Нет оборудования для продажи!');
+                return;
+            }
+            
+            if (confirm(`Продать всё оборудование за ${Math.floor(totalValue)} ₽?`)) {
+                gameState.money += Math.floor(totalValue);
+                building.equipment = [];
+                renderBuilding();
+                updateUI();
+            }
+        }
+
+        // Расчеты характеристик
+        function getTotalProduction() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            return building.equipment
+                .filter(eq => eq.production)
+                .reduce((sum, eq) => sum + eq.production, 0);
+        }
+
+        function getTotalStorage() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const baseStorage = building.baseCapacity;
+            const bonusStorage = building.equipment
+                .filter(eq => eq.storage)
+                .reduce((sum, eq) => sum + eq.storage, 0);
+            return baseStorage + bonusStorage;
+        }
+
+        function getTotalAdvertising() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            return building.equipment
+                .filter(eq => eq.advertising)
+                .reduce((sum, eq) => sum + eq.advertising, 0);
+        }
+
+        function getTotalQuality() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            return 1 + building.equipment
+                .filter(eq => eq.quality)
+                .reduce((sum, eq) => sum + eq.quality, 0);
+        }
+
+        function calculateOrderValue() {
+            const baseValue = gameState.currentOrders * gameState.baseOrderPrice;
+            return Math.floor(baseValue * gameState.advertisingMultiplier * gameState.qualityMultiplier);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            // Основные показатели
+            document.getElementById('money').textContent = formatMoney(gameState.money);
+            document.getElementById('materials').textContent = `${gameState.materials}/${getTotalStorage()}`;
+            document.getElementById('orders').textContent = gameState.currentOrders;
+            document.getElementById('ship-value').textContent = `${calculateOrderValue()} ₽`;
+            
+            // Прогресс-бары
+            const storagePercent = (gameState.materials / getTotalStorage()) * 100;
+            document.getElementById('storage-bar').style.width = `${storagePercent}%`;
+            
+            const adPercent = Math.min(100, (gameState.advertisingMultiplier - 1) * 100);
+            document.getElementById('ad-bar').style.width = `${adPercent}%`;
+            
+            // Статистика
+            document.getElementById('stat-production').textContent = `${getTotalProduction()}/цикл`;
+            document.getElementById('stat-multiplier').textContent = `${gameState.advertisingMultiplier.toFixed(1)}x`;
+            document.getElementById('stat-storage').textContent = getTotalStorage();
+            document.getElementById('stat-quality').textContent = `${Math.floor(getTotalQuality() * 100)}%`;
+            
+            // Обновление кнопки улучшения
+            updateUpgradeButton();
+            
+            // Сохранение игры
+            saveGame();
+            
+            // Проверка на банкротство
+            if (gameState.money < -1000) {
+                showGameOver();
+            }
+        }
+
+        function updateUpgradeButton() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const btn = document.getElementById('upgrade-btn');
+            
+            if (building.upgradeCost) {
+                btn.innerHTML = `Улучшить до ${getNextBuildingName()}
+                    <span class="btn-cost">${formatMoney(building.upgradeCost)} ₽</span>`;
+                btn.disabled = gameState.money < building.upgradeCost;
+            } else {
+                btn.innerHTML = 'Максимальный уровень';
+                btn.disabled = true;
+            }
+        }
+
+        function updateBuildingInfo() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            document.getElementById('current-building').textContent = building.name;
+            document.getElementById('building-level').textContent = `${building.name} • Уровень ${building.level}`;
+        }
+
+        function updateEquipmentShop() {
+            const shop = document.getElementById('equipment-shop');
+            shop.innerHTML = '';
+            
+            Object.entries(gameState.equipment).forEach(([id, eq]) => {
+                if (gameState.currentCategory !== 'all' && eq.type !== gameState.currentCategory) return;
+                
+                const canAfford = gameState.money >= eq.price;
+                const item = document.createElement('div');
+                item.className = `shop-item ${!canAfford ? 'disabled' : ''}`;
+                item.innerHTML = `
+                    <div class="equipment-icon">${getEquipmentIcon(eq.type)}</div>
+                    <div class="equipment-name">${eq.name}</div>
+                    <div class="equipment-price">${formatMoney(eq.price)} ₽</div>
+                    <div class="equipment-stats">${getEquipmentStats(eq)}</div>
+                `;
+                
+                if (canAfford) {
+                    item.onclick = () => {
+                        gameState.selectedEquipment = id;
+                        document.querySelectorAll('.shop-item').forEach(i => i.style.borderColor = '#e9ecef');
+                        item.style.borderColor = '#3498db';
+                    };
+                }
+                
+                shop.appendChild(item);
+            });
+        }
+
+        function getEquipmentIcon(type) {
+            const icons = {
+                production: '🖨️',
+                storage: '📦',
+                advertising: '📢',
+                quality: '⭐'
+            };
+            return icons[type] || '⚙️';
+        }
+
+        function getEquipmentStats(equipment) {
+            if (equipment.production) return `+${equipment.production} пр./цикл`;
+            if (equipment.storage) return `+${equipment.storage} склада`;
+            if (equipment.advertising) return `+${equipment.advertising * 100}% к цене`;
+            if (equipment.quality) return `+${equipment.quality * 100}% качества`;
+            return '';
+        }
+
+        function setCategory(category) {
+            gameState.currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateEquipmentShop();
+        }
+
+        function showEquipmentInfo(equipment) {
+            document.getElementById('equipment-info').innerHTML = `
+                <h4>${equipment.name}</h4>
+                <p>${equipment.description}</p>
+                <div class="stat-item">Тип: ${getEquipmentTypeName(equipment.type)}</div>
+                <div class="stat-item">Размер: ${equipment.width}×${equipment.height}</div>
+                <div class="stat-item">Стоимость: ${formatMoney(equipment.price)} ₽</div>
+                <div class="stat-item">Эффект: ${getEquipmentStats(equipment)}</div>
+                <button class="btn btn-danger" onclick="sellEquipment('${equipment.id}')">
+                    Продать за ${formatMoney(equipment.price * 0.5)} ₽
+                </button>
+            `;
+            document.getElementById('equipment-modal').style.display = 'flex';
+        }
+
+        function hideEquipmentModal() {
+            document.getElementById('equipment-modal').style.display = 'none';
+        }
+
+        function sellEquipment(equipmentId) {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const equipment = building.equipment.find(eq => eq.id === equipmentId);
+            
+            if (equipment) {
+                gameState.money += Math.floor(equipment.price * 0.5);
+                building.equipment = building.equipment.filter(eq => eq.id !== equipmentId);
+                renderBuilding();
+                updateUI();
+                hideEquipmentModal();
+            }
+        }
+
+        function getEquipmentTypeName(type) {
+            const names = {
+                production: 'Производство',
+                storage: 'Склад',
+                advertising: 'Реклама',
+                quality: 'Качество'
+            };
+            return names[type] || 'Оборудование';
+        }
+
+        function getNextBuildingName() {
+            if (gameState.currentBuilding === 'apartment') return 'Салона';
+            if (gameState.currentBuilding === 'salon') return 'Типографии';
+            return '';
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('ru-RU').format(Math.floor(amount));
+        }
+
+        function showGameOver() {
+            document.getElementById('debt-amount').textContent = formatMoney(-gameState.money) + ' ₽';
+            document.getElementById('game-over').style.display = 'flex';
+        }
+
+        function resetGame() {
+            localStorage.removeItem('printingBusinessSave');
+            location.reload();
+        }
+
+        // Игровой цикл
+        function startGameLoop() {
+            setInterval(() => {
+                // Автоматическое производство
+                const production = getTotalProduction();
+                const ordersToProduce = Math.min(gameState.materials, production);
+                
+                if (ordersToProduce > 0) {
+                    gameState.currentOrders += ordersToProduce;
+                    gameState.materials -= ordersToProduce;
+                }
+                
+                // Автоматическая отгрузка части заказов (20%)
+                if (gameState.currentOrders > 0) {
+                    const autoShipAmount = Math.ceil(gameState.currentOrders * 0.2);
+                    const orderValue = Math.floor(autoShipAmount * gameState.baseOrderPrice * 
+                                                 gameState.advertisingMultiplier * gameState.qualityMultiplier);
+                    gameState.currentOrders -= autoShipAmount;
+                    gameState.money += orderValue;
+                }
+                
+                // Постепенное снижение рекламного эффекта
+                if (gameState.advertisingMultiplier > 1.0) {
+                    gameState.advertisingMultiplier = Math.max(1.0, gameState.advertisingMultiplier - 0.02);
+                }
+                
+                // Расчет дохода в минуту
+                const incomePerMinute = getTotalProduction() * gameState.baseOrderPrice * 
+                                      gameState.advertisingMultiplier * gameState.qualityMultiplier * 2;
+                document.getElementById('income').textContent = formatMoney(incomePerMinute) + ' ₽/мин';
+                
+                updateUI();
+                
+            }, 3000); // Цикл каждые 3 секунды
+        }
+
+        // Сохранение и загрузка
+        function saveGame() {
+            const saveData = {
+                money: gameState.money,
+                materials: gameState.materials,
+                currentOrders: gameState.currentOrders,
+                advertisingMultiplier: gameState.advertisingMultiplier,
+                currentBuilding: gameState.currentBuilding,
+                buildings: gameState.buildings,
+                totalShipped: gameState.totalShipped
+            };
+            localStorage.setItem('printingBusinessSave', JSON.stringify(saveData));
+        }
+
+        function loadGame() {
+            const save = localStorage.getItem('printingBusinessSave');
+            if (save) {
+                const savedState = JSON.parse(save);
+                Object.assign(gameState, savedState);
+                renderBuilding();
+                updateUI();
+            }
+        }
+
+        // Запуск игры
+        window.onload = initGame;
+    </script>
+</body>
+</html>

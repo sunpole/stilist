@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каскадная клавиатура</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .display {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 1.5rem;
+            color: #333;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .keyboard-container {
+            margin-top: auto;
+            padding-bottom: 20px;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .key {
+            position: relative;
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            z-index: 1;
+        }
+
+        .key:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .key.active {
+            background: #4a6cf7;
+            color: white;
+            transform: scale(0.9);
+            box-shadow: 0 0 20px rgba(74, 108, 247, 0.5);
+        }
+
+        .sub-keys {
+            position: absolute;
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: 180px;
+            height: 180px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .sub-key {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+            pointer-events: auto;
+            z-index: 11;
+        }
+
+        .sub-key.active {
+            background: #4a6cf7;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(74, 108, 247, 0.7);
+        }
+
+        .sub-key.top {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .sub-key.right {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        .sub-key.bottom {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .sub-key.left {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 480px) {
+            .key {
+                font-size: 1.5rem;
+            }
+            
+            .sub-keys {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .sub-key {
+                width: 35px;
+                height: 35px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Каскадная клавиатура</h1>
+        <p>Нажмите и удерживайте любую цифру для отображения дополнительных кнопок. Перетащите палец для выбора.</p>
+    </div>
+    
+    <div class="display" id="display">
+        Нажмите на цифру
+    </div>
+    
+    <div class="keyboard-container">
+        <div class="keyboard" id="keyboard">
+            <!-- Кнопки будут созданы через JavaScript -->
+        </div>
+        <div class="instructions">
+            Удерживайте палец на цифре для отображения дополнительных опций
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const keyboard = document.getElementById('keyboard');
+            const display = document.getElementById('display');
+            
+            // Создаем основную клавиатуру
+            for (let i = 1; i <= 9; i++) {
+                const key = document.createElement('div');
+                key.className = 'key';
+                key.textContent = i;
+                key.dataset.value = i;
+                
+                // Создаем контейнер для дополнительных кнопок
+                const subKeys = document.createElement('div');
+                subKeys.className = 'sub-keys';
+                
+                // Создаем дополнительные кнопки
+                const positions = ['top', 'right', 'bottom', 'left'];
+                const labels = {
+                    1: ['A', 'B', 'C', 'D'],
+                    2: ['E', 'F', 'G', 'H'],
+                    3: ['I', 'J', 'K', 'L'],
+                    4: ['M', 'N', 'O', 'P'],
+                    5: ['Q', 'R', 'S', 'T'],
+                    6: ['U', 'V', 'W', 'X'],
+                    7: ['Y', 'Z', '+', '-'],
+                    8: ['*', '/', '=', '%'],
+                    9: ['.', ',', '?', '!']
+                };
+                
+                positions.forEach((pos, index) => {
+                    const subKey = document.createElement('div');
+                    subKey.className = `sub-key ${pos}`;
+                    subKey.textContent = labels[i][index];
+                    subKey.dataset.value = labels[i][index];
+                    subKeys.appendChild(subKey);
+                });
+                
+                key.appendChild(subKeys);
+                keyboard.appendChild(key);
+            }
+            
+            let activeKey = null;
+            let activeSubKey = null;
+            let isDragging = false;
+            
+            // Обработчики событий для основной клавиатуры
+            document.querySelectorAll('.key').forEach(key => {
+                // События для мыши
+                key.addEventListener('mousedown', handleKeyDown);
+                key.addEventListener('mouseup', handleKeyUp);
+                key.addEventListener('mouseleave', handleKeyLeave);
+                
+                // События для сенсорных устройств
+                key.addEventListener('touchstart', handleKeyDown);
+                key.addEventListener('touchend', handleKeyUp);
+                key.addEventListener('touchcancel', handleKeyLeave);
+                
+                // Обработчики для дополнительных кнопок
+                const subKeys = key.querySelectorAll('.sub-key');
+                subKeys.forEach(subKey => {
+                    subKey.addEventListener('mouseenter', () => handleSubKeyEnter(subKey));
+                    subKey.addEventListener('mouseleave', handleSubKeyLeave);
+                    
+                    // Для сенсорных устройств используем события движения
+                    subKey.addEventListener('touchmove', (e) => {
+                        if (!isDragging) return;
+                        
+                        const touch = e.touches[0];
+                        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                        
+                        if (element && element.classList.contains('sub-key')) {
+                            handleSubKeyEnter(element);
+                        } else {
+                            handleSubKeyLeave();
+                        }
+                    });
+                });
+            });
+            
+            function handleKeyDown(e) {
+                e.preventDefault();
+                const key = e.currentTarget;
+                
+                // Скрываем предыдущие активные кнопки
+                if (activeKey && activeKey !== key) {
+                    hideSubKeys(activeKey);
+                }
+                
+                activeKey = key;
+                key.classList.add('active');
+                
+                // Показываем дополнительные кнопки после небольшой задержки
+                setTimeout(() => {
+                    if (activeKey === key) {
+                        showSubKeys(key);
+                        isDragging = true;
+                    }
+                }, 300);
+            }
+            
+            function handleKeyUp(e) {
+                e.preventDefault();
+                
+                if (activeKey) {
+                    if (activeSubKey) {
+                        // Активирована дополнительная кнопка
+                        display.textContent = `Выбрано: ${activeSubKey.dataset.value}`;
+                        activeSubKey.classList.add('active');
+                        
+                        // Сбрасываем через короткое время
+                        setTimeout(() => {
+                            activeSubKey.classList.remove('active');
+                            hideSubKeys(activeKey);
+                            activeKey.classList.remove('active');
+                            resetState();
+                        }, 300);
+                    } else {
+                        // Активирована основная кнопка
+                        display.textContent = `Выбрано: ${activeKey.dataset.value}`;
+                        
+                        // Сбрасываем через короткое время
+                        setTimeout(() => {
+                            hideSubKeys(activeKey);
+                            activeKey.classList.remove('active');
+                            resetState();
+                        }, 300);
+                    }
+                }
+            }
+            
+            function handleKeyLeave(e) {
+                if (!isDragging && activeKey) {
+                    hideSubKeys(activeKey);
+                    activeKey.classList.remove('active');
+                    resetState();
+                }
+            }
+            
+            function handleSubKeyEnter(subKey) {
+                if (!activeSubKey || activeSubKey !== subKey) {
+                    if (activeSubKey) {
+                        activeSubKey.classList.remove('active');
+                    }
+                    activeSubKey = subKey;
+                    activeSubKey.classList.add('active');
+                }
+            }
+            
+            function handleSubKeyLeave() {
+                if (activeSubKey) {
+                    activeSubKey.classList.remove('active');
+                    activeSubKey = null;
+                }
+            }
+            
+            function showSubKeys(key) {
+                const subKeys = key.querySelector('.sub-keys');
+                if (subKeys) {
+                    subKeys.style.display = 'grid';
+                    
+                    // Для боковых кнопок корректируем позиционирование
+                    const keyRect = key.getBoundingClientRect();
+                    const keyboardRect = keyboard.getBoundingClientRect();
+                    
+                    // Проверяем, не выходит ли кнопка за границы
+                    if (keyRect.left < keyboardRect.left + 100) {
+                        subKeys.style.left = '70%';
+                    } else if (keyRect.right > keyboardRect.right - 100) {
+                        subKeys.style.left = '30%';
+                    }
+                    
+                    if (keyRect.top < keyboardRect.top + 100) {
+                        subKeys.style.top = '70%';
+                    } else if (keyRect.bottom > keyboardRect.bottom - 100) {
+                        subKeys.style.top = '30%';
+                    }
+                }
+            }
+            
+            function hideSubKeys(key) {
+                const subKeys = key.querySelector('.sub-keys');
+                if (subKeys) {
+                    subKeys.style.display = 'none';
+                    // Сбрасываем позиционирование
+                    subKeys.style.left = '50%';
+                    subKeys.style.top = '50%';
+                }
+            }
+            
+            function resetState() {
+                activeKey = null;
+                activeSubKey = null;
+                isDragging = false;
+            }
+            
+            // Предотвращаем контекстное меню на всей странице
+            document.addEventListener('contextmenu', e => e.preventDefault());
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tower Defense Water Map</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #222;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
+        #panel button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="panel">
+        <span id="selectedInfo">Selected Tower</span>
+        <button id="deleteBtn">Delete</button>
+        <button id="cancelBtn">Cancel</button>
+    </div>
+
+    <script>
+        // Инициализация
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Конфигурация игры
+        const config = {
+            enemySpeed: 1.5,
+            enemyHealth: 100,
+            enemySpawnInterval: 5000,
+            tower: {
+                range: 150,
+                damage: 10,
+                fireRate: 4,
+                projectileSpeed: 2.1, // На 40% быстрее врагов (1.5 * 1.4)
+                size: 25,
+                cost: 100
+            }
+        };
+
+        // Состояние игры
+        const game = {
+            waterPath: [],
+            enemies: [],
+            towers: [],
+            projectiles: [],
+            selectedTower: null,
+            lastSpawnTime: 0,
+            money: 500,
+            towerPositions: new Set() // Для оптимизации проверки позиций
+        };
+
+        // Создаем водный путь
+        function createWaterPath() {
+            const padding = 50;
+            const start = { x: padding, y: canvas.height / 2 };
+            const end = { x: canvas.width - padding, y: canvas.height / 2 };
+            
+            // Создаем извилистый путь
+            game.waterPath = [start];
+            
+            const segments = 5;
+            const segmentWidth = (end.x - start.x) / segments;
+            
+            for (let i = 1; i < segments; i++) {
+                game.waterPath.push({
+                    x: start.x + i * segmentWidth,
+                    y: start.y + (Math.random() - 0.5) * 100
+                });
+            }
+            
+            game.waterPath.push(end);
+        }
+
+        // Класс врага
+        class Enemy {
+            constructor() {
+                this.pathIndex = 0;
+                this.x = game.waterPath[0].x;
+                this.y = game.waterPath[0].y;
+                this.health = config.enemyHealth;
+                this.maxHealth = config.enemyHealth;
+                this.speed = config.enemySpeed;
+                this.size = 15;
+            }
+
+            update() {
+                const target = game.waterPath[this.pathIndex];
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 2) {
+                    this.pathIndex++;
+                    if (this.pathIndex >= game.waterPath.length) {
+                        return false; // Достиг конца пути
+                    }
+                } else {
+                    this.x += (dx / distance) * this.speed;
+                    this.y += (dy / distance) * this.speed;
+                }
+                return true;
+            }
+
+            draw(ctx) {
+                // Тело врага
+                ctx.fillStyle = '#f00';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Полоска здоровья
+                const healthWidth = 30;
+                const healthHeight = 5;
+                ctx.fillStyle = '#333';
+                ctx.fillRect(
+                    this.x - healthWidth/2, 
+                    this.y - this.size - 10, 
+                    healthWidth, 
+                    healthHeight
+                );
+                ctx.fillStyle = '#0f0';
+                ctx.fillRect(
+                    this.x - healthWidth/2, 
+                    this.y - this.size - 10, 
+                    healthWidth * (this.health / this.maxHealth), 
+                    healthHeight
+                );
+            }
+
+            takeDamage(damage) {
+                this.health -= damage;
+                return this.health <= 0;
+            }
+        }
+
+        // Класс башни
+        class Tower {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.range = config.tower.range;
+                this.damage = config.tower.damage;
+                this.fireRate = config.tower.fireRate;
+                this.cooldown = 0;
+                this.size = config.tower.size;
+                this.projectileSpeed = config.tower.projectileSpeed;
+            }
+
+            update(delta) {
+                if (this.cooldown > 0) {
+                    this.cooldown -= delta;
+                    return;
+                }
+
+                // Поиск ближайшего врага
+                let closestEnemy = null;
+                let minDistance = Infinity;
+
+                for (const enemy of game.enemies) {
+                    const dx = enemy.x - this.x;
+                    const dy = enemy.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < this.range && distance < minDistance) {
+                        closestEnemy = enemy;
+                        minDistance = distance;
+                    }
+                }
+
+                // Стрельба
+                if (closestEnemy) {
+                    const angle = Math.atan2(
+                        closestEnemy.y - this.y,
+                        closestEnemy.x - this.x
+                    );
+
+                    game.projectiles.push({
+                        x: this.x,
+                        y: this.y,
+                        target: closestEnemy,
+                        damage: this.damage,
+                        speed: this.projectileSpeed,
+                        size: 5
+                    });
+
+                    this.cooldown = 1000 / this.fireRate;
+                }
+            }
+
+            draw(ctx) {
+                // Основание башни
+                ctx.fillStyle = '#555';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Выделение, если выбрана
+                if (game.selectedTower === this) {
+                    ctx.strokeStyle = '#ff0';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size + 5, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Радиус действия
+                    ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.range, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Обновление снарядов
+        function updateProjectiles(delta) {
+            for (let i = game.projectiles.length - 1; i >= 0; i--) {
+                const p = game.projectiles[i];
+                
+                if (!p.target || p.target.health <= 0) {
+                    // Цель уже мертва, удаляем снаряд
+                    game.projectiles.splice(i, 1);
+                    continue;
+                }
+
+                const dx = p.target.x - p.x;
+                const dy = p.target.y - p.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const speed = p.speed * (delta / 16); // Нормализация под FPS
+
+                if (distance < 5) {
+                    // Попадание
+                    if (p.target.takeDamage(p.damage)) {
+                        game.money += 20; // Награда за убийство
+                    }
+                    game.projectiles.splice(i, 1);
+                } else {
+                    // Движение к цели
+                    p.x += (dx / distance) * speed;
+                    p.y += (dy / distance) * speed;
+                }
+            }
+        }
+
+        // Рисование снарядов
+        function drawProjectiles(ctx) {
+            ctx.fillStyle = '#ff0';
+            for (const p of game.projectiles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Рисование водного пути
+        function drawWaterPath(ctx) {
+            if (game.waterPath.length < 2) return;
+
+            ctx.strokeStyle = '#00f';
+            ctx.lineWidth = 30;
+            ctx.beginPath();
+            ctx.moveTo(game.waterPath[0].x, game.waterPath[0].y);
+
+            for (let i = 1; i < game.waterPath.length; i++) {
+                ctx.lineTo(game.waterPath[i].x, game.waterPath[i].y);
+            }
+
+            ctx.stroke();
+
+            // Точки A и B
+            ctx.fillStyle = '#f00';
+            ctx.beginPath();
+            ctx.arc(game.waterPath[0].x, game.waterPath[0].y, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0f0';
+            ctx.beginPath();
+            ctx.arc(game.waterPath[game.waterPath.length-1].x, 
+                   game.waterPath[game.waterPath.length-1].y, 10, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Обработка кликов
+        function handleClick(x, y) {
+            // Проверяем, не кликнули ли по башне
+            for (const tower of game.towers) {
+                const dx = tower.x - x;
+                const dy = tower.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < tower.size) {
+                    // Клик по башне
+                    game.selectedTower = tower;
+                    document.getElementById('panel').style.display = 'block';
+                    document.getElementById('selectedInfo').textContent = 
+                        `Tower (${Math.round(tower.x)}, ${Math.round(tower.y)})`;
+                    return;
+                }
+            }
+
+            // Если есть выбранная башня, отменяем выбор
+            if (game.selectedTower) {
+                return;
+            }
+
+            // Проверяем, можно ли поставить башню здесь
+            const positionKey = `${Math.round(x)}_${Math.round(y)}`;
+            if (!game.towerPositions.has(positionKey)) {
+                // Проверяем, не на пути ли
+                let canPlace = true;
+                for (let i = 0; i < game.waterPath.length - 1; i++) {
+                    const p1 = game.waterPath[i];
+                    const p2 = game.waterPath[i + 1];
+                    if (isPointNearLine(x, y, p1.x, p1.y, p2.x, p2.y, 40)) {
+                        canPlace = false;
+                        break;
+                    }
+                }
+
+                if (canPlace && game.money >= config.tower.cost) {
+                    game.towers.push(new Tower(x, y));
+                    game.towerPositions.add(positionKey);
+                    game.money -= config.tower.cost;
+                }
+            }
+        }
+
+        // Проверка близости точки к линии
+        function isPointNearLine(px, py, x1, y1, x2, y2, radius) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+
+            const dot = A * C + B * D;
+            const len_sq = C * C + D * D;
+            let param = -1;
+            if (len_sq !== 0) param = dot / len_sq;
+
+            let xx, yy;
+
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+
+            const dx = px - xx;
+            const dy = py - yy;
+            return Math.sqrt(dx * dx + dy * dy) < radius;
+        }
+
+        // Инициализация UI
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            if (game.selectedTower) {
+                const index = game.towers.indexOf(game.selectedTower);
+                if (index !== -1) {
+                    const tower = game.towers[index];
+                    game.towerPositions.delete(`${Math.round(tower.x)}_${Math.round(tower.y)}`);
+                    game.towers.splice(index, 1);
+                    game.money += Math.floor(config.tower.cost * 0.7); // Возвращаем часть денег
+                }
+                game.selectedTower = null;
+                document.getElementById('panel').style.display = 'none';
+            }
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            game.selectedTower = null;
+            document.getElementById('panel').style.display = 'none';
+        });
+
+        // Обработчики событий
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            handleClick(x, y);
+        });
+
+        // Игровой цикл
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            const delta = timestamp - lastTime;
+            lastTime = timestamp;
+
+            // Очистка экрана
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Рисуем водный путь
+            drawWaterPath(ctx);
+
+            // Спавн врагов
+            if (timestamp - game.lastSpawnTime > config.enemySpawnInterval) {
+                game.enemies.push(new Enemy());
+                game.lastSpawnTime = timestamp;
+            }
+
+            // Обновление врагов
+            for (let i = game.enemies.length - 1; i >= 0; i--) {
+                if (!game.enemies[i].update()) {
+                    game.enemies.splice(i, 1);
+                }
+            }
+
+            // Обновление башен
+            for (const tower of game.towers) {
+                tower.update(delta);
+            }
+
+            // Обновление снарядов
+            updateProjectiles(delta);
+
+            // Рисование
+            for (const enemy of game.enemies) {
+                enemy.draw(ctx);
+            }
+            drawProjectiles(ctx);
+            for (const tower of game.towers) {
+                tower.draw(ctx);
+            }
+
+            // Отображение денег
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Money: $${game.money}`, 10, 30);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Запуск игры
+        createWaterPath();
+        gameLoop(0);
+
+        // Обработка ресайза
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createWaterPath();
+        });
+    </script>
+</body>
+</html>

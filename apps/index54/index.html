@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реалистичный огненный снаряд</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            cursor: crosshair;
+        }
+        canvas {
+            display: block;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireCanvas"></canvas>
+    <div id="info">Кликните для выстрела реалистичным огнём | Удерживайте для автоматической стрельбы</div>
+
+    <script>
+        const canvas = document.getElementById('fireCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Конфигурация эффекта
+        const config = {
+            particleCount: 70,
+            flameHeight: 0.6,
+            flickerIntensity: 0.8,
+            baseHue: 20,
+            hueRange: 15,
+            sparkProbability: 0.3
+        };
+
+        // Текстуры пламени (создаём программно)
+        function createFireTexture(size) {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            const gradient = tempCtx.createRadialGradient(
+                size/2, size/2, 0,
+                size/2, size/2, size/2
+            );
+            gradient.addColorStop(0, 'rgba(255, 255, 180, 1)');
+            gradient.addColorStop(0.5, 'rgba(255, 100, 0, 0.7)');
+            gradient.addColorStop(1, 'rgba(100, 0, 0, 0)');
+            
+            tempCtx.fillStyle = gradient;
+            tempCtx.beginPath();
+            tempCtx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+            tempCtx.fill();
+            
+            return tempCanvas;
+        }
+
+        const fireTexture = createFireTexture(64);
+
+        class FireParticle {
+            constructor(x, y, isSpark = false) {
+                this.x = x;
+                this.y = y;
+                this.size = isSpark ? 
+                    Math.random() * 3 + 1 : 
+                    Math.random() * 15 + 5;
+                this.life = isSpark ? 
+                    Math.random() * 20 + 10 : 
+                    Math.random() * 40 + 30;
+                this.maxLife = this.life;
+                this.speedX = (Math.random() - 0.5) * (isSpark ? 3 : 1.5);
+                this.speedY = -Math.random() * (isSpark ? 1.5 : 0.7);
+                this.isSpark = isSpark;
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.hue = config.baseHue + Math.random() * config.hueRange;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+                this.angle += this.rotationSpeed;
+                
+                if (!this.isSpark) {
+                    this.speedX *= 0.95;
+                    this.speedY *= 0.95;
+                    this.size *= 0.98;
+                }
+                
+                return this.life > 0;
+            }
+
+            draw(ctx) {
+                const progress = 1 - (this.life / this.maxLife);
+                const alpha = this.isSpark ? 
+                    Math.min(1, this.life / 10) : 
+                    0.3 + 0.7 * (1 - progress);
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.globalAlpha = alpha;
+                
+                if (this.isSpark) {
+                    // Рисуем искры как простые точки
+                    ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${alpha})`;
+                    ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                } else {
+                    // Рисуем текстурированные языки пламени
+                    ctx.drawImage(
+                        fireTexture,
+                        -this.size/2, -this.size/2,
+                        this.size, this.size * (1 + config.flameHeight)
+                    );
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        class RealisticFireball {
+            constructor(x, y, targetX, targetY) {
+                this.x = x;
+                this.y = y;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.speed = 8;
+                this.angle = Math.atan2(targetY - y, targetX - x);
+                this.particles = [];
+                this.life = 120;
+                this.size = 25;
+                this.trailCounter = 0;
+                
+                // Создаём начальные частицы
+                for (let i = 0; i < config.particleCount; i++) {
+                    this.addParticle();
+                }
+            }
+
+            addParticle() {
+                const isSpark = Math.random() < config.sparkProbability;
+                this.particles.push(new FireParticle(this.x, this.y, isSpark));
+            }
+
+            update() {
+                // Движение снаряда
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                
+                // Добавляем след из частиц
+                if (this.trailCounter++ % 3 === 0) {
+                    this.addParticle();
+                }
+                
+                // Обновляем частицы
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    if (!this.particles[i].update()) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+                
+                this.life--;
+                return this.life > 0 && 
+                       this.x > -100 && this.x < canvas.width + 100 && 
+                       this.y > -100 && this.y < canvas.height + 100;
+            }
+
+            draw(ctx) {
+                // Рисуем частицы
+                ctx.globalCompositeOperation = 'lighter';
+                for (const p of this.particles) {
+                    p.draw(ctx);
+                }
+                
+                // Ядро огня с мерцанием
+                const flicker = Math.sin(Date.now() * 0.02) * config.flickerIntensity;
+                const currentSize = this.size * (1 + flicker * 0.2);
+                
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, currentSize
+                );
+                gradient.addColorStop(0, `hsla(${config.baseHue}, 100%, 85%, 0.9)`);
+                gradient.addColorStop(0.7, `hsla(${config.baseHue + 10}, 100%, 60%, 0.5)`);
+                gradient.addColorStop(1, `hsla(${config.baseHue + 20}, 100%, 40%, 0)`);
+                
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, currentSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Восстановление режима смешивания
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        }
+
+        const fireballs = [];
+        let mouseDown = false;
+        let autoShootTimer = 0;
+
+        // Обработчики событий
+        canvas.addEventListener('mousedown', () => mouseDown = true);
+        canvas.addEventListener('mouseup', () => mouseDown = false);
+        canvas.addEventListener('mousemove', (e) => {
+            if (mouseDown && Date.now() - autoShootTimer > 100) {
+                createFireball(e.clientX, e.clientY);
+                autoShootTimer = Date.now();
+            }
+        });
+        canvas.addEventListener('click', (e) => {
+            createFireball(e.clientX, e.clientY);
+        });
+
+        function createFireball(targetX, targetY) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            fireballs.push(new RealisticFireball(centerX, centerY, targetX, targetY));
+        }
+
+        // Игровой цикл
+        function gameLoop() {
+            // Затемнение с эффектом шлейфа
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Обновление и отрисовка
+            for (let i = fireballs.length - 1; i >= 0; i--) {
+                if (!fireballs[i].update()) {
+                    fireballs.splice(i, 1);
+                } else {
+                    fireballs[i].draw(ctx);
+                }
+            }
+            
+            // Статистика
+            const totalParticles = fireballs.reduce((sum, fb) => sum + fb.particles.length, 0);
+            info.innerHTML = `Кликните/перетащите для выстрела | 
+                             Активных снарядов: ${fireballs.length} | 
+                             Частиц: ${totalParticles}`;
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Обработка ресайза
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Запуск
+        gameLoop();
+
+        // Демо-выстрел
+        setTimeout(() => {
+            createFireball(canvas.width * 0.7, canvas.height * 0.5);
+        }, 300);
+    </script>
+</body>
+</html>

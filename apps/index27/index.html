@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Музыкальные аккорды - Игра и обучение</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #eee;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .piano-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .key {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        .white-key {
+            width: 50px;
+            height: 200px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        
+        .black-key {
+            width: 30px;
+            height: 120px;
+            background: #2c3e50;
+            position: absolute;
+            top: 0;
+            z-index: 2;
+            border-radius: 0 0 3px 3px;
+            color: white;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            box-sizing: border-box;
+        }
+        
+        .key.active {
+            transform: translateY(3px);
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .white-key.active {
+            background: #f1f1f1;
+        }
+        
+        .black-key.active {
+            background: #1a252f;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .chord-display {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            min-height: 36px;
+        }
+        
+        .chord-name {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .note {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 5px 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+        
+        .quiz-container {
+            text-align: center;
+        }
+        
+        .quiz-question {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .quiz-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .quiz-option {
+            padding: 15px 25px;
+            background: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-option:hover {
+            background: #2980b9;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            min-height: 27px;
+        }
+        
+        .correct {
+            color: #27ae60;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+        }
+        
+        .progress {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .instrument-selector {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .white-key {
+                width: 40px;
+                height: 180px;
+            }
+            
+            .black-key {
+                width: 25px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Музыкальные аккорды</h1>
+        <p class="subtitle">Изучайте, создавайте и практикуйте аккорды</p>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="learn">Обучение</div>
+            <div class="tab" data-tab="play">Создание аккордов</div>
+            <div class="tab" data-tab="quiz">Практика</div>
+        </div>
+        
+        <div class="tab-content active" id="learn">
+            <h2>Основы музыкальных аккордов</h2>
+            <p>Аккорд - это сочетание трех или более нот, звучащих одновременно.</p>
+            
+            <h3>Основные типы аккордов:</h3>
+            <ul>
+                <li><strong>Мажорный аккорд</strong>: состоит из основной ноты, большой терции и малой терции (например, C-E-G)</li>
+                <li><strong>Минорный аккорд</strong>: состоит из основной ноты, малой терции и большой терции (например, C-E♭-G)</li>
+                <li><strong>Увеличенный аккорд</strong>: две большие терции (например, C-E-G#)</li>
+                <li><strong>Уменьшенный аккорд</strong>: две малые терции (например, C-E♭-G♭)</li>
+            </ul>
+            
+            <h3>Как строить аккорды:</h3>
+            <p>1. Выберите основную ноту (тонику)<br>
+               2. Добавьте терцию (большую или малую в зависимости от типа аккорда)<br>
+               3. Добавьте квинту (чистую, уменьшенную или увеличенную)</p>
+            
+            <div class="piano-container" id="learn-piano">
+                <!-- Пианино будет сгенерировано скриптом -->
+            </div>
+            
+            <div class="controls">
+                <select id="chord-type">
+                    <option value="major">Мажор</option>
+                    <option value="minor">Минор</option>
+                    <option value="augmented">Увеличенный</option>
+                    <option value="diminished">Уменьшенный</option>
+                    <option value="sus2">Sus2</option>
+                    <option value="sus4">Sus4</option>
+                    <option value="major7">Мажорный септаккорд</option>
+                    <option value="minor7">Минорный септаккорд</option>
+                </select>
+                <select id="root-note">
+                    <option value="C">До (C)</option>
+                    <option value="C#">До# (C#)</option>
+                    <option value="D">Ре (D)</option>
+                    <option value="D#">Ре# (D#)</option>
+                    <option value="E">Ми (E)</option>
+                    <option value="F">Фа (F)</option>
+                    <option value="F#">Фа# (F#)</option>
+                    <option value="G">Соль (G)</option>
+                    <option value="G#">Соль# (G#)</option>
+                    <option value="A">Ля (A)</option>
+                    <option value="A#">Ля# (A#)</option>
+                    <option value="B">Си (B)</option>
+                </select>
+                <button id="play-chord">Проиграть аккорд</button>
+            </div>
+            
+            <div class="chord-display">
+                <p>Аккорд: <span class="chord-name" id="chord-name">C мажор</span></p>
+                <p>Ноты: <span id="chord-notes">C E G</span></p>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="play">
+            <h2>Создайте свой аккорд</h2>
+            <p>Нажимайте на клавиши пианино, чтобы создать собственный аккорд.</p>
+            
+            <div class="piano-container" id="create-piano">
+                <!-- Пианино будет сгенерировано скриптом -->
+            </div>
+            
+            <div class="controls">
+                <button id="play-selected">Проиграть выбранные ноты</button>
+                <button id="clear-notes">Очистить</button>
+            </div>
+            
+            <div class="chord-display">
+                <p>Выбранные ноты: <span id="selected-notes"></span></p>
+                <p>Возможный аккорд: <span class="chord-name" id="detected-chord">-</span></p>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="quiz">
+            <h2>Практика аккордов</h2>
+            <p>Определите тип аккорда, который вы слышите.</p>
+            
+            <div class="quiz-container">
+                <div class="quiz-question" id="quiz-question">Нажмите "Начать", чтобы начать тест</div>
+                
+                <div class="controls">
+                    <button id="start-quiz">Начать</button>
+                    <button id="play-question" disabled>Повторить аккорд</button>
+                </div>
+                
+                <div class="quiz-options" id="quiz-options">
+                    <!-- Варианты ответов будут сгенерированы скриптом -->
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <div class="progress" id="quiz-progress">Правильно: 0/0</div>
+            </div>
+        </div>
+        
+        <div class="instrument-selector">
+            <label for="instrument">Тембр: </label>
+            <select id="instrument">
+                <option value="piano">Пианино</option>
+                <option value="guitar">Гитара</option>
+                <option value="strings">Струнные</option>
+                <option value="synth">Синтезатор</option>
+                <option value="organ">Орган</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        // Музыкальные константы
+        const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const WHITE_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        const BLACK_KEYS = ['C#', 'D#', 'F#', 'G#', 'A#'];
+        
+        // Аккорды
+        const CHORD_TYPES = {
+            major: { name: 'мажор', intervals: [0, 4, 7] },
+            minor: { name: 'минор', intervals: [0, 3, 7] },
+            augmented: { name: 'увеличенный', intervals: [0, 4, 8] },
+            diminished: { name: 'уменьшенный', intervals: [0, 3, 6] },
+            sus2: { name: 'sus2', intervals: [0, 2, 7] },
+            sus4: { name: 'sus4', intervals: [0, 5, 7] },
+            major7: { name: 'мажорный септаккорд', intervals: [0, 4, 7, 11] },
+            minor7: { name: 'минорный септаккорд', intervals: [0, 3, 7, 10] }
+        };
+        
+        // Состояние игры
+        let audioContext;
+        let selectedNotes = [];
+        let quizState = {
+            active: false,
+            currentQuestion: null,
+            score: 0,
+            total: 0
+        };
+        
+        // Инициализация аудио
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        // Генерация пианино
+        function generatePiano(containerId, clickHandler) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // Создаем белые клавиши
+            WHITE_KEYS.forEach((note, i) => {
+                const key = document.createElement('div');
+                key.className = 'key white-key';
+                key.dataset.note = note;
+                key.dataset.frequency = getNoteFrequency(note, 4);
+                key.innerHTML = note;
+                
+                key.addEventListener('mousedown', () => {
+                    key.classList.add('active');
+                    clickHandler(note, key);
+                });
+                
+                key.addEventListener('mouseup', () => {
+                    key.classList.remove('active');
+                });
+                
+                key.addEventListener('mouseleave', () => {
+                    key.classList.remove('active');
+                });
+                
+                container.appendChild(key);
+            });
+            
+            // Создаем черные клавиши
+            BLACK_KEYS.forEach((note, i) => {
+                const key = document.createElement('div');
+                key.className = 'key black-key';
+                key.dataset.note = note;
+                key.dataset.frequency = getNoteFrequency(note, 4);
+                key.innerHTML = note;
+                
+                // Позиционируем черные клавиши между белыми
+                let leftPos;
+                if (note === 'C#') leftPos = 35;
+                else if (note === 'D#') leftPos = 85;
+                else if (note === 'F#') leftPos = 185;
+                else if (note === 'G#') leftPos = 235;
+                else if (note === 'A#') leftPos = 285;
+                
+                key.style.left = `${leftPos}px`;
+                
+                key.addEventListener('mousedown', () => {
+                    key.classList.add('active');
+                    clickHandler(note, key);
+                });
+                
+                key.addEventListener('mouseup', () => {
+                    key.classList.remove('active');
+                });
+                
+                key.addEventListener('mouseleave', () => {
+                    key.classList.remove('active');
+                });
+                
+                container.appendChild(key);
+            });
+        }
+        
+        // Получение частоты ноты
+        function getNoteFrequency(note, octave) {
+            const A4 = 440;
+            const notesInOctave = 12;
+            const noteIndex = NOTES.indexOf(note);
+            const A4Index = NOTES.indexOf('A') + 4 * notesInOctave;
+            const targetIndex = noteIndex + octave * notesInOctave;
+            
+            return A4 * Math.pow(2, (targetIndex - A4Index) / notesInOctave);
+        }
+        
+        // Воспроизведение ноты
+        function playNote(frequency, duration = 1, instrument = 'piano') {
+            if (!audioContext) initAudio();
+            
+            const now = audioContext.currentTime;
+            
+            // Осциллятор
+            const oscillator = audioContext.createOscillator();
+            
+            // Настройка тембра в зависимости от инструмента
+            switch(instrument) {
+                case 'guitar':
+                    oscillator.type = 'sawtooth';
+                    break;
+                case 'strings':
+                    oscillator.type = 'sine';
+                    break;
+                case 'synth':
+                    oscillator.type = 'square';
+                    break;
+                case 'organ':
+                    oscillator.type = 'sine';
+                    break;
+                default: // piano
+                    oscillator.type = 'triangle';
+            }
+            
+            oscillator.frequency.setValueAtTime(frequency, now);
+            
+            // Огибающая для более естественного звука
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0, now);
+            
+            // Атака
+            gainNode.gain.linearRampToValueAtTime(0.7, now + 0.05);
+            
+            // Затухание
+            if (instrument === 'piano' || instrument === 'guitar') {
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            } else {
+                gainNode.gain.linearRampToValueAtTime(0.7, now + duration * 0.7);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            }
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(now);
+            oscillator.stop(now + duration);
+            
+            return oscillator;
+        }
+        
+        // Воспроизведение аккорда
+        function playChord(notes, duration = 1) {
+            const instrument = document.getElementById('instrument').value;
+            notes.forEach(note => {
+                const frequency = getNoteFrequency(note, 4);
+                playNote(frequency, duration, instrument);
+            });
+        }
+        
+        // Получение нот аккорда
+        function getChordNotes(root, type) {
+            const rootIndex = NOTES.indexOf(root);
+            if (rootIndex === -1) return [];
+            
+            return CHORD_TYPES[type].intervals.map(interval => {
+                return NOTES[(rootIndex + interval) % NOTES.length];
+            });
+        }
+        
+        // Определение аккорда по нотам
+        function detectChord(notes) {
+            if (notes.length < 3) return null;
+            
+            // Преобразуем ноты в индексы
+            const noteIndices = notes.map(n => NOTES.indexOf(n)).sort((a, b) => a - b);
+            const rootIndex = noteIndices[0];
+            
+            // Вычисляем интервалы относительно корневой ноты
+            const intervals = noteIndices.map(n => (n - rootIndex + NOTES.length) % NOTES.length);
+            
+            // Ищем совпадение с известными аккордами
+            for (const [type, data] of Object.entries(CHORD_TYPES)) {
+                if (JSON.stringify(data.intervals) === JSON.stringify(intervals)) {
+                    return {
+                        root: NOTES[rootIndex],
+                        type: type,
+                        name: `${NOTES[rootIndex]} ${data.name}`
+                    };
+                }
+            }
+            
+            // Если точного совпадения нет, возвращаем просто ноты
+            return {
+                root: null,
+                type: null,
+                name: notes.join(' ')
+            };
+        }
+        
+        // Инициализация вкладок
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Убираем активный класс у всех вкладок
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Добавляем активный класс к выбранной вкладке
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+        
+        // Инициализация вкладки обучения
+        function initLearnTab() {
+            generatePiano('learn-piano', (note, element) => {
+                // В режиме обучения просто проигрываем ноту
+                const frequency = element.dataset.frequency;
+                const instrument = document.getElementById('instrument').value;
+                playNote(frequency, 1, instrument);
+            });
+            
+            document.getElementById('play-chord').addEventListener('click', () => {
+                const rootNote = document.getElementById('root-note').value;
+                const chordType = document.getElementById('chord-type').value;
+                
+                const chordNotes = getChordNotes(rootNote, chordType);
+                playChord(chordNotes);
+                
+                // Обновляем отображение аккорда
+                document.getElementById('chord-name').textContent = 
+                    `${rootNote} ${CHORD_TYPES[chordType].name}`;
+                document.getElementById('chord-notes').textContent = chordNotes.join(' ');
+            });
+        }
+        
+        // Инициализация вкладки создания аккордов
+        function initPlayTab() {
+            generatePiano('create-piano', (note, element) => {
+                const frequency = element.dataset.frequency;
+                const instrument = document.getElementById('instrument').value;
+                
+                // Добавляем или удаляем ноту из выбранных
+                const noteIndex = selectedNotes.indexOf(note);
+                if (noteIndex === -1) {
+                    selectedNotes.push(note);
+                    element.classList.add('active');
+                } else {
+                    selectedNotes.splice(noteIndex, 1);
+                    element.classList.remove('active');
+                }
+                
+                // Обновляем отображение выбранных нот
+                document.getElementById('selected-notes').textContent = selectedNotes.join(' ');
+                
+                // Определяем аккорд
+                if (selectedNotes.length >= 3) {
+                    const chord = detectChord(selectedNotes);
+                    document.getElementById('detected-chord').textContent = chord.name;
+                } else {
+                    document.getElementById('detected-chord').textContent = '-';
+                }
+            });
+            
+            document.getElementById('play-selected').addEventListener('click', () => {
+                if (selectedNotes.length > 0) {
+                    playChord(selectedNotes);
+                }
+            });
+            
+            document.getElementById('clear-notes').addEventListener('click', () => {
+                selectedNotes = [];
+                document.getElementById('selected-notes').textContent = '';
+                document.getElementById('detected-chord').textContent = '-';
+                
+                // Снимаем подсветку с клавиш
+                document.querySelectorAll('#create-piano .key.active').forEach(key => {
+                    key.classList.remove('active');
+                });
+            });
+        }
+        
+        // Инициализация вкладки теста
+        function initQuizTab() {
+            const quizOptions = document.getElementById('quiz-options');
+            
+            // Создаем кнопки вариантов ответов
+            Object.keys(CHORD_TYPES).forEach(type => {
+                const option = document.createElement('div');
+                option.className = 'quiz-option';
+                option.textContent = CHORD_TYPES[type].name;
+                option.dataset.type = type;
+                
+                option.addEventListener('click', () => {
+                    if (!quizState.active) return;
+                    
+                    const isCorrect = quizState.currentQuestion.type === type;
+                    const feedback = document.getElementById('feedback');
+                    
+                    if (isCorrect) {
+                        feedback.textContent = 'Правильно!';
+                        feedback.className = 'feedback correct';
+                        quizState.score++;
+                    } else {
+                        feedback.textContent = `Неправильно. Это был ${quizState.currentQuestion.name}`;
+                        feedback.className = 'feedback incorrect';
+                    }
+                    
+                    quizState.total++;
+                    updateQuizProgress();
+                    
+                    // Переходим к следующему вопросу через 1.5 секунды
+                    setTimeout(nextQuizQuestion, 1500);
+                });
+                
+                quizOptions.appendChild(option);
+            });
+            
+            document.getElementById('start-quiz').addEventListener('click', () => {
+                quizState.active = true;
+                quizState.score = 0;
+                quizState.total = 0;
+                updateQuizProgress();
+                nextQuizQuestion();
+                document.getElementById('start-quiz').disabled = true;
+                document.getElementById('play-question').disabled = false;
+            });
+            
+            document.getElementById('play-question').addEventListener('click', () => {
+                if (quizState.currentQuestion) {
+                    playChord(quizState.currentQuestion.notes, 1);
+                }
+            });
+        }
+        
+        // Следующий вопрос в тесте
+        function nextQuizQuestion() {
+            const roots = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const types = Object.keys(CHORD_TYPES);
+            
+            const randomRoot = roots[Math.floor(Math.random() * roots.length)];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            
+            const notes = getChordNotes(randomRoot, randomType);
+            const chordName = `${randomRoot} ${CHORD_TYPES[randomType].name}`;
+            
+            quizState.currentQuestion = {
+                root: randomRoot,
+                type: randomType,
+                notes: notes,
+                name: chordName
+            };
+            
+            document.getElementById('quiz-question').textContent = 'Какой это аккорд?';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            playChord(notes, 1);
+        }
+        
+        // Обновление прогресса теста
+        function updateQuizProgress() {
+            document.getElementById('quiz-progress').textContent = 
+                `Правильно: ${quizState.score}/${quizState.total}`;
+        }
+        
+        // Инициализация при загрузке страницы
+        window.addEventListener('load', () => {
+            initAudio();
+            initTabs();
+            initLearnTab();
+            initPlayTab();
+            initQuizTab();
+            
+            // Проиграем пример аккорда при загрузке
+            setTimeout(() => {
+                playChord(['C', 'E', 'G']);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Мощный анализатор файлов с поддержкой метаданных">
+  <meta name="theme-color" content="#317EFB">
+  <title>File Analyzer Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-type@16.5.4/dist/index.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .dropzone {
+      border: 3px dashed #6c757d;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #f8f9fa;
+      margin-bottom: 20px;
+    }
+    .dropzone.active {
+      border-color: #0d6efd;
+      background: #e7f1ff;
+    }
+    .file-info {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .metadata-section {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    .metadata-key {
+      font-weight: bold;
+      color: #333;
+    }
+    .metadata-value {
+      color: #555;
+      word-break: break-all;
+    }
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    @media (max-width: 576px) {
+      .dropzone {
+        padding: 15px;
+      }
+      .btn {
+        width: 100%;
+        margin-bottom: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center my-3">File Analyzer Pro</h1>
+    <div class="dropzone" id="dropzone">
+      <h5>Перетащите файл сюда</h5>
+      <p class="text-muted">или</p>
+      <button class="btn btn-primary" id="selectFileBtn">Выбрать файл</button>
+      <input type="file" id="fileInput" hidden>
+    </div>
+
+    <div class="d-flex justify-content-between mb-3">
+      <button class="btn btn-outline-secondary btn-sm" id="copyAllBtn">Копировать всё</button>
+      <button class="btn btn-outline-danger btn-sm" id="clearBtn">Очистить</button>
+      <button class="btn btn-outline-info btn-sm" id="toggleFiltersBtn">Фильтры</button>
+    </div>
+
+    <div class="card mb-3 d-none" id="filtersCard">
+      <div class="card-body">
+        <h6 class="card-title">Фильтры информации</h6>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="showBasic" checked>
+          <label class="form-check-label" for="showBasic">Основная информация</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="showExif" checked>
+          <label class="form-check-label" for="showExif">EXIF (фото)</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="showPdf" checked>
+          <label class="form-check-label" for="showPdf">PDF-метаданные</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="showSystem" checked>
+          <label class="form-check-label" for="showSystem">Системные данные</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <p class="text-muted text-center">Файл не выбран</p>
+    </div>
+
+    <div class="mt-3 text-center text-muted small">
+      <p>File Analyzer Pro v1.0 | Работает оффлайн (PWA)</p>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.log('ServiceWorker не зарегистрирован: ', err);
+        });
+      });
+    }
+
+    // Элементы DOM
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
+    const filtersCard = document.getElementById('filtersCard');
+
+    // Обработчики событий
+    selectFileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => analyzeFile(e.target.files[0]));
+    clearBtn.addEventListener('click', clearFileInfo);
+    copyAllBtn.addEventListener('click', copyAllInfo);
+    toggleFiltersBtn.addEventListener('click', toggleFilters);
+
+    // Drag & Drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('active');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('active');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('active');
+      if (e.dataTransfer.files.length) {
+        analyzeFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    // Анализ файла
+    async function analyzeFile(file) {
+      let output = `
+        <div class="metadata-section" data-type="basic">
+          <h4>${file.name}</h4>
+          <p><span class="metadata-key">Размер:</span> <span class="metadata-value">${formatFileSize(file.size)}</span></p>
+          <p><span class="metadata-key">Тип MIME:</span> <span class="metadata-value">${file.type || 'неизвестно'}</span></p>
+          <p><span class="metadata-key">Последнее изменение:</span> <span class="metadata-value">${new Date(file.lastModified).toLocaleString()}</span></p>
+        </div>
+      `;
+
+      // Определение формата через file-type
+      const fileType = await getFileType(file);
+      if (fileType) {
+        output += `
+          <div class="metadata-section" data-type="basic">
+            <p><span class="metadata-key">Определённый формат:</span> <span class="metadata-value">${fileType.ext}</span></p>
+            <p><span class="metadata-key">MIME (точный):</span> <span class="metadata-value">${fileType.mime}</span></p>
+          </div>
+        `;
+      }
+
+      // EXIF для изображений
+      if (file.type.startsWith('image/')) {
+        const exif = await getExifData(file);
+        if (exif) {
+          let exifOutput = '<div class="metadata-section" data-type="exif"><h5>EXIF-данные</h5>';
+          for (const [key, value] of Object.entries(exif)) {
+            if (value !== undefined) {
+              exifOutput += `<p><span class="metadata-key">${key}:</span> <span class="metadata-value">${value}</span></p>`;
+            }
+          }
+          exifOutput += '</div>';
+          output += exifOutput;
+        }
+      }
+
+      // PDF-метаданные
+      if (file.type === 'application/pdf') {
+        const pdfInfo = await getPdfInfo(file);
+        if (pdfInfo) {
+          output += `
+            <div class="metadata-section" data-type="pdf">
+              <h5>PDF-информация</h5>
+              <p><span class="metadata-key">Количество страниц:</span> <span class="metadata-value">${pdfInfo.numPages}</span></p>
+              ${pdfInfo.metadata ? `<p><span class="metadata-key">Автор:</span> <span class="metadata-value">${pdfInfo.metadata.get('Author') || 'не указан'}</span></p>` : ''}
+            </div>
+          `;
+        }
+      }
+
+      // ZIP-архивы
+      if (file.type === 'application/zip' || file.name.endsWith('.zip')) {
+        const zipInfo = await getZipInfo(file);
+        if (zipInfo) {
+          output += `
+            <div class="metadata-section" data-type="system">
+              <h5>ZIP-архив</h5>
+              <p><span class="metadata-key">Файлов внутри:</span> <span class="metadata-value">${zipInfo.fileCount}</span></p>
+            </div>
+          `;
+        }
+      }
+
+      // Аудио-метаданные
+      if (file.type.startsWith('audio/')) {
+        const audioTags = await getAudioTags(file);
+        if (audioTags) {
+          output += `
+            <div class="metadata-section" data-type="system">
+              <h5>Аудио-метаданные</h5>
+              <p><span class="metadata-key">Исполнитель:</span> <span class="metadata-value">${audioTags.artist || 'не указан'}</span></p>
+              <p><span class="metadata-key">Название:</span> <span class="metadata-value">${audioTags.title || 'не указано'}</span></p>
+            </div>
+          `;
+        }
+      }
+
+      fileInfo.innerHTML = output;
+      applyFilters();
+    }
+
+    // Вспомогательные функции
+    async function getFileType(file) {
+      const buffer = await file.slice(0, 4100).arrayBuffer();
+      const result = await FileType.fromBlob(new Blob([buffer]));
+      return result;
+    }
+
+    async function getExifData(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const exif = EXIF.readFromBinaryFile(e.target.result);
+            if (exif) {
+              const simplifiedExif = {
+                'Камера': exif.Model,
+                'Производитель': exif.Make,
+                'Дата съёмки': exif.DateTimeOriginal,
+                'Разрешение (DPI)': exif.XResolution ? `${exif.XResolution} DPI` : null,
+                'GPS': exif.GPSLatitude ? `${exif.GPSLatitude}, ${exif.GPSLongitude}` : null
+              };
+              resolve(simplifiedExif);
+            } else {
+              resolve(null);
+            }
+          } catch (err) {
+            resolve(null);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    async function getPdfInfo(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const typedArray = new Uint8Array(e.target.result);
+            const pdf = await pdfjsLib.getDocument(typedArray).promise;
+            const metadata = await pdf.getMetadata();
+            resolve({
+              numPages: pdf.numPages,
+              metadata: metadata ? metadata.metadata : null
+            });
+          } catch (err) {
+            resolve(null);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    async function getZipInfo(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const zip = await JSZip.loadAsync(e.target.result);
+            resolve({
+              fileCount: Object.keys(zip.files).length
+            });
+          } catch (err) {
+            resolve(null);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    async function getAudioTags(file) {
+      return new Promise((resolve) => {
+        jsmediatags.read(file, {
+          onSuccess: (tag) => {
+            resolve({
+              artist: tag.tags.artist,
+              title: tag.tags.title
+            });
+          },
+          onError: () => resolve(null)
+        });
+      });
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Б';
+      const k = 1024;
+      const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function clearFileInfo() {
+      fileInfo.innerHTML = '<p class="text-muted text-center">Файл не выбран</p>';
+    }
+
+    function copyAllInfo() {
+      const textToCopy = Array.from(fileInfo.querySelectorAll('.metadata-section:not([style*="display: none"])'))
+        .map(section => section.textContent.replace(/\s+/g, ' ').trim())
+        .join('\n\n');
+
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => alert('Информация скопирована!'))
+        .catch(() => alert('Не удалось скопировать'));
+    }
+
+    function toggleFilters() {
+      filtersCard.classList.toggle('d-none');
+    }
+
+    function applyFilters() {
+      const sections = fileInfo.querySelectorAll('.metadata-section');
+      sections.forEach(section => {
+        const type = section.getAttribute('data-type');
+        const checkbox = document.getElementById(`show${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        section.style.display = checkbox.checked ? 'block' : 'none';
+      });
+    }
+
+    // Применяем фильтры при изменении
+    document.querySelectorAll('.form-check-input').forEach(checkbox => {
+      checkbox.addEventListener('change', applyFilters);
+    });
+  </script>
+
+  <!-- PWA Service Worker (встроенный) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        self.addEventListener('install', (e) => {
+          e.waitUntil(
+            caches.open('file-analyzer-v1').then(cache => {
+              return cache.addAll([
+                '/',
+                '/index.html',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css',
+                'https://cdn.jsdelivr.net/npm/exif-js',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+                'https://cdn.jsdelivr.net/npm/file-type@16.5.4/dist/index.umd.min.js',
+                'https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js'
+              ]);
+            })
+          );
+        });
+        self.addEventListener('fetch', (e) => {
+          e.respondWith(
+            caches.match(e.request).then(response => {
+              return response || fetch(e.request);
+            })
+          );
+        });
+      `;
+
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+
+      navigator.serviceWorker.register(swUrl)
+        .then(reg => console.log('ServiceWorker зарегистрирован'))
+        .catch(err => console.log('Ошибка ServiceWorker:', err));
+    }
+  </script>
+</body>
+</html>

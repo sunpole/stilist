@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типография - Бизнес симулятор</title>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isoWeek.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isBetween.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ru.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* Фиксированная панель календаря */
+        .calendar-panel {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: rgba(52, 73, 94, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Широкий статус-бар дня */
+        .day-progress {
+            background: #2c3e50;
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .day-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        /* Тонкая элегантная панель ресурсов */
+        .resource-panel {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 0.85em;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .resource-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .resource-value {
+            font-size: 1em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        /* 7 отделов в одну строку */
+        .departments-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 15px;
+            gap: 2px;
+        }
+
+        .department-card {
+            flex: 1;
+            min-width: calc(12.5% - 2px);
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 6px;
+            text-align: center;
+            position: relative;
+        }
+
+        .department-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 6px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .department-btn {
+            width: 100%;
+            height: 35px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.8em;
+            position: relative;
+        }
+
+        .department-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .department-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Кружочки заказов на кнопках */
+        .order-badges {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .order-badge {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        .badge-common {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        .badge-rare {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .badge-legendary {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .employee-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .employee-count {
+            font-weight: bold;
+            color: #e74c3c;
+            min-width: 16px;
+            font-size: 0.8em;
+        }
+
+        .control-btn {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: #95a5a6;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+        }
+
+        .control-btn.add {
+            background: #27ae60;
+        }
+
+        .control-btn.remove {
+            background: #e74c3c;
+        }
+
+        .panels-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .panel h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 4px;
+            font-size: 1em;
+        }
+
+        .order {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            position: relative;
+        }
+
+        .order-rarity {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .rarity-common {
+            background: #95a5a6;
+        }
+
+        .rarity-rare {
+            background: #9b59b6;
+        }
+
+        .rarity-legendary {
+            background: #f39c12;
+        }
+
+        .accept-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 4px;
+            font-size: 0.8em;
+            width: 100%;
+        }
+
+        .hire-section {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .hire-btn {
+            background: #f1c40f;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        /* Уведомления */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Мобильная оптимизация */
+        @media (max-width: 768px) {
+            .departments-row {
+                flex-wrap: wrap;
+            }
+            
+            .department-card {
+                min-width: calc(25% - 2px);
+            }
+            
+            .panels-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .resource-panel {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .resource-item {
+                flex: 1 0 calc(50% - 10px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .department-card {
+                min-width: calc(33.333% - 2px);
+            }
+            
+            .resource-item {
+                flex: 1 0 100%;
+            }
+        }
+
+        .drive-warning {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-container" id="notificationContainer"></div>
+    
+    <div class="container">
+        <!-- Фиксированная панель календаря -->
+        <div class="calendar-panel" id="calendarPanel">
+            1 сентября 2025, 09:00 (Понедельник)
+        </div>
+        
+        <!-- Широкий статус-бар дня -->
+        <div class="day-progress">
+            <div class="day-progress-bar" id="dayProgressBar" style="width: 0%"></div>
+        </div>
+        
+        <!-- Тонкая панель ресурсов в одну строку -->
+        <div class="resource-panel">
+            <div class="resource-item">
+                <div>Драйв</div>
+                <div class="resource-value" id="driveValue">80/80</div>
+            </div>
+            <div class="resource-item">
+                <div>Деньги</div>
+                <div class="resource-value" id="moneyValue">1 000 ₽</div>
+            </div>
+            <div class="resource-item">
+                <div>Опыт</div>
+                <div class="resource-value" id="expValue">0</div>
+            </div>
+            <div class="resource-item">
+                <div>Репутация</div>
+                <div class="resource-value" id="reputationValue">0</div>
+            </div>
+        </div>
+
+        <!-- 7 отделов в одну строку -->
+        <div class="departments-row" id="departmentsRow">
+            <!-- Отделы будут сгенерированы в JS -->
+        </div>
+
+        <div class="panels-container">
+            <div class="panel">
+                <h3>📋 Доступные заказы</h3>
+                <div id="availableOrders">
+                    <!-- Заказы будут добавляться здесь -->
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3>🔄 Активные заказы</h3>
+                <div id="activeOrders">
+                    <!-- Активные заказы будут здесь -->
+                </div>
+            </div>
+        </div>
+
+        <div class="hire-section">
+            <h3>💼 Найм сотрудников</h3>
+            <p>Каждый сотрудник: +80 к максимуму драйва, работает автоматически</p>
+            <button class="hire-btn" id="hireButton">Нанять сотрудника (500 ₽)</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

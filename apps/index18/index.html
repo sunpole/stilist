@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Станок крафта - POE Style</title>
+    <style>
+        :root {
+            --bg-dark: #1a1a1a;
+            --bg-darker: #121212;
+            --text-main: #e0e0e0;
+            --text-highlight: #f8b700;
+            --border-color: #444;
+            --poe-orange: #af6025;
+            --poe-blue: #3f6e9a;
+            --white: #ffffff;
+            --gray: #999999;
+            --blue: #3f6e9a;
+            --yellow: #ffd700;
+            --pink: #ff69b4;
+            --purple: #9370db;
+            --gold: #daa520;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Fontin SmallCaps', 'Arial Narrow', Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: var(--text-highlight);
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .crafting-station {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .recipe-section, .crafting-section, .upgrade-section {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .item-selector {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 1rem;
+            border-radius: 3px;
+        }
+
+        .recipe-list {
+            margin-top: 15px;
+        }
+
+        .recipe-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recipe-item:hover {
+            border-color: var(--poe-orange);
+        }
+
+        .recipe-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .recipe-materials {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .item-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+
+        .item-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            font-size: 1.2rem;
+            color: var(--text-highlight);
+            margin-bottom: 5px;
+        }
+
+        .item-tier {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .item-stats {
+            text-align: left;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .item-stat {
+            margin-bottom: 5px;
+        }
+
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .currency-item {
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .currency-item:hover {
+            border-color: var(--poe-orange);
+        }
+
+        .currency-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .currency-name {
+            font-size: 0.8rem;
+        }
+
+        .currency-count {
+            font-size: 0.8rem;
+            color: var(--poe-orange);
+            margin-top: 5px;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background-color: var(--poe-orange);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #d87c30;
+        }
+
+        .action-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        .upgrade-options {
+            margin-top: 15px;
+        }
+
+        .upgrade-option {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-option:hover {
+            border-color: var(--poe-orange);
+        }
+
+        .upgrade-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .tier-normal { color: var(--white); }
+        .ter-precious { color: var(--gray); }
+        .tier-magic { color: var(--blue); }
+        .tier-rare { color: var(--yellow); }
+        .tier-unique { color: var(--pink); }
+        .tier-mythic { color: var(--purple); }
+        .tier-legendary { color: var(--gold); }
+
+        @media (max-width: 768px) {
+            .crafting-station {
+                flex-direction: column;
+            }
+            
+            .currency-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Станок крафта</h1>
+        
+        <div class="crafting-station">
+            <div class="recipe-section">
+                <h2>Рецепты</h2>
+                <select id="item-type" class="item-selector">
+                    <option value="helmet">Шлем</option>
+                    <option value="chest">Доспех</option>
+                    <option value="gloves">Перчатки</option>
+                    <option value="pants">Штаны</option>
+                    <option value="boots">Сапоги</option>
+                    <option value="sword">Меч</option>
+                </select>
+                
+                <div class="recipe-list" id="recipe-list">
+                    <!-- Recipes will be added here by JavaScript -->
+                </div>
+                
+                <button id="craft-btn" class="action-btn" disabled>Создать предмет</button>
+            </div>
+            
+            <div class="crafting-section">
+                <h2>Предмет</h2>
+                <div class="item-display" id="item-display">
+                    <div class="item-icon">🛡️</div>
+                    <div class="item-name">Нет предмета</div>
+                    <div class="item-tier">Тир: -</div>
+                    <div class="item-stats" id="item-stats"></div>
+                </div>
+                
+                <h2>Валюта для крафта</h2>
+                <div class="currency-grid" id="currency-grid">
+                    <!-- Currency items will be added here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="upgrade-section">
+                <h2>Улучшение</h2>
+                <div class="upgrade-options" id="upgrade-options">
+                    <!-- Upgrade options will be added here by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <h2>Легенда валюты</h2>
+        <div id="currency-legend">
+            <!-- Currency legend will be added here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Currency data
+        const currencies = [
+            { id: 1, name: "Глина", icon: "🟫", effect: "Базовый материал для простых предметов" },
+            { id: 2, name: "Древесина", icon: "🌲", effect: "Используется для рукоятей и каркасов" },
+            { id: 3, name: "Железо", icon: "⚙️", effect: "Основной металл для оружия и брони" },
+            { id: 4, name: "Серебро", icon: "💍", effect: "Добавляет магические свойства" },
+            { id: 5, name: "Кирпич", icon: "🧱", effect: "Укрепляет защитные свойства" },
+            { id: 6, name: "Доски", icon: "🪵", effect: "Используется для щитов и элементов брони" },
+            { id: 7, name: "Гвозди", icon: "📌", effect: "Увеличивает прочность предмета" },
+            { id: 8, name: "Проволока", icon: "🧵", effect: "Добавляет гибкость и точность" },
+            { id: 9, name: "Стекло", icon: "🪞", effect: "Добавляет стихийные свойства" },
+            { id: 10, name: "Бронза", icon: "🟤", effect: "Улучшает баланс и долговечность" },
+            { id: 11, name: "Сталь", icon: "⚔️", effect: "Значительно увеличивает урон и защиту" },
+            { id: 12, name: "Медь", icon: "🔶", effect: "Добавляет проводящие свойства" },
+            { id: 13, name: "Латунь", icon: "🟠", effect: "Улучшает магическую проводимость" },
+            { id: 14, name: "Олово", icon: "⚪", effect: "Добавляет защиту от стихий" },
+            { id: 15, name: "Инструменты", icon: "⚒️", effect: "Улучшает качество крафта" },
+            { id: 16, name: "Посуда", icon: "🍽️", effect: "Добавляет свойства алхимии" },
+            { id: 17, name: "Оружие", icon: "🗡️", effect: "Увеличивает боевые характеристики" },
+            { id: 18, name: "Украшения", icon: "💎", effect: "Добавляет редкие свойства" },
+            { id: 19, name: "Часы", icon: "⏱️", effect: "Влияет на скорость атаки" },
+            { id: 20, name: "Зеркала", icon: "🪞", effect: "Копирует свойства других предметов" },
+            { id: 21, name: "Механизмы", icon: "⚙️", effect: "Добавляет сложные механические свойства" },
+            { id: 22, name: "Хрусталь", icon: "✨", effect: "Усиливает магические эффекты" },
+            { id: 23, name: "Золото", icon: "👑", effect: "Максимально улучшает предмет" },
+            { id: 24, name: "Платина", icon: "🔱", effect: "Добавляет легендарные свойства" },
+            { id: 25, name: "Алмаз", icon: "💠", effect: "Максимизирует все характеристики и повышает тир до легендарного" }
+        ];
+
+        // Item types
+        const itemTypes = {
+            helmet: { name: "Шлем", icon: "⛑️" },
+            chest: { name: "Доспех", icon: "🛡️" },
+            gloves: { name: "Перчатки", icon: "🧤" },
+            pants: { name: "Штаны", icon: "👖" },
+            boots: { name: "Сапоги", icon: "👢" },
+            sword: { name: "Меч", icon: "⚔️" }
+        };
+
+        // Tiers
+        const tiers = [
+            { id: 1, name: "Обычная", color: "normal", maxProps: 2, multiplier: 1 },
+            { id: 2, name: "Ценная", color: "precious", maxProps: 2, multiplier: 1.5 },
+            { id: 3, name: "Магическая", color: "magic", maxProps: 3, multiplier: 1 },
+            { id: 4, name: "Редкая", color: "rare", maxProps: 3, multiplier: 1.5 },
+            { id: 5, name: "Уникальная", color: "unique", maxProps: 4, multiplier: 1 },
+            { id: 6, name: "Мифическая", color: "mythic", maxProps: 4, multiplier: 1.5 },
+            { id: 7, name: "Легендарная", color: "legendary", maxProps: 5, multiplier: 2 }
+        ];
+
+        // Weapon properties
+        const weaponProperties = [
+            { name: "Урон", min: 1, max: 25, suffix: " урона" },
+            { name: "Скорость атаки", min: 2, max: 0.15, suffix: " сек", reverse: true },
+            { name: "Шанс крита", min: 0, max: 20, suffix: "%" },
+            { name: "Стихийный урон", min: 1, max: 100, suffix: "" },
+            { name: "Игнор защиты", min: 10, max: 50, suffix: "%" },
+            { name: "Кровотечение", min: 1, max: 5, suffix: " сек (", secondValue: { min: 1, max: 25 }, secondSuffix: " урон/сек)" }
+        ];
+
+        // Armor properties
+        const armorProperties = [
+            { name: "Защита", min: 1, max: 5, suffix: "" },
+            { name: "Макс HP", min: 20, max: 200, suffix: "" },
+            { name: "Бонус HP", min: 5, max: 15, suffix: "%" },
+            { name: "Усиление защиты", min: 10, max: 20, suffix: "%" },
+            { name: "Стихийная защита", min: 1, max: 25, suffix: "" }
+        ];
+
+        // Recipes for each item type
+        const recipes = {
+            helmet: [
+                { name: "Базовый шлем", materials: [ { id: 1, count: 10 }, { id: 3, count: 5 } ], tier: 1 },
+                { name: "Укрепленный шлем", materials: [ { id: 5, count: 3 }, { id: 7, count: 2 } ], tier: 2 },
+                { name: "Магический шлем", materials: [ { id: 4, count: 2 }, { id: 9, count: 1 } ], tier: 3 },
+                { name: "Редкий шлем", materials: [ { id: 11, count: 2 }, { id: 13, count: 1 } ], tier: 4 },
+                { name: "Уникальный шлем", materials: [ { id: 18, count: 1 }, { id: 20, count: 1 } ], tier: 5 }
+            ],
+            chest: [
+                { name: "Базовый доспех", materials: [ { id: 1, count: 20 }, { id: 3, count: 10 } ], tier: 1 },
+                { name: "Укрепленный доспех", materials: [ { id: 5, count: 5 }, { id: 7, count: 3 } ], tier: 2 },
+                { name: "Магический доспех", materials: [ { id: 4, count: 3 }, { id: 9, count: 2 } ], tier: 3 },
+                { name: "Редкий доспех", materials: [ { id: 11, count: 3 }, { id: 13, count: 2 } ], tier: 4 },
+                { name: "Уникальный доспех", materials: [ { id: 18, count: 2 }, { id: 20, count: 1 } ], tier: 5 }
+            ],
+            gloves: [
+                { name: "Базовые перчатки", materials: [ { id: 1, count: 5 }, { id: 2, count: 5 } ], tier: 1 },
+                { name: "Укрепленные перчатки", materials: [ { id: 6, count: 3 }, { id: 8, count: 2 } ], tier: 2 },
+                { name: "Магические перчатки", materials: [ { id: 4, count: 1 }, { id: 9, count: 1 } ], tier: 3 },
+                { name: "Редкие перчатки", materials: [ { id: 12, count: 2 }, { id: 14, count: 1 } ], tier: 4 },
+                { name: "Уникальные перчатки", materials: [ { id: 19, count: 1 }, { id: 21, count: 1 } ], tier: 5 }
+            ],
+            pants: [
+                { name: "Базовые штаны", materials: [ { id: 1, count: 15 }, { id: 2, count: 10 } ], tier: 1 },
+                { name: "Укрепленные штаны", materials: [ { id: 5, count: 3 }, { id: 6, count: 3 } ], tier: 2 },
+                { name: "Магические штаны", materials: [ { id: 4, count: 2 }, { id: 10, count: 1 } ], tier: 3 },
+                { name: "Редкие штаны", materials: [ { id: 13, count: 2 }, { id: 15, count: 1 } ], tier: 4 },
+                { name: "Уникальные штаны", materials: [ { id: 19, count: 1 }, { id: 22, count: 1 } ], tier: 5 }
+            ],
+            boots: [
+                { name: "Базовые сапоги", materials: [ { id: 1, count: 10 }, { id: 3, count: 5 } ], tier: 1 },
+                { name: "Укрепленные сапоги", materials: [ { id: 5, count: 3 }, { id: 7, count: 2 } ], tier: 2 },
+                { name: "Магические сапоги", materials: [ { id: 4, count: 2 }, { id: 9, count: 1 } ], tier: 3 },
+                { name: "Редкие сапоги", materials: [ { id: 11, count: 2 }, { id: 14, count: 1 } ], tier: 4 },
+                { name: "Уникальные сапоги", materials: [ { id: 18, count: 1 }, { id: 21, count: 1 } ], tier: 5 }
+            ],
+            sword: [
+                { name: "Базовый меч", materials: [ { id: 3, count: 10 }, { id: 2, count: 5 } ], tier: 1 },
+                { name: "Укрепленный меч", materials: [ { id: 7, count: 3 }, { id: 10, count: 2 } ], tier: 2 },
+                { name: "Магический меч", materials: [ { id: 4, count: 2 }, { id: 12, count: 1 } ], tier: 3 },
+                { name: "Редкий меч", materials: [ { id: 11, count: 3 }, { id: 16, count: 1 } ], tier: 4 },
+                { name: "Уникальный меч", materials: [ { id: 17, count: 2 }, { id: 22, count: 1 } ], tier: 5 }
+            ]
+        };
+
+        // Upgrade options
+        const upgradeOptions = [
+            { 
+                id: 1, 
+                name: "Случайное улучшение", 
+                desc: "Всегда улучшает одну случайную характеристику", 
+                currencies: [ { id: 3, count: 5 }, { id: 7, count: 2 } ],
+                action: (item) => randomUpgrade(item, true)
+            },
+            { 
+                id: 2, 
+                name: "Рискованное улучшение", 
+                desc: "Шанс улучшить или ухудшить одну случайную характеристику", 
+                currencies: [ { id: 4, count: 3 } ],
+                action: (item) => randomUpgrade(item, false)
+            },
+            { 
+                id: 3, 
+                name: "Точное улучшение", 
+                desc: "Всегда улучшает выбранную характеристику", 
+                currencies: [ { id: 11, count: 2 }, { id: 15, count: 1 } ],
+                action: (item) => selectedUpgrade(item, true)
+            },
+            { 
+                id: 4, 
+                name: "Рискованный выбор", 
+                desc: "Шанс улучшить или ухудшить выбранную характеристику", 
+                currencies: [ { id: 13, count: 2 } ],
+                action: (item) => selectedUpgrade(item, false)
+            },
+            { 
+                id: 5, 
+                name: "Повышение тира", 
+                desc: "Случайный шанс повысить тир предмета", 
+                currencies: [ { id: 18, count: 1 } ],
+                action: (item) => upgradeTier(item, false)
+            },
+            { 
+                id: 6, 
+                name: "Гарантированное повышение", 
+                desc: "100% шанс повысить тир предмета", 
+                currencies: [ { id: 23, count: 1 } ],
+                action: (item) => upgradeTier(item, true)
+            },
+            { 
+                id: 7, 
+                name: "Изменение свойства", 
+                desc: "Заменить случайную характеристику", 
+                currencies: [ { id: 20, count: 1 } ],
+                action: (item) => rerollProperty(item, false)
+            },
+            { 
+                id: 8, 
+                name: "Выборочное изменение", 
+                desc: "Заменить выбранную характеристику", 
+                currencies: [ { id: 24, count: 1 } ],
+                action: (item) => rerollProperty(item, true)
+            },
+            { 
+                id: 9, 
+                name: "Совершенствование", 
+                desc: "Максимизирует все характеристики и повышает тир до легендарного", 
+                currencies: [ { id: 25, count: 1 } ],
+                action: (item) => perfectItem(item)
+            }
+        ];
+
+        // DOM elements
+        const itemTypeSelect = document.getElementById('item-type');
+        const recipeList = document.getElementById('recipe-list');
+        const craftBtn = document.getElementById('craft-btn');
+        const itemDisplay = document.getElementById('item-display');
+        const itemStats = document.getElementById('item-stats');
+        const currencyGrid = document.getElementById('currency-grid');
+        const upgradeOptionsContainer = document.getElementById('upgrade-options');
+        const currencyLegend = document.getElementById('currency-legend');
+
+        // Current state
+        let currentItem = null;
+        let selectedRecipe = null;
+        let playerCurrencies = {};
+        
+        // Initialize player currencies
+        currencies.forEach(currency => {
+            playerCurrencies[currency.id] = 100; // Start with 100 of each currency for testing
+        });
+
+        // Format number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Generate random number between min and max
+        function randomBetween(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // Generate random integer between min and max
+        function randomIntBetween(min, max) {
+            return Math.floor(randomBetween(min, max + 1));
+        }
+
+        // Create a new item
+        function createItem(type, tierId) {
+            const tier = tiers.find(t => t.id === tierId);
+            const isWeapon = type === 'sword';
+            const properties = isWeapon ? weaponProperties : armorProperties;
+            
+            // Determine how many properties to generate
+            const numProps = Math.min(tier.maxProps, properties.length);
+            const selectedProps = [];
+            
+            // Select random unique properties
+            while (selectedProps.length < numProps) {
+                const prop = properties[randomIntBetween(0, properties.length - 1)];
+                if (!selectedProps.includes(prop)) {
+                    selectedProps.push(prop);
+                }
+            }
+            
+            // Generate item stats
+            const stats = selectedProps.map(prop => {
+                let value, displayValue;
+                
+                if (prop.reverse) {
+                    value = randomBetween(prop.max, prop.min);
+                    displayValue = value.toFixed(2);
+                } else {
+                    value = randomIntBetween(prop.min, prop.max * tier.multiplier);
+                    displayValue = value;
+                }
+                
+                let statText = `${prop.name}: ${displayValue}${prop.suffix}`;
+                
+                if (prop.secondValue) {
+                    const secondValue = randomIntBetween(
+                        prop.secondValue.min, 
+                        prop.secondValue.max * tier.multiplier
+                    );
+                    statText += `${secondValue}${prop.secondSuffix}`;
+                }
+                
+                return {
+                    name: prop.name,
+                    value: value,
+                    display: statText,
+                    originalProp: prop
+                };
+            });
+            
+            return {
+                type: type,
+                name: `${tier.name} ${itemTypes[type].name}`,
+                icon: itemTypes[type].icon,
+                tier: tier,
+                stats: stats
+            };
+        }
+
+        // Display item
+        function displayItem(item) {
+            if (!item) {
+                itemDisplay.innerHTML = `
+                    <div class="item-icon">🛡️</div>
+                    <div class="item-name">Нет предмета</div>
+                    <div class="item-tier">Тир: -</div>
+                    <div class="item-stats"></div>
+                `;
+                return;
+            }
+            
+            itemStats.innerHTML = '';
+            item.stats.forEach(stat => {
+                const statElement = document.createElement('div');
+                statElement.className = 'item-stat';
+                statElement.textContent = stat.display;
+                itemStats.appendChild(statElement);
+            });
+            
+            itemDisplay.innerHTML = `
+                <div class="item-icon">${item.icon}</div>
+                <div class="item-name">${item.name}</div>
+                <div class="item-tier tier-${item.tier.color}">Тир: ${item.tier.name}</div>
+            `;
+            itemDisplay.appendChild(itemStats);
+        }
+
+        // Populate recipes
+        function populateRecipes() {
+            recipeList.innerHTML = '';
+            const type = itemTypeSelect.value;
+            const typeRecipes = recipes[type];
+            
+            typeRecipes.forEach(recipe => {
+                const recipeElement = document.createElement('div');
+                recipeElement.className = 'recipe-item';
+                
+                const materialsText = recipe.materials.map(m => {
+                    const currency = currencies.find(c => c.id === m.id);
+                    return `${currency.icon} ${m.count}`;
+                }).join(' + ');
+                
+                recipeElement.innerHTML = `
+                    <div class="recipe-name">${recipe.name}</div>
+                    <div class="recipe-materials">${materialsText}</div>
+                `;
+                
+                recipeElement.addEventListener('click', () => {
+                    selectedRecipe = recipe;
+                    recipeList.querySelectorAll('.recipe-item').forEach(el => {
+                        el.style.borderColor = '';
+                    });
+                    recipeElement.style.borderColor = 'var(--poe-orange)';
+                    craftBtn.disabled = false;
+                });
+                
+                recipeList.appendChild(recipeElement);
+            });
+        }
+
+        // Populate currency grid
+        function populateCurrencyGrid() {
+            currencyGrid.innerHTML = '';
+            
+            currencies.forEach(currency => {
+                const currencyElement = document.createElement('div');
+                currencyElement.className = 'currency-item';
+                currencyElement.innerHTML = `
+                    <div class="currency-icon">${currency.icon}</div>
+                    <div class="currency-name">${currency.name}</div>
+                    <div class="currency-count">${playerCurrencies[currency.id]}</div>
+                `;
+                
+                currencyGrid.appendChild(currencyElement);
+            });
+        }
+
+        // Populate upgrade options
+        function populateUpgradeOptions() {
+            upgradeOptionsContainer.innerHTML = '';
+            
+            if (!currentItem) return;
+            
+            upgradeOptions.forEach(option => {
+                // Check if player has required currencies
+                const canAfford = option.currencies.every(c => playerCurrencies[c.id] >= c.count);
+                
+                const optionElement = document.createElement('div');
+                optionElement.className = 'upgrade-option';
+                optionElement.style.opacity = canAfford ? '1' : '0.5';
+                
+                const currenciesText = option.currencies.map(c => {
+                    const currency = currencies.find(curr => curr.id === c.id);
+                    return `${currency.icon} ${c.count}`;
+                }).join(' + ');
+                
+                optionElement.innerHTML = `
+                    <div>${option.name}</div>
+                    <div class="upgrade-desc">${option.desc} (${currenciesText})</div>
+                `;
+                
+                if (canAfford) {
+                    optionElement.addEventListener('click', () => {
+                        // Spend currencies
+                        option.currencies.forEach(c => {
+                            playerCurrencies[c.id] -= c.count;
+                        });
+                        
+                        // Perform upgrade
+                        option.action(currentItem);
+                        
+                        // Update displays
+                        displayItem(currentItem);
+                        populateCurrencyGrid();
+                        populateUpgradeOptions();
+                    });
+                }
+                
+                upgradeOptionsContainer.appendChild(optionElement);
+            });
+        }
+
+        // Populate currency legend
+        function populateCurrencyLegend() {
+            currencyLegend.innerHTML = '';
+            
+            const legendGrid = document.createElement('div');
+            legendGrid.style.display = 'grid';
+            legendGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            legendGrid.style.gap = '15px';
+            legendGrid.style.marginTop = '20px';
+            
+            currencies.forEach(currency => {
+                const legendItem = document.createElement('div');
+                legendItem.style.display = 'flex';
+                legendItem.style.alignItems = 'center';
+                legendItem.style.gap = '10px';
+                legendItem.style.marginBottom = '10px';
+                
+                legendItem.innerHTML = `
+                    <div style="font-size: 1.5rem;">${currency.icon}</div>
+                    <div>
+                        <div style="font-weight: bold;">${currency.name}</div>
+                        <div style="font-size: 0.9rem; color: #aaa;">${currency.effect}</div>
+                    </div>
+                `;
+                
+                legendGrid.appendChild(legendItem);
+            });
+            
+            currencyLegend.appendChild(legendGrid);
+        }
+
+        // Upgrade functions
+        function randomUpgrade(item, alwaysImprove) {
+            if (!item || !item.stats.length) return;
+            
+            const statIndex = randomIntBetween(0, item.stats.length - 1);
+            const stat = item.stats[statIndex];
+            const prop = stat.originalProp;
+            
+            let newValue;
+            if (alwaysImprove) {
+                if (prop.reverse) {
+                    newValue = Math.max(prop.max, stat.value * 0.9); // Lower is better
+                } else {
+                    newValue = Math.min(prop.max * item.tier.multiplier, stat.value * 1.1);
+                }
+            } else {
+                const improve = Math.random() > 0.3; // 70% chance to improve
+                if (prop.reverse) {
+                    newValue = improve ? stat.value * 0.9 : stat.value * 1.1;
+                    newValue = Math.max(prop.max, Math.min(prop.min, newValue));
+                } else {
+                    newValue = improve ? stat.value * 1.1 : stat.value * 0.9;
+                    newValue = Math.max(prop.min, Math.min(prop.max * item.tier.multiplier, newValue));
+                }
+            }
+            
+            // Update stat
+            if (Number.isInteger(stat.value)) {
+                newValue = Math.round(newValue);
+            } else {
+                newValue = parseFloat(newValue.toFixed(2));
+            }
+            
+            stat.value = newValue;
+            updateStatDisplay(stat, prop);
+        }
+
+        function selectedUpgrade(item, alwaysImprove) {
+            // In a real app, this would show a modal to select which stat to upgrade
+            // For this demo, we'll just pick a random one
+            randomUpgrade(item, alwaysImprove);
+        }
+
+        function upgradeTier(item, guaranteed) {
+            if (item.tier.id >= tiers.length) return; // Already max tier
+            
+            if (guaranteed || Math.random() > 0.5) { // 50% chance if not guaranteed
+                const newTier = tiers.find(t => t.id === item.tier.id + 1);
+                item.tier = newTier;
+                item.name = `${newTier.name} ${itemTypes[item.type].name}`;
+                
+                // Improve all stats by tier multiplier
+                item.stats.forEach(stat => {
+                    const prop = stat.originalProp;
+                    let newValue;
+                    
+                    if (prop.reverse) {
+                        newValue = stat.value * 0.9; // Lower is better
+                        newValue = Math.max(prop.max, newValue);
+                    } else {
+                        newValue = stat.value * 1.2;
+                        newValue = Math.min(prop.max * newTier.multiplier, newValue);
+                    }
+                    
+                    if (Number.isInteger(stat.value)) {
+                        newValue = Math.round(newValue);
+                    } else {
+                        newValue = parseFloat(newValue.toFixed(2));
+                    }
+                    
+                    stat.value = newValue;
+                    updateStatDisplay(stat, prop);
+                });
+            }
+        }
+
+        function rerollProperty(item, selectProperty) {
+            if (!item || !item.stats.length) return;
+            
+            // In a real app, for selectProperty=true we'd show a modal to select which property to reroll
+            const statIndex = selectProperty ? 0 : randomIntBetween(0, item.stats.length - 1);
+            const stat = item.stats[statIndex];
+            const prop = stat.originalProp;
+            
+            let newValue;
+            if (prop.reverse) {
+                newValue = randomBetween(prop.max, prop.min);
+            } else {
+                newValue = randomIntBetween(prop.min, prop.max * item.tier.multiplier);
+            }
+            
+            stat.value = newValue;
+            updateStatDisplay(stat, prop);
+        }
+
+        function perfectItem(item) {
+            // Set to legendary tier
+            const newTier = tiers[tiers.length - 1];
+            item.tier = newTier;
+            item.name = `${newTier.name} ${itemTypes[item.type].name}`;
+            
+            // Maximize all stats
+            item.stats.forEach(stat => {
+                const prop = stat.originalProp;
+                
+                if (prop.reverse) {
+                    stat.value = prop.max; // Lowest possible for reverse stats
+                } else {
+                    stat.value = prop.max * newTier.multiplier;
+                }
+                
+                if (!Number.isInteger(stat.value)) {
+                    stat.value = parseFloat(stat.value.toFixed(2));
+                }
+                
+                updateStatDisplay(stat, prop);
+            });
+            
+            // Add missing stats if possible
+            const isWeapon = item.type === 'sword';
+            const allProps = isWeapon ? weaponProperties : armorProperties;
+            const currentPropNames = item.stats.map(s => s.name);
+            const missingProps = allProps.filter(p => !currentPropNames.includes(p.name));
+            
+            while (item.stats.length < newTier.maxProps && missingProps.length > 0) {
+                const prop = missingProps.pop();
+                let value;
+                
+                if (prop.reverse) {
+                    value = randomBetween(prop.max, prop.min);
+                } else {
+                    value = randomIntBetween(prop.min, prop.max * newTier.multiplier);
+                }
+                
+                let statText = `${prop.name}: ${prop.reverse ? value.toFixed(2) : value}${prop.suffix}`;
+                
+                if (prop.secondValue) {
+                    const secondValue = randomIntBetween(
+                        prop.secondValue.min, 
+                        prop.secondValue.max * newTier.multiplier
+                    );
+                    statText += `${secondValue}${prop.secondSuffix}`;
+                }
+                
+                item.stats.push({
+                    name: prop.name,
+                    value: value,
+                    display: statText,
+                    originalProp: prop
+                });
+            }
+        }
+
+        function updateStatDisplay(stat, prop) {
+            let displayValue = prop.reverse ? stat.value.toFixed(2) : stat.value;
+            stat.display = `${prop.name}: ${displayValue}${prop.suffix}`;
+            
+            if (prop.secondValue) {
+                // Preserve second value if it exists
+                const parts = stat.display.split(prop.suffix);
+                stat.display = parts[0] + prop.suffix;
+                
+                if (parts[1]) {
+                    const secondParts = parts[1].split(prop.secondSuffix);
+                    if (secondParts.length > 1) {
+                        stat.display += secondParts[0] + prop.secondSuffix;
+                    }
+                }
+            }
+        }
+
+        // Event listeners
+        itemTypeSelect.addEventListener('change', () => {
+            populateRecipes();
+            selectedRecipe = null;
+            craftBtn.disabled = true;
+        });
+
+        craftBtn.addEventListener('click', () => {
+            if (!selectedRecipe) return;
+            
+            // Check if player has required currencies
+            const canAfford = selectedRecipe.materials.every(m => playerCurrencies[m.id] >= m.count);
+            if (!canAfford) return;
+            
+            // Spend currencies
+            selectedRecipe.materials.forEach(m => {
+                playerCurrencies[m.id] -= m.count;
+            });
+            
+            // Create item
+            currentItem = createItem(itemTypeSelect.value, selectedRecipe.tier);
+            displayItem(currentItem);
+            
+            // Update displays
+            populateCurrencyGrid();
+            populateUpgradeOptions();
+        });
+
+        // Initialize
+        populateRecipes();
+        populateCurrencyGrid();
+        populateCurrencyLegend();
+        displayItem(null);
+    </script>
+</body>
+</html>

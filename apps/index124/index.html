@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Церковный Tower Defense</title>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: linear-gradient(135deg, #1c1c2e 0%, #2a2a4a 100%);
+            color: #ecf0f1;
+            line-height: 1.6;
+            padding: 10px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-bottom: 2px solid #e67e22;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #e67e22;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .stat-name {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+        }
+        
+        #game-board {
+            position: relative;
+            width: 100%;
+            margin: 0 auto 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            background: #2c3e50;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .church-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        
+        .church-option {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .church-option.selected {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, 0.2);
+        }
+        
+        .church-emoji {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .church-cost {
+            font-size: 0.7rem;
+            color: #bdc3c7;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            background: linear-gradient(to right, #e67e22, #d35400);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.1s;
+            flex: 1;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+        
+        #start-screen, #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 10px;
+        }
+        
+        #game-over {
+            display: none;
+        }
+        
+        .screen-content {
+            text-align: center;
+            padding: 20px;
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        
+        .screen-title {
+            color: #e67e22;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .screen-text {
+            margin-bottom: 20px;
+        }
+        
+        .wave-info {
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        .upgrade-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .notification {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            z-index: 5;
+            transition: transform 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>Церковный Tower Defense</h1>
+            <p>Забери прихожан у ада!</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="faith-value">100</div>
+                <div class="stat-name">Вера</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="wave-value">0/5</div>
+                <div class="stat-name">Волна</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="saved-value">0</div>
+                <div class="stat-name">Спасено</div>
+            </div>
+        </div>
+        
+        <div id="game-board">
+            <canvas id="canvas" width="500" height="400"></canvas>
+            
+            <div id="start-screen">
+                <div class="screen-content">
+                    <div class="screen-title">Церковный Tower Defense</div>
+                    <p class="screen-text">Забери прихожан у ада! Ставь церкви, улучшай их и не дай прихожанам уйти в ад.</p>
+                    <button class="btn" id="start-btn">Начать игру</button>
+                </div>
+            </div>
+            
+            <div id="game-over">
+                <div class="screen-content">
+                    <div class="screen-title" id="game-result">Игра окончена</div>
+                    <p class="screen-text">Спасено прихожан: <span id="final-saved">0</span></p>
+                    <p class="screen-text">Заработано веры: <span id="final-faith">0</span></p>
+                    <button class="btn" id="restart-btn">Играть снова</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="church-selector">
+            <div class="church-option" data-type="basic" data-cost="50">
+                <div class="church-emoji">⛪</div>
+                <div class="church-cost">50 веры</div>
+            </div>
+            <div class="church-option" data-type="upgraded" data-cost="100">
+                <div class="church-emoji">🏰</div>
+                <div class="church-cost">100 веры</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="upgrade-btn">Улучшить (75)</button>
+            <button class="btn" id="start-wave-btn">Начать волну</button>
+        </div>
+        
+        <div class="upgrade-info">
+            <p>⚡ Улучшения увеличивают радиус и длительность свечения церквей</p>
+            <p>✨ С каждым улучшением церковь светит дольше и привлекает больше прихожан</p>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Конфигурация игры
+        const config = {
+            gridSize: 6,
+            cellSize: 70,
+            waveCount: 5,
+            waveDuration: 180, // 3 минуты в секундах
+            breakDuration: 5,  // 5 секунд между волнами
+            faithBonusPercent: 10
+        };
+
+        // Состояние игры
+        let gameState = {
+            faith: 100,
+            wave: 0,
+            savedSouls: 0,
+            gameStarted: false,
+            gameOver: false,
+            waveActive: false,
+            waveTimer: 0,
+            breakTimer: 0,
+            selectedChurch: null,
+            churches: [],
+            parishioners: [],
+            path: [],
+            start: { x: 0, y: 0 },
+            end: { x: 5, y: 5 }
+        };
+
+        // Инициализация канваса
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Установка размера канваса в зависимости от устройства
+        function setupCanvas() {
+            const board = document.getElementById('game-board');
+            const size = Math.min(board.offsetWidth, 500);
+            canvas.width = size;
+            canvas.height = Math.floor(size * 0.8);
+            config.cellSize = Math.floor(canvas.width / config.gridSize);
+        }
+
+        // Церковные классы
+        class Church {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.level = 1;
+                this.cooldown = 0;
+                this.active = false;
+                this.range = 1.5;
+                this.duration = 2;
+                this.cooldownTime = 5;
+                
+                if (type === 'upgraded') {
+                    this.range = 2;
+                    this.duration = 2.5;
+                    this.cooldownTime = 4.5;
+                }
+            }
+            
+            update(deltaTime) {
+                if (this.cooldown > 0) {
+                    this.cooldown -= deltaTime;
+                    this.active = false;
+                } else {
+                    this.active = true;
+                    this.cooldown = this.cooldownTime;
+                }
+            }
+            
+            draw(ctx) {
+                const x = this.x * config.cellSize + config.cellSize / 2;
+                const y = this.y * config.cellSize + config.cellSize / 2;
+                
+                // Рисуем церковь
+                ctx.font = `${config.cellSize * 0.5}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                if (this.type === 'basic') {
+                    ctx.fillText('⛪', x, y);
+                } else {
+                    ctx.fillText('🏰', x, y);
+                }
+                
+                // Рисуем уровень
+                ctx.font = '12px Arial';
+                ctx.fillStyle = '#fff';
+                ctx.fillText(`${this.level}`, x, y + config.cellSize * 0.3);
+                
+                // Рисуем активный свет
+                if (this.active) {
+                    ctx.globalAlpha = 0.2;
+                    ctx.beginPath();
+                    ctx.arc(x, y, this.range * config.cellSize, 0, Math.PI * 2);
+                    
+                    if (this.type === 'basic') {
+                        ctx.fillStyle = '#3498db';
+                    } else {
+                        ctx.fillStyle = '#e67e22';
+                    }
+                    
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    
+                    // Рисуем конус света в направлении конечной точки
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    
+                    // Определяем направление к конечной точке
+                    const angle = Math.atan2(gameState.end.y - this.y, gameState.end.x - this.x);
+                    const spread = Math.PI / (4 / this.level); // Чем выше уровень, тем шире конус
+                    
+                    ctx.arc(x, y, this.range * config.cellSize, angle - spread/2, angle + spread/2);
+                    ctx.closePath();
+                    
+                    if (this.type === 'basic') {
+                        ctx.fillStyle = '#3498db';
+                    } else {
+                        ctx.fillStyle = '#e67e22';
+                    }
+                    
+                    ctx.globalAlpha = 0.4;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+            
+            tryAttract(parishioner) {
+                if (!this.active) return false;
+                
+                const churchX = this.x * config.cellSize + config.cellSize / 2;
+                const churchY = this.y * config.cellSize + config.cellSize / 2;
+                
+                // Проверяем расстояние
+                const dx = parishioner.x - churchX;
+                const dy = parishioner.y - churchY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance <= this.range * config.cellSize) {
+                    // Проверяем направление (в пределах конуса)
+                    const toChurch = Math.atan2(dy, dx);
+                    const toEnd = Math.atan2(
+                        gameState.end.y * config.cellSize + config.cellSize / 2 - churchY,
+                        gameState.end.x * config.cellSize + config.cellSize / 2 - churchX
+                    );
+                    
+                    const angleDiff = Math.abs(toChurch - toEnd);
+                    if (angleDiff < Math.PI / (4 / this.level)) {
+                        // Увеличиваем шанс с уровнем церкви
+                        const chance = 0.3 + (this.level - 1) * 0.15;
+                        if (Math.random() < chance) {
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            }
+            
+            upgrade() {
+                this.level++;
+                this.range += 0.2;
+                this.duration += 0.5;
+                this.cooldownTime = Math.max(1, this.cooldownTime - 0.2);
+            }
+        }
+
+        // Класс прихожанина
+        class Parishioner {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = gameState.start.x * config.cellSize + config.cellSize / 2;
+                this.y = gameState.start.y * config.cellSize + config.cellSize / 2;
+                this.speed = 1 + Math.random() * 0.5;
+                this.saved = false;
+                this.targetIndex = 0;
+                
+                // Случайная начальная задержка
+                this.delay = Math.random() * 2;
+            }
+            
+            update(deltaTime) {
+                if (this.delay > 0) {
+                    this.delay -= deltaTime;
+                    return;
+                }
+                
+                if (this.saved) return;
+                
+                if (this.targetIndex < gameState.path.length) {
+                    const target = gameState.path[this.targetIndex];
+                    const targetX = target.x * config.cellSize + config.cellSize / 2;
+                    const targetY = target.y * config.cellSize + config.cellSize / 2;
+                    
+                    const dx = targetX - this.x;
+                    const dy = targetY - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 2) {
+                        this.targetIndex++;
+                    } else {
+                        this.x += (dx / distance) * this.speed * deltaTime * 20;
+                        this.y += (dy / distance) * this.speed * deltaTime * 20;
+                    }
+                } else {
+                    // Прихожанин дошел до конца (ада)
+                    this.saved = false;
+                    gameState.gameOver = true;
+                    showNotification("Прихожанин ушел в ад! Игра окончена.");
+                    showGameOver();
+                }
+            }
+            
+            draw(ctx) {
+                ctx.font = `${config.cellSize * 0.4}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('👤', this.x, this.y);
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            document.getElementById('faith-value').textContent = Math.floor(gameState.faith);
+            document.getElementById('wave-value').textContent = `${gameState.wave}/${config.waveCount}`;
+            document.getElementById('saved-value').textContent = gameState.savedSouls;
+            
+            // Обновляем кнопку улучшения
+            const upgradeBtn = document.getElementById('upgrade-btn');
+            const upgradeCost = 75;
+            upgradeBtn.textContent = `Улучшить (${upgradeCost})`;
+            upgradeBtn.disabled = gameState.faith < upgradeCost || !getSelectedChurch();
+            
+            // Обновляем кнопку начала волны
+            const waveBtn = document.getElementById('start-wave-btn');
+            if (gameState.waveActive) {
+                waveBtn.textContent = `Волна: ${Math.ceil(gameState.waveTimer)}`;
+                waveBtn.disabled = true;
+            } else if (gameState.breakTimer > 0) {
+                waveBtn.textContent = `Перерыв: ${Math.ceil(gameState.breakTimer)}`;
+                waveBtn.disabled = true;
+            } else {
+                waveBtn.textContent = 'Начать волну';
+                waveBtn.disabled = gameState.wave >= config.waveCount;
+            }
+        }
+
+        // Получить выбранную церковь
+        function getSelectedChurch() {
+            const selected = document.querySelector('.church-option.selected');
+            if (!selected) return null;
+            
+            return {
+                type: selected.dataset.type,
+                cost: parseInt(selected.dataset.cost)
+            };
+        }
+
+        // Поиск пути (упрощенный A*)
+        function findPath() {
+            // Простой путь по умолчанию (по диагонали)
+            const path = [];
+            for (let i = 0; i <= config.gridSize; i++) {
+                const x = Math.min(i, config.gridSize - 1);
+                const y = Math.min(i, config.gridSize - 1);
+                path.push({ x, y });
+            }
+            return path;
+        }
+
+        // Проверка, можно ли построить церковь в указанной ячейке
+        function canBuildChurch(x, y) {
+            // Проверяем, не занята ли ячейка
+            for (const church of gameState.churches) {
+                if (church.x === x && church.y === y) {
+                    return false;
+                }
+            }
+            
+            // Проверяем, не блокирует ли путь полностью
+            const tempChurches = [...gameState.churches, { x, y }];
+            
+            // Упрощенная проверка пути
+            // В реальной игре здесь должен быть полноценный алгоритм поиска пути
+            for (let i = 0; i < config.gridSize; i++) {
+                for (let j = 0; j < config.gridSize; j++) {
+                    let occupied = false;
+                    for (const church of tempChurches) {
+                        if (church.x === i && church.y === j) {
+                            occupied = true;
+                            break;
+                        }
+                    }
+                    
+                    // Если есть свободная ячейка рядом с финишем, путь есть
+                    if (!occupied && (
+                        (i === gameState.end.x && Math.abs(j - gameState.end.y) === 1) ||
+                        (j === gameState.end.y && Math.abs(i - gameState.end.x) === 1)
+                    )) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        // Начало волны
+        function startWave() {
+            if (gameState.wave >= config.waveCount || gameState.waveActive || gameState.breakTimer > 0) {
+                return;
+            }
+            
+            gameState.wave++;
+            gameState.waveActive = true;
+            gameState.waveTimer = config.waveDuration;
+            
+            // Создаем прихожан для этой волны
+            const parishionerCount = 5 + gameState.wave * 3;
+            for (let i = 0; i < parishionerCount; i++) {
+                const parishioner = new Parishioner();
+                parishioner.delay = i * (config.waveDuration / parishionerCount) * 0.8;
+                gameState.parishioners.push(parishioner);
+            }
+            
+            showNotification(`Началась волна ${gameState.wave}!`);
+        }
+
+        // Завершение волны
+        function endWave() {
+            gameState.waveActive = false;
+            gameState.breakTimer = config.breakDuration;
+            
+            // Начисляем бонус веры
+            const waveBonus = Math.floor(gameState.savedSouls * (config.faithBonusPercent / 100));
+            gameState.faith += waveBonus;
+            
+            showNotification(`Волна завершена! Бонус: +${waveBonus} веры`);
+            
+            // Проверяем завершение игры
+            if (gameState.wave >= config.waveCount) {
+                showNotification("Поздравляем! Вы завершили все волны!");
+                showGameOver();
+            }
+        }
+
+        // Показать экран завершения игры
+        function showGameOver() {
+            document.getElementById('final-saved').textContent = gameState.savedSouls;
+            document.getElementById('final-faith').textContent = gameState.faith;
+            
+            if (gameState.gameOver) {
+                document.getElementById('game-result').textContent = "Игра окончена";
+            } else {
+                document.getElementById('game-result').textContent = "Победа!";
+            }
+            
+            document.getElementById('game-over').style.display = 'flex';
+        }
+
+        // Основной игровой цикл
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            const deltaTime = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+            
+            // Очищаем канвас
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Рисуем сетку
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= config.gridSize; i++) {
+                // Вертикальные линии
+                ctx.beginPath();
+                ctx.moveTo(i * config.cellSize, 0);
+                ctx.lineTo(i * config.cellSize, canvas.height);
+                ctx.stroke();
+                
+                // Горизонтальные линии
+                ctx.beginPath();
+                ctx.moveTo(0, i * config.cellSize);
+                ctx.lineTo(canvas.width, i * config.cellSize);
+                ctx.stroke();
+            }
+            
+            // Рисуем стартовую точку
+            ctx.fillStyle = 'rgba(46, 204, 113, 0.5)';
+            ctx.fillRect(
+                gameState.start.x * config.cellSize,
+                gameState.start.y * config.cellSize,
+                config.cellSize,
+                config.cellSize
+            );
+            
+            // Рисуем конечную точку (ад)
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.5)';
+            ctx.fillRect(
+                gameState.end.x * config.cellSize,
+                gameState.end.y * config.cellSize,
+                config.cellSize,
+                config.cellSize
+            );
+            
+            ctx.font = `${config.cellSize * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#fff';
+            ctx.fillText('😈', 
+                gameState.end.x * config.cellSize + config.cellSize / 2,
+                gameState.end.y * config.cellSize + config.cellSize / 2
+            );
+            
+            // Обновляем и рисуем церкви
+            for (const church of gameState.churches) {
+                church.update(deltaTime);
+                church.draw(ctx);
+            }
+            
+            // Обновляем и рисуем прихожан
+            for (let i = gameState.parishioners.length - 1; i >= 0; i--) {
+                const parishioner = gameState.parishioners[i];
+                parishioner.update(deltaTime);
+                
+                // Проверяем, привлекла ли церковь прихожанина
+                for (const church of gameState.churches) {
+                    if (church.tryAttract(parishioner)) {
+                        parishioner.saved = true;
+                        gameState.savedSouls++;
+                        gameState.faith += 5 * church.level;
+                        gameState.parishioners.splice(i, 1);
+                        break;
+                    }
+                }
+                
+                if (!parishioner.saved) {
+                    parishioner.draw(ctx);
+                }
+            }
+            
+            // Обновляем таймеры волн
+            if (gameState.waveActive) {
+                gameState.waveTimer -= deltaTime;
+                if (gameState.waveTimer <= 0) {
+                    endWave();
+                }
+            } else if (gameState.breakTimer > 0) {
+                gameState.breakTimer -= deltaTime;
+            }
+            
+            // Обновляем интерфейс
+            updateUI();
+            
+            // Продолжаем игровой цикл
+            if (!gameState.gameOver) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Инициализация игры
+        function initGame() {
+            setupCanvas();
+            gameState.path = findPath();
+            
+            // Назначаем обработчики событий
+            document.getElementById('start-btn').addEventListener('click', () => {
+                document.getElementById('start-screen').style.display = 'none';
+                gameState.gameStarted = true;
+                requestAnimationFrame(gameLoop);
+            });
+            
+            document.getElementById('restart-btn').addEventListener('click', () => {
+                document.getElementById('game-over').style.display = 'none';
+                resetGame();
+            });
+            
+            document.getElementById('upgrade-btn').addEventListener('click', () => {
+                const selected = getSelectedChurch();
+                if (!selected) {
+                    showNotification("Сначала выберите церковь для улучшения");
+                    return;
+                }
+                
+                const upgradeCost = 75;
+                if (gameState.faith >= upgradeCost) {
+                    gameState.faith -= upgradeCost;
+                    selected.level++;
+                    showNotification(`Церковь улучшена до уровня ${selected.level}`);
+                } else {
+                    showNotification("Недостаточно веры для улучшения");
+                }
+            });
+            
+            document.getElementById('start-wave-btn').addEventListener('click', startWave);
+            
+            // Обработчики для выбора церкви
+            document.querySelectorAll('.church-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.church-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    const type = option.dataset.type;
+                    const cost = parseInt(option.dataset.cost);
+                    
+                    if (gameState.faith < cost) {
+                        showNotification(`Недостаточно веры. Нужно: ${cost}`);
+                        option.classList.remove('selected');
+                    }
+                });
+            });
+            
+            // Обработчик клика по канвасу для установки церкви
+            canvas.addEventListener('click', (e) => {
+                if (!gameState.gameStarted || gameState.waveActive) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left) / config.cellSize);
+                const y = Math.floor((e.clientY - rect.top) / config.cellSize);
+                
+                // Проверяем, что клик внутри поля и не на старте/финише
+                if (x >= 0 && x < config.gridSize && y >= 0 && y < config.gridSize &&
+                    !(x === gameState.start.x && y === gameState.start.y) &&
+                    !(x === gameState.end.x && y === gameState.end.y)) {
+                    
+                    const selected = getSelectedChurch();
+                    if (selected) {
+                        if (gameState.faith >= selected.cost) {
+                            if (canBuildChurch(x, y)) {
+                                gameState.faith -= selected.cost;
+                                gameState.churches.push(new Church(x, y, selected.type));
+                                showNotification("Церковь построена!");
+                            } else {
+                                showNotification("Здесь нельзя построить церковь!");
+                            }
+                        } else {
+                            showNotification("Недостаточно веры для постройки");
+                        }
+                    } else {
+                        showNotification("Сначала выберите тип церкви");
+                    }
+                }
+            });
+            
+            // Адаптация к изменению размера окна
+            window.addEventListener('resize', setupCanvas);
+        }
+
+        // Сброс игры
+        function resetGame() {
+            gameState = {
+                faith: 100,
+                wave: 0,
+                savedSouls: 0,
+                gameStarted: true,
+                gameOver: false,
+                waveActive: false,
+                waveTimer: 0,
+                breakTimer: 0,
+                selectedChurch: null,
+                churches: [],
+                parishioners: [],
+                path: [],
+                start: { x: 0, y: 0 },
+                end: { x: 5, y: 5 }
+            };
+            
+            document.querySelectorAll('.church-option').forEach(o => o.classList.remove('selected'));
+            gameState.path = findPath();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Запуск игры при загрузке
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

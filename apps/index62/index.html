@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Викторина (4 игрока)</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background: #f0f0f0; }
+    #lobby, #game { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px; margin: 5px; }
+    #playersList { margin: 20px 0; }
+    .player { padding: 10px; background: #e9e9e9; margin: 5px; border-radius: 5px; }
+    #question { font-size: 20px; margin: 20px 0; }
+    .answer { padding: 10px; margin: 5px; background: #2196F3; color: white; cursor: pointer; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <div id="lobby">
+    <h1>🎮 P2P Викторина (до 4 игроков)</h1>
+    <button id="createBtn">Создать игру</button>
+    <div id="activeGames"></div>
+  </div>
+
+  <div id="game" style="display: none;">
+    <h2>Викторина</h2>
+    <div id="playersList"></div>
+    <div id="question"></div>
+    <div id="answers"></div>
+    <div id="score"></div>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    // Настройка
+    const peer = new Peer();
+    const players = {};
+    let isHost = false;
+    let gameConnections = [];
+    let currentQuestion = 0;
+    const questions = [
+      { question: "Столица Франции?", answers: ["Париж", "Лондон", "Берлин", "Мадрид"], correct: 0 },
+      { question: "2 + 2?", answers: ["3", "4", "5", "6"], correct: 1 }
+    ];
+
+    // Элементы DOM
+    const lobby = document.getElementById("lobby");
+    const gameDiv = document.getElementById("game");
+    const playersList = document.getElementById("playersList");
+    const activeGames = document.getElementById("activeGames");
+    const questionDiv = document.getElementById("question");
+    const answersDiv = document.getElementById("answers");
+    const scoreDiv = document.getElementById("score");
+
+    // Создание игры (Хост)
+    document.getElementById("createBtn").addEventListener("click", () => {
+      isHost = true;
+      lobby.style.display = "none";
+      gameDiv.style.display = "block";
+      players[peer.id] = { id: peer.id, name: "Игрок 1", score: 0 };
+      updatePlayersList();
+
+      // Ожидание подключений
+      peer.on("connection", (conn) => {
+        if (Object.keys(players).length >= 4) {
+          conn.send({ type: "error", message: "Лобби заполнено" });
+          return;
+        }
+
+        gameConnections.push(conn);
+        conn.on("data", (data) => handlePlayerData(conn, data));
+        conn.on("open", () => {
+          const playerId = conn.peer;
+          players[playerId] = { id: playerId, name: `Игрок ${Object.keys(players).length + 1}`, score: 0 };
+          broadcast({ type: "players", players });
+          if (isHost && Object.keys(players).length === 2) startGame(); // Старт при 2+ игроках
+        });
+      });
+    });
+
+    // Обработка данных игроков
+    function handlePlayerData(conn, data) {
+      if (data.type === "answer" && isHost) {
+        const isCorrect = (data.answer === questions[currentQuestion].correct);
+        if (isCorrect) players[conn.peer].score += 10;
+        broadcast({ type: "score", players });
+      }
+    }
+
+    // Рассылка сообщений всем игрокам
+    function broadcast(message) {
+      gameConnections.forEach(conn => conn.send(message));
+    }
+
+    // Обновление списка игроков
+    function updatePlayersList() {
+      playersList.innerHTML = Object.values(players).map(player => 
+        `<div class="player">${player.name} (${player.score} pts)</div>`
+      ).join("");
+    }
+
+    // Начало игры
+    function startGame() {
+      loadQuestion(0);
+    }
+
+    // Загрузка вопроса
+    function loadQuestion(index) {
+      currentQuestion = index;
+      const q = questions[index];
+      questionDiv.textContent = q.question;
+      answersDiv.innerHTML = q.answers.map((answer, i) => 
+        `<div class="answer" data-index="${i}">${answer}</div>`
+      ).join("");
+
+      document.querySelectorAll(".answer").forEach(el => {
+        el.addEventListener("click", () => {
+          if (!isHost) {
+            gameConnections[0].send({ type: "answer", answer: parseInt(el.dataset.index) });
+          }
+        });
+      });
+    }
+
+    // Автоподключение к лобби (для демо)
+    peer.on("open", (id) => {
+      // Хост публикует игру в "лобби" (для демо — просто кнопка)
+      if (isHost) {
+        activeGames.innerHTML = `<div class="game">
+          <p>Игра от ${id}</p>
+          <button onclick="connectToGame('${id}')">Присоединиться</button>
+        </div>`;
+      }
+    });
+
+    // Подключение к игре (глобальная функция для кнопки)
+    window.connectToGame = (hostId) => {
+      const conn = peer.connect(hostId);
+      lobby.style.display = "none";
+      gameDiv.style.display = "block";
+
+      conn.on("data", (data) => {
+        if (data.type === "players") {
+          Object.assign(players, data.players);
+          updatePlayersList();
+        } else if (data.type === "question") {
+          loadQuestion(data.index);
+        } else if (data.type === "score") {
+          Object.assign(players, data.players);
+          updatePlayersList();
+        }
+      });
+
+      gameConnections.push(conn);
+    };
+  </script>
+</body>
+</html>

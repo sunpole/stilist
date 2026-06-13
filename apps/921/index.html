@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор параметров рулона фольги</title>
+    <style>
+        /* Сброс стилей и базовые настройки */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #1a2a6c, #fdbb2d);
+            border-radius: 2px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+        
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: white;
+        }
+        
+        .input-with-unit:focus-within {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        input {
+            flex: 1;
+            border: none;
+            padding: 14px 15px;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+        }
+        
+        .unit {
+            padding: 0 15px;
+            background: #f8f9fa;
+            color: #7f8c8d;
+            font-weight: 600;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            border-left: 2px solid #ddd;
+        }
+        
+        .unknown-selector {
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .unknown-label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .toggle-container {
+            display: flex;
+            background: #f1f2f6;
+            border-radius: 12px;
+            padding: 5px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+        
+        .toggle-option.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.4);
+        }
+        
+        .formula-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-label {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .result-unit {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .hint {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Адаптивность для очень маленьких экранов */
+        @media (max-width: 350px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            input {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор параметров рулона фольги</h1>
+        
+        <div class="input-group">
+            <label for="diameterOuter">Внешний диаметр рулона (D)</label>
+            <div class="input-with-unit">
+                <input type="number" id="diameterOuter" min="0" step="0.1" value="65">
+                <div class="unit">мм</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="diameterInner">Диаметр втулки (d)</label>
+            <div class="input-with-unit">
+                <input type="number" id="diameterInner" min="0" step="0.1" value="35">
+                <div class="unit">мм</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="length">Длина фольги (L)</label>
+            <div class="input-with-unit">
+                <input type="number" id="length" min="0" step="1" value="200">
+                <div class="unit">м</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="thickness">Толщина фольги (h)</label>
+            <div class="input-with-unit">
+                <input type="number" id="thickness" min="0" step="0.1" value="11.8">
+                <div class="unit">мкм</div>
+            </div>
+        </div>
+        
+        <div class="unknown-selector">
+            <div class="unknown-label">Вычислить:</div>
+            <div class="toggle-container">
+                <div class="toggle-option" data-param="thickness">Толщину</div>
+                <div class="toggle-option active" data-param="length">Длину</div>
+                <div class="toggle-option" data-param="diameterOuter">Диаметр</div>
+            </div>
+        </div>
+        
+        <div class="formula-display">
+            Формула: π × (D² - d²) / 4 = h × L<br>
+            Где: D - внешний диаметр, d - диаметр втулки,<br>
+            h - толщина фольги, L - длина фольги
+        </div>
+        
+        <div class="result">
+            <div class="result-label">Результат:</div>
+            <div class="result-value" id="resultValue">120.0</div>
+            <div class="result-unit" id="resultUnit">метров</div>
+        </div>
+        
+        <div class="hint">
+            Измените любые три параметра, чтобы вычислить четвертый
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы ввода
+            const diameterOuterInput = document.getElementById('diameterOuter');
+            const diameterInnerInput = document.getElementById('diameterInner');
+            const lengthInput = document.getElementById('length');
+            const thicknessInput = document.getElementById('thickness');
+            
+            // Элементы переключателя
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            
+            // Элементы результата
+            const resultValue = document.getElementById('resultValue');
+            const resultUnit = document.getElementById('resultUnit');
+            
+            // Текущий неизвестный параметр
+            let unknownParam = 'length';
+            
+            // Функция для расчета всех значений
+            function calculate() {
+                const D = parseFloat(diameterOuterInput.value);
+                const d = parseFloat(diameterInnerInput.value);
+                const L = parseFloat(lengthInput.value);
+                const h = parseFloat(thicknessInput.value);
+                
+                // Проверка на корректность введенных данных
+                if (isNaN(D) || isNaN(d) || isNaN(L) || isNaN(h) || D <= 0 || d <= 0) {
+                    resultValue.textContent = 'Ошибка';
+                    resultUnit.textContent = 'Проверьте ввод';
+                    return;
+                }
+                
+                // Основная формула: π*(D² - d²)/4 = h * L
+                const leftPart = Math.PI * (D*D - d*d) / 4;
+                
+                let result, unit;
+                
+                switch(unknownParam) {
+                    case 'thickness':
+                        // h = π*(D² - d²)/(4 * L)
+                        result = leftPart / L;
+                        unit = 'мкм';
+                        break;
+                    case 'length':
+                        // L = π*(D² - d²)/(4 * h)
+                        result = leftPart / h;
+                        unit = 'метров';
+                        break;
+                    case 'diameterOuter':
+                        // D = √( (4 * h * L)/π + d² )
+                        result = Math.sqrt((4 * h * L) / Math.PI + d*d);
+                        unit = 'мм';
+                        break;
+                }
+                
+                // Форматирование результата
+                if (isNaN(result) || !isFinite(result)) {
+                    resultValue.textContent = 'Ошибка';
+                    resultUnit.textContent = 'Некорректные данные';
+                } else {
+                    resultValue.textContent = result.toFixed(2);
+                    resultUnit.textContent = unit;
+                }
+            }
+            
+            // Обработчики событий для полей ввода
+            diameterOuterInput.addEventListener('input', calculate);
+            diameterInnerInput.addEventListener('input', calculate);
+            lengthInput.addEventListener('input', calculate);
+            thicknessInput.addEventListener('input', calculate);
+            
+            // Обработчики для переключателя
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Убираем активный класс у всех опций
+                    toggleOptions.forEach(opt => opt.classList.remove('active'));
+                    // Добавляем активный класс к выбранной опции
+                    this.classList.add('active');
+                    // Устанавливаем неизвестный параметр
+                    unknownParam = this.getAttribute('data-param');
+                    
+                    // Делаем соответствующий input доступным только для чтения
+                    diameterOuterInput.readOnly = (unknownParam === 'diameterOuter');
+                    diameterInnerInput.readOnly = false; // Внутренний диаметр всегда известен
+                    lengthInput.readOnly = (unknownParam === 'length');
+                    thicknessInput.readOnly = (unknownParam === 'thickness');
+                    
+                    // Пересчитываем
+                    calculate();
+                });
+            });
+            
+            // Инициализация
+            toggleOptions[1].click(); // Активируем расчет длины по умолчанию
+        });
+    </script>
+</body>
+</html>

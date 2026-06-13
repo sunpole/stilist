@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор цен для Wildberries (с НДС)</title>
+    <style>
+        /* Стили остаются без изменений, как в прошлом калькуляторе */
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { max-width: 800px; margin: 20px auto; padding: 20px; background-color: #f5f5f5; }
+        .calculator { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1, h3 { color: #333; text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .result { background-color: #e8f5e9; padding: 20px; border-radius: 5px; margin-top: 30px; border-left: 5px solid #4CAF50; }
+        .result-item { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px dashed #ccc; }
+        .highlight { background-color: #fff3e0; padding: 15px; border-radius: 5px; font-weight: bold; font-size: 18px; margin-top: 15px; border: 2px solid #FF9800; }
+        button { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #45a049; }
+        .formula { background-color: #f1f8ff; padding: 15px; border-radius: 5px; font-family: monospace; margin: 20px 0; font-size: 14px; border-left: 4px solid #2196F3; }
+    </style>
+</head>
+<body>
+<div class="calculator">
+    <h1>Калькулятор цен для Wildberries (с НДС)</h1>
+
+    <div class="input-group">
+        <label for="cost">Себестоимость товара (BYN)</label>
+        <input type="number" id="cost" value="10" step="0.01">
+    </div>
+
+    <div class="input-group">
+        <label for="profit">Желаемая чистая прибыль (BYN)</label>
+        <input type="number" id="profit" value="10" step="0.01">
+    </div>
+
+    <div class="input-group">
+        <label for="seller_discount">Ваша скидка на WB (%)</label>
+        <input type="number" id="seller_discount" value="0" step="0.1" placeholder="Например, 15">
+        <small>Скидка, которую вы устанавливаете сами[citation:4]</small>
+    </div>
+
+    <div class="input-group">
+        <label for="logistics">Логистика и доставка (% от себестоимости)</label>
+        <input type="number" id="logistics" value="10" step="0.1">
+    </div>
+
+    <h3>Налоги на Wildberries</h3>
+    <div class="input-group">
+        <label for="wb_commission">Комиссия Wildberries (%)</label>
+        <input type="number" id="wb_commission" value="14" step="0.1">
+    </div>
+
+    <div class="input-group">
+        <label for="wb_sp_discount">Макс. скидка от WB - СПП (%)</label>
+        <input type="number" id="wb_sp_discount" value="40" step="0.1">
+        <small>Скидка, которую площадка может добавить сама[citation:8]</small>
+    </div>
+
+    <h3>Налог НДС</h3>
+    <div class="input-group">
+        <label for="nds_rate">Ставка НДС (%)</label>
+        <select id="nds_rate">
+            <option value="0">0% (не плательщик НДС)</option>
+            <option value="5">5% (пониженная ставка на УСН)[citation:7]</option>
+            <option value="7">7% (пониженная ставка на УСН)[citation:7]</option>
+            <option value="10">10% (стандартная, на детские товары и пр.)[citation:1]</option>
+            <option value="20" selected>20% (стандартная ставка)[citation:1]</option>
+        </select>
+        <small><strong>Важно:</strong> НДС рассчитывается с цены, по которой товар продается покупателю[citation:3].</small>
+    </div>
+
+    <div class="input-group">
+        <label for="usn_rate">Ставка УСН (основной налог, %)</label>
+        <input type="number" id="usn_rate" value="6" step="0.1">
+        <small>Обычно 6% ("Доходы") или 15% ("Доходы минус расходы")[citation:9].</small>
+    </div>
+
+    <button onclick="calculate()">Рассчитать итоговую цену</button>
+
+    <div class="result" id="result" style="display: none;">
+        <h3>Результаты расчета</h3>
+        <div class="result-item"><span>Себестоимость:</span><span id="res-cost">0 BYN</span></div>
+        <div class="result-item"><span>Ваша желаемая прибыль (после всех налогов):</span><span id="res-profit">0 BYN</span></div>
+        <div class="result-item"><span><strong>Рассчитанная цена для вас:</strong></span><span id="res-price-for-you"><strong>0 BYN</strong></span></div>
+        <div class="result-item"><span>Ваша скидка на WB:</span><span id="res-seller-discount">0 BYN (0%)</span></div>
+        <div class="highlight">
+            <div class="result-item"><span><strong>ЦЕНА НА ВИТРИНЕ WB (до СПП):</strong></span><span id="res-wb-price"><strong>0 BYN</strong></span></div>
+            <small>Цена, которую вы устанавливаете в кабинете WB как "Цена продавца до скидки"[citation:4].</small>
+        </div>
+        <div class="result-item"><span>Макс. скидка WB (СПП):</span><span id="res-wb-sp-discount">0 BYN (0%)</span></div>
+        <div class="result-item"><span>Минимальная цена для покупателя (со скидкой СПП):</span><span id="res-final-customer-price">0 BYN</span></div>
+
+        <h4>Расшифровка затрат</h4>
+        <div class="result-item"><span>Логистика:</span><span id="res-logistics">0 BYN</span></div>
+        <div class="result-item"><span>НДС к уплате (с продажи):</span><span id="res-nds">0 BYN</span></div>
+        <div class="result-item"><span>Налог УСН:</span><span id="res-usn">0 BYN</span></div>
+        <div class="result-item"><span>Комиссия WB (14%):</span><span id="res-wb-commission">0 BYN</span></div>
+        <div class="result-item"><span><strong>Итого расходов и налогов:</strong></span><span id="res-total-costs"><strong>0 BYN</strong></span></div>
+    </div>
+</div>
+
+<script>
+function calculate() {
+    // Получение значений
+    const cost = parseFloat(document.getElementById('cost').value);
+    const desiredProfit = parseFloat(document.getElementById('profit').value);
+    const sellerDiscountPercent = parseFloat(document.getElementById('seller_discount').value) || 0;
+    const logisticsPercent = parseFloat(document.getElementById('logistics').value);
+    const wbCommissionPercent = parseFloat(document.getElementById('wb_commission').value);
+    const wbSpDiscountPercent = parseFloat(document.getElementById('wb_sp_discount').value);
+    const ndsRate = parseFloat(document.getElementById('nds_rate').value);
+    const usnRate = parseFloat(document.getElementById('usn_rate').value);
+
+    // 1. Рассчет базовой суммы (себестоимость + прибыль + логистика + налоги с прибыли)
+    const logisticsCost = cost * (logisticsPercent / 100);
+    const profitBeforeTax = desiredProfit / (1 - usnRate/100); // УСН с прибыли
+    const usnTax = profitBeforeTax * (usnRate / 100);
+
+    // Базовая выручка до учета НДС и комиссии WB
+    let revenueBeforeNDSandWB = cost + logisticsCost + profitBeforeTax;
+
+    // 2. Учет НДС (НДС начисляется на финальную цену для покупателя, поэтому считаем "внутрь")
+    // Формула: Цена с НДС = Цена без НДС / (1 - НДС%)
+    // Нам известна желаемая выручка (цена без НДС для нас), находим цену с НДС для покупателя
+    const priceWithNDSforCustomer = revenueBeforeNDSandWB / (1 - ndsRate/100);
+    const ndsTax = priceWithNDSforCustomer * (ndsRate / 100);
+
+    // 3. Учет комиссии WB (комиссия берется от цены на витрине)
+    // ЦенаНаВитрине = (ВыручкаНам + КомиссияWB)
+    // КомиссияWB = ЦенаНаВитрине * (%Комиссии/100)
+    // Выводим формулу: ЦенаНаВитрине = ВыручкаНам / (1 - %Комиссии/100)
+    const priceOnWB = priceWithNDSforCustomer / (1 - wbCommissionPercent/100);
+    const wbCommission = priceOnWB * (wbCommissionPercent / 100);
+
+    // 4. Учет вашей скидки (скидка указывается от "Цены продавца до скидки")
+    const sellerDiscount = priceOnWB * (sellerDiscountPercent / 100);
+    const priceAfterSellerDiscount = priceOnWB - sellerDiscount;
+
+    // 5. Учет скидки WB (СПП) - применяется площадкой к вашей цене со скидкой
+    const wbSpDiscount = priceAfterSellerDiscount * (wbSpDiscountPercent / 100);
+    const finalCustomerPrice = priceAfterSellerDiscount - wbSpDiscount;
+
+    // 6. Итоговые проверки и вывод
+    const totalCosts = logisticsCost + ndsTax + usnTax + wbCommission;
+    const actualProfit = priceWithNDSforCustomer - cost - logisticsCost - usnTax - wbCommission;
+    // Проверка, совпадает ли расчетная прибыль с желаемой (округление)
+    if (Math.abs(actualProfit - desiredProfit) > 0.1) {
+        console.warn("Расхождение в расчете прибыли:", desiredProfit, actualProfit);
+    }
+
+    // Заполнение результатов
+    document.getElementById('res-cost').textContent = cost.toFixed(2) + ' BYN';
+    document.getElementById('res-profit').textContent = desiredProfit.toFixed(2) + ' BYN';
+    document.getElementById('res-price-for-you').textContent = revenueBeforeNDSandWB.toFixed(2) + ' BYN';
+    document.getElementById('res-seller-discount').textContent = sellerDiscount.toFixed(2) + ' BYN (' + sellerDiscountPercent + '%)';
+    document.getElementById('res-wb-price').textContent = priceOnWB.toFixed(2) + ' BYN';
+    document.getElementById('res-wb-sp-discount').textContent = wbSpDiscount.toFixed(2) + ' BYN (' + wbSpDiscountPercent + '%)';
+    document.getElementById('res-final-customer-price').textContent = finalCustomerPrice.toFixed(2) + ' BYN';
+    document.getElementById('res-logistics').textContent = logisticsCost.toFixed(2) + ' BYN';
+    document.getElementById('res-nds').textContent = ndsTax.toFixed(2) + ' BYN';
+    document.getElementById('res-usn').textContent = usnTax.toFixed(2) + ' BYN';
+    document.getElementById('res-wb-commission').textContent = wbCommission.toFixed(2) + ' BYN';
+    document.getElementById('res-total-costs').textContent = totalCosts.toFixed(2) + ' BYN';
+
+    document.getElementById('result').style.display = 'block';
+}
+// Запуск расчета при загрузке
+window.onload = calculate;
+</script>
+</body>
+</html>

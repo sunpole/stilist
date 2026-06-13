@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JSON Admin Panel</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .container {
+            max-width: 100%;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        .btn-menu {
+            margin-bottom: 10px;
+            width: 100%;
+            height: 60px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-menu .bi {
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
+        .file-input {
+            display: none;
+        }
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.9rem;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">JSON Admin</h1>
+        
+        <!-- Основные кнопки управления -->
+        <div class="row g-2 mb-4">
+            <div class="col-12">
+                <button id="importBtn" class="btn btn-primary btn-menu">
+                    <i class="bi bi-upload"></i> Импорт файла
+                </button>
+                <input type="file" id="fileInput" class="file-input" accept=".json">
+            </div>
+            <div class="col-12">
+                <button id="openBtn" class="btn btn-success btn-menu">
+                    <i class="bi bi-folder2-open"></i> Открыть из проекта
+                </button>
+            </div>
+            <div class="col-12">
+                <button id="addByUrlBtn" class="btn btn-info btn-menu">
+                    <i class="bi bi-link-45deg"></i> Добавить по ссылке
+                </button>
+            </div>
+            <div class="col-12">
+                <button id="createBtn" class="btn btn-warning btn-menu">
+                    <i class="bi bi-file-earmark-plus"></i> Создать JSON
+                </button>
+            </div>
+        </div>
+        
+        <!-- Область для работы с JSON -->
+        <div id="jsonEditor" class="d-none">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 id="currentFileName">Новый файл</h5>
+                    <div>
+                        <button id="saveBtn" class="btn btn-sm btn-success me-2">
+                            <i class="bi bi-save"></i> Сохранить
+                        </button>
+                        <button id="exportBtn" class="btn btn-sm btn-secondary">
+                            <i class="bi bi-download"></i> Экспорт
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="jsonContent" style="height: 300px; overflow: auto;">
+                        <!-- Сюда будет загружаться содержимое JSON -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Статус бар -->
+    <div class="status-bar">
+        <div id="statusMessage">Готов к работе</div>
+    </div>
+    
+    <!-- Контейнер для уведомлений -->
+    <div class="toast-container"></div>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Наш основной скрипт -->
+    <script src="adminjson.js"></script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Торговая Империя</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #0f0f23;
+            color: #e0e0ff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+        }
+        #game {
+            padding: 10px;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 8px;
+        }
+        .header {
+            background: #1a1a3a;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .currency {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .currency span {
+            background: #2a2a4a;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            overflow: hidden;
+        }
+        .panel {
+            background: #1a1a3a;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 30vh;
+        }
+        .buildings-panel {
+            grid-column: span 2;
+        }
+        button {
+            background: #3a5a8a;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 3px 0;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #4a6a9a;
+        }
+        button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #2a2a4a;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .event {
+            padding: 5px;
+            margin: 3px 0;
+            border-radius: 4px;
+        }
+        .positive {
+            background: rgba(0, 100, 0, 0.3);
+            border-left: 3px solid #0f0;
+        }
+        .negative {
+            background: rgba(100, 0, 0, 0.3);
+            border-left: 3px solid #f00;
+        }
+        .neutral {
+            background: rgba(100, 100, 0, 0.3);
+            border-left: 3px solid #ff0;
+        }
+        h3 {
+            margin-bottom: 8px;
+            color: #a0a0ff;
+        }
+        .resource-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .progress-bar {
+            height: 5px;
+            background: #333;
+            margin-top: 3px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4af;
+            width: 0%;
+        }
+        @media (max-width: 600px) {
+            .panels {
+                grid-template-columns: 1fr;
+            }
+            .buildings-panel {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div class="header">
+            <div class="currency">
+                <span id="gold">💰 Золото: 100</span>
+                <span id="silver">🔶 Серебро: 0</span>
+                <span id="gems">💎 Кристаллы: 0</span>
+                <span id="credits">🏦 Кредиты: 0</span>
+            </div>
+            <span id="day">📅 День 1</span>
+        </div>
+        
+        <div class="panels">
+            <div class="panel">
+                <h3>📦 Ресурсы</h3>
+                <div id="resourcesList"></div>
+            </div>
+            
+            <div class="panel">
+                <h3>🏪 Рынок</h3>
+                <div id="marketList"></div>
+            </div>
+        </div>
+        
+        <div class="panel buildings-panel">
+            <h3>🏗️ Производство</h3>
+            <div id="buildingsList"></div>
+            <h3>⚙️ Улучшения</h3>
+            <div id="upgradesList"></div>
+        </div>
+        
+        <div class="panel">
+            <h3>📜 События</h3>
+            <div id="eventsLog"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ИГРОВЫЕ ДАННЫЕ ==========
+        const game = {
+            day: 1,
+            gold: 100,
+            silver: 0,
+            gems: 0,
+            credits: 0,
+            reputation: 50,
+            
+            resources: {
+                grain: 0,
+                ore: 0,
+                wood: 0,
+                tools: 0,
+                luxury: 0
+            },
+            
+            storage: {
+                grain: 100,
+                ore: 100,
+                wood: 100,
+                tools: 50,
+                luxury: 20
+            },
+            
+            buildings: {
+                farm: { count: 0, cost: 100, production: 1 },
+                mine: { count: 0, cost: 200, production: 1 },
+                sawmill: { count: 0, cost: 150, production: 1 },
+                workshop: { count: 0, cost: 500, production: 1 },
+                factory: { count: 0, cost: 1000, production: 1 }
+            },
+            
+            upgrades: {
+                farm: { level: 0, cost: 200, effect: 0.5 },
+                mine: { level: 0, cost: 300, effect: 0.5 },
+                sawmill: { level: 0, cost: 250, effect: 0.5 },
+                workshop: { level: 0, cost: 400, effect: 0.3 },
+                factory: { level: 0, cost: 800, effect: 0.3 }
+            },
+            
+            market: {
+                grain: { price: 5, volatility: 2 },
+                ore: { price: 10, volatility: 3 },
+                wood: { price: 8, volatility: 2 },
+                tools: { price: 30, volatility: 5 },
+                luxury: { price: 100, volatility: 10 }
+            },
+            
+            competitors: [
+                { name: "Торговый дом Варлоков", strength: 1 },
+                { name: "Гильдия Стали", strength: 1 },
+                { name: "Синдикат Теней", strength: 1 }
+            ],
+            
+            events: [
+                { 
+                    text: "⛈️ Наводнение уничтожило часть урожая!", 
+                    effect: () => { game.resources.grain = Math.max(0, game.resources.grain - 5); },
+                    type: "negative",
+                    chance: 0.1
+                },
+                { 
+                    text: "🤑 Найдены древние сокровища! +50💰", 
+                    effect: () => { game.gold += 50; },
+                    type: "positive",
+                    chance: 0.05
+                },
+                { 
+                    text: "👨‍🌾 Миграция рабочих! Все производства +1 уровень на день.", 
+                    effect: () => { 
+                        Object.keys(game.buildings).forEach(b => {
+                            game.buildings[b].production += 1;
+                        });
+                        setTimeout(() => {
+                            Object.keys(game.buildings).forEach(b => {
+                                game.buildings[b].production -= 1;
+                            });
+                        }, 10000);
+                    },
+                    type: "positive",
+                    chance: 0.07
+                },
+                { 
+                    text: "💸 Кризис! Цены упали на 30%", 
+                    effect: () => { 
+                        Object.keys(game.market).forEach(item => {
+                            game.market[item].price = Math.max(1, Math.floor(game.market[item].price * 0.7));
+                        });
+                    },
+                    type: "negative",
+                    chance: 0.08
+                },
+                { 
+                    text: "🏆 Выиграли торговый конкурс! +20 репутации", 
+                    effect: () => { game.reputation += 20; },
+                    type: "positive",
+                    chance: 0.06
+                }
+            ],
+            
+            recipes: {
+                tools: { ore: 2, wood: 1 },
+                luxury: { tools: 1, ore: 3, wood: 2 }
+            }
+        };
+
+        // ========== DOM ЭЛЕМЕНТЫ ==========
+        const elements = {
+            gold: document.getElementById('gold'),
+            silver: document.getElementById('silver'),
+            gems: document.getElementById('gems'),
+            credits: document.getElementById('credits'),
+            day: document.getElementById('day'),
+            resourcesList: document.getElementById('resourcesList'),
+            marketList: document.getElementById('marketList'),
+            buildingsList: document.getElementById('buildingsList'),
+            upgradesList: document.getElementById('upgradesList'),
+            eventsLog: document.getElementById('eventsLog')
+        };
+
+        // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
+        function updateUI() {
+            // Обновляем валюты
+            elements.gold.textContent = `💰 Золото: ${game.gold}`;
+            elements.silver.textContent = `🔶 Серебро: ${game.silver}`;
+            elements.gems.textContent = `💎 Кристаллы: ${game.gems}`;
+            elements.credits.textContent = `🏦 Кредиты: ${game.credits}`;
+            elements.day.textContent = `📅 День ${game.day}`;
+            
+            // Обновляем ресурсы
+            elements.resourcesList.innerHTML = Object.entries(game.resources)
+                .map(([res, amount]) => `
+                    <div class="resource-item">
+                        <span>${res}: ${amount}/${game.storage[res]}</span>
+                        <span>${getResourceValue(res)}💰</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(amount / game.storage[res]) * 100}%"></div>
+                    </div>
+                `)
+                .join('');
+            
+            // Обновляем рынок
+            elements.marketList.innerHTML = Object.entries(game.market)
+                .map(([item, data]) => `
+                    <div class="resource-item">
+                        <span>${item}: ${data.price}💰</span>
+                        <div>
+                            <button onclick="buyResource('${item}')">Купить</button>
+                            <button onclick="sellResource('${item}')">Продать</button>
+                        </div>
+                    </div>
+                `)
+                .join('');
+            
+            // Обновляем здания
+            elements.buildingsList.innerHTML = Object.entries(game.buildings)
+                .map(([name, data]) => `
+                    <button onclick="buyBuilding('${name}')" 
+                            ${game.gold < data.cost ? 'disabled' : ''}
+                            class="tooltip">
+                        ${getBuildingName(name)} (${data.count}) - ${data.cost}💰
+                        <span class="tooltiptext">Производит ${getProductionRate(name)} ${getResourceName(name)}/день</span>
+                    </button>
+                `)
+                .join('');
+            
+            // Обновляем улучшения
+            elements.upgradesList.innerHTML = Object.entries(game.upgrades)
+                .map(([name, data]) => `
+                    <button onclick="buyUpgrade('${name}')" 
+                            ${game.gold < data.cost ? 'disabled' : ''}
+                            class="tooltip">
+                        Улучшить ${getBuildingName(name)} (Ур.${data.level + 1}) - ${data.cost}💰
+                        <span class="tooltiptext">+${data.effect * 100}% к эффективности</span>
+                    </button>
+                `)
+                .join('');
+        }
+
+        function getBuildingName(type) {
+            const names = {
+                farm: "Ферма",
+                mine: "Шахта",
+                sawmill: "Лесопилка",
+                workshop: "Мастерская",
+                factory: "Фабрика"
+            };
+            return names[type] || type;
+        }
+
+        function getResourceName(buildingType) {
+            const mapping = {
+                farm: "grain",
+                mine: "ore",
+                sawmill: "wood",
+                workshop: "tools",
+                factory: "luxury"
+            };
+            return mapping[buildingType] || '';
+        }
+
+        function getProductionRate(buildingType) {
+            const base = game.buildings[buildingType].production;
+            const multiplier = 1 + (game.upgrades[buildingType].level * game.upgrades[buildingType].effect);
+            return (base * multiplier).toFixed(1);
+        }
+
+        function getResourceValue(resource) {
+            return game.market[resource]?.price || 0;
+        }
+
+        // ========== ИГРОВЫЕ ДЕЙСТВИЯ ==========
+        function buyBuilding(type) {
+            const building = game.buildings[type];
+            if (game.gold >= building.cost) {
+                game.gold -= building.cost;
+                building.count++;
+                building.cost = Math.floor(building.cost * 1.15);
+                updateUI();
+            }
+        }
+
+        function buyUpgrade(type) {
+            const upgrade = game.upgrades[type];
+            if (game.gold >= upgrade.cost) {
+                game.gold -= upgrade.cost;
+                upgrade.level++;
+                upgrade.cost = Math.floor(upgrade.cost * 1.5);
+                updateUI();
+            }
+        }
+
+        function buyResource(type) {
+            const price = game.market[type].price;
+            if (game.gold >= price && game.resources[type] < game.storage[type]) {
+                game.gold -= price;
+                game.resources[type]++;
+                updateUI();
+            }
+        }
+
+        function sellResource(type) {
+            if (game.resources[type] > 0) {
+                game.gold += game.market[type].price;
+                game.resources[type]--;
+                updateUI();
+            }
+        }
+
+        // ========== ПРОИЗВОДСТВО И РЫНОК ==========
+        function produceResources() {
+            Object.entries(game.buildings).forEach(([type, data]) => {
+                const resource = getResourceName(type);
+                if (!resource) return;
+                
+                const production = data.count * data.production * (1 + game.upgrades[type].level * game.upgrades[type].effect);
+                
+                // Для сложных товаров проверяем рецепты
+                if (type === 'workshop' || type === 'factory') {
+                    const recipe = game.recipes[resource];
+                    let canProduce = true;
+                    
+                    Object.entries(recipe).forEach(([ingredient, amount]) => {
+                        if (game.resources[ingredient] < amount * production) {
+                            canProduce = false;
+                        }
+                    });
+                    
+                    if (canProduce) {
+                        Object.entries(recipe).forEach(([ingredient, amount]) => {
+                            game.resources[ingredient] -= amount * production;
+                        });
+                        game.resources[resource] += production;
+                    }
+                } else {
+                    game.resources[resource] += production;
+                }
+                
+                // Не превышаем склад
+                game.resources[resource] = Math.min(game.resources[resource], game.storage[resource]);
+            });
+        }
+
+        function updateMarket() {
+            Object.entries(game.market).forEach(([item, data]) => {
+                // Изменение цены на основе волатильности
+                const change = (Math.random() * 2 - 1) * data.volatility;
+                data.price = Math.max(1, Math.floor(data.price + change));
+                
+                // Влияние конкурентов
+                game.competitors.forEach(comp => {
+                    if (Math.random() < 0.1) {
+                        data.price += (Math.random() > 0.5 ? 1 : -1) * comp.strength;
+                    }
+                });
+            });
+        }
+
+        // ========== СОБЫТИЯ И КОНКУРЕНТЫ ==========
+        function triggerRandomEvent() {
+            game.events.forEach(event => {
+                if (Math.random() < event.chance) {
+                    event.effect();
+                    logEvent(event.text, event.type);
+                }
+            });
+        }
+
+        function updateCompetitors() {
+            if (game.day % 5 === 0) {
+                game.competitors.forEach(comp => {
+                    comp.strength += 0.1;
+                });
+            }
+        }
+
+        function logEvent(text, type) {
+            const eventElement = document.createElement('div');
+            eventElement.className = `event ${type}`;
+            eventElement.textContent = text;
+            elements.eventsLog.prepend(eventElement);
+            
+            // Ограничиваем количество событий
+            if (elements.eventsLog.children.length > 5) {
+                elements.eventsLog.removeChild(elements.eventsLog.lastChild);
+            }
+        }
+
+        // ========== ИГРОВОЙ ЦИКЛ ==========
+        function gameLoop() {
+            game.day++;
+            
+            // Производство ресурсов
+            produceResources();
+            
+            // Обновление рынка
+            updateMarket();
+            
+            // Случайные события
+            triggerRandomEvent();
+            
+            // Развитие конкурентов
+            updateCompetitors();
+            
+            // Кредиты и проценты
+            if (game.day % 10 === 0) {
+                game.credits += 10;
+                if (game.credits > 0) {
+                    game.gold += game.credits * 2;
+                }
+            }
+            
+            // Проверка условий
+            checkGameState();
+            
+            // Обновление интерфейса
+            updateUI();
+        }
+
+        function checkGameState() {
+            // Поражение
+            if (game.gold < -100) {
+                alert(`💀 Банкротство! Ваша империя пала на ${game.day} день.`);
+                resetGame();
+            }
+            
+            // Победа
+            if (game.gold >= 10000) {
+                alert(`🏆 Победа! Вы создали великую торговую империю за ${game.day} дней!`);
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            // Сброс всех значений
+            game.day = 1;
+            game.gold = 100;
+            game.silver = 0;
+            game.gems = 0;
+            game.credits = 0;
+            game.reputation = 50;
+            
+            // Сброс ресурсов
+            Object.keys(game.resources).forEach(k => game.resources[k] = 0);
+            
+            // Сброс зданий
+            Object.entries(game.buildings).forEach(([k, v]) => {
+                v.count = 0;
+                v.cost = v.cost / Math.pow(1.15, v.count);
+            });
+            
+            // Сброс улучшений
+            Object.entries(game.upgrades).forEach(([k, v]) => {
+                v.level = 0;
+                v.cost = v.cost / Math.pow(1.5, v.level);
+            });
+            
+            // Сброс рынка
+            const defaultPrices = {
+                grain: 5,
+                ore: 10,
+                wood: 8,
+                tools: 30,
+                luxury: 100
+            };
+            Object.entries(defaultPrices).forEach(([k, v]) => {
+                game.market[k].price = v;
+            });
+            
+            // Сброс конкурентов
+            game.competitors.forEach(comp => comp.strength = 1);
+            
+            // Очистка лога событий
+            elements.eventsLog.innerHTML = '';
+            
+            updateUI();
+        }
+
+        // ========== ЗАПУСК ИГРЫ ==========
+        updateUI();
+        setInterval(gameLoop, 10000); // 10 секунд = 1 день
+    </script>
+</body>
+</html>
