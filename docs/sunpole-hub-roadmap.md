@@ -393,3 +393,17 @@ Overlay v3
 - более выразительный визуальный статус.
 
 После этого Overlay можно будет безопасно подключить сначала к одному реальному проекту, а затем постепенно расширять внедрение.
+# v0.7.1-final-entry
+
+SUNPOLE HUB is now packaged as the working catalog entry for the repository.
+The public root page `index.html` points users into the HUB flow, while
+`hub-current.html` remains the stable current HUB entry.
+
+Current operating mode:
+
+- working catalog first;
+- no physical file cleanup yet;
+- no automatic screenshots yet;
+- no project folder moves yet;
+- old links stay intact;
+- deeper cleanup is deferred until canonical projects and redirects are reviewed.
