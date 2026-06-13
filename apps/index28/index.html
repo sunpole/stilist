@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Музыкальная Война</title>
+    <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231a1a2e"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%2326264d" stroke-width="0.5"/></svg>');
+            background-size: 40px 40px;
+        }
+
+        #world-map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .location {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 10;
+            text-shadow: 0 0 5px rgba(0,0,0,0.7);
+        }
+
+        .location:hover {
+            transform: scale(1.1);
+        }
+
+        #village {
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4ecca3;
+            color: #1a1a2e;
+        }
+
+        #forest {
+            top: 30%;
+            left: 20%;
+            background-color: #2e8b57;
+            color: #e6e6e6;
+        }
+
+        #mountains {
+            top: 15%;
+            right: 15%;
+            background-color: #8b4513;
+            color: #e6e6e6;
+        }
+
+        #lake {
+            bottom: 25%;
+            right: 20%;
+            background-color: #4682b4;
+            color: #e6e6e6;
+        }
+
+        #cave {
+            bottom: 10%;
+            left: 20%;
+            background-color: #4b0082;
+            color: #e6e6e6;
+        }
+
+        .note-enemy {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 5;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.7));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .note-lvl1 { background-color: #ff6b6b; }
+        .note-lvl2 { background-color: #ffa502; }
+        .note-lvl3 { background-color: #ffd166; }
+        .note-lvl4 { background-color: #06d6a0; }
+        .note-lvl5 { background-color: #118ab2; }
+
+        #ui-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-color: rgba(26, 26, 46, 0.9);
+            border-top: 2px solid #4ecca3;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px;
+            z-index: 100;
+        }
+
+        .currency {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .currency-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 5px;
+            background-color: #4ecca3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        #player-stats {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(26, 26, 46, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #4ecca3;
+            z-index: 100;
+        }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1a1a2e;
+            border: 2px solid #4ecca3;
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            display: none;
+        }
+
+        .modal h2 {
+            color: #4ecca3;
+            margin-bottom: 15px;
+        }
+
+        .modal button {
+            background-color: #4ecca3;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .modal button:hover {
+            background-color: #3dbb90;
+        }
+
+        .note-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .note-option {
+            background-color: #4ecca3;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 60px;
+            font-weight: bold;
+        }
+
+        .note-option:hover {
+            background-color: #3dbb90;
+        }
+
+        #note-guess-modal {
+            display: none;
+        }
+
+        #shop-modal {
+            display: none;
+        }
+
+        #musician-modal {
+            display: none;
+        }
+
+        #chord-modal {
+            display: none;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #2d2d4d;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #4ecca3;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #1a1a2e;
+        }
+
+        @media (max-width: 600px) {
+            .location {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .note-enemy {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+
+            #ui-panel {
+                height: 80px;
+                font-size: 12px;
+            }
+
+            .currency-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="world-map">
+            <!-- Деревня -->
+            <div id="village" class="location">🏘️</div>
+            
+            <!-- Локации с нотами-врагами -->
+            <div id="forest" class="location">🌲</div>
+            <div id="mountains" class="location">⛰️</div>
+            <div id="lake" class="location">🌊</div>
+            <div id="cave" class="location">🕳️</div>
+            
+            <!-- Ноты-враги будут генерироваться скриптом -->
+        </div>
+        
+        <!-- Статистика игрока -->
+        <div id="player-stats">
+            <div class="currency">
+                <div class="currency-icon">♪</div>
+                <span id="sound-coins">0</span>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">♫</div>
+                <span id="echo-coins">0</span>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">♬</div>
+                <span id="note-coins">0</span>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">🎵</div>
+                <span id="step-coins">0</span>
+            </div>
+        </div>
+        
+        <!-- UI панель -->
+        <div id="ui-panel">
+            <button id="btn-shop">Магазин нот</button>
+            <button id="btn-musician">Мертвый музыкант</button>
+            <button id="btn-chord">Аккорд судьбы</button>
+        </div>
+        
+        <!-- Модальное окно для угадывания ноты -->
+        <div id="note-guess-modal" class="modal">
+            <h2 id="note-guess-title">Угадайте ноту</h2>
+            <p>Уровень ноты: <span id="note-level">1</span></p>
+            <button id="btn-play-note">Прослушать</button>
+            <div class="note-options" id="note-options"></div>
+            <p id="note-guess-feedback"></p>
+            <button id="btn-close-guess">Закрыть</button>
+        </div>
+        
+        <!-- Модальное окно магазина -->
+        <div id="shop-modal" class="modal">
+            <h2>Магазин нот</h2>
+            <p>Продавец: "Обменяйте отголоски на ноты!"</p>
+            <div class="currency">
+                <div class="currency-icon">♫</div>
+                <span id="shop-echo-coins">0</span>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">♬</div>
+                <span id="shop-note-coins">0</span>
+            </div>
+            <button id="btn-buy-note">Купить 1 ноту (5 отголосков)</button>
+            <button id="btn-close-shop">Закрыть</button>
+        </div>
+        
+        <!-- Модальное окно мертвого музыканта -->
+        <div id="musician-modal" class="modal">
+            <h2>Мертвый музыкант</h2>
+            <p>"Сыграем в игру на ступени?"</p>
+            <div class="currency">
+                <div class="currency-icon">♬</div>
+                <span id="musician-note-coins">0</span>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">🎵</div>
+                <span id="musician-step-coins">0</span>
+            </div>
+            <button id="btn-play-simple">1 нота = 1 ступень</button>
+            <button id="btn-play-interval">2 ноты = 1 ступень (риск)</button>
+            <button id="btn-play-chord">3 ноты = 1 ступень (большой риск)</button>
+            <div id="musician-game-area" style="margin-top: 15px; display: none;">
+                <button id="btn-play-musician">Прослушать</button>
+                <div id="musician-options" style="margin-top: 10px;"></div>
+                <p id="musician-feedback" style="margin-top: 10px;"></p>
+            </div>
+            <button id="btn-close-musician">Закрыть</button>
+        </div>
+        
+        <!-- Модальное окно аккорда судьбы -->
+        <div id="chord-modal" class="modal">
+            <h2>Аккорд судьбы</h2>
+            <p>"Освободите меня, собрав 300 нот!"</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="chord-progress">0/300</div>
+            </div>
+            <button id="btn-close-chord">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        const gameState = {
+            soundCoins: 0,
+            echoCoins: 0,
+            noteCoins: 0,
+            stepCoins: 0,
+            currentNote: null,
+            currentNoteLevel: 1,
+            attempts: 0,
+            musicianGame: null,
+            notes: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            intervals: {
+                minorSecond: 1,
+                majorSecond: 2,
+                minorThird: 3,
+                majorThird: 4,
+                perfectFourth: 5,
+                augmentedFourth: 6,
+                perfectFifth: 7,
+                minorSixth: 8,
+                majorSixth: 9,
+                minorSeventh: 10,
+                majorSeventh: 11,
+                octave: 12
+            },
+            notePositions: {
+                forest: [
+                    { x: 20, y: 30 },
+                    { x: 35, y: 45 },
+                    { x: 10, y: 60 },
+                    { x: 40, y: 25 }
+                ],
+                mountains: [
+                    { x: 70, y: 15 },
+                    { x: 80, y: 30 },
+                    { x: 65, y: 40 }
+                ],
+                lake: [
+                    { x: 75, y: 70 },
+                    { x: 65, y: 80 },
+                    { x: 85, y: 75 }
+                ],
+                cave: [
+                    { x: 25, y: 85 },
+                    { x: 15, y: 90 },
+                    { x: 35, y: 88 }
+                ]
+            }
+        };
+
+        // Инициализация игры
+        function initGame() {
+            // Загружаем сохранения
+            loadGame();
+            
+            // Инициализируем аудио
+            initAudio();
+            
+            // Создаем ноты-враги
+            createNoteEnemies();
+            
+            // Обновляем UI
+            updateUI();
+            
+            // Назначаем обработчики событий
+            setupEventListeners();
+        }
+
+        // Инициализация аудио с использованием SoundFont
+        function initAudio() {
+            // В реальном приложении здесь была бы загрузка SoundFont
+            // Для демонстрации используем простые осцилляторы
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                gameState.audioContext = new AudioContext();
+            } catch(e) {
+                alert('Ваш браузер не поддерживает Web Audio API');
+            }
+        }
+
+        // Создание нот-врагов
+        function createNoteEnemies() {
+            const locations = ['forest', 'mountains', 'lake', 'cave'];
+            
+            locations.forEach(location => {
+                gameState.notePositions[location].forEach((pos, index) => {
+                    const level = Math.min(5, Math.max(1, Math.floor(Math.random() * 5) + 1);
+                    createNoteElement(location, pos.x, pos.y, level, index);
+                });
+            });
+        }
+
+        // Создание элемента ноты-врага
+        function createNoteElement(location, x, y, level, index) {
+            const noteElement = document.createElement('div');
+            noteElement.className = `note-enemy note-lvl${level}`;
+            noteElement.textContent = '♪';
+            noteElement.style.left = `${x}%`;
+            noteElement.style.top = `${y}%`;
+            noteElement.dataset.level = level;
+            noteElement.dataset.location = location;
+            noteElement.dataset.index = index;
+            
+            noteElement.addEventListener('click', () => attackNote(noteElement));
+            
+            document.getElementById('world-map').appendChild(noteElement);
+        }
+
+        // Атака на ноту
+        function attackNote(noteElement) {
+            const level = parseInt(noteElement.dataset.level);
+            gameState.currentNoteLevel = level;
+            
+            // Генерируем случайную ноту
+            gameState.currentNote = gameState.notes[Math.floor(Math.random() * gameState.notes.length)];
+            gameState.attempts = 0;
+            
+            // Показываем модальное окно угадывания
+            document.getElementById('note-level').textContent = level;
+            document.getElementById('note-guess-feedback').textContent = '';
+            
+            // Генерируем варианты ответа
+            generateNoteOptions(level);
+            
+            // Показываем модальное окно
+            document.getElementById('note-guess-modal').style.display = 'block';
+        }
+
+        // Генерация вариантов ответа для ноты
+        function generateNoteOptions(level) {
+            const optionsContainer = document.getElementById('note-options');
+            optionsContainer.innerHTML = '';
+            
+            // Количество вариантов зависит от уровня ноты
+            const optionsCount = level + 1;
+            const options = [];
+            
+            // Добавляем правильный ответ
+            options.push(gameState.currentNote);
+            
+            // Добавляем случайные неправильные ответы
+            while (options.length < optionsCount) {
+                const randomNote = gameState.notes[Math.floor(Math.random() * gameState.notes.length)];
+                if (!options.includes(randomNote)) {
+                    options.push(randomNote);
+                }
+            }
+            
+            // Перемешиваем варианты
+            shuffleArray(options);
+            
+            // Создаем кнопки вариантов
+            options.forEach(note => {
+                const button = document.createElement('button');
+                button.className = 'note-option';
+                button.textContent = note;
+                button.addEventListener('click', () => checkNoteGuess(note));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Проверка угадывания ноты
+        function checkNoteGuess(guess) {
+            gameState.attempts++;
+            
+            if (guess === gameState.currentNote) {
+                // Правильный ответ
+                if (gameState.attempts === 1) {
+                    // С первой попытки - получаем звуковые монеты
+                    const reward = gameState.currentNoteLevel;
+                    gameState.soundCoins += reward;
+                    document.getElementById('note-guess-feedback').textContent = `Правильно! Получено ${reward} звуковых монет.`;
+                    document.getElementById('note-guess-feedback').style.color = '#4ecca3';
+                } else {
+                    // Со второй попытки - получаем отголоски
+                    const reward = gameState.currentNoteLevel;
+                    gameState.echoCoins += reward;
+                    document.getElementById('note-guess-feedback').textContent = `Правильно! Получено ${reward} отголосков.`;
+                    document.getElementById('note-guess-feedback').style.color = '#4ecca3';
+                }
+                
+                // Обновляем UI
+                updateUI();
+                
+                // Закрываем окно через 1.5 секунды
+                setTimeout(() => {
+                    document.getElementById('note-guess-modal').style.display = 'none';
+                }, 1500);
+            } else {
+                // Неправильный ответ
+                document.getElementById('note-guess-feedback').textContent = 'Неправильно! Попробуйте еще раз.';
+                document.getElementById('note-guess-feedback').style.color = '#ff6b6b';
+            }
+        }
+
+        // Проигрывание ноты
+        function playNote(note, duration = 0.5) {
+            if (!gameState.audioContext) return;
+            
+            const freq = getNoteFrequency(note);
+            const oscillator = gameState.audioContext.createOscillator();
+            const gainNode = gameState.audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = freq;
+            
+            gainNode.gain.setValueAtTime(0, gameState.audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(1, gameState.audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, gameState.audioContext.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(gameState.audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(gameState.audioContext.currentTime + duration);
+        }
+
+        // Получение частоты ноты
+        function getNoteFrequency(note, octave = 4) {
+            const A4 = 440;
+            const notesInOctave = 12;
+            const noteIndex = gameState.notes.indexOf(note);
+            const A4Index = gameState.notes.indexOf('A') + 4 * notesInOctave;
+            const targetIndex = noteIndex + octave * notesInOctave;
+            
+            return A4 * Math.pow(2, (targetIndex - A4Index) / notesInOctave);
+        }
+
+        // Магазин нот
+        function openShop() {
+            document.getElementById('shop-echo-coins').textContent = gameState.echoCoins;
+            document.getElementById('shop-note-coins').textContent = gameState.noteCoins;
+            document.getElementById('shop-modal').style.display = 'block';
+        }
+
+        // Покупка ноты
+        function buyNote() {
+            if (gameState.echoCoins >= 5) {
+                gameState.echoCoins -= 5;
+                gameState.noteCoins += 1;
+                updateUI();
+                document.getElementById('shop-echo-coins').textContent = gameState.echoCoins;
+                document.getElementById('shop-note-coins').textContent = gameState.noteCoins;
+            } else {
+                alert('Недостаточно отголосков!');
+            }
+        }
+
+        // Мертвый музыкант
+        function openMusician() {
+            document.getElementById('musician-note-coins').textContent = gameState.noteCoins;
+            document.getElementById('musician-step-coins').textContent = gameState.stepCoins;
+            document.getElementById('musician-game-area').style.display = 'none';
+            document.getElementById('musician-modal').style.display = 'block';
+        }
+
+        // Игра с музыкантом (простая)
+        function playSimpleGame() {
+            if (gameState.noteCoins < 1) {
+                alert('Недостаточно нот!');
+                return;
+            }
+            
+            gameState.musicianGame = {
+                type: 'simple',
+                notes: [gameState.notes[Math.floor(Math.random() * gameState.notes.length)]],
+                attempts: 0
+            };
+            
+            setupMusicianGame();
+        }
+
+        // Игра с музыкантом (интервалы)
+        function playIntervalGame() {
+            if (gameState.noteCoins < 2) {
+                alert('Недостаточно нот!');
+                return;
+            }
+            
+            const rootIndex = Math.floor(Math.random() * gameState.notes.length);
+            const intervalType = Math.random() > 0.5 ? 'minorSecond' : 'majorSecond';
+            const interval = gameState.intervals[intervalType];
+            const secondNoteIndex = (rootIndex + interval) % gameState.notes.length;
+            
+            gameState.musicianGame = {
+                type: 'interval',
+                notes: [gameState.notes[rootIndex], gameState.notes[secondNoteIndex]],
+                correctAnswer: intervalType,
+                attempts: 0
+            };
+            
+            setupMusicianGame();
+        }
+
+        // Игра с музыкантом (аккорды)
+        function playChordGame() {
+            if (gameState.noteCoins < 3) {
+                alert('Недостаточно нот!');
+                return;
+            }
+            
+            const rootIndex = Math.floor(Math.random() * gameState.notes.length);
+            const intervalType = Math.random() > 0.5 ? 'minorThird' : 'majorThird';
+            const interval = gameState.intervals[intervalType];
+            const secondNoteIndex = (rootIndex + interval) % gameState.notes.length;
+            const thirdNoteIndex = (secondNoteIndex + interval) % gameState.notes.length;
+            
+            gameState.musicianGame = {
+                type: 'chord',
+                notes: [gameState.notes[rootIndex], gameState.notes[secondNoteIndex], gameState.notes[thirdNoteIndex]],
+                correctAnswer: intervalType,
+                attempts: 0
+            };
+            
+            setupMusicianGame();
+        }
+
+        // Настройка игры с музыкантом
+        function setupMusicianGame() {
+            const gameArea = document.getElementById('musician-game-area');
+            const optionsContainer = document.getElementById('musician-options');
+            optionsContainer.innerHTML = '';
+            
+            // Показываем игровую область
+            gameArea.style.display = 'block';
+            
+            // Настраиваем варианты ответа в зависимости от типа игры
+            if (gameState.musicianGame.type === 'simple') {
+                const options = ['одинаковые', 'разные'];
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'note-option';
+                    button.textContent = option;
+                    button.addEventListener('click', () => checkMusicianGuess(option));
+                    optionsContainer.appendChild(button);
+                });
+            } else if (gameState.musicianGame.type === 'interval') {
+                const options = ['малая секунда', 'большая секунда'];
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'note-option';
+                    button.textContent = option;
+                    button.addEventListener('click', () => checkMusicianGuess(option));
+                    optionsContainer.appendChild(button);
+                });
+            } else if (gameState.musicianGame.type === 'chord') {
+                const options = ['малая терция', 'большая терция'];
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'note-option';
+                    button.textContent = option;
+                    button.addEventListener('click', () => checkMusicianGuess(option));
+                    optionsContainer.appendChild(button);
+                });
+            }
+            
+            document.getElementById('musician-feedback').textContent = '';
+        }
+
+        // Проверка ответа в игре с музыкантом
+        function checkMusicianGuess(guess) {
+            gameState.musicianGame.attempts++;
+            
+            let isCorrect = false;
+            let reward = 0;
+            
+            if (gameState.musicianGame.type === 'simple') {
+                // Простая игра - всегда выигрываем
+                isCorrect = true;
+                reward = 1;
+                gameState.noteCoins -= 1;
+            } else if (gameState.musicianGame.type === 'interval') {
+                // Игра с интервалами
+                isCorrect = guess === gameState.musicianGame.correctAnswer.replace('Second', 'секунда').replace('Minor', 'малая').replace('Major', 'большая');
+                reward = isCorrect ? 1 : -2;
+                gameState.noteCoins -= 2;
+            } else if (gameState.musicianGame.type === 'chord') {
+                // Игра с аккордами
+                isCorrect = guess === gameState.musicianGame.correctAnswer.replace('Third', 'терция').replace('Minor', 'малая').replace('Major', 'большая');
+                reward = isCorrect ? 1 : -3;
+                gameState.noteCoins -= 3;
+            }
+            
+            // Обновляем ступени
+            if (isCorrect) {
+                gameState.stepCoins += reward;
+                document.getElementById('musician-feedback').textContent = 'Правильно! Получена 1 ступень.';
+                document.getElementById('musician-feedback').style.color = '#4ecca3';
+            } else {
+                document.getElementById('musician-feedback').textContent = 'Неправильно! Попробуйте еще раз.';
+                document.getElementById('musician-feedback').style.color = '#ff6b6b';
+            }
+            
+            // Обновляем UI
+            document.getElementById('musician-note-coins').textContent = gameState.noteCoins;
+            document.getElementById('musician-step-coins').textContent = gameState.stepCoins;
+            updateUI();
+            
+            // Закрываем игру через 1.5 секунды, если это простая игра или ответ правильный
+            if (gameState.musicianGame.type === 'simple' || isCorrect) {
+                setTimeout(() => {
+                    document.getElementById('musician-game-area').style.display = 'none';
+                }, 1500);
+            }
+        }
+
+        // Проигрывание нот в игре с музыкантом
+        function playMusicianNotes() {
+            if (!gameState.musicianGame) return;
+            
+            const now = gameState.audioContext.currentTime;
+            
+            gameState.musicianGame.notes.forEach((note, index) => {
+                const oscillator = gameState.audioContext.createOscillator();
+                const gainNode = gameState.audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = getNoteFrequency(note);
+                
+                gainNode.gain.setValueAtTime(0, now + index * 0.5);
+                gainNode.gain.linearRampToValueAtTime(1, now + index * 0.5 + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + index * 0.5 + 0.5);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(gameState.audioContext.destination);
+                
+                oscillator.start(now + index * 0.5);
+                oscillator.stop(now + index * 0.5 + 0.5);
+            });
+        }
+
+        // Аккорд судьбы
+        function openChord() {
+            const progress = Math.min(100, (gameState.noteCoins / 300) * 100);
+            document.getElementById('chord-progress').style.width = `${progress}%`;
+            document.getElementById('chord-progress').textContent = `${gameState.noteCoins}/300`;
+            document.getElementById('chord-modal').style.display = 'block';
+        }
+
+        // Обновление UI
+        function updateUI() {
+            document.getElementById('sound-coins').textContent = gameState.soundCoins;
+            document.getElementById('echo-coins').textContent = gameState.echoCoins;
+            document.getElementById('note-coins').textContent = gameState.noteCoins;
+            document.getElementById('step-coins').textContent = gameState.stepCoins;
+            
+            // Сохраняем игру
+            saveGame();
+        }
+
+        // Сохранение игры
+        function saveGame() {
+            localStorage.setItem('musicWarGame', JSON.stringify({
+                soundCoins: gameState.soundCoins,
+                echoCoins: gameState.echoCoins,
+                noteCoins: gameState.noteCoins,
+                stepCoins: gameState.stepCoins
+            }));
+        }
+
+        // Загрузка игры
+        function loadGame() {
+            const savedGame = localStorage.getItem('musicWarGame');
+            if (savedGame) {
+                const savedState = JSON.parse(savedGame);
+                gameState.soundCoins = savedState.soundCoins || 0;
+                gameState.echoCoins = savedState.echoCoins || 0;
+                gameState.noteCoins = savedState.noteCoins || 0;
+                gameState.stepCoins = savedState.stepCoins || 0;
+            }
+        }
+
+        // Утилиты
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Назначение обработчиков событий
+        function setupEventListeners() {
+            // Кнопки UI
+            document.getElementById('btn-shop').addEventListener('click', openShop);
+            document.getElementById('btn-musician').addEventListener('click', openMusician);
+            document.getElementById('btn-chord').addEventListener('click', openChord);
+            
+            // Кнопки магазина
+            document.getElementById('btn-buy-note').addEventListener('click', buyNote);
+            document.getElementById('btn-close-shop').addEventListener('click', () => {
+                document.getElementById('shop-modal').style.display = 'none';
+            });
+            
+            // Кнопки музыканта
+            document.getElementById('btn-play-simple').addEventListener('click', playSimpleGame);
+            document.getElementById('btn-play-interval').addEventListener('click', playIntervalGame);
+            document.getElementById('btn-play-chord').addEventListener('click', playChordGame);
+            document.getElementById('btn-play-musician').addEventListener('click', playMusicianNotes);
+            document.getElementById('btn-close-musician').addEventListener('click', () => {
+                document.getElementById('musician-modal').style.display = 'none';
+            });
+            
+            // Кнопки аккорда судьбы
+            document.getElementById('btn-close-chord').addEventListener('click', () => {
+                document.getElementById('chord-modal').style.display = 'none';
+            });
+            
+            // Кнопки угадывания ноты
+            document.getElementById('btn-play-note').addEventListener('click', () => {
+                playNote(gameState.currentNote);
+            });
+            document.getElementById('btn-close-guess').addEventListener('click', () => {
+                document.getElementById('note-guess-modal').style.display = 'none';
+            });
+            
+            // Обработчики для локаций
+            document.getElementById('village').addEventListener('click', () => {
+                alert('Вы в деревне. Здесь можно посетить магазин нот, поговорить с мертвым музыкантом или проверить прогресс освобождения Аккорда Судьбы.');
+            });
+            
+            ['forest', 'mountains', 'lake', 'cave'].forEach(location => {
+                document.getElementById(location).addEventListener('click', () => {
+                    alert(`Вы в ${getLocationName(location)}. Здесь живут ноты-враги разных уровней. Атакуйте их, чтобы получить звуковые монеты и отголоски!`);
+                });
+            });
+        }
+
+        // Получение названия локации
+        function getLocationName(location) {
+            const names = {
+                forest: 'лесу',
+                mountains: 'горах',
+                lake: 'озере',
+                cave: 'пещере'
+            };
+            return names[location] || location;
+        }
+
+        // Запуск игры при загрузке страницы
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

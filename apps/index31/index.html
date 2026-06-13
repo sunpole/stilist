@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>5 Элементов: Семейная версия</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Roboto', sans-serif;
+    }
+    body {
+      overflow: hidden;
+      touch-action: manipulation;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      height: 100vh;
+      margin: 0;
+      padding: 10px;
+    }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 20px);
+    }
+    .setup-screen, .game-screen, .result-screen {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .player-inputs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    .player-input {
+      display: flex;
+      flex-direction: column;
+    }
+    .player-color {
+      width: 100%;
+      height: 30px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .choice-btn {
+      background: white;
+      border: 2px solid #5c6bc0;
+      border-radius: 12px;
+      padding: 12px 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .choice-btn:active {
+      transform: scale(0.96);
+      background: #5c6bc0;
+      color: white;
+    }
+    .choice-emoji {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    .current-player {
+      font-size: 20px;
+      font-weight: 500;
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: #e8eaf6;
+    }
+    .result-item {
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+    .btn-custom {
+      background: #5c6bc0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    @media (orientation: portrait) {
+      .choices {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 400px) {
+      .choice-btn {
+        font-size: 14px;
+        padding: 8px 2px;
+      }
+      .choice-emoji {
+        font-size: 20px;
+      margin-bottom: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- Экран настройки -->
+    <div id="setupScreen" class="setup-screen">
+      <h2 class="text-center mb-4">5 Элементов</h2>
+      <div class="mb-3">
+        <label for="playerCount" class="form-label">Количество игроков (2-10):</label>
+        <input type="number" id="playerCount" class="form-control" min="2" max="10" value="2">
+      </div>
+      <div class="player-inputs" id="playerInputs">
+        <!-- Сгенерируется динамически -->
+      </div>
+      <button id="startGameBtn" class="btn-custom">Начать игру</button>
+    </div>
+
+    <!-- Экран игры -->
+    <div id="gameScreen" class="game-screen" style="display: none;">
+      <div id="currentPlayerDisplay" class="current-player text-center"></div>
+      <div class="choices">
+        <button class="choice-btn" data-choice="камень">
+          <span class="choice-emoji">🪨</span>
+          Камень
+        </button>
+        <button class="choice-btn" data-choice="ножницы">
+          <span class="choice-emoji">✂️</span>
+          Ножницы
+        </button>
+        <button class="choice-btn" data-choice="бумага">
+          <span class="choice-emoji">📄</span>
+          Бумага
+        </button>
+        <button class="choice-btn" data-choice="трава">
+          <span class="choice-emoji">🌿</span>
+          Трава
+        </button>
+        <button class="choice-btn" data-choice="солнце">
+          <span class="choice-emoji">☀️</span>
+          Солнце
+        </button>
+      </div>
+      <button id="pauseBtn" class="btn-custom">Пауза</button>
+    </div>
+
+    <!-- Экран результатов -->
+    <div id="resultScreen" class="result-screen" style="display: none;">
+      <h3 class="text-center mb-3">Результаты раунда</h3>
+      <div id="roundResults" class="mb-3">
+        <!-- Результаты появятся здесь -->
+      </div>
+      <button id="nextRoundBtn" class="btn-custom">Следующий раунд</button>
+      <button id="newGameBtn" class="btn-custom mt-2">Новая игра</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Правила игры (кто кого побеждает)
+    const rules = {
+      'камень': ['ножницы', 'трава'],
+      'ножницы': ['бумага', 'трава'],
+      'бумага': ['камень', 'солнце'],
+      'трава': ['бумага', 'солнце'],
+      'солнце': ['камень', 'ножницы']
+    };
+
+    // Цвета для игроков
+    const playerColors = [
+      '#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE',
+      '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE'
+    ];
+
+    // Состояние игры
+    let gameState = {
+      players: [],
+      currentPlayerIndex: 0,
+      choices: {},
+      roundHistory: [],
+      winners: [],
+      gameActive: true
+    };
+
+    // Элементы DOM
+    const elements = {
+      setupScreen: document.getElementById('setupScreen'),
+      gameScreen: document.getElementById('gameScreen'),
+      resultScreen: document.getElementById('resultScreen'),
+      playerCount: document.getElementById('playerCount'),
+      playerInputs: document.getElementById('playerInputs'),
+      startGameBtn: document.getElementById('startGameBtn'),
+      currentPlayerDisplay: document.getElementById('currentPlayerDisplay'),
+      choiceBtns: document.querySelectorAll('.choice-btn'),
+      pauseBtn: document.getElementById('pauseBtn'),
+      roundResults: document.getElementById('roundResults'),
+      nextRoundBtn: document.getElementById('nextRoundBtn'),
+      newGameBtn: document.getElementById('newGameBtn')
+    };
+
+    // Инициализация игры
+    function initGame() {
+      elements.playerCount.addEventListener('change', updatePlayerInputs);
+      elements.startGameBtn.addEventListener('click', startGame);
+      elements.pauseBtn.addEventListener('click', pauseGame);
+      elements.nextRoundBtn.addEventListener('click', startNextRound);
+      elements.newGameBtn.addEventListener('click', newGame);
+      
+      elements.choiceBtns.forEach(btn => {
+        btn.addEventListener('click', () => makeChoice(btn.dataset.choice));
+      });
+
+      updatePlayerInputs();
+    }
+
+    // Обновление полей ввода для игроков
+    function updatePlayerInputs() {
+      const count = parseInt(elements.playerCount.value);
+      if (count < 2) elements.playerCount.value = 2;
+      if (count > 10) elements.playerCount.value = 10;
+      
+      const actualCount = parseInt(elements.playerCount.value);
+      elements.playerInputs.innerHTML = '';
+      
+      for (let i = 0; i < actualCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'player-input';
+        div.innerHTML = `
+          <div class="player-color" style="background-color: ${playerColors[i]}"></div>
+          <input type="text" class="form-control" placeholder="Игрок ${i+1}" maxlength="10">
+        `;
+        elements.playerInputs.appendChild(div);
+      }
+    }
+
+    // Начало игры
+    function startGame() {
+      const count = parseInt(elements.playerCount.value);
+      gameState.players = [];
+      
+      const inputs = elements.playerInputs.querySelectorAll('input');
+      for (let i = 0; i < count; i++) {
+        const name = inputs[i].value.trim() || `Игрок ${i+1}`;
+        gameState.players.push({
+          id: i,
+          name: name,
+          color: playerColors[i],
+          active: true
+        });
+      }
+      
+      gameState.currentPlayerIndex = 0;
+      gameState.choices = {};
+      gameState.winners = [];
+      
+      elements.setupScreen.style.display = 'none';
+      elements.gameScreen.style.display = 'flex';
+      updateCurrentPlayerDisplay();
+    }
+
+    // Обновление отображения текущего игрока
+    function updateCurrentPlayerDisplay() {
+      const player = gameState.players[gameState.currentPlayerIndex];
+      elements.currentPlayerDisplay.textContent = player.name;
+      elements.currentPlayerDisplay.style.backgroundColor = player.color + '40';
+      elements.currentPlayerDisplay.style.color = player.color;
+    }
+
+    // Выбор элемента
+    function makeChoice(choice) {
+      if (!gameState.gameActive) return;
+      
+      const player = gameState.players[gameState.currentPlayerIndex];
+      gameState.choices[player.id] = choice;
+      
+      // Переход к следующему активному игроку
+      do {
+        gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+      } while (!gameState.players[gameState.currentPlayerIndex].active && 
+               gameState.currentPlayerIndex !== 0);
+      
+      // Если все сделали выбор - показать результаты
+      if (Object.keys(gameState.choices).length === gameState.players.filter(p => p.active).length) {
+        showResults();
+      } else {
+        updateCurrentPlayerDisplay();
+      }
+    }
+
+    // Показать результаты раунда
+    function showResults() {
+      gameState.gameActive = false;
+      elements.gameScreen.style.display = 'none';
+      elements.resultScreen.style.display = 'flex';
+      
+      const activePlayers = gameState.players.filter(p => p.active);
+      const results = calculateResults();
+      gameState.winners = results.winners;
+      
+      let html = '';
+      activePlayers.forEach(player => {
+        const choice = gameState.choices[player.id];
+        const isWinner = results.winners.some(w => w.id === player.id);
+        
+        html += `
+          <div class="result-item" style="background-color: ${player.color}20; color: ${player.color}; 
+                 ${isWinner ? 'font-weight: bold; border-left: 4px solid ' + player.color : ''}">
+            ${player.name}: ${getEmoji(choice)} ${choice}
+            ${isWinner ? ' (Победитель)' : ''}
+          </div>
+        `;
+      });
+      
+      if (results.isDraw) {
+        html += `<div class="text-center mt-2">Ничья! Все показали разные элементы.</div>`;
+      }
+      
+      elements.roundResults.innerHTML = html;
+      
+      // Если один победитель или ничья - кнопка "Новая игра"
+      if (results.winners.length === 1 || results.isDraw) {
+        elements.nextRoundBtn.style.display = 'none';
+        elements.newGameBtn.style.display = 'block';
+      } else {
+        elements.nextRoundBtn.style.display = 'block';
+        elements.newGameBtn.style.display = 'none';
+      }
+    }
+
+    // Вычислить результаты раунда
+    function calculateResults() {
+      const activePlayers = gameState.players.filter(p => p.active);
+      const choices = activePlayers.map(p => gameState.choices[p.id]);
+      const uniqueChoices = [...new Set(choices)];
+      
+      // Если все выбрали разные элементы - ничья
+      if (uniqueChoices.length === activePlayers.length) {
+        return { winners: [], isDraw: true };
+      }
+      
+      // Находим победителей
+      const winners = [];
+      for (const player of activePlayers) {
+        const playerChoice = gameState.choices[player.id];
+        let isWinner = true;
+        
+        for (const otherPlayer of activePlayers) {
+          if (player.id === otherPlayer.id) continue;
+          
+          const otherChoice = gameState.choices[otherPlayer.id];
+          if (!rules[playerChoice] || !rules[playerChoice].includes(otherChoice)) {
+            isWinner = false;
+            break;
+          }
+        }
+        
+        if (isWinner) {
+          winners.push(player);
+        }
+      }
+      
+      return { winners, isDraw: false };
+    }
+
+    // Начать следующий раунд (только с победителями)
+    function startNextRound() {
+      // Деактивируем всех, кроме победителей
+      gameState.players.forEach(player => {
+        player.active = gameState.winners.some(w => w.id === player.id);
+      });
+      
+      gameState.currentPlayerIndex = 0;
+      gameState.choices = {};
+      gameState.gameActive = true;
+      
+      // Находим первого активного игрока
+      while (!gameState.players[gameState.currentPlayerIndex].active) {
+        gameState.currentPlayerIndex++;
+      }
+      
+      elements.resultScreen.style.display = 'none';
+      elements.gameScreen.style.display = 'flex';
+      updateCurrentPlayerDisplay();
+    }
+
+    // Новая игра
+    function newGame() {
+      elements.resultScreen.style.display = 'none';
+      elements.setupScreen.style.display = 'flex';
+    }
+
+    // Пауза
+    function pauseGame() {
+      gameState.gameActive = !gameState.gameActive;
+      elements.pauseBtn.textContent = gameState.gameActive ? 'Пауза' : 'Продолжить';
+    }
+
+    // Получить emoji для элемента
+    function getEmoji(choice) {
+      const emojis = {
+        'камень': '🪨',
+        'ножницы': '✂️',
+        'бумага': '📄',
+        'трава': '🌿',
+        'солнце': '☀️'
+      };
+      return emojis[choice] || choice;
+    }
+
+    // Запуск игры
+    initGame();
+  </script>
+</body>
+</html>

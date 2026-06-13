@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расчет раскладки изделий на печатном листе</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-section, .results-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #4a6491;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: #4a6491;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-field input:focus {
+            border-color: #4a6491;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 100, 145, 0.2);
+        }
+
+        .shape-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .shape-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shape-option:hover {
+            border-color: #4a6491;
+            background-color: #f9f9f9;
+        }
+
+        .shape-option.active {
+            border-color: #4a6491;
+            background-color: rgba(74, 100, 145, 0.1);
+        }
+
+        .shape-option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #4a6491;
+        }
+
+        .shape-option span {
+            font-weight: 600;
+        }
+
+        .button-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(to right, #4a6491, #2c3e50);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4a6491;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4a6491;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .result-value span {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .result-details {
+            font-size: 0.95rem;
+            color: #666;
+            text-align: center;
+        }
+
+        .layouts-container {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .layouts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .layout-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: white;
+            transition: transform 0.2s;
+        }
+
+        .layout-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .layout-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .layout-count {
+            font-weight: 700;
+            color: #4a6491;
+            font-size: 1.3rem;
+        }
+
+        .layout-dimensions {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .layout-viz-container {
+            width: 100%;
+            height: 250px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+
+        .layout-sheet {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .layout-item-visual {
+            position: absolute;
+            background-color: rgba(74, 100, 145, 0.7);
+            border: 1px solid #4a6491;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .layout-item-visual.ellipse {
+            border-radius: 50%;
+        }
+
+        .layout-item-visual.bleed {
+            background-color: rgba(74, 100, 145, 0.3);
+            border: 1px dashed #4a6491;
+            z-index: 1;
+        }
+
+        .layout-item-visual.item {
+            background-color: rgba(74, 100, 145, 0.7);
+            z-index: 2;
+        }
+
+        .non-printable-area {
+            position: absolute;
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px dashed rgba(255, 0, 0, 0.3);
+        }
+
+        .layout-description {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+
+        .detail-info {
+            background-color: #e8f4f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .legend-text {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning i {
+            color: #ffc107;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .advanced-settings {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .advanced-settings summary {
+            font-weight: 600;
+            color: #4a6491;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .advanced-settings summary:hover {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Расчет раскладки изделий на печатном листе</h1>
+            <p>Оптимизация размещения прямоугольных и круглых/эллиптических изделий с учетом выпусков под обрез и непечатных областей</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title"><i class="fas fa-edit"></i> Параметры расчета</h2>
+                
+                <div class="shape-selector">
+                    <div class="shape-option active" id="rectangle-option" onclick="selectShape('rectangle')">
+                        <i class="fas fa-square"></i>
+                        <span>Прямоугольник</span>
+                    </div>
+                    <div class="shape-option" id="ellipse-option" onclick="selectShape('ellipse')">
+                        <i class="fas fa-circle"></i>
+                        <span>Круг / Эллипс</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Формат изделия (мм)</label>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="item-width">Ширина</label>
+                            <input type="number" id="item-width" value="45" min="1" step="1">
+                        </div>
+                        <div class="input-field">
+                            <label for="item-height">Высота</label>
+                            <input type="number" id="item-height" value="45" min="1" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Формат печатного листа (мм)</label>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="sheet-width">Ширина</label>
+                            <input type="number" id="sheet-width" value="468" min="1" step="1">
+                        </div>
+                        <div class="input-field">
+                            <label for="sheet-height">Высота</label>
+                            <input type="number" id="sheet-height" value="323" min="1" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Основные параметры</label>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="bleed">Выпуск под обрез (мм)</label>
+                            <input type="number" id="bleed" value="0" min="0" step="0.1">
+                        </div>
+                        <div class="input-field">
+                            <label for="margin">Непечатная область (мм)</label>
+                            <input type="number" id="margin" value="5" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> Непечатная область - отступ от края листа, где нельзя размещать изделия
+                    </p>
+                </div>
+
+                <details class="advanced-settings">
+                    <summary>Дополнительные настройки</summary>
+                    <div class="input-group" style="margin-top: 10px;">
+                        <label>Расстояние между изделиями (мм)</label>
+                        <div class="input-row">
+                            <div class="input-field">
+                                <label for="gap-x">По горизонтали</label>
+                                <input type="number" id="gap-x" value="0" min="0" step="0.1">
+                            </div>
+                            <div class="input-field">
+                                <label for="gap-y">По вертикали</label>
+                                <input type="number" id="gap-y" value="0" min="0" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Опции расчета</label>
+                        <div class="input-row">
+                            <div class="input-field">
+                                <input type="checkbox" id="allow-rotation" checked>
+                                <label for="allow-rotation" style="display: inline; font-weight: normal;">Разрешить поворот изделий</label>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="button-container">
+                    <button class="calculate-btn" onclick="calculateLayouts()">
+                        <i class="fas fa-calculator"></i> Рассчитать раскладку
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Результаты расчета</h2>
+                
+                <div class="results-container">
+                    <div class="result-box">
+                        <div class="result-title">Максимальное количество изделий</div>
+                        <div class="result-value" id="max-count">0</div>
+                        <div class="result-details" id="best-layout-details"></div>
+                        <div class="detail-info" id="calculation-details"></div>
+                    </div>
+                    
+                    <div class="result-box">
+                        <div class="result-title">Эффективность использования</div>
+                        <div class="result-value" id="efficiency">0<span>%</span></div>
+                        <div class="result-details" id="efficiency-details"></div>
+                    </div>
+                    
+                    <div class="layouts-container">
+                        <div class="result-title">Варианты раскладки</div>
+                        <div class="layouts-grid" id="layouts-grid">
+                            <!-- Layout items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(74, 100, 145, 0.7);"></div>
+                        <div class="legend-text">Изделие</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(74, 100, 145, 0.3);"></div>
+                        <div class="legend-text">Выпуск под обрез</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(255, 0, 0, 0.1); border: 1px dashed rgba(255, 0, 0, 0.3);"></div>
+                        <div class="legend-text">Непечатная область</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f8f9fa; border: 1px solid #ddd;"></div>
+                        <div class="legend-text">Печатный лист</div>
+                    </div>
+                </div>
+
+                <div class="warning" id="warning-message" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div id="warning-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2023 Калькулятор раскладки изделий на печатном листе. Для точных расчетов всегда проверяйте результаты.</p>
+        </div>
+    </div>
+
+    <script>
+        // Текущая выбранная форма
+        let selectedShape = 'rectangle';
+        
+        // Выбор формы изделия
+        function selectShape(shape) {
+            selectedShape = shape;
+            
+            document.getElementById('rectangle-option').classList.remove('active');
+            document.getElementById('ellipse-option').classList.remove('active');
+            
+            if (shape === 'rectangle') {
+                document.getElementById('rectangle-option').classList.add('active');
+            } else {
+                document.getElementById('ellipse-option').classList.add('active');
+            }
+        }
+        
+        // Функция расчета раскладок
+        function calculateLayouts() {
+            const itemWidth = parseFloat(document.getElementById('item-width').value);
+            const itemHeight = parseFloat(document.getElementById('item-height').value);
+            const sheetWidth = parseFloat(document.getElementById('sheet-width').value);
+            const sheetHeight = parseFloat(document.getElementById('sheet-height').value);
+            const bleed = parseFloat(document.getElementById('bleed').value);
+            const margin = parseFloat(document.getElementById('margin').value);
+            const gapX = parseFloat(document.getElementById('gap-x').value);
+            const gapY = parseFloat(document.getElementById('gap-y').value);
+            const allowRotation = document.getElementById('allow-rotation').checked;
+            
+            if (!itemWidth || !itemHeight || !sheetWidth || !sheetHeight || 
+                bleed < 0 || margin < 0 || gapX < 0 || gapY < 0) {
+                showWarning("Пожалуйста, введите все значения корректно.");
+                return;
+            }
+            
+            const availableWidth = sheetWidth - 2 * margin;
+            const availableHeight = sheetHeight - 2 * margin;
+            
+            if (itemWidth + 2*bleed > availableWidth || itemHeight + 2*bleed > availableHeight) {
+                showWarning(`Изделие с выпуском не помещается на листе с учетом непечатной области.<br>
+                           Доступно: ${availableWidth.toFixed(1)}×${availableHeight.toFixed(1)} мм<br>
+                           Требуется: ${(itemWidth + 2*bleed).toFixed(1)}×${(itemHeight + 2*bleed).toFixed(1)} мм`);
+                return;
+            }
+            
+            hideWarning();
+            
+            const layouts = calculateAllLayouts(
+                itemWidth, itemHeight, 
+                sheetWidth, sheetHeight, 
+                bleed, margin, gapX, gapY, 
+                allowRotation
+            );
+            
+            let maxCount = 0;
+            let bestLayout = null;
+            
+            layouts.forEach(layout => {
+                if (layout.count > maxCount) {
+                    maxCount = layout.count;
+                    bestLayout = layout;
+                }
+            });
+            
+            document.getElementById('max-count').textContent = maxCount;
+            
+            if (bestLayout) {
+                const rotationText = bestLayout.rotated ? 'с поворотом' : 'без поворота';
+                document.getElementById('best-layout-details').innerHTML = 
+                    `${bestLayout.name} (${rotationText})`;
+                    
+                const itemArea = selectedShape === 'ellipse' 
+                    ? Math.PI * (itemWidth/2) * (itemHeight/2)
+                    : itemWidth * itemHeight;
+                
+                const usedArea = itemArea * maxCount;
+                const sheetArea = sheetWidth * sheetHeight;
+                const efficiency = ((usedArea / sheetArea) * 100).toFixed(1);
+                
+                document.getElementById('calculation-details').innerHTML = 
+                    `Рабочая область: ${(sheetWidth - 2*margin).toFixed(0)}×${(sheetHeight - 2*margin).toFixed(0)} мм<br>
+                     Использовано площади: ${efficiency}%`;
+            }
+            
+            const itemArea = selectedShape === 'ellipse' 
+                ? Math.PI * (itemWidth/2) * (itemHeight/2)
+                : itemWidth * itemHeight;
+            
+            const sheetArea = sheetWidth * sheetHeight;
+            const efficiency = maxCount > 0 ? ((itemArea * maxCount) / sheetArea * 100).toFixed(1) : 0;
+            
+            document.getElementById('efficiency').textContent = efficiency;
+            document.getElementById('efficiency-details').innerHTML = 
+                `Использовано ${efficiency}% площади листа`;
+            
+            displayLayouts(layouts, sheetWidth, sheetHeight, itemWidth, itemHeight, bleed, margin);
+        }
+        
+        // Расчет всех возможных раскладок
+        function calculateAllLayouts(itemWidth, itemHeight, sheetWidth, sheetHeight, bleed, margin, gapX, gapY, allowRotation) {
+            const layouts = [];
+            const availableWidth = sheetWidth - 2 * margin;
+            const availableHeight = sheetHeight - 2 * margin;
+            
+            if (selectedShape === 'rectangle') {
+                // Прямоугольная сетка без поворота
+                const layout1 = calculateRectangleLayout(
+                    itemWidth, itemHeight, 
+                    availableWidth, availableHeight, 
+                    bleed, gapX, gapY
+                );
+                
+                if (layout1.count > 0) {
+                    layouts.push({
+                        ...layout1,
+                        name: `Прямоугольная сетка ${layout1.cols}×${layout1.rows}`,
+                        rotated: false
+                    });
+                }
+                
+                // С поворотом
+                if (allowRotation) {
+                    const layout2 = calculateRectangleLayout(
+                        itemHeight, itemWidth,
+                        availableWidth, availableHeight, 
+                        bleed, gapX, gapY
+                    );
+                    
+                    if (layout2.count > 0) {
+                        layouts.push({
+                            ...layout2,
+                            name: `Повернутая сетка ${layout2.cols}×${layout2.rows}`,
+                            rotated: true
+                        });
+                    }
+                }
+            } else {
+                // Для кругов/эллипсов
+                
+                // Обычная прямоугольная сетка
+                const layout1 = calculateEllipseGridLayout(
+                    itemWidth, itemHeight,
+                    availableWidth, availableHeight,
+                    bleed, gapX, gapY
+                );
+                
+                if (layout1.count > 0) {
+                    layouts.push({
+                        ...layout1,
+                        name: `Прямоугольная сетка ${layout1.cols}×${layout1.rows}`,
+                        rotated: false
+                    });
+                }
+                
+                // С поворотом для эллипсов
+                if (allowRotation && itemWidth !== itemHeight) {
+                    const layout2 = calculateEllipseGridLayout(
+                        itemHeight, itemWidth,
+                        availableWidth, availableHeight,
+                        bleed, gapX, gapY
+                    );
+                    
+                    if (layout2.count > 0) {
+                        layouts.push({
+                            ...layout2,
+                            name: `Повернутая сетка ${layout2.cols}×${layout2.rows}`,
+                            rotated: true
+                        });
+                    }
+                }
+                
+                // Шахматная раскладка только для одинаковых кругов
+                if (itemWidth === itemHeight) {
+                    const chessLayout = calculateEllipseChessLayout(
+                        itemWidth, itemHeight,
+                        availableWidth, availableHeight,
+                        bleed, gapX, gapY
+                    );
+                    
+                    if (chessLayout.count > 0) {
+                        layouts.push({
+                            ...chessLayout,
+                            name: `Шахматная раскладка ${chessLayout.count} шт`,
+                            rotated: false,
+                            chess: true
+                        });
+                    }
+                }
+            }
+            
+            return layouts.sort((a, b) => b.count - a.count);
+        }
+        
+        // Расчет прямоугольной раскладки
+        function calculateRectangleLayout(itemWidth, itemHeight, availableWidth, availableHeight, bleed, gapX, gapY) {
+            const effectiveWidth = itemWidth + 2 * bleed + gapX;
+            const effectiveHeight = itemHeight + 2 * bleed + gapY;
+            
+            let maxCols = Math.floor((availableWidth + gapX) / effectiveWidth);
+            let maxRows = Math.floor((availableHeight + gapY) / effectiveHeight);
+            
+            // Проверка, что последний элемент помещается
+            if (maxCols > 0 && maxRows > 0) {
+                const totalWidth = maxCols * effectiveWidth - gapX;
+                const totalHeight = maxRows * effectiveHeight - gapY;
+                
+                if (totalWidth > availableWidth) maxCols--;
+                if (totalHeight > availableHeight) maxRows--;
+            }
+            
+            maxCols = Math.max(0, maxCols);
+            maxRows = Math.max(0, maxRows);
+            
+            return {
+                cols: maxCols,
+                rows: maxRows,
+                count: maxCols * maxRows,
+                effectiveWidth: effectiveWidth,
+                effectiveHeight: effectiveHeight,
+                stepX: effectiveWidth,
+                stepY: effectiveHeight
+            };
+        }
+        
+        // Расчет сеточной раскладки для эллипсов
+        function calculateEllipseGridLayout(itemWidth, itemHeight, availableWidth, availableHeight, bleed, gapX, gapY) {
+            const effectiveWidth = itemWidth + 2 * bleed + gapX;
+            const effectiveHeight = itemHeight + 2 * bleed + gapY;
+            
+            let maxCols = Math.floor((availableWidth + gapX) / effectiveWidth);
+            let maxRows = Math.floor((availableHeight + gapY) / effectiveHeight);
+            
+            if (maxCols > 0 && maxRows > 0) {
+                const totalWidth = maxCols * effectiveWidth - gapX;
+                const totalHeight = maxRows * effectiveHeight - gapY;
+                
+                if (totalWidth > availableWidth) maxCols--;
+                if (totalHeight > availableHeight) maxRows--;
+            }
+            
+            maxCols = Math.max(0, maxCols);
+            maxRows = Math.max(0, maxRows);
+            
+            return {
+                cols: maxCols,
+                rows: maxRows,
+                count: maxCols * maxRows,
+                effectiveWidth: effectiveWidth,
+                effectiveHeight: effectiveHeight,
+                stepX: effectiveWidth,
+                stepY: effectiveHeight
+            };
+        }
+        
+        // Расчет шахматной раскладки для кругов
+        function calculateEllipseChessLayout(itemWidth, itemHeight, availableWidth, availableHeight, bleed, gapX, gapY) {
+            const diameter = itemWidth + 2 * bleed;
+            const stepX = diameter + gapX;
+            const stepY = (diameter + gapY) * Math.sqrt(3) / 2;
+            
+            // Отступ от края до центра круга должен быть не меньше радиуса
+            const minCenterX = diameter / 2;
+            const maxCenterX = availableWidth - diameter / 2;
+            const minCenterY = diameter / 2;
+            const maxCenterY = availableHeight - diameter / 2;
+            
+            const maxRows = Math.floor((maxCenterY - minCenterY) / stepY) + 1;
+            
+            let totalCount = 0;
+            let maxCols = 0;
+            
+            for (let row = 0; row < maxRows; row++) {
+                const centerY = minCenterY + row * stepY;
+                const offset = (row % 2) * (stepX / 2);
+                
+                // Начальный и конечный столбец для данного ряда
+                const startCol = Math.ceil((minCenterX - offset) / stepX);
+                const endCol = Math.floor((maxCenterX - offset) / stepX);
+                
+                let colsInThisRow = 0;
+                for (let col = startCol; col <= endCol; col++) {
+                    const centerX = offset + col * stepX;
+                    if (centerX - diameter/2 >= 0 && centerX + diameter/2 <= availableWidth &&
+                        centerY - diameter/2 >= 0 && centerY + diameter/2 <= availableHeight) {
+                        colsInThisRow++;
+                    }
+                }
+                
+                totalCount += colsInThisRow;
+                if (colsInThisRow > maxCols) {
+                    maxCols = colsInThisRow;
+                }
+            }
+            
+            return {
+                cols: maxCols,
+                rows: maxRows,
+                count: totalCount,
+                effectiveWidth: stepX,
+                effectiveHeight: stepY,
+                stepX: stepX,
+                stepY: stepY,
+                chess: true
+            };
+        }
+        
+        // Отображение вариантов раскладки
+        function displayLayouts(layouts, sheetWidth, sheetHeight, itemWidth, itemHeight, bleed, margin) {
+            const layoutsGrid = document.getElementById('layouts-grid');
+            layoutsGrid.innerHTML = '';
+            
+            if (layouts.length === 0) {
+                layoutsGrid.innerHTML = '<div class="warning"><i class="fas fa-exclamation-triangle"></i> Невозможно разместить ни одного изделия на листе с заданными параметрами</div>';
+                return;
+            }
+            
+            layouts.forEach((layout, index) => {
+                const layoutItem = document.createElement('div');
+                layoutItem.className = 'layout-item';
+                
+                const layoutHeader = document.createElement('div');
+                layoutHeader.className = 'layout-header';
+                
+                const layoutCount = document.createElement('div');
+                layoutCount.className = 'layout-count';
+                layoutCount.textContent = `${layout.count} шт.`;
+                
+                const layoutDimensions = document.createElement('div');
+                layoutDimensions.className = 'layout-dimensions';
+                layoutDimensions.textContent = `${layout.cols} × ${layout.rows}`;
+                
+                layoutHeader.appendChild(layoutCount);
+                layoutHeader.appendChild(layoutDimensions);
+                
+                const vizContainer = document.createElement('div');
+                vizContainer.className = 'layout-viz-container';
+                
+                const sheetVisual = document.createElement('div');
+                sheetVisual.className = 'layout-sheet';
+                
+                // Определяем ориентацию листа и масштаб
+                const containerWidth = 320;
+                const containerHeight = 250;
+                
+                const scaleX = containerWidth / sheetWidth;
+                const scaleY = containerHeight / sheetHeight;
+                const scale = Math.min(scaleX, scaleY) * 0.9;
+                
+                const offsetX = (containerWidth - sheetWidth * scale) / 2;
+                const offsetY = (containerHeight - sheetHeight * scale) / 2;
+                
+                // Добавляем непечатную область
+                const nonPrintable = document.createElement('div');
+                nonPrintable.className = 'non-printable-area';
+                nonPrintable.style.width = `${sheetWidth * scale}px`;
+                nonPrintable.style.height = `${sheetHeight * scale}px`;
+                nonPrintable.style.left = `${offsetX}px`;
+                nonPrintable.style.top = `${offsetY}px`;
+                sheetVisual.appendChild(nonPrintable);
+                
+                const printableWidth = sheetWidth - 2 * margin;
+                const printableHeight = sheetHeight - 2 * margin;
+                
+                // Определяем фактические размеры изделия
+                const actualItemWidth = layout.rotated ? itemHeight : itemWidth;
+                const actualItemHeight = layout.rotated ? itemWidth : itemHeight;
+                
+                const stepX = layout.stepX || layout.effectiveWidth;
+                const stepY = layout.stepY || layout.effectiveHeight;
+                
+                let itemsAdded = 0;
+                
+                if (layout.chess) {
+                    // Шахматная раскладка
+                    for (let row = 0; row < layout.rows && itemsAdded < layout.count; row++) {
+                        const rowOffset = (row % 2) * (stepX / 2);
+                        
+                        // Рассчитываем количество элементов в этом ряду
+                        const minCenterX = (actualItemWidth + 2*bleed) / 2;
+                        const maxCenterX = printableWidth - minCenterX;
+                        const startCol = Math.ceil((minCenterX - rowOffset) / stepX);
+                        const endCol = Math.floor((maxCenterX - rowOffset) / stepX);
+                        
+                        for (let col = startCol; col <= endCol && itemsAdded < layout.count; col++) {
+                            const centerX = margin + rowOffset + col * stepX;
+                            const centerY = margin + row * stepY + (actualItemHeight + 2*bleed) / 2;
+                            
+                            if (centerX - (actualItemWidth/2 + bleed) >= margin &&
+                                centerX + (actualItemWidth/2 + bleed) <= sheetWidth - margin &&
+                                centerY - (actualItemHeight/2 + bleed) >= margin &&
+                                centerY + (actualItemHeight/2 + bleed) <= sheetHeight - margin) {
+                                
+                                const x = offsetX + (centerX - actualItemWidth/2 - bleed) * scale;
+                                const y = offsetY + (centerY - actualItemHeight/2 - bleed) * scale;
+                                const width = (actualItemWidth + 2*bleed) * scale;
+                                const height = (actualItemHeight + 2*bleed) * scale;
+                                
+                                if (bleed > 0) {
+                                    const bleedEl = document.createElement('div');
+                                    bleedEl.className = `layout-item-visual bleed ${selectedShape === 'ellipse' ? 'ellipse' : ''}`;
+                                    bleedEl.style.width = `${width}px`;
+                                    bleedEl.style.height = `${height}px`;
+                                    bleedEl.style.left = `${x}px`;
+                                    bleedEl.style.top = `${y}px`;
+                                    sheetVisual.appendChild(bleedEl);
+                                }
+                                
+                                const itemEl = document.createElement('div');
+                                itemEl.className = `layout-item-visual item ${selectedShape === 'ellipse' ? 'ellipse' : ''}`;
+                                itemEl.style.width = `${actualItemWidth * scale}px`;
+                                itemEl.style.height = `${actualItemHeight * scale}px`;
+                                itemEl.style.left = `${x + bleed * scale}px`;
+                                itemEl.style.top = `${y + bleed * scale}px`;
+                                itemEl.textContent = itemsAdded + 1;
+                                sheetVisual.appendChild(itemEl);
+                                
+                                itemsAdded++;
+                            }
+                        }
+                    }
+                } else {
+                    // Обычная прямоугольная раскладка
+                    for (let row = 0; row < layout.rows && itemsAdded < layout.count; row++) {
+                        for (let col = 0; col < layout.cols && itemsAdded < layout.count; col++) {
+                            const centerX = margin + col * stepX + (actualItemWidth/2 + bleed);
+                            const centerY = margin + row * stepY + (actualItemHeight/2 + bleed);
+                            
+                            if (centerX - (actualItemWidth/2 + bleed) >= margin &&
+                                centerX + (actualItemWidth/2 + bleed) <= sheetWidth - margin &&
+                                centerY - (actualItemHeight/2 + bleed) >= margin &&
+                                centerY + (actualItemHeight/2 + bleed) <= sheetHeight - margin) {
+                                
+                                const x = offsetX + (centerX - actualItemWidth/2 - bleed) * scale;
+                                const y = offsetY + (centerY - actualItemHeight/2 - bleed) * scale;
+                                const width = (actualItemWidth + 2*bleed) * scale;
+                                const height = (actualItemHeight + 2*bleed) * scale;
+                                
+                                if (bleed > 0) {
+                                    const bleedEl = document.createElement('div');
+                                    bleedEl.className = `layout-item-visual bleed ${selectedShape === 'ellipse' ? 'ellipse' : ''}`;
+                                    bleedEl.style.width = `${width}px`;
+                                    bleedEl.style.height = `${height}px`;
+                                    bleedEl.style.left = `${x}px`;
+                                    bleedEl.style.top = `${y}px`;
+                                    sheetVisual.appendChild(bleedEl);
+                                }
+                                
+                                const itemEl = document.createElement('div');
+                                itemEl.className = `layout-item-visual item ${selectedShape === 'ellipse' ? 'ellipse' : ''}`;
+                                itemEl.style.width = `${actualItemWidth * scale}px`;
+                                itemEl.style.height = `${actualItemHeight * scale}px`;
+                                itemEl.style.left = `${x + bleed * scale}px`;
+                                itemEl.style.top = `${y + bleed * scale}px`;
+                                itemEl.textContent = itemsAdded + 1;
+                                sheetVisual.appendChild(itemEl);
+                                
+                                itemsAdded++;
+                            }
+                        }
+                    }
+                }
+                
+                vizContainer.appendChild(sheetVisual);
+                
+                const layoutDescription = document.createElement('div');
+                layoutDescription.className = 'layout-description';
+                layoutDescription.textContent = layout.name;
+                
+                const detailInfo = document.createElement('div');
+                detailInfo.className = 'detail-info';
+                
+                const efficiency = layout.count > 0 ? 
+                    ((layout.count * itemWidth * itemHeight) / (sheetWidth * sheetHeight) * 100).toFixed(1) : 
+                    '0';
+                
+                detailInfo.innerHTML = `Эффективность: ${efficiency}%<br>Шаг: ${layout.stepX.toFixed(1)}×${layout.stepY.toFixed(1)} мм`;
+                
+                layoutItem.appendChild(layoutHeader);
+                layoutItem.appendChild(vizContainer);
+                layoutItem.appendChild(layoutDescription);
+                layoutItem.appendChild(detailInfo);
+                
+                layoutsGrid.appendChild(layoutItem);
+            });
+        }
+        
+        // Показать предупреждение
+        function showWarning(message) {
+            const warningElement = document.getElementById('warning-message');
+            const warningText = document.getElementById('warning-text');
+            
+            warningText.innerHTML = message;
+            warningElement.style.display = 'flex';
+        }
+        
+        // Скрыть предупреждение
+        function hideWarning() {
+            document.getElementById('warning-message').style.display = 'none';
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            selectShape('rectangle');
+            setTimeout(calculateLayouts, 100);
+        });
+    </script>
+</body>
+</html>

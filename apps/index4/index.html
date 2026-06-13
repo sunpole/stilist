@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор стилей | Выпадающий список</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .preview-area {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .style-block {
+            background: #eaf2f8;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: grab;
+            border: 1px dashed #3498db;
+        }
+        .style-block:active {
+            cursor: grabbing;
+        }
+        select {
+            width: 200px;
+            padding: 10px;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            background: #f9f9f9;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        input, select[class^="style-"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Боковая панель с компонентами -->
+        <div class="sidebar">
+            <h2>📦 Блоки стилей</h2>
+            <div class="style-block" draggable="true" data-style="background">
+                <strong>Фон</strong>
+                <div class="controls">
+                    <input type="color" class="style-color" value="#f5d76e">
+                    <select class="style-type">
+                        <option value="solid">Сплошной</option>
+                        <option value="gradient">Градиент</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="style-block" draggable="true" data-style="border">
+                <strong>Рамка</strong>
+                <div class="controls">
+                    <input type="color" class="style-color" value="#8b4513">
+                    <select class="style-type">
+                        <option value="solid">Сплошная</option>
+                        <option value="dashed">Пунктир</option>
+                    </select>
+                    <input type="range" class="style-range" min="1" max="10" value="2">
+                </div>
+            </div>
+
+            <div class="style-block" draggable="true" data-style="text">
+                <strong>Текст</strong>
+                <div class="controls">
+                    <input type="color" class="style-color" value="#2c3e50">
+                    <select class="style-font">
+                        <option value="Arial">Arial</option>
+                        <option value="Courier">Courier</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="style-block" draggable="true" data-style="animation">
+                <strong>Анимация</strong>
+                <div class="controls">
+                    <select class="style-animation">
+                        <option value="none">Нет</option>
+                        <option value="pulse">Пульсация</option>
+                        <option value="shake">Дрожание</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Область предпросмотра -->
+        <div class="preview-area">
+            <h1>🎨 Конструктор стилей</h1>
+            <p>Перетащите блоки справа в зону ниже!</p>
+            
+            <select id="demo-select">
+                <option>Выберите вариант</option>
+                <option>Кленовый лист</option>
+                <option>Дубовый лист</option>
+            </select>
+
+            <div class="drop-zone" id="drop-zone">
+                Перетащите сюда стили
+            </div>
+
+            <button id="reset-btn">Сбросить всё</button>
+            <button id="copy-btn">Копировать CSS</button>
+            <div id="css-output" style="margin-top: 20px; font-family: monospace; background: #f0f0f0; padding: 10px; border-radius: 5px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Drag-and-drop логика
+        const dropZone = document.getElementById('drop-zone');
+        const demoSelect = document.getElementById('demo-select');
+        const cssOutput = document.getElementById('css-output');
+
+        document.querySelectorAll('.style-block').forEach(block => {
+            block.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', block.dataset.style);
+            });
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.background = '#e1f5fe';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.background = '#f9f9f9';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.background = '#f9f9f9';
+            const styleType = e.dataTransfer.getData('text/plain');
+            applyStyle(styleType);
+        });
+
+        // Применение стилей
+        function applyStyle(styleType) {
+            const block = document.querySelector(`[data-style="${styleType}"]`);
+            let css = '';
+
+            switch(styleType) {
+                case 'background':
+                    const bgColor = block.querySelector('.style-color').value;
+                    const bgType = block.querySelector('.style-type').value;
+                    if (bgType === 'gradient') {
+                        css = `background: linear-gradient(45deg, ${bgColor}, #f39c12);`;
+                    } else {
+                        css = `background: ${bgColor};`;
+                    }
+                    break;
+
+                case 'border':
+                    const borderColor = block.querySelector('.style-color').value;
+                    const borderType = block.querySelector('.style-type').value;
+                    const borderWidth = block.querySelector('.style-range').value;
+                    css = `border: ${borderWidth}px ${borderType} ${borderColor};`;
+                    break;
+
+                case 'text':
+                    const textColor = block.querySelector('.style-color').value;
+                    const font = block.querySelector('.style-font').value;
+                    css = `color: ${textColor}; font-family: ${font};`;
+                    break;
+
+                case 'animation':
+                    const animType = block.querySelector('.style-animation').value;
+                    if (animType === 'pulse') {
+                        css = `animation: pulse 2s infinite;`;
+                        addKeyframes('pulse', '0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); }');
+                    } else if (animType === 'shake') {
+                        css = `animation: shake 0.5s infinite;`;
+                        addKeyframes('shake', '0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); }');
+                    }
+                    break;
+            }
+
+            demoSelect.style.cssText += css;
+            updateCssOutput();
+        }
+
+        function addKeyframes(name, frames) {
+            let style = document.createElement('style');
+            style.innerHTML = `@keyframes ${name} { ${frames} }`;
+            document.head.appendChild(style);
+        }
+
+        function updateCssOutput() {
+            cssOutput.textContent = `#demo-select { ${demoSelect.style.cssText} }`;
+        }
+
+        // Кнопки
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            demoSelect.style.cssText = '';
+            cssOutput.textContent = '';
+        });
+
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(cssOutput.textContent);
+            alert('CSS скопирован!');
+        });
+    </script>
+</body>
+</html>

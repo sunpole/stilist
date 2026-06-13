@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Сундучный Магнат</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #1a1a2e;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+        }
+        #game {
+            padding: 10px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #16213e;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .currency {
+            display: flex;
+            gap: 10px;
+        }
+        .chest-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chest {
+            width: 150px;
+            height: 150px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d4af37"><path d="M5 4h14v3h1v1h1v9h-1v1h-1v3H5v-3H4v-1H3v-9h1V7h1V4zm2 3h10V5H7v2zm11 1H6v8h12V8z"/></svg>') no-repeat center;
+            background-size: contain;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .chest:active {
+            transform: scale(0.95);
+        }
+        .workers {
+            background: #0f3460;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .upgrades {
+            background: #0f3460;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            max-height: 30vh;
+            overflow-y: auto;
+        }
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #555;
+        }
+        .loot-popup {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            animation: float-up 1s forwards;
+        }
+        @keyframes float-up {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+        @media (max-width: 600px) {
+            .chest { width: 120px; height: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div class="header">
+            <div class="currency">
+                <span id="gold">0 золота</span>
+                <span id="gems">0 кристаллов</span>
+            </div>
+            <button id="save">Сохранить</button>
+        </div>
+        <div class="chest-container">
+            <div class="chest" id="chest"></div>
+        </div>
+        <div class="workers">
+            <h3>Работники</h3>
+            <button id="buyWorker">Нанять работника (100 золота)</button>
+            <p id="workerCount">Работников: 0</p>
+        </div>
+        <div class="upgrades">
+            <h3>Улучшения</h3>
+            <button id="upgradeClick">Улучшить клик (50 кристаллов)</button>
+            <button id="upgradeWorker">Улучшить работников (100 кристаллов)</button>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        let gold = 0;
+        let gems = 0;
+        let workers = 0;
+        let clickPower = 1;
+        let workerPower = 1;
+        let workerCost = 100;
+        let upgradeClickCost = 50;
+        let upgradeWorkerCost = 100;
+
+        // DOM элементы
+        const goldDisplay = document.getElementById('gold');
+        const gemsDisplay = document.getElementById('gems');
+        const chest = document.getElementById('chest');
+        const workerCountDisplay = document.getElementById('workerCount');
+        const buyWorkerBtn = document.getElementById('buyWorker');
+        const upgradeClickBtn = document.getElementById('upgradeClick');
+        const upgradeWorkerBtn = document.getElementById('upgradeWorker');
+        const saveBtn = document.getElementById('save');
+
+        // Загрузка сохранения
+        function loadGame() {
+            const saved = localStorage.getItem('chestTycoonSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                gold = data.gold || 0;
+                gems = data.gems || 0;
+                workers = data.workers || 0;
+                clickPower = data.clickPower || 1;
+                workerPower = data.workerPower || 1;
+                workerCost = data.workerCost || 100;
+                upgradeClickCost = data.upgradeClickCost || 50;
+                upgradeWorkerCost = data.upgradeWorkerCost || 100;
+                updateUI();
+            }
+        }
+
+        // Сохранение игры
+        function saveGame() {
+            const data = {
+                gold,
+                gems,
+                workers,
+                clickPower,
+                workerPower,
+                workerCost,
+                upgradeClickCost,
+                upgradeWorkerCost
+            };
+            localStorage.setItem('chestTycoonSave', JSON.stringify(data));
+            alert('Игра сохранена!');
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            goldDisplay.textContent = `${Math.floor(gold)} золота`;
+            gemsDisplay.textContent = `${Math.floor(gems)} кристаллов`;
+            workerCountDisplay.textContent = `Работников: ${workers} (${workerPower} золота/сек)`;
+            buyWorkerBtn.textContent = `Нанять работника (${workerCost} золота)`;
+            upgradeClickBtn.textContent = `Улучшить клик (${upgradeClickCost} кристаллов)`;
+            upgradeWorkerBtn.textContent = `Улучшить работников (${upgradeWorkerCost} кристаллов)`;
+            buyWorkerBtn.disabled = gold < workerCost;
+            upgradeClickBtn.disabled = gems < upgradeClickCost;
+            upgradeWorkerBtn.disabled = gems < upgradeWorkerCost;
+        }
+
+        // Открытие сундука
+        chest.addEventListener('click', () => {
+            const earned = Math.floor(Math.random() * 10 * clickPower) + 1;
+            gold += earned;
+            showLootPopup(`+${earned} золота`, chest);
+            updateUI();
+        });
+
+        // Покупка работника
+        buyWorkerBtn.addEventListener('click', () => {
+            if (gold >= workerCost) {
+                gold -= workerCost;
+                workers++;
+                workerCost = Math.floor(workerCost * 1.5);
+                updateUI();
+            }
+        });
+
+        // Улучшение клика
+        upgradeClickBtn.addEventListener('click', () => {
+            if (gems >= upgradeClickCost) {
+                gems -= upgradeClickCost;
+                clickPower++;
+                upgradeClickCost = Math.floor(upgradeClickCost * 2);
+                updateUI();
+            }
+        });
+
+        // Улучшение работников
+        upgradeWorkerBtn.addEventListener('click', () => {
+            if (gems >= upgradeWorkerCost) {
+                gems -= upgradeWorkerCost;
+                workerPower++;
+                upgradeWorkerCost = Math.floor(upgradeWorkerCost * 2);
+                updateUI();
+            }
+        });
+
+        // Сохранение
+        saveBtn.addEventListener('click', saveGame);
+
+        // Автоматический доход от работников
+        setInterval(() => {
+            gold += workers * workerPower / 10; // 10 раз в секунду
+            if (Math.random() < 0.01) gems += 1; // 1% шанс на кристалл
+            updateUI();
+        }, 100);
+
+        // Всплывающее сообщение о луте
+        function showLootPopup(text, element) {
+            const popup = document.createElement('div');
+            popup.className = 'loot-popup';
+            popup.textContent = text;
+            const rect = element.getBoundingClientRect();
+            popup.style.left = `${rect.left + rect.width / 2}px`;
+            popup.style.top = `${rect.top}px`;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        // Запуск игры
+        loadGame();
+        updateUI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Модульная Арена</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #e94560;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a9a9a9;
+            margin-bottom: 20px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .game-area {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            height: 500px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        #game-canvas {
+            background: #0f3460;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .player-controls, .game-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #4e54c8;
+        }
+        
+        .skills-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .skill-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: #4e54c8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #2a2d5a;
+            position: relative;
+        }
+        
+        .skill-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .skill-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .skill-key {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .skill-name {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 4px;
+        }
+        
+        .cooldown-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.7);
+            width: 100%;
+            border-radius: 0 0 8px 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .health-bar {
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: #4caf50;
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        .boss-health {
+            margin-top: 10px;
+        }
+        
+        .module-store {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .module-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .module-title {
+            font-size: 1.1rem;
+            color: #4e54c8;
+            margin-bottom: 8px;
+        }
+        
+        .module-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .module-price {
+            font-weight: bold;
+            color: gold;
+        }
+        
+        .game-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px 50px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+        }
+        
+        .status-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #e94560;
+        }
+        
+        .status-btn {
+            padding: 12px 30px;
+            background: #4e54c8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+        
+        .status-btn:hover {
+            background: #3a3e9a;
+        }
+        
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+        
+        .joystick-area {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .joystick {
+            width: 50px;
+            height: 50px;
+            background: #4e54c8;
+            border-radius: 50%;
+            position: absolute;
+            top: 35px;
+            left: 35px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-controls {
+                display: flex;
+            }
+            
+            .skill-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .skill-name {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Модульная Арена</h1>
+            <p class="subtitle">Сразитесь с боссом, используя модульные способности</p>
+        </header>
+        
+        <div class="game-container">
+            <div class="game-area">
+                <canvas id="game-canvas" width="960" height="450"></canvas>
+                
+                <div class="game-status" id="game-status">
+                    <h2 class="status-title" id="status-title">Готов к битве</h2>
+                    <button class="status-btn" id="status-btn">Начать игру</button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="player-controls">
+                    <h2>Управление</h2>
+                    <div class="skills-container" id="skills-container">
+                        <!-- Способности будут добавляться здесь -->
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-label">Здоровье</div>
+                            <div class="stat-value" id="health-value">100/100</div>
+                            <div class="health-bar">
+                                <div class="health-fill" id="health-bar"></div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Золото</div>
+                            <div class="stat-value" id="gold-value">500</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Уровень</div>
+                            <div class="stat-value" id="level-value">1</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Урон</div>
+                            <div class="stat-value" id="damage-value">10</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-info">
+                    <h2>Босс</h2>
+                    <div class="stat">
+                        <div class="stat-label">Здоровье босса</div>
+                        <div class="stat-value" id="boss-health-value">10000/10000</div>
+                        <div class="health-bar">
+                            <div class="health-fill" id="boss-health-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat">
+                        <div class="stat-label">Способности босса</div>
+                        <div class="stat-value">АОЕ удар (15 сек)</div>
+                        <div class="stat-value">Ближний бой (0.3 сек)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="module-store">
+                <h2>Магазин модулей</h2>
+                <div class="modules-grid" id="modules-grid">
+                    <!-- Модули будут добавляться здесь -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="mobile-controls">
+            <div class="joystick-area" id="joystick-area">
+                <div class="joystick" id="joystick"></div>
+            </div>
+            
+            <div class="skills-container">
+                <!-- Мобильные способности -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Основные переменные игры
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const gameStatus = document.getElementById('game-status');
+        const statusTitle = document.getElementById('status-title');
+        const statusBtn = document.getElementById('status-btn');
+        
+        // Состояние игры
+        let gameState = 'waiting'; // waiting, playing, victory, defeat
+        let player = null;
+        let boss = null;
+        let abilities = [];
+        let projectiles = [];
+        let particles = [];
+        let gold = 500;
+        let lastTime = 0;
+        
+        // Размеры canvas
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        // Модули способностей (в реальной реализации будут подгружаться отдельно)
+        const abilityModules = [
+            {
+                id: 'fireball',
+                name: 'Огненный шар',
+                key: '1',
+                description: 'Наносит 35 урона боссу',
+                price: 200,
+                cooldown: 3,
+                icon: '🔥',
+                action: function() {
+                    if (player.cooldowns.fireball <= 0) {
+                        const dx = boss.x - player.x;
+                        const dy = boss.y - player.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        projectiles.push({
+                            x: player.x,
+                            y: player.y,
+                            speed: 8,
+                            radius: 8,
+                            damage: 35,
+                            direction: { x: dx/dist, y: dy/dist },
+                            color: '#ff5722',
+                            type: 'fireball'
+                        });
+                        
+                        player.cooldowns.fireball = this.cooldown;
+                        return true;
+                    }
+                    return false;
+                }
+            },
+            {
+                id: 'heal',
+                name: 'Лечение',
+                key: '2',
+                description: 'Восстанавливает 25 здоровья',
+                price: 300,
+                cooldown: 8,
+                icon: '💚',
+                action: function() {
+                    if (player.cooldowns.heal <= 0) {
+                        player.health = Math.min(player.maxHealth, player.health + 25);
+                        
+                        // Эффект частиц лечения
+                        for (let i = 0; i < 15; i++) {
+                            particles.push({
+                                x: player.x,
+                                y: player.y,
+                                radius: Math.random() * 5 + 2,
+                                color: '#4caf50',
+                                speed: Math.random() * 3 + 1,
+                                life: 30
+                            });
+                        }
+                        
+                        player.cooldowns.heal = this.cooldown;
+                        return true;
+                    }
+                    return false;
+                }
+            },
+            {
+                id: 'shield',
+                name: 'Щит',
+                key: '3',
+                description: 'Блокирует 50% урона на 5 сек',
+                price: 400,
+                cooldown: 15,
+                icon: '🛡️',
+                action: function() {
+                    if (player.cooldowns.shield <= 0) {
+                        player.shieldActive = true;
+                        player.shieldTime = 300; // 5 секунд при 60 FPS
+                        
+                        // Эффект щита
+                        for (let i = 0; i < 20; i++) {
+                            particles.push({
+                                x: player.x,
+                                y: player.y,
+                                radius: Math.random() * 3 + 2,
+                                color: '#2196f3',
+                                speed: Math.random() * 2 + 1,
+                                life: 40
+                            });
+                        }
+                        
+                        player.cooldowns.shield = this.cooldown;
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        ];
+        
+        // Инициализация игры
+        function initGame() {
+            // Создаем игрока
+            player = {
+                x: canvasWidth / 2,
+                y: canvasHeight / 2,
+                radius: 20,
+                color: '#4e54c8',
+                speed: 5,
+                health: 100,
+                maxHealth: 100,
+                damage: 10,
+                cooldowns: {
+                    fireball: 0,
+                    heal: 0,
+                    shield: 0
+                },
+                shieldActive: false,
+                shieldTime: 0
+            };
+            
+            // Создаем босса
+            boss = {
+                x: canvasWidth / 2,
+                y: 150,
+                radius: 50,
+                color: '#e94560',
+                speed: 1,
+                health: 10000,
+                maxHealth: 10000,
+                damage: 50,
+                aoeCooldown: 0,
+                aoeRadius: 150,
+                aoeDamage: 150,
+                attackRange: 70,
+                attackCooldown: 0
+            };
+            
+            // Сброс состояний
+            projectiles = [];
+            particles = [];
+            gameState = 'playing';
+            gold = 500;
+            
+            // Обновляем интерфейс
+            updateUI();
+            
+            // Скрываем экран статуса
+            gameStatus.style.display = 'none';
+            
+            // Запускаем игровой цикл, если еще не запущен
+            if (!lastTime) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Игровой цикл
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            // Очистка canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            if (gameState === 'playing') {
+                // Обновление состояний
+                updatePlayer(deltaTime);
+                updateBoss(deltaTime);
+                updateProjectiles();
+                updateParticles();
+                updateCooldowns(deltaTime);
+                
+                // Проверка условий победы/поражения
+                checkGameState();
+            }
+            
+            // Отрисовка игры
+            drawGame();
+            
+            // Продолжаем цикл
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Обновление игрока
+        function updatePlayer(deltaTime) {
+            // В реальной реализации здесь будет движение игрока
+            // Для демонстрации просто слегка двигаем игрока
+            if (Math.random() < 0.02) {
+                player.x += (Math.random() - 0.5) * 10;
+                player.y += (Math.random() - 0.5) * 10;
+                
+                // Ограничиваем движение в пределах canvas
+                player.x = Math.max(player.radius, Math.min(canvasWidth - player.radius, player.x));
+                player.y = Math.max(player.radius, Math.min(canvasHeight - player.radius, player.y));
+            }
+            
+            // Обновление щита
+            if (player.shieldActive) {
+                player.shieldTime -= deltaTime / 16.67; // Примерная корректировка для FPS
+                
+                if (player.shieldTime <= 0) {
+                    player.shieldActive = false;
+                }
+            }
+        }
+        
+        // Обновление босса
+        function updateBoss(deltaTime) {
+            // Движение к игроку
+            const dx = player.x - boss.x;
+            const dy = player.y - boss.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist > 10) {
+                boss.x += (dx / dist) * boss.speed;
+                boss.y += (dy / dist) * boss.speed;
+            }
+            
+            // АОЕ атака
+            if (boss.aoeCooldown <= 0) {
+                // Проверяем, находится ли игрок в зоне поражения
+                const playerDist = Math.sqrt(Math.pow(player.x - boss.x, 2) + Math.pow(player.y - boss.y, 2));
+                
+                if (playerDist < boss.aoeRadius + player.radius) {
+                    // Наносим урон игроку
+                    let damage = boss.aoeDamage;
+                    if (player.shieldActive) {
+                        damage *= 0.5; // Щит уменьшает урон на 50%
+                    }
+                    
+                    player.health -= damage;
+                    
+                    // Создаем эффект атаки
+                    for (let i = 0; i < 30; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = Math.random() * 5 + 2;
+                        particles.push({
+                            x: boss.x,
+                            y: boss.y,
+                            radius: Math.random() * 4 + 2,
+                            color: '#ff0000',
+                            speed: speed,
+                            direction: { x: Math.cos(angle), y: Math.sin(angle) },
+                            life: 40
+                        });
+                    }
+                    
+                    // Обновляем интерфейс
+                    updateUI();
+                }
+                
+                boss.aoeCooldown = 900; // 15 секунд при 60 FPS
+            } else {
+                boss.aoeCooldown -= deltaTime / 16.67;
+            }
+            
+            // Атака ближнего боя
+            if (boss.attackCooldown <= 0) {
+                const playerDist = Math.sqrt(Math.pow(player.x - boss.x, 2) + Math.pow(player.y - boss.y, 2));
+                
+                if (playerDist < boss.attackRange + player.radius) {
+                    // Наносим урон игроку
+                    let damage = boss.damage;
+                    if (player.shieldActive) {
+                        damage *= 0.5; // Щит уменьшает урон на 50%
+                    }
+                    
+                    player.health -= damage;
+                    
+                    // Создаем эффект удара
+                    for (let i = 0; i < 15; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = Math.random() * 3 + 2;
+                        particles.push({
+                            x: player.x,
+                            y: player.y,
+                            radius: Math.random() * 3 + 2,
+                            color: '#ff0000',
+                            speed: speed,
+                            direction: { x: Math.cos(angle), y: Math.sin(angle) },
+                            life: 20
+                        });
+                    }
+                    
+                    // Обновляем интерфейс
+                    updateUI();
+                    
+                    boss.attackCooldown = 18; // 0.3 секунды при 60 FPS
+                }
+            } else {
+                boss.attackCooldown -= deltaTime / 16.67;
+            }
+        }
+        
+        // Обновление снарядов
+        function updateProjectiles() {
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const p = projectiles[i];
+                
+                // Движение снаряда
+                p.x += p.direction.x * p.speed;
+                p.y += p.direction.y * p.speed;
+                
+                // Проверка столкновения с боссом
+                const dist = Math.sqrt(Math.pow(p.x - boss.x, 2) + Math.pow(p.y - boss.y, 2));
+                if (dist < p.radius + boss.radius) {
+                    // Наносим урон боссу
+                    boss.health -= p.damage;
+                    
+                    // Создаем эффект попадания
+                    for (let j = 0; j < 15; j++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = Math.random() * 3 + 2;
+                        particles.push({
+                            x: p.x,
+                            y: p.y,
+                            radius: Math.random() * 3 + 2,
+                            color: p.type === 'fireball' ? '#ff9800' : '#2196f3',
+                            speed: speed,
+                            direction: { x: Math.cos(angle), y: Math.sin(angle) },
+                            life: 20
+                        });
+                    }
+                    
+                    // Удаляем снаряд
+                    projectiles.splice(i, 1);
+                    continue;
+                }
+                
+                // Проверка выхода за границы
+                if (p.x < -p.radius || p.x > canvasWidth + p.radius ||
+                    p.y < -p.radius || p.y > canvasHeight + p.radius) {
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Обновление частиц
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                
+                // Движение частицы
+                if (p.direction) {
+                    p.x += p.direction.x * p.speed;
+                    p.y += p.direction.y * p.speed;
+                }
+                
+                // Уменьшение времени жизни
+                p.life--;
+                
+                // Удаление частицы
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Обновление перезарядки способностей
+        function updateCooldowns(deltaTime) {
+            for (const ability in player.cooldowns) {
+                if (player.cooldowns[ability] > 0) {
+                    player.cooldowns[ability] -= deltaTime / 16.67;
+                }
+            }
+            
+            // Обновляем отображение кд на кнопках
+            updateAbilityButtons();
+        }
+        
+        // Проверка состояния игры
+        function checkGameState() {
+            if (player.health <= 0) {
+                gameState = 'defeat';
+                statusTitle.textContent = 'Поражение!';
+                statusBtn.textContent = 'Попробовать снова';
+                gameStatus.style.display = 'block';
+            } else if (boss.health <= 0) {
+                gameState = 'victory';
+                statusTitle.textContent = 'Победа!';
+                statusBtn.textContent = 'Играть еще';
+                gold += 1000; // Награда за победу
+                updateUI();
+                gameStatus.style.display = 'block';
+            }
+        }
+        
+        // Отрисовка игры
+        function drawGame() {
+            // Отрисовка игрока
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            
+            // Отрисовка щита, если активен
+            if (player.shieldActive) {
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius + 5, 0, Math.PI * 2);
+                ctx.strokeStyle = '#2196f3';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+            
+            // Отрисовка босса
+            ctx.beginPath();
+            ctx.arc(boss.x, boss.y, boss.radius, 0, Math.PI * 2);
+            ctx.fillStyle = boss.color;
+            ctx.fill();
+            
+            // Отрисовка зоны АОЕ атаки, если она активна
+            if (boss.aoeCooldown > 870) { // Первые 0.5 секунды перезарядки
+                ctx.beginPath();
+                ctx.arc(boss.x, boss.y, boss.aoeRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+            
+            // Отрисовка снарядов
+            for (const p of projectiles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            }
+            
+            // Отрисовка частиц
+            for (const p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            }
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            // Здоровье игрока
+            document.getElementById('health-value').textContent = `${Math.max(0, Math.floor(player.health))}/${player.maxHealth}`;
+            document.getElementById('health-bar').style.width = `${(player.health / player.maxHealth) * 100}%`;
+            
+            // Золото
+            document.getElementById('gold-value').textContent = gold;
+            
+            // Здоровье босса
+            document.getElementById('boss-health-value').textContent = `${Math.max(0, Math.floor(boss.health))}/${boss.maxHealth}`;
+            document.getElementById('boss-health-bar').style.width = `${(boss.health / boss.maxHealth) * 100}%`;
+        }
+        
+        // Обновление кнопок способностей
+        function updateAbilityButtons() {
+            const buttons = document.querySelectorAll('.skill-btn');
+            
+            buttons.forEach(btn => {
+                const abilityId = btn.getAttribute('data-ability');
+                const cooldown = player.cooldowns[abilityId];
+                
+                let overlay = btn.querySelector('.cooldown-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.className = 'cooldown-overlay';
+                    btn.appendChild(overlay);
+                }
+                
+                if (cooldown > 0) {
+                    overlay.textContent = cooldown.toFixed(1);
+                    overlay.style.display = 'block';
+                    btn.style.opacity = '0.6';
+                } else {
+                    overlay.style.display = 'none';
+                    btn.style.opacity = '1';
+                }
+            });
+        }
+        
+        // Создание кнопок способностей
+        function createAbilityButtons() {
+            const container = document.getElementById('skills-container');
+            container.innerHTML = '';
+            
+            abilityModules.forEach(module => {
+                const btn = document.createElement('div');
+                btn.className = 'skill-btn';
+                btn.setAttribute('data-ability', module.id);
+                btn.innerHTML = `
+                    <div class="skill-key">${module.key}</div>
+                    <div class="skill-icon">${module.icon}</div>
+                    <div class="skill-name">${module.name}</div>
+                `;
+                
+                btn.addEventListener('click', () => {
+                    if (module.action()) {
+                        updateAbilityButtons();
+                    }
+                });
+                
+                container.appendChild(btn);
+            });
+        }
+        
+        // Заполнение магазина модулей
+        function populateModuleStore() {
+            const container = document.getElementById('modules-grid');
+            container.innerHTML = '';
+            
+            abilityModules.forEach(module => {
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.innerHTML = `
+                    <h3 class="module-title">${module.name}</h3>
+                    <p class="module-desc">${module.description}</p>
+                    <p class="module-price">Цена: ${module.price} золота</p>
+                `;
+                
+                card.addEventListener('click', () => {
+                    if (gold >= module.price) {
+                        gold -= module.price;
+                        updateUI();
+                        alert(`Вы приобрели способность "${module.name}"!`);
+                    } else {
+                        alert('Недостаточно золота!');
+                    }
+                });
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Обработка нажатий клавиш
+        function handleKeyDown(e) {
+            if (gameState !== 'playing') return;
+            
+            if (e.key === '1') {
+                abilityModules[0].action();
+                updateAbilityButtons();
+            } else if (e.key === '2') {
+                abilityModules[1].action();
+                updateAbilityButtons();
+            } else if (e.key === '3') {
+                abilityModules[2].action();
+                updateAbilityButtons();
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        window.onload = function() {
+            // Показываем экран начала игры
+            gameStatus.style.display = 'block';
+            
+            // Создаем кнопки способностей
+            createAbilityButtons();
+            
+            // Заполняем магазин
+            populateModuleStore();
+            
+            // Обработчик кнопки начала игры
+            statusBtn.addEventListener('click', initGame);
+            
+            // Обработчик нажатий клавиш
+            window.addEventListener('keydown', handleKeyDown);
+            
+            // Запускаем игровой цикл
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+</body>
+</html>

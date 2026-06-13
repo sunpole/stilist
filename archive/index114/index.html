@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Dungeon Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a3c6c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            font-size: 1.5em;
+        }
+        
+        .screen {
+            display: none;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .game-ui {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            height: 80vh;
+        }
+        
+        .battle-area {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .party-display {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .party-member {
+            display: flex;
+            align-items: center;
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 8px;
+            padding: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .party-member.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .member-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .tank { background: #8B4513; }
+        .healer { background: #32CD32; }
+        .support { background: #9370DB; }
+        .mage { background: #DC143C; }
+        .archer { background: #FF8C00; }
+        
+        .member-stats {
+            flex-grow: 1;
+        }
+        
+        .member-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .stat-numbers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .stat-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #333;
+            overflow: hidden;
+        }
+        
+        .health-bar {
+            background: linear-gradient(to right, #FF0000, #FF4500);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .mana-bar {
+            background: linear-gradient(to right, #1E90FF, #00BFFF);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .enemies-display {
+            margin-top: 15px;
+        }
+        
+        .enemy {
+            display: flex;
+            align-items: center;
+            background: rgba(139, 0, 0, 0.8);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .enemy-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            background: #8B0000;
+        }
+        
+        .enemy-stats {
+            flex-grow: 1;
+        }
+        
+        .abilities {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .abilities-title {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+        
+        .ability-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .ability {
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .ability:hover:not(.on-cooldown) {
+            border-color: #ffd700;
+            background: rgba(60, 60, 100, 0.8);
+        }
+        
+        .ability-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .ability-name {
+            font-size: 12px;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+        
+        .ability-info {
+            font-size: 10px;
+            color: #ccc;
+        }
+        
+        .on-cooldown {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .cooldown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+        
+        .target-selection {
+            background: rgba(40, 40, 80, 0.9);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        .target-title {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ffd700;
+        }
+        
+        .targets {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .target {
+            background: rgba(60, 60, 100, 0.8);
+            border-radius: 5px;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            margin: 0 2px;
+        }
+        
+        .target:hover {
+            background: rgba(80, 80, 120, 0.8);
+        }
+        
+        .target-icon {
+            font-size: 16px;
+        }
+        
+        .target-name {
+            font-size: 10px;
+        }
+        
+        .game-info {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dungeon-info {
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .currency-info {
+            text-align: center;
+            font-size: 16px;
+            margin: 5px 0;
+            color: #ffd700;
+        }
+        
+        .event-log {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 8px;
+            flex-grow: 1;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .event {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid #ffd700;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .role-selection {
+            text-align: center;
+        }
+        
+        .roles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .role-card {
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .role-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+        
+        .role-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+        
+        .role-desc {
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .shop-item {
+            background: rgba(40, 40, 80, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .shop-item:hover {
+            border-color: #ffd700;
+        }
+        
+        .item-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+        
+        .item-name {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+        
+        .item-desc {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        
+        .item-cost {
+            font-size: 14px;
+            color: #32CD32;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #ffd700, #ff8c00);
+            border: none;
+            border-radius: 5px;
+            color: #1a2a6c;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .game-ui {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .abilities {
+                order: 2;
+            }
+            
+            .game-info {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RPG Dungeon Simulator</h1>
+        
+        <!-- Экран выбора роли -->
+        <div id="roleSelection" class="screen active">
+            <div class="role-selection">
+                <h2>Выберите свою роль</h2>
+                <p>Выберите роль, которую будете играть. Остальные члены группы будут управляться ИИ.</p>
+                
+                <div class="roles">
+                    <div class="role-card" data-role="tank">
+                        <div class="role-icon">🛡️</div>
+                        <div class="role-name">Танк</div>
+                        <div class="role-desc">Удерживайте аггро врагов, защищайте союзников</div>
+                    </div>
+                    
+                    <div class="role-card" data-role="healer">
+                        <div class="role-icon">❤️</div>
+                        <div class="role-name">Хилер</div>
+                        <div class="role-desc">Лечите союзников, воскрешайте павших</div>
+                    </div>
+                    
+                    <div class="role-card" data-role="support">
+                        <div class="role-icon">✨</div>
+                        <div class="role-name">Саппорт</div>
+                        <div class="role-desc">Баффайте группу, восстанавливайте ману</div>
+                    </div>
+                    
+                    <div class="role-card" data-role="mage">
+                        <div class="role-icon">🔥</div>
+                        <div class="role-name">Маг</div>
+                        <div class="role-desc">Наносите магический урон, контролируйте врагов</div>
+                    </div>
+                    
+                    <div class="role-card" data-role="archer">
+                        <div class="role-icon">🏹</div>
+                        <div class="role-name">Лучник</div>
+                        <div class="role-desc">Наносите физический урон на расстоянии</div>
+                    </div>
+                </div>
+                
+                <button id="startGame">Начать игру</button>
+            </div>
+        </div>
+        
+        <!-- Игровой экран -->
+        <div id="gameScreen" class="screen">
+            <div class="game-ui">
+                <div class="battle-area">
+                    <div class="dungeon-info">
+                        <h3>Текущий данж: <span id="currentDungeon">Лес Теней</span></h3>
+                        <p>Волна: <span id="currentWave">1</span>/3 | Врагов: <span id="enemiesLeft">5</span></p>
+                    </div>
+                    
+                    <div class="currency-info">
+                        Золото: <span id="currencyAmount">50</span>
+                    </div>
+                    
+                    <div class="party-display" id="partyDisplay">
+                        <!-- Члены группы будут добавлены динамически -->
+                    </div>
+                    
+                    <div class="enemies-display" id="enemiesDisplay">
+                        <!-- Враги будут добавлены динамически -->
+                    </div>
+                </div>
+                
+                <div class="game-info">
+                    <div class="abilities">
+                        <h3 class="abilities-title">Ваши способности</h3>
+                        <div class="ability-slots" id="abilitySlots">
+                            <!-- Способности будут добавлены динамически -->
+                        </div>
+                        
+                        <div class="target-selection" id="targetSelection" style="display: none;">
+                            <div class="target-title">Выберите цель:</div>
+                            <div class="targets" id="targets">
+                                <!-- Цели будут добавлены динамически -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="event-log" id="eventLog">
+                        <div class="event">Добро пожаловать в Лес Теней!</div>
+                        <div class="event">Ваша группа готова к бою.</div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="nextDungeon" disabled>Следующий данж</button>
+                        <button id="openShop">Магазин</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран магазина -->
+        <div id="shopScreen" class="screen">
+            <div class="shop">
+                <h2>Магазин улучшений</h2>
+                <div class="currency-info">Ваши золотые: <span id="shopCurrencyAmount">50</span></div>
+                
+                <div class="shop-items" id="shopItems">
+                    <!-- Товары будут добавлены динамически -->
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="backToGame">Вернуться к игре</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран поражения -->
+        <div id="gameOverScreen" class="screen">
+            <div style="text-align: center;">
+                <h2>Поражение!</h2>
+                <p>Ваша группа пала в бою.</p>
+                <p>Вы прошли <span id="dungeonsCompleted">0</span> данжей</p>
+                <button id="restartGame">Начать заново</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Основные константы и переменные игры
+        const ROLES = {
+            TANK: 'tank',
+            HEALER: 'healer',
+            SUPPORT: 'support',
+            MAGE: 'mage',
+            ARCHER: 'archer'
+        };
+
+        const DUNGEONS = [
+            { name: "Лес Теней", waves: 3, enemiesPerWave: 3, reward: 20, boss: false },
+            { name: "Пещеры Гоблинов", waves: 4, enemiesPerWave: 4, reward: 30, boss: false },
+            { name: "Замок Нежити", waves: 3, enemiesPerWave: 5, reward: 40, boss: true },
+            { name: "Логово Дракона", waves: 4, enemiesPerWave: 6, reward: 50, boss: true }
+        ];
+
+        let gameState = {
+            playerRole: null,
+            party: {},
+            enemies: [],
+            currentDungeon: 0,
+            currentWave: 0,
+            currency: 50,
+            gameActive: false,
+            abilities: {},
+            abilityCooldowns: {},
+            playerAbilities: [],
+            eventLog: [],
+            gameLoopInterval: null,
+            selectedTarget: null,
+            selectingTarget: false,
+            currentAbility: null
+        };
+
+        // Инициализация игры
+        document.addEventListener('DOMContentLoaded', function() {
+            // Настройка выбора роли
+            const roleCards = document.querySelectorAll('.role-card');
+            roleCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    roleCards.forEach(c => c.style.borderColor = 'transparent');
+                    this.style.borderColor = '#ffd700';
+                    gameState.playerRole = this.getAttribute('data-role');
+                });
+            });
+
+            // Кнопка начала игры
+            document.getElementById('startGame').addEventListener('click', function() {
+                if (!gameState.playerRole) {
+                    alert('Пожалуйста, выберите роль!');
+                    return;
+                }
+                startGame();
+            });
+
+            // Кнопки навигации
+            document.getElementById('nextDungeon').addEventListener('click', nextDungeon);
+            document.getElementById('openShop').addEventListener('click', openShop);
+            document.getElementById('backToGame').addEventListener('click', backToGame);
+            document.getElementById('restartGame').addEventListener('click', restartGame);
+        });
+
+        // Запуск игры
+        function startGame() {
+            // Инициализация группы
+            initParty();
+            
+            // Инициализация способностей игрока
+            initPlayerAbilities();
+            
+            // Начало первого данжа
+            startDungeon(0);
+            
+            // Переключение экранов
+            switchScreen('gameScreen');
+            
+            // Запуск игрового цикла
+            gameState.gameActive = true;
+            gameState.gameLoopInterval = setInterval(gameLoop, 100);
+        }
+
+        // Инициализация группы
+        function initParty() {
+            gameState.party = {
+                tank: { 
+                    name: 'Танк', 
+                    health: 100, 
+                    maxHealth: 100, 
+                    mana: 50, 
+                    maxMana: 50, 
+                    role: ROLES.TANK,
+                    alive: true
+                },
+                healer: { 
+                    name: 'Хилер', 
+                    health: 70, 
+                    maxHealth: 70, 
+                    mana: 100, 
+                    maxMana: 100, 
+                    role: ROLES.HEALER,
+                    alive: true
+                },
+                support: { 
+                    name: 'Саппорт', 
+                    health: 60, 
+                    maxHealth: 60, 
+                    mana: 120, 
+                    maxMana: 120, 
+                    role: ROLES.SUPPORT,
+                    alive: true
+                },
+                mage: { 
+                    name: 'Маг', 
+                    health: 50, 
+                    maxHealth: 50, 
+                    mana: 150, 
+                    maxMana: 150, 
+                    role: ROLES.MAGE,
+                    alive: true
+                },
+                archer: { 
+                    name: 'Лучник', 
+                    health: 60, 
+                    maxHealth: 60, 
+                    mana: 80, 
+                    maxMana: 80, 
+                    role: ROLES.ARCHER,
+                    alive: true
+                }
+            };
+            
+            // Обновление интерфейса группы
+            updatePartyUI();
+        }
+
+        // Инициализация способностей игрока
+        function initPlayerAbilities() {
+            const abilitiesContainer = document.getElementById('abilitySlots');
+            abilitiesContainer.innerHTML = '';
+            
+            // Определяем способности в зависимости от роли
+            let abilities = [];
+            
+            switch(gameState.playerRole) {
+                case ROLES.TANK:
+                    abilities = [
+                        { id: 'taunt', name: 'Провокация', icon: '🗣️', cost: 10, cooldown: 10, description: 'Все враги атакуют танка', requiresTarget: false },
+                        { id: 'shield', name: 'Щит', icon: '🛡️', cost: 15, cooldown: 15, description: '+50% защиты на 5 сек', requiresTarget: false },
+                        { id: 'strike', name: 'Удар', icon: '⚔️', cost: 5, cooldown: 3, description: 'Урон одному врагу', requiresTarget: false },
+                        { id: 'challenge', name: 'Вызов', icon: '👊', cost: 20, cooldown: 20, description: 'Восстанавливает здоровье', requiresTarget: false }
+                    ];
+                    break;
+                case ROLES.HEALER:
+                    abilities = [
+                        { id: 'heal', name: 'Лечение', icon: '❤️', cost: 15, cooldown: 3, description: 'Лечит одного союзника', requiresTarget: true },
+                        { id: 'groupHeal', name: 'Груп.лечение', icon: '💖', cost: 30, cooldown: 10, description: 'Лечит всю группу', requiresTarget: false },
+                        { id: 'resurrect', name: 'Воскрешение', icon: '⭐', cost: 50, cooldown: 30, description: 'Воскрешает союзника', requiresTarget: true },
+                        { id: 'barrier', name: 'Барьер', icon: '🔰', cost: 25, cooldown: 15, description: 'Щит на союзника', requiresTarget: true }
+                    ];
+                    break;
+                case ROLES.SUPPORT:
+                    abilities = [
+                        { id: 'buffAttack', name: 'Бафф атаки', icon: '📈', cost: 20, cooldown: 15, description: '+20% атаки группе', requiresTarget: false },
+                        { id: 'buffDefense', name: 'Бафф защиты', icon: '📊', cost: 20, cooldown: 15, description: '+20% защиты группе', requiresTarget: false },
+                        { id: 'restoreMana', name: 'Восст. маны', icon: '🔋', cost: 10, cooldown: 20, description: 'Мана союзнику', requiresTarget: true },
+                        { id: 'resurrect', name: 'Воскрешение', icon: '⭐', cost: 40, cooldown: 25, description: 'Воскрешает союзника', requiresTarget: true }
+                    ];
+                    break;
+                case ROLES.MAGE:
+                    abilities = [
+                        { id: 'fireball', name: 'Огненный шар', icon: '🔥', cost: 20, cooldown: 5, description: 'Сильный урон огнем', requiresTarget: false },
+                        { id: 'frostbolt', name: 'Ледяная стрела', icon: '❄️', cost: 15, cooldown: 4, description: 'Урон + замедление', requiresTarget: false },
+                        { id: 'lightning', name: 'Молния', icon: '⚡', cost: 30, cooldown: 8, description: 'Урон нескольким врагам', requiresTarget: false },
+                        { id: 'dodge', name: 'Уворот', icon: '🌀', cost: 10, cooldown: 10, description: '+50% уклонения', requiresTarget: false }
+                    ];
+                    break;
+                case ROLES.ARCHER:
+                    abilities = [
+                        { id: 'shot', name: 'Выстрел', icon: '🏹', cost: 5, cooldown: 2, description: 'Базовый выстрел', requiresTarget: false },
+                        { id: 'multishot', name: 'Залп', icon: '🎯', cost: 15, cooldown: 6, description: 'Выстрел по нескольким', requiresTarget: false },
+                        { id: 'critShot', name: 'Крит. выстрел', icon: '💥', cost: 25, cooldown: 12, description: 'Сильный выстрел', requiresTarget: false },
+                        { id: 'dodge', name: 'Уворот', icon: '🌀', cost: 10, cooldown: 10, description: '+50% уклонения', requiresTarget: false }
+                    ];
+                    break;
+            }
+            
+            gameState.playerAbilities = abilities;
+            
+            // Создаем элементы способностей
+            abilities.forEach(ability => {
+                const abilityElement = document.createElement('div');
+                abilityElement.className = 'ability';
+                abilityElement.setAttribute('data-ability', ability.id);
+                
+                abilityElement.innerHTML = `
+                    <div class="ability-icon">${ability.icon}</div>
+                    <div class="ability-name">${ability.name}</div>
+                    <div class="ability-info">${ability.cost} маны</div>
+                    <div class="ability-info">${ability.description}</div>
+                `;
+                
+                abilityElement.addEventListener('click', function() {
+                    useAbility(ability.id);
+                });
+                
+                abilitiesContainer.appendChild(abilityElement);
+                
+                // Инициализируем кулдаун
+                gameState.abilityCooldowns[ability.id] = 0;
+            });
+            
+            // Инициализируем панель выбора целей
+            initTargetSelection();
+        }
+
+        // Инициализация панели выбора целей
+        function initTargetSelection() {
+            const targetsContainer = document.getElementById('targets');
+            targetsContainer.innerHTML = '';
+            
+            for (const role in gameState.party) {
+                const member = gameState.party[role];
+                const targetElement = document.createElement('div');
+                targetElement.className = 'target';
+                targetElement.setAttribute('data-target', role);
+                
+                targetElement.innerHTML = `
+                    <div class="target-icon ${role}">${getRoleIcon(role)}</div>
+                    <div class="target-name">${member.name}</div>
+                `;
+                
+                targetElement.addEventListener('click', function() {
+                    selectTarget(role);
+                });
+                
+                targetsContainer.appendChild(targetElement);
+            }
+        }
+
+        // Получение иконки для роли
+        function getRoleIcon(role) {
+            switch(role) {
+                case ROLES.TANK: return '🛡️';
+                case ROLES.HEALER: return '❤️';
+                case ROLES.SUPPORT: return '✨';
+                case ROLES.MAGE: return '🔥';
+                case ROLES.ARCHER: return '🏹';
+                default: return '❓';
+            }
+        }
+
+        // Выбор цели
+        function selectTarget(targetRole) {
+            gameState.selectedTarget = targetRole;
+            gameState.selectingTarget = false;
+            
+            // Сбрасываем выделение всех целей
+            document.querySelectorAll('.party-member').forEach(member => {
+                member.classList.remove('selected');
+            });
+            
+            // Выделяем выбранную цель
+            document.querySelector(`.party-member[data-role="${targetRole}"]`).classList.add('selected');
+            
+            // Скрываем панель выбора целей
+            document.getElementById('targetSelection').style.display = 'none';
+            
+            // Продолжаем использование способности
+            if (gameState.currentAbility) {
+                executeAbility(gameState.currentAbility, targetRole);
+                gameState.currentAbility = null;
+            }
+        }
+
+        // Использование способности
+        function useAbility(abilityId) {
+            const ability = gameState.playerAbilities.find(a => a.id === abilityId);
+            const player = gameState.party[gameState.playerRole];
+            
+            // Проверяем кулдаун
+            if (gameState.abilityCooldowns[abilityId] > 0) {
+                addEvent(`Способность "${ability.name}" еще на перезарядке!`);
+                return;
+            }
+            
+            // Проверяем ману
+            if (player.mana < ability.cost) {
+                addEvent(`Недостаточно маны для использования "${ability.name}"!`);
+                return;
+            }
+            
+            // Если способность требует выбора цели
+            if (ability.requiresTarget) {
+                gameState.currentAbility = abilityId;
+                gameState.selectingTarget = true;
+                
+                // Показываем панель выбора целей
+                document.getElementById('targetSelection').style.display = 'block';
+                
+                // Сбрасываем выделение всех целей
+                document.querySelectorAll('.party-member').forEach(member => {
+                    member.classList.remove('selected');
+                });
+                
+                addEvent(`Выберите цель для "${ability.name}"`);
+                return;
+            }
+            
+            // Если цель не требуется, используем способность сразу
+            executeAbility(abilityId);
+        }
+
+        // Выполнение способности
+        function executeAbility(abilityId, targetRole = null) {
+            const ability = gameState.playerAbilities.find(a => a.id === abilityId);
+            const player = gameState.party[gameState.playerRole];
+            
+            // Используем ману
+            player.mana -= ability.cost;
+            gameState.abilityCooldowns[abilityId] = ability.cooldown;
+            
+            // Эффекты способности
+            switch(abilityId) {
+                case 'taunt':
+                    gameState.enemies.forEach(enemy => {
+                        enemy.target = 'tank';
+                    });
+                    addEvent(`${player.name} использует "${ability.name}"! Все враги атакуют танка.`);
+                    break;
+                    
+                case 'shield':
+                    addEvent(`${player.name} использует "${ability.name}"! Защита увеличена.`);
+                    break;
+                    
+                case 'heal':
+                    if (targetRole && gameState.party[targetRole].alive) {
+                        const healAmount = 20;
+                        gameState.party[targetRole].health = Math.min(
+                            gameState.party[targetRole].maxHealth, 
+                            gameState.party[targetRole].health + healAmount
+                        );
+                        addEvent(`${player.name} использует "${ability.name}" на ${gameState.party[targetRole].name}. Восстановлено ${healAmount} HP.`);
+                    }
+                    break;
+                    
+                case 'groupHeal':
+                    let totalHealed = 0;
+                    for (const role in gameState.party) {
+                        if (gameState.party[role].alive) {
+                            const healAmount = 15;
+                            gameState.party[role].health = Math.min(
+                                gameState.party[role].maxHealth, 
+                                gameState.party[role].health + healAmount
+                            );
+                            totalHealed += healAmount;
+                        }
+                    }
+                    addEvent(`${player.name} использует "${ability.name}"! Вся группа восстановила ${totalHealed} HP.`);
+                    break;
+                    
+                case 'resurrect':
+                    if (targetRole && !gameState.party[targetRole].alive) {
+                        gameState.party[targetRole].alive = true;
+                        gameState.party[targetRole].health = gameState.party[targetRole].maxHealth * 0.3;
+                        addEvent(`${player.name} воскрешает ${gameState.party[targetRole].name}!`);
+                    } else if (targetRole) {
+                        addEvent(`${gameState.party[targetRole].name} уже жив!`);
+                    }
+                    break;
+                    
+                case 'restoreMana':
+                    if (targetRole && gameState.party[targetRole].alive) {
+                        const manaAmount = 30;
+                        gameState.party[targetRole].mana = Math.min(
+                            gameState.party[targetRole].maxMana, 
+                            gameState.party[targetRole].mana + manaAmount
+                        );
+                        addEvent(`${player.name} использует "${ability.name}" на ${gameState.party[targetRole].name}. Восстановлено ${manaAmount} маны.`);
+                    }
+                    break;
+                    
+                case 'fireball':
+                case 'shot':
+                    const aliveEnemies = gameState.enemies.filter(e => e.alive);
+                    if (aliveEnemies.length > 0) {
+                        const targetEnemy = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+                        const damage = abilityId === 'fireball' ? 25 : 15;
+                        targetEnemy.health -= damage;
+                        
+                        if (targetEnemy.health <= 0) {
+                            targetEnemy.alive = false;
+                            addEvent(`${player.name} использует "${ability.name}" и убивает врага!`);
+                        } else {
+                            addEvent(`${player.name} используesт "${ability.name}" и наносит ${damage} урона врагу.`);
+                        }
+                    }
+                    break;
+                    
+                default:
+                    addEvent(`${player.name} использует "${ability.name}".`);
+            }
+            
+            // Обновляем интерфейс
+            updatePartyUI();
+            updateAbilityUI();
+        }
+
+        // Начать данж
+        function startDungeon(dungeonIndex) {
+            gameState.currentDungeon = dungeonIndex;
+            gameState.currentWave = 0;
+            
+            const dungeon = DUNGEONS[dungeonIndex];
+            document.getElementById('currentDungeon').textContent = dungeon.name;
+            
+            nextWave();
+            
+            addEvent(`Ваша группа входит в ${dungeon.name}.`);
+        }
+
+        // Следующая волна врагов
+        function nextWave() {
+            gameState.currentWave++;
+            const dungeon = DUNGEONS[gameState.currentDungeon];
+            
+            if (gameState.currentWave > dungeon.waves) {
+                // Данж пройден
+                completeDungeon();
+                return;
+            }
+            
+            // Создаем врагов для волны
+            gameState.enemies = [];
+            const enemyCount = dungeon.enemiesPerWave;
+            
+            // Если это последняя волна и есть босс
+            if (gameState.currentWave === dungeon.waves && dungeon.boss) {
+                gameState.enemies.push({
+                    id: 0,
+                    name: 'Босс',
+                    health: 200 + gameState.currentDungeon * 50,
+                    maxHealth: 200 + gameState.currentDungeon * 50,
+                    damage: 15 + gameState.currentDungeon * 5,
+                    alive: true,
+                    target: null,
+                    isBoss: true
+                });
+                addEvent(`Появляется БОСС! Приготовьтесь к тяжелой битве!`);
+            } else {
+                for (let i = 0; i < enemyCount; i++) {
+                    gameState.enemies.push({
+                        id: i,
+                        name: 'Враг',
+                        health: 30 + gameState.currentWave * 10,
+                        maxHealth: 30 + gameState.currentWave * 10,
+                        damage: 5 + gameState.currentWave * 2,
+                        alive: true,
+                        target: null,
+                        isBoss: false
+                    });
+                }
+                addEvent(`Появляется волна ${gameState.currentWave} врагов!`);
+            }
+            
+            document.getElementById('currentWave').textContent = gameState.currentWave;
+            document.getElementById('enemiesLeft').textContent = gameState.enemies.length;
+            document.getElementById('nextDungeon').disabled = true;
+            
+            // Обновляем отображение врагов
+            updateEnemiesUI();
+        }
+
+        // ИИ для управления группой
+        function updateAI() {
+            for (const role in gameState.party) {
+                if (role === gameState.playerRole) continue;
+                
+                const member = gameState.party[role];
+                if (!member.alive) continue;
+                
+                // Простая логика ИИ в зависимости от роли
+                switch(role) {
+                    case ROLES.TANK:
+                        if (member.mana >= 10) {
+                            let enemiesTargetingTank = 0;
+                            gameState.enemies.forEach(enemy => {
+                                if (enemy.target === 'tank') enemiesTargetingTank++;
+                            });
+                            
+                            if (enemiesTargetingTank < gameState.enemies.length / 2) {
+                                gameState.enemies.forEach(enemy => {
+                                    enemy.target = 'tank';
+                                });
+                                member.mana -= 10;
+                                addEvent(`Танк использует "Провокацию"!`);
+                            }
+                        }
+                        break;
+                        
+                    case ROLES.HEALER:
+                        // Хилер ищет самого раненого союзника
+                        let lowestHealth = 100;
+                        let healTarget = null;
+                        
+                        for (const r in gameState.party) {
+                            const m = gameState.party[r];
+                            if (m.alive && m.health < m.maxHealth) {
+                                const healthPercent = m.health / m.maxHealth;
+                                if (healthPercent < lowestHealth) {
+                                    lowestHealth = healthPercent;
+                                    healTarget = r;
+                                }
+                            }
+                        }
+                        
+                        if (healTarget && member.mana >= 15 && lowestHealth < 0.7) {
+                            const healAmount = 20;
+                            gameState.party[healTarget].health = Math.min(
+                                gameState.party[healTarget].maxHealth, 
+                                gameState.party[healTarget].health + healAmount
+                            );
+                            member.mana -= 15;
+                            addEvent(`Хилер использует "Лечение" на ${gameState.party[healTarget].name}.`);
+                        }
+                        break;
+                        
+                    case ROLES.SUPPORT:
+                        // Саппорт ищет союзника с наименьшей маной
+                        let lowestMana = 100;
+                        let manaTarget = null;
+                        
+                        for (const r in gameState.party) {
+                            const m = gameState.party[r];
+                            if (m.alive && m.mana < m.maxMana && m.role !== ROLES.TANK) {
+                                const manaPercent = m.mana / m.maxMana;
+                                if (manaPercent < lowestMana) {
+                                    lowestMana = manaPercent;
+                                    manaTarget = r;
+                                }
+                            }
+                        }
+                        
+                        if (manaTarget && member.mana >= 10 && lowestMana < 0.5) {
+                            const manaAmount = 30;
+                            gameState.party[manaTarget].mana = Math.min(
+                                gameState.party[manaTarget].maxMana, 
+                                gameState.party[manaTarget].mana + manaAmount
+                            );
+                            member.mana -= 10;
+                            addEvent(`Саппорт восстанавливает ману ${gameState.party[manaTarget].name}.`);
+                        }
+                        break;
+                        
+                    case ROLES.MAGE:
+                    case ROLES.ARCHER:
+                        const aliveEnemies = gameState.enemies.filter(e => e.alive);
+                        if (aliveEnemies.length > 0 && member.mana >= 5) {
+                            const targetEnemy = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+                            const damage = role === ROLES.MAGE ? 15 : 10;
+                            targetEnemy.health -= damage;
+                            member.mana -= 5;
+                            
+                            if (targetEnemy.health <= 0) {
+                                targetEnemy.alive = false;
+                                addEvent(`${member.name} убивает врага!`);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+
+        // Обновление врагов
+        function updateEnemies() {
+            for (let i = 0; i < gameState.enemies.length; i++) {
+                const enemy = gameState.enemies[i];
+                if (!enemy.alive) continue;
+                
+                // Если у врага нет цели, выбираем случайного члена группы
+                if (!enemy.target) {
+                    const roles = Object.keys(gameState.party);
+                    const aliveRoles = roles.filter(role => gameState.party[role].alive);
+                    if (aliveRoles.length > 0) {
+                        enemy.target = aliveRoles[Math.floor(Math.random() * aliveRoles.length)];
+                    }
+                }
+                
+                // Атакуем цель
+                if (enemy.target && gameState.party[enemy.target].alive) {
+                    const target = gameState.party[enemy.target];
+                    
+                    // Босс атакует реже, но сильнее
+                    const attackChance = enemy.isBoss ? 0.03 : 0.05;
+                    if (Math.random() < attackChance) {
+                        target.health -= enemy.damage;
+                        addEvent(`${enemy.isBoss ? 'БОСС' : 'Враг'} атакует ${target.name} и наносит ${enemy.damage} урона.`);
+                        
+                        if (target.health <= 0) {
+                            target.alive = false;
+                            target.health = 0;
+                            addEvent(`${target.name} пал в бою!`);
+                            
+                            // Проверяем, все ли мертвы
+                            checkGameOver();
+                        }
+                    }
+                }
+            }
+            
+            // Удаляем мертвых врагов
+            gameState.enemies = gameState.enemies.filter(enemy => enemy.alive);
+            document.getElementById('enemiesLeft').textContent = gameState.enemies.length;
+            
+            // Обновляем отображение врагов
+            updateEnemiesUI();
+            
+            // Если все враги мертвы, переходим к следующей волне
+            if (gameState.enemies.length === 0) {
+                setTimeout(() => {
+                    nextWave();
+                }, 1000);
+            }
+        }
+
+        // Игровой цикл
+        function gameLoop() {
+            if (!gameState.gameActive) return;
+            
+            // Обновляем кулдауны способностей
+            for (const abilityId in gameState.abilityCooldowns) {
+                if (gameState.abilityCooldowns[abilityId] > 0) {
+                    gameState.abilityCooldowns[abilityId]--;
+                }
+            }
+            
+            // Обновляем ИИ группы
+            updateAI();
+            
+            // Обновляем врагов
+            updateEnemies();
+            
+            // Восстанавливаем ману (медленнее)
+            for (const role in gameState.party) {
+                const member = gameState.party[role];
+                if (member.alive) {
+                    member.mana = Math.min(member.maxMana, member.mana + 0.2);
+                }
+            }
+            
+            // Обновляем интерфейс
+            updatePartyUI();
+            updateAbilityUI();
+        }
+
+        // Обновление интерфейса группы
+        function updatePartyUI() {
+            const partyDisplay = document.getElementById('partyDisplay');
+            partyDisplay.innerHTML = '';
+            
+            for (const role in gameState.party) {
+                const member = gameState.party[role];
+                const memberElement = document.createElement('div');
+                memberElement.className = `party-member ${member.alive ? '' : 'dead'}`;
+                memberElement.setAttribute('data-role', role);
+                
+                if (role === gameState.selectedTarget) {
+                    memberElement.classList.add('selected');
+                }
+                
+                const healthPercent = (member.health / member.maxHealth) * 100;
+                const manaPercent = (member.mana / member.maxMana) * 100;
+                
+                memberElement.innerHTML = `
+                    <div class="member-icon ${role}">${getRoleIcon(role)}</div>
+                    <div class="member-stats">
+                        <div class="member-name">${member.name} ${!member.alive ? '(Мёртв)' : ''}</div>
+                        <div class="stat-numbers">
+                            <span>HP: ${Math.floor(member.health)}/${member.maxHealth}</span>
+                            <span>MP: ${Math.floor(member.mana)}/${member.maxMana}</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="health-bar" style="width: ${healthPercent}%"></div>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="mana-bar" style="width: ${manaPercent}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                partyDisplay.appendChild(memberElement);
+            }
+        }
+
+        // Обновление интерфейса врагов
+        function updateEnemiesUI() {
+            const enemiesDisplay = document.getElementById('enemiesDisplay');
+            enemiesDisplay.innerHTML = '';
+            
+            gameState.enemies.forEach(enemy => {
+                const enemyElement = document.createElement('div');
+                enemyElement.className = 'enemy';
+                
+                const healthPercent = (enemy.health / enemy.maxHealth) * 100;
+                
+                enemyElement.innerHTML = `
+                    <div class="enemy-icon">${enemy.isBoss ? '👹' : '👤'}</div>
+                    <div class="enemy-stats">
+                        <div class="member-name">${enemy.name} ${enemy.isBoss ? '(БОСС)' : ''}</div>
+                        <div class="stat-numbers">
+                            <span>HP: ${Math.floor(enemy.health)}/${enemy.maxHealth}</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="health-bar" style="width: ${healthPercent}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                enemiesDisplay.appendChild(enemyElement);
+            });
+        }
+
+        // Обновление интерфейса способностей
+        function updateAbilityUI() {
+            const abilityElements = document.querySelectorAll('.ability');
+            
+            abilityElements.forEach(element => {
+                const abilityId = element.getAttribute('data-ability');
+                const cooldown = gameState.abilityCooldowns[abilityId];
+                const ability = gameState.playerAbilities.find(a => a.id === abilityId);
+                const player = gameState.party[gameState.playerRole];
+                
+                if (cooldown > 0) {
+                    element.classList.add('on-cooldown');
+                    
+                    let cooldownOverlay = element.querySelector('.cooldown-overlay');
+                    if (!cooldownOverlay) {
+                        cooldownOverlay = document.createElement('div');
+                        cooldownOverlay.className = 'cooldown-overlay';
+                        element.appendChild(cooldownOverlay);
+                    }
+                    cooldownOverlay.textContent = cooldown;
+                } else {
+                    element.classList.remove('on-cooldown');
+                    
+                    const cooldownOverlay = element.querySelector('.cooldown-overlay');
+                    if (cooldownOverlay) {
+                        element.removeChild(cooldownOverlay);
+                    }
+                }
+                
+                // Проверяем, хватает ли маны
+                if (player.mana < ability.cost) {
+                    element.style.opacity = '0.5';
+                } else {
+                    element.style.opacity = '1';
+                }
+            });
+        }
+
+        // Добавление события в лог
+        function addEvent(message) {
+            const eventLog = document.getElementById('eventLog');
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event';
+            eventElement.textContent = message;
+            
+            eventLog.appendChild(eventElement);
+            eventLog.scrollTop = eventLog.scrollHeight;
+            
+            // Сохраняем последние 15 событий
+            const events = eventLog.querySelectorAll('.event');
+            if (events.length > 15) {
+                events[0].remove();
+            }
+        }
+
+        // Проверка условия поражения
+        function checkGameOver() {
+            let aliveCount = 0;
+            for (const role in gameState.party) {
+                if (gameState.party[role].alive) {
+                    aliveCount++;
+                }
+            }
+            
+            if (aliveCount === 0) {
+                gameOver();
+            }
+        }
+
+        // Завершение данжа
+        function completeDungeon() {
+            const dungeon = DUNGEONS[gameState.currentDungeon];
+            gameState.currency += dungeon.reward;
+            
+            addEvent(`Поздравляем! Вы прошли ${dungeon.name} и получили ${dungeon.reward} золотых.`);
+            
+            // Восстанавливаем группу
+            for (const role in gameState.party) {
+                const member = gameState.party[role];
+                if (member.alive) {
+                    member.health = member.maxHealth;
+                    member.mana = member.maxMana;
+                }
+            }
+            
+            document.getElementById('currencyAmount').textContent = gameState.currency;
+            document.getElementById('nextDungeon').disabled = false;
+            
+            // Если это последний данж, начинаем сначала с увеличенной сложностью
+            if (gameState.currentDungeon >= DUNGEONS.length - 1) {
+                addEvent("Вы прошли все данжи! Начинаем сначала с увеличенной сложностью.");
+                gameState.currentDungeon = 0;
+            }
+            
+            updatePartyUI();
+        }
+
+        // Следующий данж
+        function nextDungeon() {
+            gameState.currentDungeon++;
+            if (gameState.currentDungeon >= DUNGEONS.length) {
+                gameState.currentDungeon = 0;
+            }
+            
+            startDungeon(gameState.currentDungeon);
+        }
+
+        // Открытие магазина
+        function openShop() {
+            gameState.gameActive = false;
+            
+            document.getElementById('shopCurrencyAmount').textContent = gameState.currency;
+            
+            const shopItems = document.getElementById('shopItems');
+            shopItems.innerHTML = '';
+            
+            const items = [
+                { id: 'healthUp', name: 'Увеличение здоровья', icon: '❤️', cost: 100, description: '+10% к здоровью всей группы' },
+                { id: 'manaUp', name: 'Увеличение маны', icon: '🔵', cost: 100, description: '+10% к мане всей группы' },
+                { id: 'damageUp', name: 'Увеличение урона', icon: '⚔️', cost: 150, description: '+10% к урону всей группы' },
+                { id: 'healingUp', name: 'Улучшение лечения', icon: '💖', cost: 150, description: '+15% к эффективности лечения' },
+                { id: 'cooldownReduction', name: 'Сокращение перезарядки', icon: '⏱️', cost: 200, description: '-10% к перезарядке способностей' },
+                { id: 'manaCostReduction', name: 'Снижение стоимости маны', icon: '🔋', cost: 200, description: '-10% к стоимости маны' }
+            ];
+            
+            items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'shop-item';
+                itemElement.setAttribute('data-item', item.id);
+                
+                itemElement.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-desc">${item.description}</div>
+                    <div class="item-cost">${item.cost} золотых</div>
+                `;
+                
+                itemElement.addEventListener('click', function() {
+                    buyItem(item.id, item.cost);
+                });
+                
+                shopItems.appendChild(itemElement);
+            });
+            
+            switchScreen('shopScreen');
+        }
+
+        // Покупка предмета в магазине
+        function buyItem(itemId, cost) {
+            if (gameState.currency < cost) {
+                alert('Недостаточно золота!');
+                return;
+            }
+            
+            gameState.currency -= cost;
+            document.getElementById('shopCurrencyAmount').textContent = gameState.currency;
+            document.getElementById('currencyAmount').textContent = gameState.currency;
+            
+            // Применяем эффект предмета
+            switch(itemId) {
+                case 'healthUp':
+                    for (const role in gameState.party) {
+                        const member = gameState.party[role];
+                        member.maxHealth = Math.floor(member.maxHealth * 1.1);
+                        member.health = member.maxHealth;
+                    }
+                    addEvent('Здоровье всей группы увеличено на 10%!');
+                    break;
+                    
+                case 'manaUp':
+                    for (const role in gameState.party) {
+                        const member = gameState.party[role];
+                        member.maxMana = Math.floor(member.maxMana * 1.1);
+                        member.mana = member.maxMana;
+                    }
+                    addEvent('Мана всей группы увеличена на 10%!');
+                    break;
+                    
+                case 'damageUp':
+                    addEvent('Урон группы увеличен на 10%!');
+                    break;
+                    
+                case 'healingUp':
+                    addEvent('Эффективность лечения увеличена на 15%!');
+                    break;
+                    
+                case 'cooldownReduction':
+                    addEvent('Перезарядка способностей сокращена на 10%!');
+                    break;
+                    
+                case 'manaCostReduction':
+                    addEvent('Стоимость маны способностей снижена на 10%!');
+                    break;
+            }
+            
+            updatePartyUI();
+        }
+
+        // Возврат к игре из магазина
+        function backToGame() {
+            gameState.gameActive = true;
+            switchScreen('gameScreen');
+        }
+
+        // Конец игры
+        function gameOver() {
+            gameState.gameActive = false;
+            clearInterval(gameState.gameLoopInterval);
+            
+            document.getElementById('dungeonsCompleted').textContent = gameState.currentDungeon;
+            switchScreen('gameOverScreen');
+        }
+
+        // Перезапуск игры
+        function restartGame() {
+            gameState = {
+                playerRole: gameState.playerRole,
+                party: {},
+                enemies: [],
+                currentDungeon: 0,
+                currentWave: 0,
+                currency: 50,
+                gameActive: false,
+                abilities: {},
+                abilityCooldowns: {},
+                playerAbilities: [],
+                eventLog: [],
+                gameLoopInterval: null,
+                selectedTarget: null,
+                selectingTarget: false,
+                currentAbility: null
+            };
+            
+            startGame();
+        }
+
+        // Переключение экранов
+        function switchScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            document.getElementById(screenId).classList.add('active');
+        }
+    </script>
+</body>
+</html>

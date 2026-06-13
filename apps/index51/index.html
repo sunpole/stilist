@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JSON Admin Panel</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --header-height: 60px;
+            --footer-height: 40px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 0;
+            margin: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            height: var(--header-height);
+            background-color: #343a40;
+            color: white;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .main-content {
+            flex: 1;
+            overflow: auto;
+            padding: 15px;
+        }
+        .footer {
+            height: var(--footer-height);
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .btn-mobile {
+            padding: 10px 15px;
+            margin: 5px 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-mobile .bi {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        .json-editor {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            min-height: 200px;
+            max-height: calc(100vh - var(--header-height) - var(--footer-height) - 180px);
+            overflow: auto;
+            background-color: #f8f9fa;
+        }
+        .toast-container {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+        }
+        .file-input {
+            display: none;
+        }
+        @media (max-width: 576px) {
+            .btn-mobile {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Шапка -->
+        <header class="header">
+            <h5 class="mb-0">JSON Admin</h5>
+            <div id="fileInfo" class="text-truncate" style="max-width: 60%;">Нет открытого файла</div>
+        </header>
+
+        <!-- Основное содержимое -->
+        <main class="main-content">
+            <!-- Кнопки управления -->
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <button id="importBtn" class="btn btn-primary btn-mobile">
+                        <i class="bi bi-upload"></i> Импорт файла
+                    </button>
+                    <input type="file" id="fileInput" class="file-input" accept=".json">
+                </div>
+                <div class="col-md-6">
+                    <button id="openProjectBtn" class="btn btn-success btn-mobile">
+                        <i class="bi bi-folder2-open"></i> Открыть из проекта
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button id="addByUrlBtn" class="btn btn-info btn-mobile">
+                        <i class="bi bi-link-45deg"></i> Добавить по ссылке
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button id="createBtn" class="btn btn-warning btn-mobile">
+                        <i class="bi bi-file-earmark-plus"></i> Создать JSON
+                    </button>
+                </div>
+            </div>
+
+            <!-- Редактор JSON -->
+            <div id="editorSection" class="d-none">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 id="fileName">Новый файл</h5>
+                    <div>
+                        <button id="saveBtn" class="btn btn-sm btn-success me-2">
+                            <i class="bi bi-save"></i> Сохранить
+                        </button>
+                        <button id="exportBtn" class="btn btn-sm btn-secondary">
+                            <i class="bi bi-download"></i> Экспорт
+                        </button>
+                    </div>
+                </div>
+                <div id="jsonEditor" class="json-editor" contenteditable="true"></div>
+                <div class="mt-2">
+                    <button id="validateBtn" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="bi bi-check-circle"></i> Проверить
+                    </button>
+                    <button id="formatBtn" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-code-slash"></i> Форматировать
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Подвал -->
+        <footer class="footer">
+            <div id="statusMessage">Готов к работе</div>
+        </footer>
+    </div>
+
+    <!-- Модальные окна -->
+    <!-- Модальное окно для добавления по ссылке -->
+    <div class="modal fade" id="urlModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить JSON по ссылке</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="jsonUrl" class="form-label">URL JSON файла:</label>
+                        <input type="url" class="form-control" id="jsonUrl" placeholder="https://example.com/data.json">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="loadUrlBtn">Загрузить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для поиска файлов -->
+    <div class="modal fade" id="fileSearchModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Поиск файлов в проекте</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label for="searchPath" class="form-label">Путь к папке:</label>
+                            <input type="text" class="form-control" id="searchPath" placeholder="./data">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filePattern" class="form-label">Шаблон файлов:</label>
+                            <input type="text" class="form-control" id="filePattern" value="*.json">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <button id="searchBtn" class="btn btn-primary me-2">
+                            <i class="bi bi-search"></i> Поиск
+                        </button>
+                        <button id="browseBtn" class="btn btn-outline-secondary">
+                            <i class="bi bi-folder2-open"></i> Обзор
+                        </button>
+                    </div>
+                    <div class="search-results">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Имя файла</th>
+                                        <th>Размер</th>
+                                        <th>Дата изменения</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fileResults">
+                                    <!-- Результаты поиска будут здесь -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для уведомлений -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Основной скрипт приложения -->
+    <script src="adminjson.js"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STYLIST | Демо выпадающих списков</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f9f3e9;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #8B4513; /* Осенний коричневый */
+        }
+        .back-btn {
+            padding: 10px 15px;
+            background: #8B4513;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        /* Секции для каждого типа списка */
+        .dropdown-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Таблица стилей */
+        .style-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .style-table th, .style-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .style-table th {
+            background: #f5deb3; /* Пшеничный */
+        }
+        .style-table tr:hover {
+            background: #fffaf0;
+        }
+
+        /* Кнопка подсказки */
+        .hint-btn {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #8B4513;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            cursor: help;
+            margin-left: 5px;
+            font-size: 14px;
+            line-height: 20px;
+        }
+
+        /* Кнопка отключения стиля */
+        .toggle-btn {
+            padding: 3px 8px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .toggle-btn.active {
+            background: #2ecc71;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .style-table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='index.html'">← На главную</button>
+        <h1>Демо: Все виды выпадающих списков</h1>
+
+        <!-- 1. Стандартный выпадающий список -->
+        <section class="dropdown-section">
+            <h2>1. Стандартный <code>&lt;select&gt;</code></h2>
+            <select id="standard-select">
+                <option value="">Выберите вариант</option>
+                <option value="1">Кленовый лист</option>
+                <option value="2">Дубовый лист</option>
+                <option value="3">Берёзовый лист</option>
+            </select>
+
+            <table class="style-table">
+                <thead>
+                    <tr>
+                        <th>Свойство CSS <span class="hint-btn" title="Нажмите, чтобы применить стиль">?</span></th>
+                        <th>Значение <span class="hint-btn" title="Пример: 'background: #F5D76E'">?</span></th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>background</td>
+                        <td>linear-gradient(to bottom, #F5D76E, #E67E22)</td>
+                        <td><button class="toggle-btn" onclick="toggleStyle('standard-select', 'background', 'linear-gradient(to bottom, #F5D76E, #E67E22)')">Применить</button></td>
+                    </tr>
+                    <tr>
+                        <td>border</td>
+                        <td>2px solid #8B4513</td>
+                        <td><button class="toggle-btn" onclick="toggleStyle('standard-select', 'border', '2px solid #8B4513')">Применить</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 2. Множественный выбор -->
+        <section class="dropdown-section">
+            <h2>2. Множественный выбор <code>&lt;select multiple&gt;</code></h2>
+            <select id="multi-select" multiple>
+                <option value="1">Яблоки</option>
+                <option value="2">Груши</option>
+                <option value="3">Тыквы</option>
+            </select>
+
+            <table class="style-table">
+                <!-- Аналогичная таблица -->
+            </table>
+        </section>
+
+        <!-- 3. Кастомный список -->
+        <section class="dropdown-section">
+            <h2>3. Кастомный список (div + JS)</h2>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Выберите элемент ▼</button>
+                <ul class="dropdown-menu">
+                    <li data-value="1">Жёлтый лист</li>
+                    <li data-value="2">Красный лист</li>
+                    <li data-value="3">Оранжевый лист</li>
+                </ul>
+            </div>
+
+            <table class="style-table">
+                <!-- Аналогичная таблица -->
+            </table>
+        </section>
+    </div>
+
+    <script>
+        // Функция для применения/сброса стилей
+        function toggleStyle(elementId, property, value) {
+            const element = document.getElementById(elementId);
+            const btn = event.target;
+            
+            if (element.style[property] === value || element.style.getPropertyValue(property) === value) {
+                element.style[property] = '';
+                btn.textContent = 'Применить';
+                btn.classList.remove('active');
+            } else {
+                element.style[property] = value;
+                btn.textContent = 'Сбросить';
+                btn.classList.add('active');
+            }
+        }
+
+        // Кастомный выпадающий список
+        document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+            const menu = document.querySelector('.dropdown-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.querySelectorAll('.dropdown-menu li').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelector('.dropdown-toggle').textContent = this.textContent + ' ▼';
+                document.querySelector('.dropdown-menu').style.display = 'none';
+            });
+        });
+
+        // Подсказки
+        document.querySelectorAll('.hint-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert(this.getAttribute('title'));
+            });
+        });
+    </script>
+</body>
+</html>

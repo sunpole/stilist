@@ -407,3 +407,15 @@ Current operating mode:
 - no project folder moves yet;
 - old links stay intact;
 - deeper cleanup is deferred until canonical projects and redirects are reviewed.
+
+# v0.8.0-physical-migration
+
+SUNPOLE HUB has entered the first safe physical migration stage.
+
+What changed:
+
+- The 194-card catalog is preserved.
+- Catalog launch paths now point primarily into `apps/` and `archive/`.
+- Root project HTML files became redirect stubs instead of disappearing.
+- Existing project folders remain available at old URLs while copied versions live in the new structure.
+- Deep cleanup, folder deletion, shared asset extraction, and auto screenshots remain deferred until this migration PR is reviewed on GitHub Pages.

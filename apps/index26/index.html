@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логическая игра "Запомни последовательность"</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .game-container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            width: 100px;
+            height: 100px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.1s;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        #btn1 {
+            background-color: #ff6b6b;
+        }
+        
+        #btn2 {
+            background-color: #4ecdc4;
+        }
+        
+        #btn3 {
+            background-color: #ffe66d;
+        }
+        
+        #btn4 {
+            background-color: #7ddf64;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4a69bd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #3c58a8;
+        }
+        
+        .info {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Запомни последовательность</h1>
+        <p>Запомните и повторите последовательность звуков и цветов</p>
+        
+        <div class="buttons">
+            <button id="btn1" class="btn" data-sound="sound1"></button>
+            <button id="btn2" class="btn" data-sound="sound2"></button>
+            <button id="btn3" class="btn" data-sound="sound3"></button>
+            <button id="btn4" class="btn" data-sound="sound4"></button>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">Начать игру</button>
+            <button id="repeatBtn" class="hidden">Повторить последовательность</button>
+        </div>
+        
+        <div class="info">
+            <p>Уровень: <span id="level">1</span></p>
+            <p id="message">Нажмите "Начать игру"</p>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        let sequence = [];
+        let playerSequence = [];
+        let level = 1;
+        let isPlaying = false;
+        let isPlayerTurn = false;
+        
+        // Элементы DOM
+        const startBtn = document.getElementById('startBtn');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const levelDisplay = document.getElementById('level');
+        const messageDisplay = document.getElementById('message');
+        const buttons = document.querySelectorAll('.btn');
+        
+        // Создаем аудио контекст и звуки
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Функция для создания звуков
+        function createSound(frequency, type = 'sine', duration = 0.5) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = type;
+            oscillator.frequency.value = frequency;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.01);
+            oscillator.start();
+            
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Звуки для кнопок
+        const sounds = {
+            sound1: () => createSound(261.63),  // До
+            sound2: () => createSound(329.63),  // Ми
+            sound3: () => createSound(392.00),  // Соль
+            sound4: () => createSound(523.25)   // До на октаву выше
+        };
+        
+        // Начало игры
+        startBtn.addEventListener('click', startGame);
+        
+        function startGame() {
+            sequence = [];
+            playerSequence = [];
+            level = 1;
+            levelDisplay.textContent = level;
+            messageDisplay.textContent = 'Запоминайте последовательность...';
+            isPlaying = true;
+            isPlayerTurn = false;
+            startBtn.classList.add('hidden');
+            repeatBtn.classList.add('hidden');
+            
+            nextLevel();
+        }
+        
+        // Следующий уровень
+        function nextLevel() {
+            // Добавляем случайную кнопку в последовательность
+            const randomBtn = Math.floor(Math.random() * buttons.length);
+            sequence.push(randomBtn);
+            
+            // Воспроизводим последовательность
+            playSequence();
+        }
+        
+        // Воспроизведение последовательности
+        function playSequence() {
+            isPlayerTurn = false;
+            messageDisplay.textContent = 'Запоминайте последовательность...';
+            repeatBtn.classList.add('hidden');
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i >= sequence.length) {
+                    clearInterval(interval);
+                    isPlayerTurn = true;
+                    messageDisplay.textContent = 'Ваш ход! Повторите последовательность';
+                    repeatBtn.classList.remove('hidden');
+                    return;
+                }
+                
+                const btnIndex = sequence[i];
+                const button = buttons[btnIndex];
+                highlightButton(button);
+                i++;
+            }, 800);
+        }
+        
+        // Подсветка кнопки и воспроизведение звука
+        function highlightButton(button) {
+            // Анимируем кнопку
+            button.style.transform = 'scale(0.95)';
+            button.style.opacity = '0.8';
+            
+            // Воспроизводим звук
+            const soundId = button.getAttribute('data-sound');
+            sounds[soundId]();
+            
+            // Возвращаем кнопку в исходное состояние
+            setTimeout(() => {
+                button.style.transform = '';
+                button.style.opacity = '';
+            }, 300);
+        }
+        
+        // Обработка кликов по кнопкам
+        buttons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                if (!isPlaying || !isPlayerTurn) return;
+                
+                // Подсветка и звук при нажатии
+                highlightButton(button);
+                
+                // Добавляем нажатую кнопку в последовательность игрока
+                playerSequence.push(index);
+                
+                // Проверяем, совпадает ли с игровой последовательностью
+                checkSequence();
+            });
+        });
+        
+        // Проверка последовательности игрока
+        function checkSequence() {
+            for (let i = 0; i < playerSequence.length; i++) {
+                if (playerSequence[i] !== sequence[i]) {
+                    // Неправильная последовательность
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Если последовательность полная и правильная
+            if (playerSequence.length === sequence.length) {
+                playerSequence = [];
+                level++;
+                levelDisplay.textContent = level;
+                messageDisplay.textContent = 'Правильно! Переход на следующий уровень...';
+                isPlayerTurn = false;
+                repeatBtn.classList.add('hidden');
+                
+                // Задержка перед следующим уровнем
+                setTimeout(() => {
+                    nextLevel();
+                }, 1500);
+            }
+        }
+        
+        // Конец игры
+        function gameOver() {
+            isPlaying = false;
+            messageDisplay.textContent = `Игра окончена! Ваш уровень: ${level}. Нажмите "Начать игру"`;
+            startBtn.classList.remove('hidden');
+            repeatBtn.classList.add('hidden');
+            
+            // Проигрываем звук проигрыша
+            createSound(100, 'square', 1);
+        }
+        
+        // Повтор последовательности
+        repeatBtn.addEventListener('click', playSequence);
+    </script>
+</body>
+</html>

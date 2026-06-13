@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Platformer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Courier New', monospace;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #game {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            overflow: hidden;
+        }
+        
+        #player {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #0f0;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .platform {
+            position: absolute;
+            background-color: #333;
+            border: 2px solid #555;
+        }
+        
+        .enemy {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: #f00;
+            border-radius: 50%;
+        }
+        
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f00;
+            clip-path: polygon(
+                50% 15%, 60% 40%, 90% 40%, 65% 60%, 
+                75% 85%, 50% 70%, 25% 85%, 35% 60%, 
+                10% 40%, 40% 40%
+            );
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 16px;
+            z-index: 100;
+        }
+        
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: #0f0;
+        }
+        
+        #startButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: #f00;
+        }
+        
+        #restartButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #f00;
+            color: #000;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        @media (orientation: portrait) {
+            #player {
+                width: 6vw;
+                height: 6vw;
+            }
+            
+            .enemy {
+                width: 5vw;
+                height: 5vw;
+            }
+            
+            .heart {
+                width: 4vw;
+                height: 4vw;
+            }
+            
+            #ui {
+                font-size: 3vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="player"></div>
+        <div id="ui">
+            <span id="hearts">♡3</span> | <span id="floors">Floors: 0</span>
+        </div>
+        
+        <div id="startScreen">
+            <h1>RETRO PLATFORMER</h1>
+            <p>Reach the top to win!</p>
+            <p>Avoid enemies, collect hearts</p>
+            <button id="startButton">NEW GAME</button>
+        </div>
+        
+        <div id="gameOverScreen">
+            <h1>GAME OVER</h1>
+            <p id="finalScore">Floors: 0</p>
+            <button id="restartButton">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let player = document.getElementById('player');
+        let game = document.getElementById('game');
+        let ui = document.getElementById('ui');
+        let heartsDisplay = document.getElementById('hearts');
+        let floorsDisplay = document.getElementById('floors');
+        let startScreen = document.getElementById('startScreen');
+        let gameOverScreen = document.getElementById('gameOverScreen');
+        let finalScoreDisplay = document.getElementById('finalScore');
+        let startButton = document.getElementById('startButton');
+        let restartButton = document.getElementById('restartButton');
+        
+        let platforms = [];
+        let enemies = [];
+        let hearts = [];
+        let gameWidth, gameHeight;
+        let playerX, playerY;
+        let playerWidth, playerHeight;
+        let velocityX = 0;
+        let velocityY = 0;
+        let isJumping = false;
+        let gravity = 0.5;
+        let friction = 0.9;
+        let keys = {};
+        let heartsCount = 3;
+        let maxHearts = 9;
+        let floorsCount = 0;
+        let gameActive = false;
+        let enemySpeed = 2;
+        let platformCount = 5;
+        let enemyCount = 3;
+        let heartCount = 2;
+        let gameLoopId;
+        
+        // Initialize game
+        function initGame() {
+            // Set game dimensions
+            gameWidth = game.offsetWidth;
+            gameHeight = game.offsetHeight;
+            playerWidth = player.offsetWidth;
+            playerHeight = player.offsetHeight;
+            
+            // Reset player
+            playerX = gameWidth / 2 - playerWidth / 2;
+            playerY = gameHeight - playerHeight - 50;
+            player.style.left = playerX + 'px';
+            player.style.top = playerY + 'px';
+            
+            // Reset game state
+            heartsCount = 3;
+            floorsCount = 0;
+            velocityX = 0;
+            velocityY = 0;
+            isJumping = false;
+            enemySpeed = 2;
+            platformCount = 5;
+            enemyCount = 3;
+            heartCount = 2;
+            
+            // Clear existing elements
+            clearGameElements();
+            
+            // Create initial platforms
+            createPlatforms();
+            
+            // Create initial enemies
+            createEnemies();
+            
+            // Create initial hearts
+            createHearts();
+            
+            // Update UI
+            updateUI();
+            
+            // Start game loop
+            gameActive = true;
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Clear game elements
+        function clearGameElements() {
+            // Remove platforms
+            document.querySelectorAll('.platform').forEach(el => el.remove());
+            platforms = [];
+            
+            // Remove enemies
+            document.querySelectorAll('.enemy').forEach(el => el.remove());
+            enemies = [];
+            
+            // Remove hearts
+            document.querySelectorAll('.heart').forEach(el => el.remove());
+            hearts = [];
+        }
+        
+        // Create platforms
+        function createPlatforms() {
+            // Ground platform
+            createPlatform(0, gameHeight - 20, gameWidth, 20);
+            
+            // Random platforms
+            for (let i = 0; i < platformCount; i++) {
+                let width = Math.random() * 100 + 50;
+                let x = Math.random() * (gameWidth - width);
+                let y = Math.random() * (gameHeight - 200) + 50;
+                
+                createPlatform(x, y, width, 15);
+            }
+            
+            // Top platform (goal)
+            createPlatform(gameWidth / 2 - 50, 50, 100, 15, true);
+        }
+        
+        // Create a single platform
+        function createPlatform(x, y, width, height, isGoal = false) {
+            let platform = document.createElement('div');
+            platform.className = 'platform';
+            platform.style.left = x + 'px';
+            platform.style.top = y + 'px';
+            platform.style.width = width + 'px';
+            platform.style.height = height + 'px';
+            
+            if (isGoal) {
+                platform.style.backgroundColor = '#0a0';
+            }
+            
+            game.appendChild(platform);
+            platforms.push({
+                element: platform,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                isGoal: isGoal
+            });
+        }
+        
+        // Create enemies
+        function createEnemies() {
+            for (let i = 0; i < enemyCount; i++) {
+                let enemy = document.createElement('div');
+                enemy.className = 'enemy';
+                
+                let x = Math.random() * (gameWidth - 25);
+                let y = Math.random() * (gameHeight - 200) + 50;
+                
+                enemy.style.left = x + 'px';
+                enemy.style.top = y + 'px';
+                
+                game.appendChild(enemy);
+                enemies.push({
+                    element: enemy,
+                    x: x,
+                    y: y,
+                    width: 25,
+                    height: 25,
+                    direction: Math.random() > 0.5 ? 1 : -1
+                });
+            }
+        }
+        
+        // Create hearts
+        function createHearts() {
+            for (let i = 0; i < heartCount; i++) {
+                let heart = document.createElement('div');
+                heart.className = 'heart';
+                
+                let x = Math.random() * (gameWidth - 20);
+                let y = Math.random() * (gameHeight - 200) + 50;
+                
+                heart.style.left = x + 'px';
+                heart.style.top = y + 'px';
+                
+                game.appendChild(heart);
+                hearts.push({
+                    element: heart,
+                    x: x,
+                    y: y,
+                    width: 20,
+                    height: 20
+                });
+            }
+        }
+        
+        // Update UI
+        function updateUI() {
+            heartsDisplay.textContent = '♡' + heartsCount;
+            floorsDisplay.textContent = 'Floors: ' + floorsCount;
+        }
+        
+        // Check collisions
+        function checkCollisions() {
+            // Player boundaries
+            let playerLeft = playerX;
+            let playerRight = playerX + playerWidth;
+            let playerTop = playerY;
+            let playerBottom = playerY + playerHeight;
+            
+            // Check platform collisions
+            let onPlatform = false;
+            let reachedGoal = false;
+            
+            platforms.forEach(platform => {
+                let platformLeft = platform.x;
+                let platformRight = platform.x + platform.width;
+                let platformTop = platform.y;
+                let platformBottom = platform.y + platform.height;
+                
+                // Check if player is on top of a platform
+                if (
+                    playerBottom + velocityY >= platformTop &&
+                    playerBottom <= platformTop + 10 &&
+                    playerRight > platformLeft &&
+                    playerLeft < platformRight
+                ) {
+                    playerY = platformTop - playerHeight;
+                    velocityY = 0;
+                    isJumping = false;
+                    onPlatform = true;
+                    
+                    // Check if this is the goal platform
+                    if (platform.isGoal) {
+                        reachedGoal = true;
+                    }
+                }
+            });
+            
+            // Check enemy collisions
+            enemies.forEach(enemy => {
+                let enemyLeft = enemy.x;
+                let enemyRight = enemy.x + enemy.width;
+                let enemyTop = enemy.y;
+                let enemyBottom = enemy.y + enemy.height;
+                
+                if (
+                    playerRight > enemyLeft &&
+                    playerLeft < enemyRight &&
+                    playerBottom > enemyTop &&
+                    playerTop < enemyBottom
+                ) {
+                    // Player hit by enemy
+                    heartsCount--;
+                    updateUI();
+                    
+                    // Knockback effect
+                    velocityY = -10;
+                    if (playerX < enemy.x) {
+                        velocityX = -10;
+                    } else {
+                        velocityX = 10;
+                    }
+                    
+                    // Check game over
+                    if (heartsCount <= 0) {
+                        gameOver();
+                    }
+                }
+            });
+            
+            // Check heart collisions
+            hearts.forEach((heart, index) => {
+                let heartLeft = heart.x;
+                let heartRight = heart.x + heart.width;
+                let heartTop = heart.y;
+                let heartBottom = heart.y + heart.height;
+                
+                if (
+                    playerRight > heartLeft &&
+                    playerLeft < heartRight &&
+                    playerBottom > heartTop &&
+                    playerTop < heartBottom
+                ) {
+                    // Collect heart
+                    if (heartsCount < maxHearts) {
+                        heartsCount++;
+                        updateUI();
+                    }
+                    
+                    // Remove heart
+                    heart.element.remove();
+                    hearts.splice(index, 1);
+                }
+            });
+            
+            // Check if player reached the goal
+            if (reachedGoal) {
+                nextLevel();
+            }
+            
+            // Apply gravity if not on platform
+            if (!onPlatform) {
+                velocityY += gravity;
+            }
+        }
+        
+        // Move enemies
+        function moveEnemies() {
+            enemies.forEach(enemy => {
+                enemy.x += enemy.direction * enemySpeed;
+                enemy.element.style.left = enemy.x + 'px';
+                
+                // Change direction at edges
+                if (enemy.x <= 0 || enemy.x + enemy.width >= gameWidth) {
+                    enemy.direction *= -1;
+                }
+            });
+        }
+        
+        // Next level
+        function nextLevel() {
+            floorsCount++;
+            
+            // Reset player position
+            playerX = gameWidth / 2 - playerWidth / 2;
+            playerY = gameHeight - playerHeight - 50;
+            player.style.left = playerX + 'px';
+            player.style.top = playerY + 'px';
+            
+            // Reset velocity
+            velocityX = 0;
+            velocityY = 0;
+            
+            // Increase difficulty
+            enemySpeed += 0.5;
+            platformCount++;
+            enemyCount++;
+            heartCount++;
+            
+            // Refill hearts if low
+            if (heartsCount < 3) {
+                heartsCount = 3;
+            }
+            
+            // Clear existing elements
+            clearGameElements();
+            
+            // Create new level elements
+            createPlatforms();
+            createEnemies();
+            createHearts();
+            
+            // Update UI
+            updateUI();
+        }
+        
+        // Game over
+        function gameOver() {
+            gameActive = false;
+            cancelAnimationFrame(gameLoopId);
+            
+            finalScoreDisplay.textContent = 'Floors: ' + floorsCount;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (!gameActive) return;
+            
+            // Handle player movement
+            if (keys['ArrowLeft'] || keys['a']) {
+                velocityX -= 1;
+            }
+            if (keys['ArrowRight'] || keys['d']) {
+                velocityX += 1;
+            }
+            if ((keys['ArrowUp'] || keys['w'] || keys[' ']) && !isJumping) {
+                velocityY = -12;
+                isJumping = true;
+            }
+            
+            // Apply friction
+            velocityX *= friction;
+            
+            // Update player position
+            playerX += velocityX;
+            playerY += velocityY;
+            
+            // Screen boundaries
+            if (playerX < 0) {
+                playerX = 0;
+                velocityX = 0;
+            }
+            if (playerX + playerWidth > gameWidth) {
+                playerX = gameWidth - playerWidth;
+                velocityX = 0;
+            }
+            if (playerY < 0) {
+                playerY = 0;
+                velocityY = 0;
+            }
+            if (playerY + playerHeight > gameHeight) {
+                playerY = gameHeight - playerHeight;
+                velocityY = 0;
+                isJumping = false;
+                
+                // Check game over if fell to bottom
+                if (playerY + playerHeight >= gameHeight - 20) {
+                    heartsCount = 0;
+                    updateUI();
+                    gameOver();
+                }
+            }
+            
+            // Update player position
+            player.style.left = playerX + 'px';
+            player.style.top = playerY + 'px';
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Move enemies
+            moveEnemies();
+            
+            // Continue game loop
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Touch controls for mobile
+        let touchStartX = 0;
+        
+        game.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+        });
+        
+        game.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            let touchX = e.touches[0].clientX;
+            if (touchX < touchStartX - 10) {
+                keys['ArrowLeft'] = true;
+                keys['ArrowRight'] = false;
+            } else if (touchX > touchStartX + 10) {
+                keys['ArrowRight'] = true;
+                keys['ArrowLeft'] = false;
+            }
+        });
+        
+        game.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = false;
+            keys['ArrowRight'] = false;
+            
+            // Jump on touch end
+            if (!isJumping) {
+                velocityY = -12;
+                isJumping = true;
+            }
+        });
+        
+        // Start button
+        startButton.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            initGame();
+        });
+        
+        // Restart button
+        restartButton.addEventListener('click', () => {
+            gameOverScreen.style.display = 'none';
+            initGame();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (gameActive) {
+                gameWidth = game.offsetWidth;
+                gameHeight = game.offsetHeight;
+            }
+        });
+    </script>
+</body>
+</html>

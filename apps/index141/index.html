@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Игра: Типография</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background:#f8f9fa; }
+    .stats { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; }
+    .stats span { background:#fff; padding:5px 10px; border-radius:5px; box-shadow:0 1px 2px rgba(0,0,0,.1);}
+    .equipment-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap:8px; }
+    .cell { border:1px dashed #ccc; height:80px; display:flex; align-items:center; justify-content:center; font-size:12px; position:relative; cursor:pointer; background:#fff; border-radius:5px; }
+    .cell.broken { background:#f8d7da; }
+    .tooltip-inner { max-width:200px; }
+    @media (max-width:768px){
+      body{font-size:14px;}
+      .stats{flex-direction:column;text-align:center;}
+      .cell{height:60px;font-size:11px;}
+      .btn{padding:4px 6px;font-size:12px;}
+    }
+    @media (max-width:480px){
+      body{font-size:12px;}
+      .modal-content{font-size:12px;}
+      .cell{height:50px;font-size:10px;}
+    }
+  </style>
+</head>
+<body class="container-fluid p-3">
+
+  <h3 class="mb-3">📦 Игра «Типография»</h3>
+
+  <div class="stats">
+    <span id="money">💰 Деньги: 100</span>
+    <span id="materials">📦 Материалы: 0/50</span>
+    <span id="orders">📝 Заказы: 0/100</span>
+    <span id="ad">📢 Реклама: 0</span>
+    <span id="quality">⭐ Качество: 0</span>
+  </div>
+
+  <div class="mb-3">
+    <button class="btn btn-primary" id="buyMaterialsBtn" title="Купить 10 материалов за 100₽">Закупить материалы</button>
+    <button class="btn btn-success" id="findOrdersBtn" title="Искать заказы вручную (1 попытка)">Поиск заказов</button>
+    <button class="btn btn-warning" id="repairAllBtn" title="Ремонтировать всё сломанное оборудование за 50₽">Ремонтировать всё</button>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <h5>🏭 Производственная зона</h5>
+      <div class="equipment-grid" id="grid"></div>
+    </div>
+    <div class="col-md-4">
+      <h5>🛒 Магазин</h5>
+      <div id="shop" class="list-group"></div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ====== Балансные параметры ======
+    const BALANCE = {
+      materialPrice: 10,
+      orderPrice: 50,
+      orderSpawnBase: 0.2, // базовая скорость заказов
+      maxOrders: 100,
+      maxMaterialsBase: 50
+    };
+
+    // ====== Состояние игры ======
+    const gameState = {
+      money: 100,
+      materials: 0,
+      orders: 0,
+      ad: 0,
+      quality: 0,
+      productionAccumulator: 0,
+      lastUpdate: Date.now(),
+      maxMaterials: BALANCE.maxMaterialsBase
+    };
+
+    // ====== Оборудование ======
+    const equipmentTypes = {
+      printer: { name:"Принтер", cost:100, type:"production", speed:0.5, breakdownRisk:0.001, desc:"Печатает заказы. Требует материалы."},
+      warehouse: { name:"Склад", cost:200, type:"storage", capacity:50, desc:"Увеличивает максимум материалов."},
+      adUnit: { name:"Реклама", cost:150, type:"ad", boost:0.1, desc:"Ускоряет появление заказов."},
+      quality: { name:"Контроль качества", cost:120, type:"quality", bonus:1, desc:"Повышает рейтинг заказов."}
+    };
+
+    const grid = [];
+    const gridSize = 12; // 12 клеток
+
+    // ====== Интерфейс ======
+    const moneyEl = document.getElementById("money");
+    const matEl = document.getElementById("materials");
+    const ordEl = document.getElementById("orders");
+    const adEl = document.getElementById("ad");
+    const qualEl = document.getElementById("quality");
+    const gridEl = document.getElementById("grid");
+    const shopEl = document.getElementById("shop");
+
+    function updateUI(){
+      moneyEl.textContent = `💰 Деньги: ${gameState.money}`;
+      matEl.textContent = `📦 Материалы: ${gameState.materials}/${gameState.maxMaterials}`;
+      ordEl.textContent = `📝 Заказы: ${gameState.orders}/${BALANCE.maxOrders}`;
+      adEl.textContent = `📢 Реклама: ${gameState.ad}`;
+      qualEl.textContent = `⭐ Качество: ${gameState.quality}`;
+    }
+
+    function renderGrid(){
+      gridEl.innerHTML="";
+      grid.forEach((cell,idx)=>{
+        const d=document.createElement("div");
+        d.className="cell";
+        if(cell){
+          d.innerHTML = cell.type.name;
+          d.title = cell.type.desc;
+          d.setAttribute("aria-label",cell.type.desc);
+          if(cell.broken) d.classList.add("broken");
+        } else {
+          d.textContent = "+";
+          d.title="Свободная ячейка";
+        }
+        gridEl.appendChild(d);
+      });
+      for(let i=grid.length;i<gridSize;i++){
+        const d=document.createElement("div");
+        d.className="cell";
+        d.textContent="+";
+        d.title="Свободная ячейка";
+        gridEl.appendChild(d);
+      }
+    }
+
+    function renderShop(){
+      shopEl.innerHTML="";
+      Object.entries(equipmentTypes).forEach(([k,v])=>{
+        const b=document.createElement("button");
+        b.className="list-group-item list-group-item-action";
+        b.textContent=`${v.name} — ${v.cost}₽`;
+        b.title=v.desc;
+        b.onclick=()=>buyEquipment(k);
+        shopEl.appendChild(b);
+      });
+    }
+
+    // ====== Игровая логика ======
+    function buyMaterials(){
+      if(gameState.money>=BALANCE.materialPrice*10 && gameState.materials+10<=gameState.maxMaterials){
+        gameState.money-=BALANCE.materialPrice*10;
+        gameState.materials+=10;
+        updateUI();
+      }
+    }
+
+    function findOrders(){
+      if(gameState.orders<BALANCE.maxOrders){
+        gameState.orders+=Math.floor(1+Math.random()*3+gameState.ad);
+        if(gameState.orders>BALANCE.maxOrders) gameState.orders=BALANCE.maxOrders;
+        updateUI();
+      }
+    }
+
+    function buyEquipment(key){
+      const t=equipmentTypes[key];
+      if(gameState.money>=t.cost){
+        if(grid.length<gridSize){
+          gameState.money-=t.cost;
+          grid.push({type:t, broken:false, wear:0});
+          if(t.type==="storage") gameState.maxMaterials+=t.capacity;
+          if(t.type==="ad") gameState.ad+=t.boost;
+          if(t.type==="quality") gameState.quality+=t.bonus;
+          updateUI(); renderGrid();
+        }
+      }
+    }
+
+    function repairAll(){
+      grid.forEach(c=>{ if(c && c.broken){ if(gameState.money>=50){ gameState.money-=50;c.broken=false;} }});
+      updateUI(); renderGrid();
+    }
+
+    // ====== Цикл ======
+    function gameLoop(){
+      const now=Date.now();
+      const delta=(now-gameState.lastUpdate)/1000;
+      gameState.lastUpdate=now;
+
+      // Спавн заказов
+      if(Math.random()<BALANCE.orderSpawnBase*delta+gameState.ad*delta){
+        if(gameState.orders<BALANCE.maxOrders) gameState.orders++;
+      }
+
+      // Производство
+      grid.forEach(c=>{
+        if(c && c.type.type==="production" && !c.broken){
+          gameState.productionAccumulator+=c.type.speed*delta;
+          if(Math.random()<c.type.breakdownRisk*delta) c.broken=true;
+        }
+      });
+
+      // Конверсия материалов в заказы
+      const canDo=Math.floor(Math.min(gameState.productionAccumulator, gameState.orders, gameState.materials));
+      if(canDo>0){
+        gameState.productionAccumulator-=canDo;
+        gameState.orders-=canDo;
+        gameState.materials-=canDo;
+        gameState.money+=canDo*BALANCE.orderPrice;
+      }
+
+      updateUI(); renderGrid();
+    }
+
+    // ====== Старт ======
+    document.getElementById("buyMaterialsBtn").onclick=buyMaterials;
+    document.getElementById("findOrdersBtn").onclick=findOrders;
+    document.getElementById("repairAllBtn").onclick=repairAll;
+
+    renderShop(); renderGrid(); updateUI();
+    setInterval(gameLoop,100);
+  </script>
+</body>
+</html>

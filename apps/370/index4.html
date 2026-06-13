@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Математический Спринт</title>
+    <style>
+        :root {
+            --bg-primary: #0f1116;
+            --bg-secondary: #1a1d26;
+            --bg-elevated: #252a37;
+            --bg-accent: #2d3445;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-neon: #00e5ff;
+            --accent-success: #00ff9d;
+            --accent-warning: #ffb800;
+            --accent-error: #ff1744;
+            --accent-purple: #8b5cf6;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 12px;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            overflow-y: auto;
+        }
+
+        #screen-game, #screen-result, #screen-elimination {
+            display: none;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent-neon), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 1rem;
+            margin-bottom: 0.6rem;
+            color: var(--text-secondary);
+        }
+
+        .info-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--bg-elevated);
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin: 0.4rem 0;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem;
+        }
+
+        .btn {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid #3f4b66;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 38px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-neon);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            border-color: #3f4b66;
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            width: 100%;
+        }
+
+        @media (min-width: 480px) {
+            .levels-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .btn-level {
+            text-align: center;
+            padding: 8px 6px;
+        }
+
+        .btn-level.unlocked {
+            background: var(--bg-accent);
+            border-color: var(--accent-neon);
+        }
+
+        .btn-level.locked {
+            background: var(--bg-secondary);
+        }
+
+        .level-stars {
+            font-size: 0.7rem;
+            color: var(--accent-warning);
+            display: block;
+            margin-top: 2px;
+        }
+
+        #time-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            width: 100%;
+        }
+
+        #current-problem {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0.4rem 0;
+            color: var(--accent-neon);
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        #answer-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.3rem;
+            text-align: center;
+            background: var(--bg-primary);
+            border: 2px solid var(--bg-elevated);
+            border-radius: 8px;
+            color: var(--text-primary);
+            margin: 0.8rem 0;
+            font-weight: 600;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: var(--accent-neon);
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+            max-width: 260px;
+            margin: 0.6rem auto;
+        }
+
+        .keypad-btn {
+            aspect-ratio: 1;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 40px;
+        }
+
+        .keypad-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 5px;
+            width: 100%;
+            max-width: 260px;
+            margin: 0 auto;
+        }
+
+        .control-btn {
+            font-size: 0.85rem;
+            min-height: 40px;
+        }
+
+        #submit-btn {
+            background: var(--accent-success);
+            color: var(--bg-primary);
+            border-color: var(--accent-success);
+            font-weight: 600;
+        }
+
+        #clear-btn {
+            background: var(--accent-error);
+            color: white;
+            border-color: var(--accent-error);
+        }
+
+        .progress-container {
+            width: 100%;
+            margin: 0.6rem 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-neon), var(--accent-purple));
+            transition: width 0.3s ease;
+            transform-origin: left;
+        }
+
+        .result-stats {
+            font-size: 1rem;
+            margin: 0.4rem 0;
+        }
+
+        .result-success {
+            color: var(--accent-success);
+            font-weight: 600;
+        }
+
+        .result-failure {
+            color: var(--accent-error);
+            font-weight: 600;
+        }
+
+        #restart-btn {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            width: auto;
+            min-height: auto;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            background: var(--accent-warning);
+            border-color: var(--accent-warning);
+            z-index: 1000;
+        }
+
+        .sound-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .correct-answer-hint {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 229, 255, 0.2);
+            color: var(--accent-neon);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 1000;
+            animation: fadeOut 2s forwards;
+            border: 1px solid var(--accent-neon);
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .stars-info {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .time-per-answer {
+            font-size: 0.8rem;
+            color: var(--accent-warning);
+            margin-top: 5px;
+        }
+
+        #early-finish-btn {
+            background: var(--accent-warning);
+            color: var(--bg-primary);
+            border-color: var(--accent-warning);
+            margin-top: 10px;
+        }
+
+        @media (max-height: 600px) {
+            .screen {
+                padding: 6px;
+                justify-content: flex-start;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+                margin-bottom: 0.6rem;
+            }
+            
+            #current-problem {
+                font-size: 1.3rem;
+                min-height: 35px;
+            }
+            
+            .btn {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+                min-height: 34px;
+            }
+            
+            .keypad {
+                max-width: 240px;
+                gap: 4px;
+            }
+            
+            .keypad-btn, .control-btn {
+                min-height: 36px;
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
+
+        @media (max-width: 480px) {
+            .hide-on-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="btn" id="restart-btn" style="display: none;">↻</button>
+
+    <div id="screen-menu" class="screen">
+        <h1>МАТЕМАТИЧЕСКИЙ СПРИНТ</h1>
+        
+        <div class="sound-controls">
+            <div class="checkbox-container">
+                <input type="checkbox" id="sound-toggle" checked>
+                <label for="sound-toggle">Звук</label>
+            </div>
+            <button class="btn" id="reset-btn">Сбросить прогресс</button>
+        </div>
+        
+        <div class="info-panel">
+            <h3>ВЫБЕРИТЕ РЕЖИМ</h3>
+            <div class="levels-grid" id="levels-container"></div>
+        </div>
+
+        <div class="info-panel">
+            <h3>ВРЕМЯ</h3>
+            <div id="time-container">
+                <button class="btn" data-time="60">60 СЕКУНД</button>
+                <button class="btn" data-time="120">120 СЕКУНД</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <button class="btn" id="elimination-btn">РЕЖИМ НА ВЫЛЕТ</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div class="game-stats info-panel">
+            <span>Счёт: <span id="current-score">0</span></span>
+            <span>Время: <span id="timer">60</span>с</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>ПРОГРЕСС</span>
+                <span id="progress-percent">100%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="stars-info" id="stars-info"></div>
+            <div class="time-per-answer" id="time-per-answer"></div>
+        </div>
+
+        <div class="info-panel">
+            <div id="current-problem">10 + 20 = ?</div>
+            <input type="text" id="answer-input" placeholder="Введите ответ" inputmode="numeric" autocomplete="off">
+        </div>
+
+        <div class="keypad">
+            <button class="btn keypad-btn" data-key="1">1</button>
+            <button class="btn keypad-btn" data-key="2">2</button>
+            <button class="btn keypad-btn" data-key="3">3</button>
+            <button class="btn keypad-btn" data-key="4">4</button>
+            <button class="btn keypad-btn" data-key="5">5</button>
+            <button class="btn keypad-btn" data-key="6">6</button>
+            <button class="btn keypad-btn" data-key="7">7</button>
+            <button class="btn keypad-btn" data-key="8">8</button>
+            <button class="btn keypad-btn" data-key="9">9</button>
+            <button class="btn keypad-btn" data-key="0">0</button>
+            <button class="btn keypad-btn" data-key="-">-</button>
+        </div>
+
+        <div class="keypad-controls">
+            <button class="btn control-btn" id="clear-btn">ОЧИСТИТЬ</button>
+            <button class="btn control-btn" id="backspace-btn">⌫</button>
+            <button class="btn control-btn" id="submit-btn">ENTER</button>
+        </div>
+        
+        <button class="btn" id="early-finish-btn">ЗАВЕРШИТЬ ДОСРОЧНО</button>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <div class="info-panel">
+            <h2 id="result-title">РЕЗУЛЬТАТ</h2>
+            <div class="result-stats">
+                Правильных ответов: <span id="result-correct">0</span>
+            </div>
+            <div class="result-stats">
+                Уровень: <span id="result-level">1</span>
+            </div>
+            <div class="result-stats" id="result-standard-container">
+                Стандарт: <span id="result-standard">0/0</span>
+            </div>
+            <div class="result-stats" id="result-status"></div>
+            <div class="result-stats" id="result-reward"></div>
+            <button class="btn" id="menu-btn">В МЕНЮ</button>
+            <button class="btn" id="retry-btn">ПОВТОРИТЬ</button>
+        </div>
+    </div>
+
+    <div id="screen-elimination" class="screen">
+        <div class="info-panel">
+            <h2>РЕЖИМ НА ВЫЛЕТ</h2>
+            <div class="game-stats">
+                <span>Счёт: <span id="elimination-score">0</span></span>
+                <span>Время: <span id="elimination-timer">20</span>с</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="elimination-progress" style="width: 100%"></div>
+                </div>
+            </div>
+            <div id="elimination-problem">10 + 20 = ?</div>
+            <input type="text" id="elimination-answer" placeholder="Введите ответ" inputmode="numeric" autocomplete="off">
+            <div class="keypad">
+                <button class="btn keypad-btn" data-key="1">1</button>
+                <button class="btn keypad-btn" data-key="2">2</button>
+                <button class="btn keypad-btn" data-key="3">3</button>
+                <button class="btn keypad-btn" data-key="4">4</button>
+                <button class="btn keypad-btn" data-key="5">5</button>
+                <button class="btn keypad-btn" data-key="6">6</button>
+                <button class="btn keypad-btn" data-key="7">7</button>
+                <button class="btn keypad-btn" data-key="8">8</button>
+                <button class="btn keypad-btn" data-key="9">9</button>
+                <button class="btn keypad-btn" data-key="0">0</button>
+                <button class="btn keypad-btn" data-key="-">-</button>
+            </div>
+            <div class="keypad-controls">
+                <button class="btn control-btn" id="elimination-clear">ОЧИСТИТЬ</button>
+                <button class="btn control-btn" id="elimination-backspace">⌫</button>
+                <button class="btn control-btn" id="elimination-submit">ENTER</button>
+            </div>
+            <button class="btn" id="elimination-menu-btn">В МЕНЮ</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== КОНФИГУРАЦИЯ ИГРЫ ====================
+        const CONFIG = {
+            sound: {
+                enabled: true,
+                backgroundVolume: 0.25,
+                effectsVolume: 1.0,
+                files: {
+                    background: 'background.mp3',
+                    correct: 'correct.mp3',
+                    wrong: 'wrong.mp3',
+                    victory: 'victory.mp3',
+                    defeat: 'defeat.mp3',
+                    click: 'click.mp3'
+                }
+            },
+
+            baseStandards60: [8, 8, 3, 3, 7, 6, 2, 2, 1, 15],
+            
+            levels: [
+                { name: 'Сложение XX+XX', template: 'xx+xx' },
+                { name: 'Вычитание XX-XX', template: 'xx-xx' },
+                { name: 'Умножение X×XX', template: 'x*xx' },
+                { name: 'Деление XX÷X', template: 'xx/x' },
+                { name: 'Сложение XXX+XXX', template: 'xxx+xxx' },
+                { name: 'Вычитание XXX-XXX', template: 'xxx-xxx' },
+                { name: 'Умножение XX×XX', template: 'xx*xx' },
+                { name: 'Деление XXX÷XX', template: 'xxx/xx' },
+                { name: 'Сложение XXXX+XXXX', template: 'xxxx+xxxx' },
+                { name: 'Случайные задания', template: 'random' }
+            ],
+
+            game: {
+                startingLevel: 0,
+                maxLevel: 9
+            }
+        };
+
+        // ==================== СИСТЕМА ЗВУКОВ ====================
+        const SoundSystem = {
+            audioContext: null,
+            sounds: {},
+
+            init() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                this.loadSounds();
+            },
+
+            async loadSounds() {
+                for (const [key, filename] of Object.entries(CONFIG.sound.files)) {
+                    try {
+                        const response = await fetch(filename);
+                        const arrayBuffer = await response.arrayBuffer();
+                        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                        this.sounds[key] = audioBuffer;
+                    } catch (error) {
+                        console.warn(`Не удалось загрузить звук: ${filename}`);
+                    }
+                }
+            },
+
+            playSound(soundName) {
+                if (!CONFIG.sound.enabled || !this.sounds[soundName]) return;
+                
+                try {
+                    const source = this.audioContext.createBufferSource();
+                    source.buffer = this.sounds[soundName];
+                    
+                    const gainNode = this.audioContext.createGain();
+                    const volume = soundName === 'background' ? CONFIG.sound.backgroundVolume : CONFIG.sound.effectsVolume;
+                    gainNode.gain.value = volume;
+                    
+                    source.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    source.start();
+                } catch (error) {
+                    console.warn(`Не удалось воспроизвести звук: ${soundName}`);
+                }
+            },
+
+            toggleSound(enabled) {
+                CONFIG.sound.enabled = enabled;
+                if (enabled && this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+            }
+        };
+
+        // ==================== СИСТЕМА БАЛАНСА ====================
+        const BalanceSystem = {
+            getStandardToUnlock(levelIndex, time) {
+                const baseStandard = CONFIG.baseStandards60[levelIndex];
+                if (time === 60) return baseStandard;
+                if (time === 120) return Math.floor(baseStandard * 1.85);
+                return baseStandard;
+            },
+
+            getStandardToPass(levelIndex, time) {
+                const unlockStandard = this.getStandardToUnlock(levelIndex, time);
+                return unlockStandard + 2;
+            },
+
+            getThreeStarsStandard(levelIndex, time) {
+                const passStandard = this.getStandardToPass(levelIndex, time);
+                return passStandard + 3;
+            }
+        };
+
+        // ==================== СОСТОЯНИЕ ИГРЫ ====================
+        const GameState = {
+            currentLevel: 0,
+            currentTime: 60,
+            totalTime: 60,
+            score: 0,
+            timerInterval: null,
+            isPlaying: false,
+            currentProblem: null,
+            eliminationMode: {
+                isActive: false,
+                score: 0,
+                time: 20,
+                timer: null
+            },
+            userProgress: JSON.parse(localStorage.getItem('mathSprintProgress')) || {
+                unlockedLevels: [0],
+                levelStars: Array(10).fill(0),
+                bestScores: Array(10).fill(0),
+                totalGames: 0,
+                totalCorrect: 0,
+                eliminationBest: 0
+            }
+        };
+
+        // ==================== СИСТЕМА УРОВНЕЙ ====================
+        const LevelSystem = {
+            generateProblem(levelIndex) {
+                const level = CONFIG.levels[levelIndex];
+                let a, b, problem, answer;
+                
+                const avoidZeroResults = (val1, val2, operation) => {
+                    let attempts = 0;
+                    while (attempts < 50) {
+                        const result = operation(val1, val2);
+                        if (result > 6) return result;
+                        [val1, val2] = this.getNewValues(level.template);
+                        attempts++;
+                    }
+                    return operation(val1, val2);
+                };
+
+                const avoidZeroEnding = (num) => {
+                    return num % 10 === 0 ? num + (Math.floor(Math.random() * 9) + 1) : num;
+                };
+
+                switch(level.template) {
+                    case 'xx+xx':
+                        a = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                        b = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                        answer = avoidZeroResults(a, b, (x, y) => x + y);
+                        problem = `${a} + ${b}`;
+                        break;
+                    case 'xx-xx':
+                        a = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                        b = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                        if (a < b) [a, b] = [b, a];
+                        answer = avoidZeroResults(a, b, (x, y) => x - y);
+                        problem = `${a} - ${b}`;
+                        break;
+                    case 'x*xx':
+                        do {
+                            a = Math.floor(Math.random() * 7) + 4;
+                            if (a === 5 || a === 10) continue;
+                            b = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                            if (b % 10 === 0 || b % 5 === 0) continue;
+                        } while (a === 5 || a === 10 || b % 5 === 0 || b % 10 === 0);
+                        problem = `${a} × ${b}`;
+                        answer = a * b;
+                        break;
+                    case 'xx/x':
+                        do {
+                            b = Math.floor(Math.random() * 8) + 4;
+                            if (b === 5 || b === 10) continue;
+                            answer = Math.floor(Math.random() * 9) + 10;
+                            a = answer * b;
+                        } while (b === 5 || b === 10 || a % 10 === 0);
+                        problem = `${a} ÷ ${b}`;
+                        break;
+                    case 'xxx+xxx':
+                        a = avoidZeroEnding(Math.floor(Math.random() * 900) + 100);
+                        b = avoidZeroEnding(Math.floor(Math.random() * 900) + 100);
+                        answer = avoidZeroResults(a, b, (x, y) => x + y);
+                        problem = `${a} + ${b}`;
+                        break;
+                    case 'xxx-xxx':
+                        a = avoidZeroEnding(Math.floor(Math.random() * 900) + 100);
+                        b = avoidZeroEnding(Math.floor(Math.random() * 900) + 100);
+                        if (a < b) [a, b] = [b, a];
+                        answer = avoidZeroResults(a, b, (x, y) => x - y);
+                        problem = `${a} - ${b}`;
+                        break;
+                    case 'xx*xx':
+                        do {
+                            a = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                            b = avoidZeroEnding(Math.floor(Math.random() * 90) + 10);
+                        } while (a % 5 === 0 || a % 10 === 0 || b % 5 === 0 || b % 10 === 0);
+                        problem = `${a} × ${b}`;
+                        answer = a * b;
+                        break;
+                    case 'xxx/xx':
+                        do {
+                            b = Math.floor(Math.random() * 40) + 10;
+                            if (b % 5 === 0 || b % 10 === 0) continue;
+                            answer = Math.floor(Math.random() * 9) + 10;
+                            a = answer * b;
+                        } while (b % 5 === 0 || b % 10 === 0 || a % 10 === 0);
+                        problem = `${a} ÷ ${b}`;
+                        break;
+                    case 'xxxx+xxxx':
+                        a = avoidZeroEnding(Math.floor(Math.random() * 9000) + 1000);
+                        b = avoidZeroEnding(Math.floor(Math.random() * 9000) + 1000);
+                        answer = avoidZeroResults(a, b, (x, y) => x + y);
+                        problem = `${a} + ${b}`;
+                        break;
+                    case 'random':
+                        const randomLevel = Math.floor(Math.random() * 9);
+                        return this.generateProblem(randomLevel);
+                }
+                
+                return { problem, answer };
+            },
+
+            getNewValues(template) {
+                switch(template) {
+                    case 'xx+xx': case 'xx-xx':
+                        return [Math.floor(Math.random() * 90) + 10, Math.floor(Math.random() * 90) + 10];
+                    case 'x*xx':
+                        return [Math.floor(Math.random() * 7) + 4, Math.floor(Math.random() * 90) + 10];
+                    case 'xx/x':
+                        return [Math.floor(Math.random() * 8) + 4, Math.floor(Math.random() * 9) + 10];
+                    default:
+                        return [10, 10];
+                }
+            },
+
+            updateProgress(levelIndex, score, stars, time) {
+                if (score > GameState.userProgress.bestScores[levelIndex]) {
+                    GameState.userProgress.bestScores[levelIndex] = score;
+                }
+                
+                if (stars > GameState.userProgress.levelStars[levelIndex]) {
+                    GameState.userProgress.levelStars[levelIndex] = stars;
+                }
+                
+                if (stars >= 1 && levelIndex < CONFIG.levels.length - 1 && 
+                    !GameState.userProgress.unlockedLevels.includes(levelIndex + 1)) {
+                    GameState.userProgress.unlockedLevels.push(levelIndex + 1);
+                }
+                
+                GameState.userProgress.totalGames++;
+                GameState.userProgress.totalCorrect += score;
+                
+                this.saveProgress();
+            },
+
+            saveProgress() {
+                localStorage.setItem('mathSprintProgress', JSON.stringify(GameState.userProgress));
+            },
+
+            resetProgress() {
+                GameState.userProgress = {
+                    unlockedLevels: [0],
+                    levelStars: Array(10).fill(0),
+                    bestScores: Array(10).fill(0),
+                    totalGames: 0,
+                    totalCorrect: 0,
+                    eliminationBest: 0
+                };
+                this.saveProgress();
+                // Очищаем кэш
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+            },
+
+            calculateStars(score, levelIndex, time) {
+                const standardToUnlock = BalanceSystem.getStandardToUnlock(levelIndex, time);
+                const standardToPass = BalanceSystem.getStandardToPass(levelIndex, time);
+                const threeStars = BalanceSystem.getThreeStarsStandard(levelIndex, time);
+                
+                if (score >= threeStars) return 3;
+                if (score >= standardToPass) return 2;
+                if (score >= standardToUnlock) return 1;
+                return 0;
+            }
+        };
+
+        // ==================== УПРАВЛЕНИЕ ИГРОЙ ====================
+        const GameEngine = {
+            start(levelIndex, time) {
+                GameState.currentLevel = levelIndex;
+                GameState.currentTime = time;
+                GameState.totalTime = time;
+                GameState.score = 0;
+                GameState.isPlaying = true;
+                
+                this.updateDisplay();
+                this.generateNewProblem();
+                this.startTimer();
+                
+                document.getElementById('screen-menu').style.display = 'none';
+                document.getElementById('screen-game').style.display = 'flex';
+                document.getElementById('screen-result').style.display = 'none';
+                document.getElementById('restart-btn').style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('answer-input').focus();
+                }, 100);
+                SoundSystem.playSound('click');
+            },
+
+            startTimer() {
+                clearInterval(GameState.timerInterval);
+                
+                GameState.timerInterval = setInterval(() => {
+                    GameState.currentTime--;
+                    this.updateTimerDisplay();
+                    
+                    if (GameState.currentTime <= 0) {
+                        this.finish();
+                    }
+                }, 1000);
+            },
+
+            updateTimerDisplay() {
+                const timerElement = document.getElementById('timer');
+                const progressFill = document.getElementById('progress-fill');
+                const progressPercent = document.getElementById('progress-percent');
+                const timePerAnswer = document.getElementById('time-per-answer');
+                const starsInfo = document.getElementById('stars-info');
+                
+                timerElement.textContent = GameState.currentTime;
+                
+                const percent = (GameState.currentTime / GameState.totalTime) * 100;
+                progressFill.style.width = `${percent}%`;
+                progressPercent.textContent = `${Math.round(percent)}%`;
+                
+                const timeLeft = GameState.currentTime;
+                const standardToUnlock = BalanceSystem.getStandardToUnlock(GameState.currentLevel, GameState.totalTime);
+                const standardToPass = BalanceSystem.getStandardToPass(GameState.currentLevel, GameState.totalTime);
+                const threeStars = BalanceSystem.getThreeStarsStandard(GameState.currentLevel, GameState.totalTime);
+                
+                const timePerAnswerFor1Star = timeLeft / standardToUnlock;
+                const timePerAnswerFor2Stars = timeLeft / standardToPass;
+                const timePerAnswerFor3Stars = timeLeft / threeStars;
+                
+                timePerAnswer.textContent = `Время на ответ: 1★ ${timePerAnswerFor1Star.toFixed(1)}с | 2★ ${timePerAnswerFor2Stars.toFixed(1)}с | 3★ ${timePerAnswerFor3Stars.toFixed(1)}с`;
+                starsInfo.textContent = `Звёзды: ${standardToUnlock} для 1★ | ${standardToPass} для 2★ | ${threeStars} для 3★`;
+                
+                if (percent < 25) {
+                    progressFill.style.background = 'var(--accent-error)';
+                } else if (percent < 50) {
+                    progressFill.style.background = 'var(--accent-warning)';
+                } else {
+                    progressFill.style.background = 'linear-gradient(90deg, var(--accent-neon), var(--accent-purple))';
+                }
+            },
+
+            generateNewProblem() {
+                GameState.currentProblem = LevelSystem.generateProblem(GameState.currentLevel);
+                document.getElementById('current-problem').textContent = `${GameState.currentProblem.problem} = ?`;
+                document.getElementById('answer-input').value = '';
+            },
+
+            submitAnswer() {
+                if (!GameState.isPlaying) return;
+                
+                const input = document.getElementById('answer-input');
+                const userAnswer = parseInt(input.value);
+                
+                if (isNaN(userAnswer)) return;
+                
+                if (userAnswer === GameState.currentProblem.answer) {
+                    GameState.score++;
+                    document.getElementById('current-score').textContent = GameState.score;
+                    document.getElementById('current-problem').classList.add('pulse');
+                    setTimeout(() => {
+                        document.getElementById('current-problem').classList.remove('pulse');
+                    }, 300);
+                    SoundSystem.playSound('correct');
+                } else {
+                    this.showCorrectAnswer();
+                    SoundSystem.playSound('wrong');
+                }
+                
+                this.generateNewProblem();
+            },
+
+            showCorrectAnswer() {
+                const hint = document.createElement('div');
+                hint.className = 'correct-answer-hint';
+                hint.textContent = `Правильно: ${GameState.currentProblem.answer}`;
+                document.body.appendChild(hint);
+                
+                setTimeout(() => {
+                    if (hint.parentNode) hint.parentNode.removeChild(hint);
+                }, 2000);
+            },
+
+            finish() {
+                clearInterval(GameState.timerInterval);
+                GameState.isPlaying = false;
+                
+                const stars = LevelSystem.calculateStars(GameState.score, GameState.currentLevel, GameState.totalTime);
+                LevelSystem.updateProgress(GameState.currentLevel, GameState.score, stars, GameState.totalTime);
+                
+                this.showResults(stars);
+                SoundSystem.playSound(stars > 0 ? 'victory' : 'defeat');
+            },
+
+            showResults(stars) {
+                const standardToUnlock = BalanceSystem.getStandardToUnlock(GameState.currentLevel, GameState.totalTime);
+                const standardToPass = BalanceSystem.getStandardToPass(GameState.currentLevel, GameState.totalTime);
+                const threeStars = BalanceSystem.getThreeStarsStandard(GameState.currentLevel, GameState.totalTime);
+                const passed = stars > 0;
+                
+                document.getElementById('result-correct').textContent = GameState.score;
+                document.getElementById('result-level').textContent = GameState.currentLevel + 1;
+                document.getElementById('result-standard').textContent = `${GameState.score}/${standardToPass}`;
+                
+                const resultTitle = document.getElementById('result-title');
+                const resultStatus = document.getElementById('result-status');
+                const resultReward = document.getElementById('result-reward');
+                
+                if (passed) {
+                    resultTitle.textContent = 'УРОВЕНЬ ПРОЙДЕН!';
+                    resultTitle.style.color = 'var(--accent-success)';
+                    resultStatus.innerHTML = `<span class="result-success">Стандарт выполнен!</span>`;
+                    resultReward.textContent = `Получено звёзд: ${'★'.repeat(stars)}${'☆'.repeat(3-stars)}`;
+                } else {
+                    resultTitle.textContent = 'ПОПРОБУЙТЕ ЕЩЁ РАЗ';
+                    resultTitle.style.color = 'var(--accent-error)';
+                    resultStatus.innerHTML = `<span class="result-failure">Стандарт не выполнен</span>`;
+                    resultReward.textContent = `Нужно правильно решить ${standardToUnlock} примеров для открытия следующего уровня`;
+                }
+                
+                document.getElementById('screen-game').style.display = 'none';
+                document.getElementById('screen-result').style.display = 'flex';
+            },
+
+            updateDisplay() {
+                document.getElementById('current-score').textContent = GameState.score;
+                document.getElementById('timer').textContent = GameState.currentTime;
+            },
+
+            restart() {
+                clearInterval(GameState.timerInterval);
+                GameState.isPlaying = false;
+                App.showMenu();
+            },
+
+            earlyFinish() {
+                if (GameState.isPlaying) {
+                    clearInterval(GameState.timerInterval);
+                    this.finish();
+                }
+            }
+        };
+
+        // ==================== РЕЖИМ НА ВЫЛЕТ ====================
+        const EliminationMode = {
+            start() {
+                GameState.eliminationMode.isActive = true;
+                GameState.eliminationMode.score = 0;
+                GameState.eliminationMode.time = 20;
+                
+                this.updateDisplay();
+                this.generateNewProblem();
+                this.startTimer();
+                
+                document.getElementById('screen-menu').style.display = 'none';
+                document.getElementById('screen-elimination').style.display = 'flex';
+                SoundSystem.playSound('click');
+            },
+
+            startTimer() {
+                clearInterval(GameState.eliminationMode.timer);
+                
+                GameState.eliminationMode.timer = setInterval(() => {
+                    GameState.eliminationMode.time--;
+                    this.updateTimerDisplay();
+                    
+                    if (GameState.eliminationMode.time <= 0) {
+                        this.finish();
+                    }
+                }, 1000);
+            },
+
+            updateTimerDisplay() {
+                const timerElement = document.getElementById('elimination-timer');
+                const progressFill = document.getElementById('elimination-progress');
+                
+                timerElement.textContent = GameState.eliminationMode.time;
+                
+                const percent = (GameState.eliminationMode.time / 20) * 100;
+                progressFill.style.width = `${percent}%`;
+                
+                if (percent < 25) {
+                    progressFill.style.background = 'var(--accent-error)';
+                } else if (percent < 50) {
+                    progressFill.style.background = 'var(--accent-warning)';
+                } else {
+                    progressFill.style.background = 'linear-gradient(90deg, var(--accent-neon), var(--accent-purple))';
+                }
+            },
+
+            generateNewProblem() {
+                const randomLevel = Math.floor(Math.random() * 10);
+                GameState.currentProblem = LevelSystem.generateProblem(randomLevel);
+                document.getElementById('elimination-problem').textContent = `${GameState.currentProblem.problem} = ?`;
+                document.getElementById('elimination-answer').value = '';
+            },
+
+            submitAnswer() {
+                if (!GameState.eliminationMode.isActive) return;
+                
+                const input = document.getElementById('elimination-answer');
+                const userAnswer = parseInt(input.value);
+                const timeSpent = 20 - GameState.eliminationMode.time;
+                
+                if (isNaN(userAnswer)) return;
+                
+                if (userAnswer === GameState.currentProblem.answer) {
+                    GameState.eliminationMode.score++;
+                    document.getElementById('elimination-score').textContent = GameState.eliminationMode.score;
+                    
+                    let timeToAdd = 20;
+                    if (timeSpent <= 5) timeToAdd = 30;
+                    
+                    GameState.eliminationMode.time += timeToAdd;
+                    this.updateTimerDisplay();
+                    SoundSystem.playSound('correct');
+                } else {
+                    this.finish();
+                    return;
+                }
+                
+                this.generateNewProblem();
+                input.focus();
+            },
+
+            finish() {
+                clearInterval(GameState.eliminationMode.timer);
+                GameState.eliminationMode.isActive = false;
+                
+                if (GameState.eliminationMode.score > GameState.userProgress.eliminationBest) {
+                    GameState.userProgress.eliminationBest = GameState.eliminationMode.score;
+                    LevelSystem.saveProgress();
+                }
+                
+                alert(`Режим на вылет завершен!\nВаш результат: ${GameState.eliminationMode.score} правильных ответов\nЛучший результат: ${GameState.userProgress.eliminationBest}`);
+                App.showMenu();
+                SoundSystem.playSound('defeat');
+            }
+        };
+
+        // ==================== УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ ====================
+        const UI = {
+            init() {
+                SoundSystem.init();
+                this.renderLevels();
+                this.attachEventListeners();
+            },
+
+            renderLevels() {
+                const container = document.getElementById('levels-container');
+                container.innerHTML = '';
+                
+                CONFIG.levels.forEach((level, index) => {
+                    const isUnlocked = GameState.userProgress.unlockedLevels.includes(index);
+                    const stars = GameState.userProgress.levelStars[index];
+                    
+                    const btn = document.createElement('button');
+                    btn.className = `btn btn-level ${isUnlocked ? 'unlocked' : 'locked'}`;
+                    btn.innerHTML = `${index + 1}. ${level.name}`;
+                    
+                    if (isUnlocked && stars > 0) {
+                        btn.innerHTML += `<span class="level-stars">${'★'.repeat(stars)}</span>`;
+                    }
+                    
+                    if (isUnlocked) {
+                        btn.addEventListener('click', () => {
+                            const timeBtns = document.querySelectorAll('#time-container .btn');
+                            const startGameWithTime = (time) => {
+                                GameEngine.start(index, time);
+                            };
+                            
+                            timeBtns.forEach(timeBtn => {
+                                timeBtn.onclick = () => {
+                                    const time = parseInt(timeBtn.getAttribute('data-time'));
+                                    startGameWithTime(time);
+                                };
+                            });
+                            SoundSystem.playSound('click');
+                        });
+                    } else {
+                        btn.disabled = true;
+                    }
+                    
+                    container.appendChild(btn);
+                });
+            },
+
+            attachEventListeners() {
+                // Звук
+                document.getElementById('sound-toggle').addEventListener('change', (e) => {
+                    SoundSystem.toggleSound(e.target.checked);
+                    SoundSystem.playSound('click');
+                });
+
+                // Сброс прогресса
+                document.getElementById('reset-btn').addEventListener('click', (e) => {
+                    if (confirm('Вы уверены, что хотите сбросить весь прогресс?')) {
+                        LevelSystem.resetProgress();
+                        this.renderLevels();
+                        SoundSystem.playSound('click');
+                    }
+                });
+
+                // Режим на вылет
+                document.getElementById('elimination-btn').addEventListener('click', (e) => {
+                    EliminationMode.start();
+                });
+
+                // Досрочное завершение
+                document.getElementById('early-finish-btn').addEventListener('click', (e) => {
+                    GameEngine.earlyFinish();
+                });
+
+                // Основная игровая клавиатура
+                this.attachGameEventListeners();
+                this.attachEliminationEventListeners();
+            },
+
+            attachGameEventListeners() {
+                document.querySelectorAll('.keypad-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const key = btn.getAttribute('data-key');
+                        const input = document.getElementById('answer-input');
+                        
+                        if (key === '-') {
+                            input.value = input.value.startsWith('-') ? input.value.slice(1) : '-' + input.value;
+                        } else {
+                            if (!GameState.isPlaying) return;
+                            input.value += key;
+                        }
+                        input.focus();
+                        SoundSystem.playSound('click');
+                    });
+                });
+
+                document.getElementById('clear-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('answer-input').value = '';
+                    document.getElementById('answer-input').focus();
+                    SoundSystem.playSound('click');
+                });
+
+                document.getElementById('backspace-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const input = document.getElementById('answer-input');
+                    input.value = input.value.slice(0, -1);
+                    input.focus();
+                    SoundSystem.playSound('click');
+                });
+
+                document.getElementById('submit-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    GameEngine.submitAnswer();
+                    document.getElementById('answer-input').focus();
+                });
+
+                document.getElementById('menu-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    App.showMenu();
+                    SoundSystem.playSound('click');
+                });
+
+                document.getElementById('retry-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    GameEngine.start(GameState.currentLevel, GameState.totalTime);
+                });
+
+                document.getElementById('restart-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    GameEngine.restart();
+                    SoundSystem.playSound('click');
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (!GameState.isPlaying && e.target.id !== 'answer-input') return;
+                    
+                    const input = document.getElementById('answer-input');
+                    
+                    if (e.key >= '0' && e.key <= '9') {
+                        e.preventDefault();
+                        if (GameState.isPlaying) {
+                            input.value += e.key;
+                        }
+                    } else if (e.key === '-') {
+                        e.preventDefault();
+                        input.value = input.value.startsWith('-') ? input.value.slice(1) : '-' + input.value;
+                    } else if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        input.value = input.value.slice(0, -1);
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        GameEngine.submitAnswer();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        input.value = '';
+                    }
+                });
+
+                document.getElementById('answer-input').addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                });
+
+                document.getElementById('answer-input').addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^-0-9]/g, '');
+                });
+
+                document.getElementById('answer-input').addEventListener('paste', (e) => {
+                    e.preventDefault();
+                });
+            },
+
+            attachEliminationEventListeners() {
+                document.getElementById('elimination-menu-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    clearInterval(GameState.eliminationMode.timer);
+                    GameState.eliminationMode.isActive = false;
+                    App.showMenu();
+                    SoundSystem.playSound('click');
+                });
+
+                document.getElementById('elimination-submit').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    EliminationMode.submitAnswer();
+                    document.getElementById('elimination-answer').focus();
+                });
+
+                document.getElementById('elimination-clear').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('elimination-answer').value = '';
+                    document.getElementById('elimination-answer').focus();
+                    SoundSystem.playSound('click');
+                });
+
+                document.getElementById('elimination-backspace').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const input = document.getElementById('elimination-answer');
+                    input.value = input.value.slice(0, -1);
+                    input.focus();
+                    SoundSystem.playSound('click');
+                });
+
+                document.querySelectorAll('#screen-elimination .keypad-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const key = btn.getAttribute('data-key');
+                        const input = document.getElementById('elimination-answer');
+                        
+                        if (key === '-') {
+                            input.value = input.value.startsWith('-') ? input.value.slice(1) : '-' + input.value;
+                        } else {
+                            if (!GameState.eliminationMode.isActive) return;
+                            input.value += key;
+                        }
+                        input.focus();
+                        SoundSystem.playSound('click');
+                    });
+                });
+
+                document.getElementById('elimination-answer').addEventListener('keydown', (e) => {
+                    if (!GameState.eliminationMode.isActive) return;
+                    
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        EliminationMode.submitAnswer();
+                    }
+                });
+            }
+        };
+
+        // ==================== УПРАВЛЕНИЕ ПРИЛОЖЕНИЕМ ====================
+        const App = {
+            init() {
+                UI.init();
+                this.showMenu();
+            },
+
+            showMenu() {
+                document.getElementById('screen-menu').style.display = 'flex';
+                document.getElementById('screen-game').style.display = 'none';
+                document.getElementById('screen-result').style.display = 'none';
+                document.getElementById('screen-elimination').style.display = 'none';
+                document.getElementById('restart-btn').style.display = 'none';
+                
+                UI.renderLevels();
+                
+                clearInterval(GameState.timerInterval);
+                clearInterval(GameState.eliminationMode.timer);
+                GameState.isPlaying = false;
+                GameState.eliminationMode.isActive = false;
+            }
+        };
+
+        // ==================== ЗАПУСК ПРИЛОЖЕНИЯ ====================
+        window.addEventListener('DOMContentLoaded', () => App.init());
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типография Idle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .building-view {
+            flex: 3;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .grid {
+            display: grid;
+            gap: 2px;
+            background: #ddd;
+            border: 2px solid #333;
+            padding: 5px;
+        }
+
+        .cell {
+            background: white;
+            border: 1px solid #ccc;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .equipment {
+            background: #4CAF50;
+            color: white;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            padding: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .equipment:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .employee {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FF9800;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: white;
+            z-index: 5;
+            transition: all 2s ease-in-out;
+        }
+
+        .building-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .building-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background: #2196F3;
+            color: white;
+            cursor: pointer;
+        }
+
+        .building-btn.active {
+            background: #1976D2;
+        }
+
+        .stats {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+        }
+
+        .equipment-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .equipment-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 3px;
+            cursor: pointer;
+            border-left: 3px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="building-view">
+            <div class="building-selector">
+                <button class="building-btn active" data-building="apartment">Квартира</button>
+                <button class="building-btn" data-building="garage">Гараж</button>
+                <button class="building-btn" data-building="printing_house">Типография</button>
+            </div>
+            <div class="stats">
+                <div>Деньги: <span id="money">1000</span> ₽</div>
+                <div>Заказов в работе: <span id="orders">0</span></div>
+                <div>Доход в минуту: <span id="income">0</span> ₽</div>
+            </div>
+            <div id="building-grid" class="grid"></div>
+        </div>
+        
+        <div class="controls">
+            <h3>Оборудование</h3>
+            <div class="equipment-list" id="equipment-list">
+                <!-- Список оборудования будет здесь -->
+            </div>
+            
+            <h3 style="margin-top: 20px;">Сотрудники</h3>
+            <div id="employees-info">
+                <!-- Информация о сотрудниках -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Основные данные игры
+        const gameState = {
+            money: 1000,
+            currentBuilding: 'apartment',
+            buildings: {
+                apartment: {
+                    name: "Квартира",
+                    width: 4,
+                    height: 4,
+                    equipment: [
+                        { id: 'table', name: 'Стол', width: 2, height: 1, x: 0, y: 0, price: 100 },
+                        { id: 'computer', name: 'Компьютер', width: 1, height: 1, x: 2, y: 0, price: 200 },
+                        { id: 'printer', name: 'Принтер', width: 1, height: 1, x: 3, y: 0, price: 150 }
+                    ],
+                    employees: [
+                        { id: 'alex', name: 'Алекс', role: 'основатель', x: 1, y: 1 }
+                    ]
+                },
+                garage: {
+                    name: "Гараж",
+                    width: 8,
+                    height: 6,
+                    equipment: [
+                        { id: 'offset_machine', name: 'Офсетная машина', width: 3, height: 2, x: 0, y: 0, price: 1000 },
+                        { id: 'cutter', name: 'Резак', width: 2, height: 1, x: 3, y: 0, price: 300 },
+                        { id: 'paper_rack', name: 'Стеллаж для бумаги', width: 2, height: 1, x: 0, y: 2, price: 150 }
+                    ],
+                    employees: [
+                        { id: 'peter', name: 'Петр', role: 'печатник', x: 1, y: 1 },
+                        { id: 'anna', name: 'Анна', role: 'дизайнер', x: 4, y: 1 }
+                    ]
+                },
+                printing_house: {
+                    name: "Типография",
+                    width: 16,
+                    height: 12,
+                    equipment: [
+                        { id: 'big_offset', name: 'Большая офсетная машина', width: 4, height: 3, x: 0, y: 0, price: 5000 },
+                        { id: 'digital_printer', name: 'Цифровая печатная машина', width: 3, height: 2, x: 5, y: 0, price: 3000 }
+                    ],
+                    employees: [
+                        { id: 'ivan', name: 'Иван', role: 'главный печатник', x: 2, y: 2 },
+                        { id: 'maria', name: 'Мария', role: 'дизайнер', x: 8, y: 1 }
+                    ]
+                }
+            },
+            availableEquipment: [
+                { id: 'table', name: 'Стол', width: 2, height: 1, price: 100, description: 'Базовый рабочий стол' },
+                { id: 'computer', name: 'Компьютер', width: 1, height: 1, price: 200, description: 'Для дизайна и управления' },
+                { id: 'printer', name: 'Принтер', width: 1, height: 1, price: 150, description: 'Печать мелких заказов' },
+                { id: 'coffee_machine', name: 'Кофе-машина', width: 1, height: 1, price: 80, description: '+10% к настроению сотрудников' },
+                { id: 'shelf', name: 'Полка для бумаги', width: 1, height: 1, price: 50, description: 'Хранение материалов' }
+            ]
+        };
+
+        // Инициализация игры
+        function initGame() {
+            renderBuilding('apartment');
+            updateEquipmentList();
+            updateStats();
+            startGameLoop();
+        }
+
+        // Отрисовка здания
+        function renderBuilding(buildingKey) {
+            const building = gameState.buildings[buildingKey];
+            const grid = document.getElementById('building-grid');
+            
+            // Очищаем сетку
+            grid.innerHTML = '';
+            
+            // Устанавливаем размеры сетки
+            grid.style.gridTemplateColumns = `repeat(${building.width}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${building.height}, 1fr)`;
+            
+            // Создаем клетки
+            for (let y = 0; y < building.height; y++) {
+                for (let x = 0; x < building.width; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    grid.appendChild(cell);
+                }
+            }
+            
+            // Размещаем оборудование
+            building.equipment.forEach(item => {
+                placeEquipment(item, building);
+            });
+            
+            // Размещаем сотрудников
+            building.employees.forEach(emp => {
+                placeEmployee(emp, building);
+            });
+            
+            // Обновляем активную кнопку здания
+            document.querySelectorAll('.building-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.building === buildingKey);
+            });
+            
+            gameState.currentBuilding = buildingKey;
+        }
+
+        // Размещение оборудования
+        function placeEquipment(equipment, building) {
+            const grid = document.getElementById('building-grid');
+            
+            for (let y = equipment.y; y < equipment.y + equipment.height; y++) {
+                for (let x = equipment.x; x < equipment.x + equipment.width; x++) {
+                    const cellIndex = y * building.width + x;
+                    if (grid.children[cellIndex]) {
+                        const equipmentElement = document.createElement('div');
+                        equipmentElement.className = 'equipment';
+                        equipmentElement.textContent = equipment.name;
+                        equipmentElement.title = equipment.description || equipment.name;
+                        
+                        // Если это первая клетка оборудования, показываем название
+                        if (x === equipment.x && y === equipment.y) {
+                            equipmentElement.textContent = equipment.name;
+                        } else {
+                            equipmentElement.textContent = '';
+                        }
+                        
+                        grid.children[cellIndex].appendChild(equipmentElement);
+                    }
+                }
+            }
+        }
+
+        // Размещение сотрудников
+        function placeEmployee(employee, building) {
+            const grid = document.getElementById('building-grid');
+            const cellIndex = employee.y * building.width + employee.x;
+            
+            if (grid.children[cellIndex]) {
+                const employeeElement = document.createElement('div');
+                employeeElement.className = 'employee';
+                employeeElement.textContent = employee.name.charAt(0);
+                employeeElement.title = `${employee.name} - ${employee.role}`;
+                employeeElement.style.left = `${Math.random() * 30 + 10}px`;
+                employeeElement.style.top = `${Math.random() * 30 + 10}px`;
+                
+                grid.children[cellIndex].appendChild(employeeElement);
+                
+                // Анимация движения сотрудника
+                animateEmployee(employeeElement, grid.children[cellIndex]);
+            }
+        }
+
+        // Анимация движения сотрудников
+        function animateEmployee(employee, cell) {
+            setInterval(() => {
+                const newX = Math.random() * 30 + 10;
+                const newY = Math.random() * 30 + 10;
+                employee.style.left = `${newX}px`;
+                employee.style.top = `${newY}px`;
+            }, 2000);
+        }
+
+        // Обновление списка оборудования
+        function updateEquipmentList() {
+            const list = document.getElementById('equipment-list');
+            list.innerHTML = '';
+            
+            gameState.availableEquipment.forEach(equip => {
+                const item = document.createElement('div');
+                item.className = 'equipment-item';
+                item.innerHTML = `
+                    <strong>${equip.name}</strong><br>
+                    <small>${equip.width}×${equip.height} | ${equip.price} ₽</small>
+                `;
+                item.onclick = () => buyEquipment(equip);
+                list.appendChild(item);
+            });
+        }
+
+        // Покупка оборудования
+        function buyEquipment(equipment) {
+            if (gameState.money >= equipment.price) {
+                gameState.money -= equipment.price;
+                
+                // Добавляем оборудование в текущее здание
+                const building = gameState.buildings[gameState.currentBuilding];
+                
+                // Находим свободное место (упрощенная версия)
+                const position = findFreeSpace(equipment, building);
+                if (position) {
+                    const newEquipment = {
+                        ...equipment,
+                        x: position.x,
+                        y: position.y
+                    };
+                    
+                    building.equipment.push(newEquipment);
+                    renderBuilding(gameState.currentBuilding);
+                    updateStats();
+                } else {
+                    alert('Недостаточно места!');
+                    gameState.money += equipment.price; // Возвращаем деньги
+                }
+            } else {
+                alert('Недостаточно денег!');
+            }
+        }
+
+        // Поиск свободного места (упрощенный алгоритм)
+        function findFreeSpace(equipment, building) {
+            for (let y = 0; y <= building.height - equipment.height; y++) {
+                for (let x = 0; x <= building.width - equipment.width; x++) {
+                    let canPlace = true;
+                    
+                    // Проверяем, свободно ли место
+                    for (let dy = 0; dy < equipment.height; dy++) {
+                        for (let dx = 0; dx < equipment.width; dx++) {
+                            const cellX = x + dx;
+                            const cellY = y + dy;
+                            
+                            // Проверяем, занята ли клетка другим оборудованием
+                            const isOccupied = building.equipment.some(item => 
+                                cellX >= item.x && cellX < item.x + item.width &&
+                                cellY >= item.y && cellY < item.y + item.height
+                            );
+                            
+                            if (isOccupied) {
+                                canPlace = false;
+                                break;
+                            }
+                        }
+                        if (!canPlace) break;
+                    }
+                    
+                    if (canPlace) {
+                        return { x, y };
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            document.getElementById('money').textContent = gameState.money;
+            
+            // Рассчитываем доход (упрощенная версия)
+            const building = gameState.buildings[gameState.currentBuilding];
+            const income = building.equipment.length * 10 + building.employees.length * 5;
+            document.getElementById('income').textContent = income;
+            document.getElementById('orders').textContent = building.equipment.length;
+        }
+
+        // Игровой цикл
+        function startGameLoop() {
+            setInterval(() => {
+                // Пассивный доход
+                const building = gameState.buildings[gameState.currentBuilding];
+                const income = building.equipment.length * 10 + building.employees.length * 5;
+                gameState.money += income;
+                
+                updateStats();
+            }, 1000); // Обновляем каждую секунду
+        }
+
+        // Обработчики событий
+        document.querySelectorAll('.building-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                renderBuilding(btn.dataset.building);
+            });
+        });
+
+        // Запуск игры
+        window.onload = initGame;
+    </script>
+</body>
+</html>
