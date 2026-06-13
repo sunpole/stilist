@@ -1,5 +1,29 @@
 # SUNPOLE HUB Builder
 
+## v0.7.0-auto-catalog
+
+This builder revision scans the repository for likely project entry points,
+creates a reproducible JSON report, and can write the generated catalog into
+`data/projects-hub.js`.
+
+Run from the repository root:
+
+```bash
+node tools/hub-builder/scan.js
+node tools/hub-builder/generate.js --write-data
+```
+
+Generated files:
+
+- `tools/hub-builder/hub-builder-report.json`
+- `tools/hub-builder/projects-hub.generated.js`
+- `data/projects-hub.js`
+- `data/hub-version.js`
+
+Safety rule: the scanner does not delete, move, or rename project files. It
+only reads HTML and nearby media files, then marks uncertain entries as
+`review` or `experiment` for manual checking.
+
 Локальный помощник для подготовки базы `SUNPOLE HUB`.
 
 ## Назначение

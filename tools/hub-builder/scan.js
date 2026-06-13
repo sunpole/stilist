@@ -2,78 +2,132 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = process.cwd();
-const REPORT = path.join(ROOT, 'tools', 'hub-builder', 'hub-builder-report.json');
+const BUILDER_DIR = path.join(ROOT, 'tools', 'hub-builder');
+const REPORT = path.join(BUILDER_DIR, 'hub-builder-report.json');
 
-const ignore = new Set(['.git', 'node_modules']);
-const imageExt = new Set(['.jpg', '.jpeg', '.png', '.webp']);
-const screenshotKeywords = ['preview', 'screenshot', 'screen', 'cover', 'thumb', 'thumbnail', 'stilist'];
-const screenshotNames = ['preview.jpg', 'preview.png', 'screenshot.jpg', 'screenshot.png', 'Screenshot.jpg', 'Screenshot.png'];
+const IGNORE_DIRS = new Set([
+  '.git',
+  '.github',
+  'node_modules',
+  '.vscode',
+  '.idea'
+]);
+
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+const SCREENSHOT_HINTS = ['preview', 'screenshot', 'screen', 'cover', 'thumb', 'thumbnail', 'stilist'];
+const PROJECT_ENTRY_RE = /(?:^|\/)(index\d*\.html|[^/]+\/index\.html)$/i;
+
 const projects = [];
+const warnings = [];
 
 walk(ROOT);
 
-fs.writeFileSync(REPORT, JSON.stringify({
+projects.sort((a, b) => a.file.localeCompare(b.file, 'en', { numeric: true }));
+
+const summary = buildSummary(projects);
+const report = {
+  schemaVersion: 2,
+  builderVersion: '0.7.0-auto-catalog',
   generatedAt: new Date().toISOString(),
+  repository: 'sunpole/stilist',
+  root: path.basename(ROOT),
   projectCount: projects.length,
+  summary,
+  warnings,
   projects
-}, null, 2));
+};
+
+fs.mkdirSync(BUILDER_DIR, { recursive: true });
+fs.writeFileSync(REPORT, `${JSON.stringify(report, null, 2)}\n`);
 
 console.log('Report saved:', REPORT);
 console.log('Projects found:', projects.length);
+console.log('Ready projects:', summary.byStatus.main || 0);
+console.log('Review projects:', summary.byStatus.review || 0);
 
 function walk(dir) {
-  const items = fs.readdirSync(dir, { withFileTypes: true });
+  let items = [];
+  try {
+    items = fs.readdirSync(dir, { withFileTypes: true });
+  } catch (err) {
+    warnings.push({ type: 'read-dir-failed', path: relativePath(dir), message: err.message });
+    return;
+  }
 
   for (const item of items) {
     const full = path.join(dir, item.name);
 
     if (item.isDirectory()) {
-      if (ignore.has(item.name)) continue;
+      if (IGNORE_DIRS.has(item.name)) continue;
       walk(full);
       continue;
     }
 
-    if (!item.name.endsWith('.html')) continue;
+    if (!item.isFile() || path.extname(item.name).toLowerCase() !== '.html') continue;
+    if (!isLikelyProjectEntry(full)) continue;
     scanHtml(full);
   }
 }
 
+function isLikelyProjectEntry(full) {
+  const rel = relativePath(full);
+  if (rel.startsWith('docs/')) return false;
+  if (rel.startsWith('add/')) return false;
+  if (rel.startsWith('admin/')) return false;
+  if (rel.startsWith('tools/')) return false;
+  if (/^hub(?:-|\.|$)/i.test(rel)) return false;
+  if (/^project-view/i.test(rel)) return false;
+  if (/^shop/i.test(rel) || /^c\d*-shop/i.test(rel)) return false;
+  return PROJECT_ENTRY_RE.test(rel);
+}
+
 function scanHtml(full) {
+  const rel = relativePath(full);
+
   try {
     const html = fs.readFileSync(full, 'utf8');
-    const rel = path.relative(ROOT, full).replace(/\\/g, '/');
     const dir = path.dirname(full);
-    const title = matchContent(html, /<title>(.*?)<\/title>/i);
-    const description = matchContent(html, /<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i);
-    const ogTitle = matchContent(html, /<meta\s+property=["']og:title["']\s+content=["']([^"']*)["']/i);
-    const ogImage = matchContent(html, /<meta\s+property=["']og:image["']\s+content=["']([^"']*)["']/i);
-    const hasManifest = /rel=["']manifest["']/i.test(html);
-    const hasOpenGraph = /property=["']og:/i.test(html);
-    const cssLinks = [...html.matchAll(/<link[^>]+href=["']([^"']+\.css[^"']*)["']/gi)].map(m => m[1]);
-    const jsLinks = [...html.matchAll(/<script[^>]+src=["']([^"']+\.js[^"']*)["']/gi)].map(m => m[1]);
+    const title = firstNonEmpty(
+      metaContent(html, 'property', 'og:title'),
+      matchContent(html, /<title[^>]*>([\s\S]*?)<\/title>/i),
+      titleFromPath(rel)
+    );
+    const description = firstNonEmpty(
+      metaContent(html, 'name', 'description'),
+      metaContent(html, 'property', 'og:description')
+    );
+    const ogImage = metaContent(html, 'property', 'og:image');
+    const hasManifest = /<link[^>]+rel=["'][^"']*manifest[^"']*["']/i.test(html);
+    const hasOpenGraph = /<meta[^>]+property=["']og:/i.test(html);
+    const cssLinks = unique([...html.matchAll(/<link[^>]+href=["']([^"']+\.css(?:\?[^"']*)?)["']/gi)].map(m => m[1]));
+    const jsLinks = unique([...html.matchAll(/<script[^>]+src=["']([^"']+\.js(?:\?[^"']*)?)["']/gi)].map(m => m[1]));
     const inlineScriptCount = (html.match(/<script(?![^>]+src=)/gi) || []).length;
-    const inlineStyleCount = (html.match(/<style/gi) || []).length;
+    const inlineStyleCount = (html.match(/<style\b/gi) || []).length;
     const screenshots = findScreenshots(dir, rel, ogImage);
-    const recommendedImage = screenshots[0] || ogImage || '';
     const sizeBytes = fs.statSync(full).size;
+    const text = stripTags(html).slice(0, 12000);
+    const categoryGuess = guessCategory([title, description, rel, text.slice(0, 800)].join(' '));
+    const languageGuess = guessLanguage(html, text);
     const assessment = assessProject({
+      rel,
+      title,
+      description,
       sizeBytes,
       hasManifest,
       hasOpenGraph,
       hasScreenshot: screenshots.length > 0,
       cssCount: cssLinks.length + inlineStyleCount,
       jsCount: jsLinks.length + inlineScriptCount,
-      description,
-      title: title || ogTitle || '',
-      rel
+      textLength: text.length
     });
 
     projects.push({
       file: rel,
-      title: title || ogTitle || '',
+      id: makeId(rel),
+      title,
       description,
       sizeBytes,
-      categoryGuess: guessCategory([title, description, rel].join(' ')),
+      categoryGuess,
       statusGuess: assessment.statusGuess,
       maturityGuess: assessment.maturityGuess,
       qualityGuess: assessment.qualityGuess,
@@ -82,117 +136,211 @@ function scanHtml(full) {
       hasManifest,
       hasOpenGraph,
       hasScreenshot: screenshots.length > 0,
-      recommendedImage,
+      recommendedImage: screenshots[0] || normalizeAssetPath(ogImage, path.dirname(rel)),
       screenshots,
       cssLinks,
       jsLinks,
       inlineScriptCount,
       inlineStyleCount,
+      languageGuess,
       techGuess: {
         html: 1,
         css: cssLinks.length + inlineStyleCount,
         js: jsLinks.length + inlineScriptCount
-      }
+      },
+      reasons: assessment.reasons
     });
   } catch (err) {
-    projects.push({
-      file: path.relative(ROOT, full).replace(/\\/g, '/'),
-      error: err.message
-    });
+    warnings.push({ type: 'scan-html-failed', path: rel, message: err.message });
   }
 }
 
 function assessProject(info) {
+  const reasons = [];
   let complexityScore = 0;
   let readinessScore = 0;
 
-  if (info.sizeBytes > 20_000) complexityScore += 20;
-  if (info.sizeBytes > 80_000) complexityScore += 20;
-  if (info.sizeBytes > 180_000) complexityScore += 20;
-  complexityScore += Math.min(20, info.jsCount * 4);
-  complexityScore += Math.min(15, info.cssCount * 3);
-  if (info.hasManifest) complexityScore += 5;
+  if (info.title) add('title', 20, 'readiness');
+  if (info.description) add('description', 14, 'readiness');
+  if (info.hasScreenshot) add('screenshot', 18, 'readiness');
+  if (info.hasOpenGraph) add('open-graph', 10, 'readiness');
+  if (info.hasManifest) add('manifest', 8, 'readiness');
+  if (info.jsCount > 0) add('javascript', 10, 'readiness');
+  if (info.cssCount > 0) add('styles', 8, 'readiness');
+  if (info.sizeBytes > 20_000) add('substantial-html', 6, 'readiness');
+  if (info.textLength > 1500) add('content', 6, 'readiness');
 
-  if (info.title) readinessScore += 20;
-  if (info.description) readinessScore += 15;
-  if (info.hasScreenshot) readinessScore += 20;
-  if (info.hasOpenGraph) readinessScore += 10;
-  if (info.hasManifest) readinessScore += 10;
-  if (info.jsCount > 0) readinessScore += 10;
-  if (info.cssCount > 0) readinessScore += 10;
-  if (info.sizeBytes > 20_000) readinessScore += 5;
+  if (info.sizeBytes > 20_000) add('20kb+', 18, 'complexity');
+  if (info.sizeBytes > 80_000) add('80kb+', 18, 'complexity');
+  if (info.sizeBytes > 180_000) add('180kb+', 16, 'complexity');
+  if (info.jsCount) add('js-count', Math.min(22, info.jsCount * 4), 'complexity');
+  if (info.cssCount) add('css-count', Math.min(16, info.cssCount * 3), 'complexity');
+  if (info.hasManifest) add('app-shell', 5, 'complexity');
 
   complexityScore = clamp(complexityScore);
   readinessScore = clamp(readinessScore);
 
-  const total = Math.round((complexityScore * 0.35) + (readinessScore * 0.65));
-  const qualityGuess = scoreToQuality(total);
-  const maturityGuess = readinessScore >= 75 ? 'ready' : readinessScore >= 45 ? 'beta' : 'draft';
-  const statusGuess = info.rel.includes('archive') ? 'archive' : readinessScore >= 70 ? 'main' : 'review';
+  const score = clamp((complexityScore * 0.35) + (readinessScore * 0.65));
+  const statusGuess = readinessScore >= 68 ? 'main' : readinessScore >= 42 ? 'review' : 'experiment';
+  const maturityGuess = readinessScore >= 78 ? 'ready' : readinessScore >= 52 ? 'beta' : 'draft';
 
-  return { complexityScore, readinessScore, qualityGuess, maturityGuess, statusGuess };
+  return {
+    complexityScore,
+    readinessScore,
+    qualityGuess: scoreToQuality(score),
+    statusGuess,
+    maturityGuess,
+    reasons
+  };
+
+  function add(reason, value, bucket) {
+    if (bucket === 'readiness') readinessScore += value;
+    if (bucket === 'complexity') complexityScore += value;
+    reasons.push({ bucket, reason, value });
+  }
 }
 
 function scoreToQuality(score) {
-  if (score >= 90) return { grade: 'A4', stars: 4, score, label: 'Автооценка: витринный проект' };
-  if (score >= 82) return { grade: 'A3', stars: 3, score, label: 'Автооценка: очень сильный проект' };
-  if (score >= 74) return { grade: 'A2', stars: 2, score, label: 'Автооценка: качественный проект' };
-  if (score >= 66) return { grade: 'A1', stars: 1, score, label: 'Автооценка: сильный проект' };
-  if (score >= 58) return { grade: 'B4', stars: 4, score, label: 'Автооценка: почти готовый проект' };
-  if (score >= 50) return { grade: 'B3', stars: 3, score, label: 'Автооценка: хороший рабочий проект' };
-  if (score >= 42) return { grade: 'B2', stars: 2, score, label: 'Автооценка: рабочий проект' };
-  if (score >= 34) return { grade: 'B1', stars: 1, score, label: 'Автооценка: простой рабочий проект' };
-  if (score >= 25) return { grade: 'C4', stars: 4, score, label: 'Автооценка: хороший прототип' };
-  if (score >= 18) return { grade: 'C3', stars: 3, score, label: 'Автооценка: прототип' };
-  if (score >= 10) return { grade: 'C2', stars: 2, score, label: 'Автооценка: ранний прототип' };
-  return { grade: 'C1', stars: 1, score, label: 'Автооценка: требует проверки' };
+  if (score >= 90) return quality('A4', 4, score, 'Auto: showcase project');
+  if (score >= 82) return quality('A3', 3, score, 'Auto: very strong project');
+  if (score >= 74) return quality('A2', 2, score, 'Auto: quality project');
+  if (score >= 66) return quality('A1', 1, score, 'Auto: strong project');
+  if (score >= 58) return quality('B4', 4, score, 'Auto: nearly ready project');
+  if (score >= 50) return quality('B3', 3, score, 'Auto: good working project');
+  if (score >= 42) return quality('B2', 2, score, 'Auto: working project');
+  if (score >= 34) return quality('B1', 1, score, 'Auto: simple working project');
+  if (score >= 25) return quality('C4', 4, score, 'Auto: good prototype');
+  if (score >= 18) return quality('C3', 3, score, 'Auto: prototype');
+  if (score >= 10) return quality('C2', 2, score, 'Auto: early prototype');
+  return quality('C1', 1, score, 'Auto: needs review');
 }
 
-function clamp(n) { return Math.max(0, Math.min(100, Math.round(n))); }
+function quality(grade, stars, score, label) {
+  return { grade, stars, score, label };
+}
 
 function findScreenshots(dir, htmlRel, ogImage = '') {
   const found = new Set();
   const htmlDirRel = path.dirname(htmlRel).replace(/\\/g, '/');
+  const normalizedOg = normalizeAssetPath(ogImage, htmlDirRel);
 
-  if (ogImage && !/^https?:\/\//i.test(ogImage)) {
-    found.add(path.join(htmlDirRel, ogImage).replace(/\\/g, '/').replace(/^\.\//, ''));
-  }
+  if (normalizedOg) found.add(normalizedOg);
+  scanImages(dir, htmlDirRel === '.' ? '' : htmlDirRel, found, 2);
 
-  for (const name of screenshotNames) {
-    const full = path.join(dir, name);
-    if (fs.existsSync(full)) found.add(path.join(htmlDirRel, name).replace(/\\/g, '/').replace(/^\.\//, ''));
-  }
-
-  scanImages(dir, htmlDirRel, found, 2);
-  return [...found];
+  return [...found].filter(Boolean).sort((a, b) => scoreImageName(b) - scoreImageName(a));
 }
 
 function scanImages(dir, relDir, found, depth) {
   if (depth < 0) return;
+
   let items = [];
-  try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { return; }
+  try {
+    items = fs.readdirSync(dir, { withFileTypes: true });
+  } catch (_) {
+    return;
+  }
 
   for (const item of items) {
     const full = path.join(dir, item.name);
     const rel = path.join(relDir, item.name).replace(/\\/g, '/').replace(/^\.\//, '');
 
     if (item.isDirectory()) {
-      if (ignore.has(item.name)) continue;
-      scanImages(full, rel, found, depth - 1);
+      if (!IGNORE_DIRS.has(item.name)) scanImages(full, rel, found, depth - 1);
       continue;
     }
 
-    const ext = path.extname(item.name).toLowerCase();
-    if (!imageExt.has(ext)) continue;
-
-    const low = item.name.toLowerCase();
-    const likelyScreenshot = screenshotKeywords.some(k => low.includes(k));
-    if (likelyScreenshot) found.add(rel);
+    if (!IMAGE_EXTENSIONS.has(path.extname(item.name).toLowerCase())) continue;
+    if (SCREENSHOT_HINTS.some(hint => item.name.toLowerCase().includes(hint))) found.add(rel);
   }
 }
 
+function buildSummary(items) {
+  return {
+    byStatus: countBy(items, 'statusGuess'),
+    byCategory: countBy(items, 'categoryGuess'),
+    withScreenshots: items.filter(item => item.hasScreenshot).length,
+    withManifest: items.filter(item => item.hasManifest).length,
+    withOpenGraph: items.filter(item => item.hasOpenGraph).length
+  };
+}
+
+function countBy(items, key) {
+  return items.reduce((acc, item) => {
+    const value = item[key] || 'unknown';
+    acc[value] = (acc[value] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function guessCategory(text) {
+  const v = String(text || '').toLowerCase();
+  if (/(типограф|полиграф|печать|фольг|лак|ppi|пиксел|prepress|print|polygraph)/i.test(v)) return 'Полиграфия / Дизайн';
+  if (/(church|церков|служен|библ|христ)/i.test(v)) return 'Церковь';
+  if (/(pdf|zip|exif|metadata|file|файл|json)/i.test(v)) return 'Файлы / Данные';
+  if (/(telegram|текст|пост|copy|content)/i.test(v)) return 'Текст / Контент';
+  if (/(цвет|color|rgb|design|стил|ui|css)/i.test(v)) return 'Дизайн / UI';
+  if (/(математ|логик|обуч|quiz|learn|skill)/i.test(v)) return 'Обучение';
+  if (/(игра|game|rpg|idle|dungeon|arcade|clicker|miner|castle|симулятор)/i.test(v)) return 'Игры';
+  return 'Нужно разобрать';
+}
+
+function guessLanguage(html, text) {
+  const lang = matchContent(html, /<html[^>]+lang=["']([^"']+)["']/i);
+  if (lang) return lang.toLowerCase();
+  const cyrillic = (String(text).match(/[А-Яа-яЁё]/g) || []).length;
+  const latin = (String(text).match(/[A-Za-z]/g) || []).length;
+  if (cyrillic > latin * 0.4) return 'ru';
+  if (latin > 0) return 'en';
+  return 'unknown';
+}
+
+function titleFromPath(rel) {
+  return rel.replace(/\/index\.html$/i, '').replace(/\.html$/i, '').replace(/[-_]/g, ' ');
+}
+
+function makeId(file) {
+  return String(file || '')
+    .replace(/\\/g, '/')
+    .replace(/\/index\.html$/i, '')
+    .replace(/\.html$/i, '')
+    .replace(/[^a-zA-Z0-9А-Яа-яЁё]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'project';
+}
+
+function metaContent(html, attr, value) {
+  const re = new RegExp(`<meta[^>]+${attr}=["']${escapeRegExp(value)}["'][^>]+content=["']([^"']*)["'][^>]*>`, 'i');
+  return matchContent(html, re);
+}
+
+function normalizeAssetPath(value, baseDir) {
+  const raw = String(value || '').trim();
+  if (!raw || /^https?:\/\//i.test(raw) || raw.startsWith('data:')) return raw;
+  return path.join(baseDir || '', raw).replace(/\\/g, '/').replace(/^\.\//, '');
+}
+
+function scoreImageName(value) {
+  const low = String(value || '').toLowerCase();
+  let score = 0;
+  if (low.includes('preview')) score += 5;
+  if (low.includes('screenshot')) score += 4;
+  if (low.includes('stilist')) score += 3;
+  if (low.endsWith('.webp')) score += 2;
+  if (low.endsWith('.jpg') || low.endsWith('.jpeg')) score += 1;
+  return score;
+}
+
+function stripTags(html) {
+  return String(html || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function matchContent(text, re) {
-  const match = text.match(re);
+  const match = String(text || '').match(re);
   return match ? clean(match[1]) : '';
 }
 
@@ -200,13 +348,22 @@ function clean(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
-function guessCategory(text) {
-  const v = String(text || '').toLowerCase();
-  if (/(полиграф|печать|типограф|фольг|уф|ppi|мм|пиксел|prepress)/.test(v)) return 'Полиграфия / Дизайн';
-  if (/(игра|game|rpg|idle|dungeon|аркад|симулятор)/.test(v)) return 'Игры';
-  if (/(церков|служен|библи|christ|христиан)/.test(v)) return 'Церковь';
-  if (/(pdf|zip|exif|metadata|file|файл)/.test(v)) return 'Файлы / Метаданные';
-  if (/(telegram|текст|пост)/.test(v)) return 'Текст / Telegram';
-  if (/(математ|логик|обуч)/.test(v)) return 'Игры / Обучение';
-  return 'Нужно разобрать';
+function firstNonEmpty(...values) {
+  return values.find(value => String(value || '').trim()) || '';
+}
+
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function clamp(n) {
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+function relativePath(full) {
+  return path.relative(ROOT, full).replace(/\\/g, '/');
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
