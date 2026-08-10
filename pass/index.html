@@ -436,7 +436,7 @@
         <!-- Результат -->
         <div class="result-area">
             <div class="password-field-wrapper">
-                <input type="text" id="passwordOutput" readonly value="Init#G@L4xy" placeholder="сгенерированный пароль">
+                <input type="text" id="passwordOutput" readonly value="" placeholder="сгенерированный пароль">
             </div>
             <div class="action-buttons">
                 <button class="action-btn regenerate-btn" id="regenerateBtn">
@@ -444,6 +444,9 @@
                 </button>
                 <button class="action-btn copy-btn" id="copyBtn">
                     <span>📋</span> копировать
+                </button>
+                <button class="action-btn regenerate-btn" id="clearBtn" type="button" title="Очистить пароль и данные генератора">
+                    <span>⌫</span> очистить
                 </button>
             </div>
         </div>
@@ -491,7 +494,11 @@
             const passwordOutput = document.getElementById('passwordOutput');
             const copyBtn = document.getElementById('copyBtn');
             const regenerateBtn = document.getElementById('regenerateBtn');
+            const clearBtn = document.getElementById('clearBtn');
             const toast = document.getElementById('toast');
+            const CLIPBOARD_CLEAR_DELAY_MS = 60 * 1000;
+            const STORAGE_PREFIX = 'neon-pass:';
+            let clipboardClearTimer = null;
 
             // Тост
             function showToast(text, duration = 1500) {
@@ -608,39 +615,80 @@
                 generatePassword();
             }
 
-            // Распределение количества символов по весам
+            function secureRandomInt(maxExclusive) {
+                if (!Number.isSafeInteger(maxExclusive) || maxExclusive <= 0) {
+                    throw new Error('Invalid secure random range');
+                }
+
+                const range = 0x100000000;
+                const limit = Math.floor(range / maxExclusive) * maxExclusive;
+                const values = new Uint32Array(1);
+
+                do {
+                    crypto.getRandomValues(values);
+                } while (values[0] >= limit);
+
+                return values[0] % maxExclusive;
+            }
+
+            function secureShuffle(items) {
+                for (let i = items.length - 1; i > 0; i--) {
+                    const j = secureRandomInt(i + 1);
+                    [items[i], items[j]] = [items[j], items[i]];
+                }
+                return items;
+            }
+
+            function ensureMinimumLength() {
+                const activeCount = state.categories.filter(category => category.active).length;
+                const minimum = Math.max(1, activeCount);
+                lengthInput.min = minimum;
+
+                if (state.length < minimum) {
+                    state.length = minimum;
+                    lengthInput.value = minimum;
+                    showToast(`ДЛИНА УВЕЛИЧЕНА ДО ${minimum}`, 1200);
+                }
+            }
+
+            // Each enabled category receives one character first. Remaining
+            // positions are selected with cryptographic randomness and boosts.
             function distributeLength() {
                 const activeCats = state.categories.filter(c => c.active);
                 if (activeCats.length === 0) return new Array(state.categories.length).fill(0);
 
-                const weights = activeCats.map(c => {
-                    let w = 1;
-                    if (c.boost250) w += 1.5;
-                    if (c.boost500) w += 4;
-                    return w;
-                });
-
-                const totalWeight = weights.reduce((a, b) => a + b, 0);
+                ensureMinimumLength();
                 const L = state.length;
-
-                let rawCounts = activeCats.map((_, i) => (L * weights[i]) / totalWeight);
-                let floors = rawCounts.map(v => Math.floor(v));
-                let remainder = L - floors.reduce((a, b) => a + b, 0);
-
-                const indexes = [...Array(activeCats.length).keys()];
-                indexes.sort((a, b) => (rawCounts[b] - floors[b]) - (rawCounts[a] - floors[a]));
-
-                for (let i = 0; i < remainder; i++) {
-                    floors[indexes[i % indexes.length]] += 1;
-                }
-
+                const weights = activeCats.map(c => {
+                    if (c.boost500) return 10;
+                    if (c.boost250) return 5;
+                    return 2;
+                });
+                const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
                 const result = new Array(state.categories.length).fill(0);
-                let activeIdx = 0;
+
                 state.categories.forEach((cat, idx) => {
                     if (cat.active) {
-                        result[idx] = floors[activeIdx++];
+                        result[idx] = 1;
                     }
                 });
+
+                for (let position = activeCats.length; position < L; position++) {
+                    let roll = secureRandomInt(totalWeight);
+                    let selected = 0;
+
+                    for (let index = 0; index < weights.length; index++) {
+                        roll -= weights[index];
+                        if (roll < 0) {
+                            selected = index;
+                            break;
+                        }
+                    }
+
+                    const categoryIndex = state.categories.indexOf(activeCats[selected]);
+                    result[categoryIndex] += 1;
+                }
+
                 return result;
             }
 
@@ -667,11 +715,7 @@
                 distribution.forEach((count, catIdx) => {
                     for (let i = 0; i < count; i++) order.push(catIdx);
                 });
-                // Перемешиваем
-                for (let i = order.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [order[i], order[j]] = [order[j], order[i]];
-                }
+                secureShuffle(order);
 
                 const maxFreq = Math.max(1, Math.floor(state.length * 3 / 24));
                 const charCount = new Map();
@@ -688,45 +732,17 @@
                         continue;
                     }
 
-                    const randomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-                    let attempts = 0, maxAttempts = 200, chosen = null;
-
-                    // Уровень 1: все ограничения
-                    while (attempts < maxAttempts) {
-                        const candidate = randomItem(charSet);
-                        if (candidate === lastChar) continue;
-                        if (candidate === secondLast) continue;
-                        if ((charCount.get(candidate) || 0) >= maxFreq) continue;
-                        chosen = candidate;
-                        break;
-                    }
-
-                    // Уровень 2: разрешить через один
-                    if (chosen === null) {
-                        attempts = 0;
-                        while (attempts < maxAttempts) {
-                            const candidate = randomItem(charSet);
-                            if (candidate === lastChar) continue;
-                            if ((charCount.get(candidate) || 0) >= maxFreq) continue;
-                            chosen = candidate;
-                            break;
-                        }
-                    }
-
-                    // Уровень 3: только частота
-                    if (chosen === null) {
-                        attempts = 0;
-                        while (attempts < maxAttempts) {
-                            const candidate = randomItem(charSet);
-                            if ((charCount.get(candidate) || 0) >= maxFreq) continue;
-                            chosen = candidate;
-                            break;
-                        }
-                    }
-
-                    // Уровень 4: вообще без ограничений
-                    if (chosen === null) chosen = randomItem(charSet);
+                    const candidates = [
+                        charSet.filter(candidate => candidate !== lastChar
+                            && candidate !== secondLast
+                            && (charCount.get(candidate) || 0) < maxFreq),
+                        charSet.filter(candidate => candidate !== lastChar
+                            && (charCount.get(candidate) || 0) < maxFreq),
+                        charSet.filter(candidate => (charCount.get(candidate) || 0) < maxFreq),
+                        charSet
+                    ];
+                    const available = candidates.find(group => group.length > 0);
+                    const chosen = available[secureRandomInt(available.length)];
 
                     passwordChars.push(chosen);
                     charCount.set(chosen, (charCount.get(chosen) || 0) + 1);
@@ -738,16 +754,65 @@
                 updateCounters(distribution);
             }
 
-            // Копирование
+            function clearGeneratorStorage() {
+                try {
+                    for (let index = localStorage.length - 1; index >= 0; index--) {
+                        const key = localStorage.key(index);
+                        if (key && key.startsWith(STORAGE_PREFIX)) localStorage.removeItem(key);
+                    }
+
+                    for (let index = sessionStorage.length - 1; index >= 0; index--) {
+                        const key = sessionStorage.key(index);
+                        if (key && key.startsWith(STORAGE_PREFIX)) sessionStorage.removeItem(key);
+                    }
+                } catch (_) {
+                    // Some browser privacy modes disable web storage entirely.
+                }
+
+                if ('caches' in window) {
+                    caches.keys()
+                        .then(keys => Promise.all(
+                            keys
+                                .filter(key => key.startsWith(STORAGE_PREFIX))
+                                .map(key => caches.delete(key))
+                        ))
+                        .catch(() => {});
+                }
+            }
+
+            function clearVisiblePassword() {
+                passwordOutput.value = '';
+                clearGeneratorStorage();
+            }
+
+            function scheduleClipboardClear() {
+                clearTimeout(clipboardClearTimer);
+                clipboardClearTimer = window.setTimeout(() => {
+                    navigator.clipboard.writeText('').catch(() => {});
+                }, CLIPBOARD_CLEAR_DELAY_MS);
+            }
+
+            // The generated password leaves the page immediately after copying.
+            // Clipboard cleanup is attempted after one minute when the browser allows it.
             copyBtn.addEventListener('click', () => {
                 if (!passwordOutput.value) return;
-                navigator.clipboard.writeText(passwordOutput.value).then(() => {
-                    showToast('✅ СКОПИРОВАНО');
+                const password = passwordOutput.value;
+                navigator.clipboard.writeText(password).then(() => {
+                    clearVisiblePassword();
+                    scheduleClipboardClear();
+                    showToast('✅ СКОПИРОВАНО · ПОЛЕ ОЧИЩЕНО');
                 }).catch(() => {
                     passwordOutput.select();
                     document.execCommand('copy');
-                    showToast('✅ СКОПИРОВАНО (FALLBACK)');
+                    clearVisiblePassword();
+                    showToast('✅ СКОПИРОВАНО · ПОЛЕ ОЧИЩЕНО');
                 });
+            });
+
+            clearBtn.addEventListener('click', () => {
+                clearTimeout(clipboardClearTimer);
+                clearVisiblePassword();
+                showToast('⌫ ПАРОЛЬ ОЧИЩЕН');
             });
 
             // Перегенерация (с "очисткой кеша" через новый вызов)
@@ -759,15 +824,19 @@
             // Изменение длины
             lengthInput.addEventListener('input', (e) => {
                 let val = parseInt(e.target.value, 10);
-                if (isNaN(val) || val < 1) val = 1;
+                const minimum = Math.max(1, state.categories.filter(category => category.active).length);
+                if (isNaN(val) || val < minimum) val = minimum;
                 if (val > 999) val = 999;
                 state.length = val;
                 lengthInput.value = val;
                 generatePassword();
             });
 
+            window.addEventListener('pagehide', clearVisiblePassword);
+
             // Инициализация
             render();
+            ensureMinimumLength();
             generatePassword();
         })();
     </script>
