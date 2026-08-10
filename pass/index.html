@@ -130,6 +130,85 @@
             box-shadow: 0 0 15px var(--neon-green);
         }
 
+        .minimum-panel {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.24);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-sm);
+        }
+
+        .minimum-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text-dim);
+            font: inherit;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .minimum-mode-btn.active {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 12px rgba(0, 255, 157, 0.35);
+        }
+
+        .minimum-badge {
+            display: grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: currentColor;
+            color: var(--bg);
+            font-size: 0.75rem;
+        }
+
+        .minimum-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .minimum-icon-btn {
+            display: grid;
+            place-items: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: 1px solid var(--border-dim);
+            border-radius: 50%;
+            background: var(--bg);
+            font-size: 1.15rem;
+            cursor: pointer;
+            opacity: 0.45;
+            transition: var(--transition);
+        }
+
+        .minimum-icon-btn.selected {
+            opacity: 1;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 12px rgba(0, 255, 157, 0.42);
+        }
+
+        .minimum-icon-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.18;
+            box-shadow: none;
+        }
+
         /* ===== СЕТКА КАТЕГОРИЙ ===== */
         .categories-grid {
             display: grid;
@@ -412,6 +491,11 @@
             .length-control {
                 width: 100%;
             }
+
+            .minimum-panel {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
 
         /* Стили для счетчиков */
@@ -429,6 +513,14 @@
                 <input type="number" id="length" min="1" max="999" value="24" step="1">
             </div>
         </div>
+
+        <section class="minimum-panel" aria-label="Минимум один символ из выбранных категорий">
+            <button class="minimum-mode-btn active" id="minimumModeBtn" type="button" aria-pressed="true" title="Включить или выключить обязательные символы">
+                <span class="minimum-badge">1</span>
+                <span>МИНИМУМ 1</span>
+            </button>
+            <div class="minimum-icons" id="minimumCategories" aria-label="Категории с обязательным символом"></div>
+        </section>
 
         <!-- Категории -->
         <div class="categories-grid" id="categoriesContainer"></div>
@@ -481,6 +573,8 @@
             // Состояние приложения
             let state = {
                 length: 24,
+                minimumMode: true,
+                minimumCategoryIds: categories.filter(category => category.active).map(category => category.id),
                 categories: categories.map(c => ({
                     ...c,
                     boost250: false,
@@ -495,6 +589,8 @@
             const copyBtn = document.getElementById('copyBtn');
             const regenerateBtn = document.getElementById('regenerateBtn');
             const clearBtn = document.getElementById('clearBtn');
+            const minimumModeBtn = document.getElementById('minimumModeBtn');
+            const minimumCategories = document.getElementById('minimumCategories');
             const toast = document.getElementById('toast');
             const CLIPBOARD_CLEAR_DELAY_MS = 60 * 1000;
             const STORAGE_PREFIX = 'neon-pass:';
@@ -574,6 +670,52 @@
                         toggleBoost(parseInt(index), 'green');
                     });
                 });
+
+                renderMinimumControls();
+            }
+
+            function renderMinimumControls() {
+                minimumModeBtn.classList.toggle('active', state.minimumMode);
+                minimumModeBtn.setAttribute('aria-pressed', String(state.minimumMode));
+
+                minimumCategories.innerHTML = state.categories.map(category => {
+                    const selected = state.minimumCategoryIds.includes(category.id);
+                    const disabled = !state.minimumMode || !category.active;
+                    const className = selected && !disabled ? 'selected' : '';
+                    const label = `${category.name}: минимум один символ`;
+
+                    return `
+                        <button class="minimum-icon-btn ${className}" type="button"
+                            data-minimum-category="${category.id}"
+                            title="${label}" aria-label="${label}"
+                            aria-pressed="${selected && !disabled}" ${disabled ? 'disabled' : ''}>
+                            ${category.icon}
+                        </button>
+                    `;
+                }).join('');
+
+                minimumCategories.querySelectorAll('[data-minimum-category]').forEach(button => {
+                    button.addEventListener('click', () => toggleMinimumCategory(button.dataset.minimumCategory));
+                });
+            }
+
+            function requiredCategories() {
+                if (!state.minimumMode) return [];
+                const selected = new Set(state.minimumCategoryIds);
+                return state.categories.filter(category => category.active && selected.has(category.id));
+            }
+
+            function toggleMinimumCategory(categoryId) {
+                if (!state.minimumMode) return;
+
+                if (state.minimumCategoryIds.includes(categoryId)) {
+                    state.minimumCategoryIds = state.minimumCategoryIds.filter(id => id !== categoryId);
+                } else {
+                    state.minimumCategoryIds.push(categoryId);
+                }
+
+                renderMinimumControls();
+                generatePassword();
             }
 
             // Переключение категории
@@ -583,6 +725,9 @@
                 if (!cat.active) {
                     cat.boost250 = false;
                     cat.boost500 = false;
+                    state.minimumCategoryIds = state.minimumCategoryIds.filter(id => id !== cat.id);
+                } else if (!state.minimumCategoryIds.includes(cat.id)) {
+                    state.minimumCategoryIds.push(cat.id);
                 }
                 render();
                 generatePassword();
@@ -640,8 +785,7 @@
             }
 
             function ensureMinimumLength() {
-                const activeCount = state.categories.filter(category => category.active).length;
-                const minimum = Math.max(1, activeCount);
+                const minimum = Math.max(1, requiredCategories().length);
                 lengthInput.min = minimum;
 
                 if (state.length < minimum) {
@@ -651,14 +795,15 @@
                 }
             }
 
-            // Each enabled category receives one character first. Remaining
-            // positions are selected with cryptographic randomness and boosts.
+            // Each selected minimum category receives one character first.
+            // Remaining positions are selected with cryptographic randomness and boosts.
             function distributeLength() {
                 const activeCats = state.categories.filter(c => c.active);
                 if (activeCats.length === 0) return new Array(state.categories.length).fill(0);
 
                 ensureMinimumLength();
                 const L = state.length;
+                const required = requiredCategories();
                 const weights = activeCats.map(c => {
                     if (c.boost500) return 10;
                     if (c.boost250) return 5;
@@ -668,12 +813,12 @@
                 const result = new Array(state.categories.length).fill(0);
 
                 state.categories.forEach((cat, idx) => {
-                    if (cat.active) {
+                    if (required.includes(cat)) {
                         result[idx] = 1;
                     }
                 });
 
-                for (let position = activeCats.length; position < L; position++) {
+                for (let position = required.length; position < L; position++) {
                     let roll = secureRandomInt(totalWeight);
                     let selected = 0;
 
@@ -815,6 +960,13 @@
                 showToast('⌫ ПАРОЛЬ ОЧИЩЕН');
             });
 
+            minimumModeBtn.addEventListener('click', () => {
+                state.minimumMode = !state.minimumMode;
+                ensureMinimumLength();
+                renderMinimumControls();
+                generatePassword();
+            });
+
             // Перегенерация (с "очисткой кеша" через новый вызов)
             regenerateBtn.addEventListener('click', () => {
                 generatePassword();
@@ -824,7 +976,7 @@
             // Изменение длины
             lengthInput.addEventListener('input', (e) => {
                 let val = parseInt(e.target.value, 10);
-                const minimum = Math.max(1, state.categories.filter(category => category.active).length);
+                const minimum = Math.max(1, requiredCategories().length);
                 if (isNaN(val) || val < minimum) val = minimum;
                 if (val > 999) val = 999;
                 state.length = val;
