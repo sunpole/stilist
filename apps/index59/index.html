@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tower Defense (PixiJS)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #222;
+            touch-action: manipulation;
+        }
+        #game-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
+        button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    <div id="panel">
+        <span id="selectedInfo">Selected Tower</span>
+        <button id="deleteBtn">Delete</button>
+        <button id="cancelBtn">Cancel</button>
+    </div>
+
+    <script src="https://pixijs.download/v7.3.0/pixi.min.js"></script>
+    <script>
+        // Инициализация PixiJS
+        const app = new PIXI.Application({
+            width: window.innerWidth,
+            height: window.innerHeight,
+            backgroundColor: 0x222222,
+            resolution: window.devicePixelRatio || 1,
+            antialias: true
+        });
+        document.getElementById('game-container').appendChild(app.view);
+
+        // Конфигурация игры
+        const config = {
+            enemy: {
+                speed: 1.5,
+                health: 100,
+                spawnInterval: 5000,
+                size: 15,
+                color: 0xFF0000
+            },
+            tower: {
+                range: 150,
+                damage: 10,
+                fireRate: 4,
+                projectileSpeed: 2.1,
+                size: 25,
+                cost: 100,
+                color: 0x555555
+            },
+            projectile: {
+                size: 5,
+                color: 0xFFFF00
+            },
+            path: {
+                width: 30,
+                color: 0x0000FF
+            }
+        };
+
+        // Текстуры (создаем программно)
+        const createCircleTexture = (color, radius) => {
+            const graphics = new PIXI.Graphics();
+            graphics.beginFill(color);
+            graphics.drawCircle(radius, radius, radius);
+            graphics.endFill();
+            return app.renderer.generateTexture(graphics);
+        };
+
+        const enemyTexture = createCircleTexture(config.enemy.color, config.enemy.size);
+        const towerTexture = createCircleTexture(config.tower.color, config.tower.size);
+        const projectileTexture = createCircleTexture(config.projectile.color, config.projectile.size);
+
+        // Игровые контейнеры (для z-index)
+        const pathContainer = new PIXI.Container();
+        const enemiesContainer = new PIXI.Container();
+        const towersContainer = new PIXI.Container();
+        const projectilesContainer = new PIXI.Container();
+        const uiContainer = new PIXI.Container();
+
+        app.stage.addChild(pathContainer);
+        app.stage.addChild(enemiesContainer);
+        app.stage.addChild(towersContainer);
+        app.stage.addChild(projectilesContainer);
+        app.stage.addChild(uiContainer);
+
+        // Состояние игры
+        const game = {
+            waterPath: [],
+            enemies: [],
+            towers: [],
+            projectiles: [],
+            selectedTower: null,
+            lastSpawnTime: 0,
+            money: 500,
+            towerPositions: new Set(),
+            graphics: new PIXI.Graphics()
+        };
+
+        pathContainer.addChild(game.graphics);
+
+        // Создание водного пути
+        function createWaterPath() {
+            const padding = 50;
+            const start = { x: padding, y: app.screen.height / 2 };
+            const end = { x: app.screen.width - padding, y: app.screen.height / 2 };
+            
+            game.waterPath = [start];
+            
+            const segments = 5;
+            const segmentWidth = (end.x - start.x) / segments;
+            
+            for (let i = 1; i < segments; i++) {
+                game.waterPath.push({
+                    x: start.x + i * segmentWidth,
+                    y: start.y + (Math.random() - 0.5) * 100
+                });
+            }
+            
+            game.waterPath.push(end);
+            
+            // Рисуем путь
+            game.graphics.clear();
+            game.graphics.lineStyle(config.path.width, config.path.color);
+            game.graphics.moveTo(game.waterPath[0].x, game.waterPath[0].y);
+            
+            for (let i = 1; i < game.waterPath.length; i++) {
+                game.graphics.lineTo(game.waterPath[i].x, game.waterPath[i].y);
+            }
+            
+            // Точки A и B
+            game.graphics.beginFill(0xFF0000);
+            game.graphics.drawCircle(game.waterPath[0].x, game.waterPath[0].y, 10);
+            game.graphics.endFill();
+            
+            game.graphics.beginFill(0x00FF00);
+            game.graphics.drawCircle(
+                game.waterPath[game.waterPath.length-1].x, 
+                game.waterPath[game.waterPath.length-1].y, 
+                10
+            );
+            game.graphics.endFill();
+        }
+
+        // Класс врага
+        class Enemy {
+            constructor() {
+                this.sprite = new PIXI.Sprite(enemyTexture);
+                this.sprite.anchor.set(0.5);
+                this.pathIndex = 0;
+                this.x = game.waterPath[0].x;
+                this.y = game.waterPath[0].y;
+                this.health = config.enemy.health;
+                this.maxHealth = config.enemy.health;
+                this.speed = config.enemy.speed;
+                
+                // Health bar
+                this.healthBar = new PIXI.Graphics();
+                this.updateHealthBar();
+                
+                enemiesContainer.addChild(this.sprite);
+                enemiesContainer.addChild(this.healthBar);
+            }
+            
+            updateHealthBar() {
+                this.healthBar.clear();
+                const healthWidth = 30;
+                const healthHeight = 5;
+                
+                this.healthBar.beginFill(0x333333);
+                this.healthBar.drawRect(
+                    -healthWidth/2, 
+                    -config.enemy.size - 10, 
+                    healthWidth, 
+                    healthHeight
+                );
+                
+                this.healthBar.beginFill(0x00FF00);
+                this.healthBar.drawRect(
+                    -healthWidth/2, 
+                    -config.enemy.size - 10, 
+                    healthWidth * (this.health / this.maxHealth), 
+                    healthHeight
+                );
+            }
+            
+            update(delta) {
+                const target = game.waterPath[this.pathIndex];
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 2) {
+                    this.pathIndex++;
+                    if (this.pathIndex >= game.waterPath.length) {
+                        this.destroy();
+                        return false;
+                    }
+                } else {
+                    this.x += (dx / distance) * this.speed;
+                    this.y += (dy / distance) * this.speed;
+                }
+                
+                this.sprite.position.set(this.x, this.y);
+                this.healthBar.position.set(this.x, this.y);
+                return true;
+            }
+            
+            takeDamage(damage) {
+                this.health -= damage;
+                this.updateHealthBar();
+                return this.health <= 0;
+            }
+            
+            destroy() {
+                enemiesContainer.removeChild(this.sprite);
+                enemiesContainer.removeChild(this.healthBar);
+                this.sprite.destroy();
+                this.healthBar.destroy();
+            }
+        }
+
+        // Класс башни
+        class Tower {
+            constructor(x, y) {
+                this.sprite = new PIXI.Sprite(towerTexture);
+                this.sprite.anchor.set(0.5);
+                this.sprite.position.set(x, y);
+                this.sprite.interactive = true;
+                this.sprite.on('pointerdown', () => selectTower(this));
+                
+                this.range = config.tower.range;
+                this.damage = config.tower.damage;
+                this.fireRate = config.tower.fireRate;
+                this.cooldown = 0;
+                this.projectileSpeed = config.tower.projectileSpeed;
+                
+                // Радиус (только при выделении)
+                this.rangeCircle = new PIXI.Graphics();
+                this.rangeCircle.visible = false;
+                
+                towersContainer.addChild(this.sprite);
+                towersContainer.addChild(this.rangeCircle);
+            }
+            
+            update(delta) {
+                if (this.cooldown > 0) {
+                    this.cooldown -= delta;
+                    return;
+                }
+
+                // Поиск ближайшего врага
+                let closestEnemy = null;
+                let minDistance = Infinity;
+
+                for (const enemy of game.enemies) {
+                    const dx = enemy.x - this.sprite.x;
+                    const dy = enemy.y - this.sprite.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < this.range && distance < minDistance) {
+                        closestEnemy = enemy;
+                        minDistance = distance;
+                    }
+                }
+
+                // Стрельба
+                if (closestEnemy) {
+                    const projectile = new PIXI.Sprite(projectileTexture);
+                    projectile.anchor.set(0.5);
+                    projectile.position.set(this.sprite.x, this.sprite.y);
+                    
+                    projectilesContainer.addChild(projectile);
+                    
+                    game.projectiles.push({
+                        sprite: projectile,
+                        x: this.sprite.x,
+                        y: this.sprite.y,
+                        target: closestEnemy,
+                        damage: this.damage,
+                        speed: this.projectileSpeed
+                    });
+
+                    this.cooldown = 1000 / this.fireRate;
+                }
+            }
+            
+            select() {
+                this.rangeCircle.clear();
+                this.rangeCircle.lineStyle(2, 0xFFFF00, 0.3);
+                this.rangeCircle.drawCircle(0, 0, this.range);
+                this.rangeCircle.position.set(this.sprite.x, this.sprite.y);
+                this.rangeCircle.visible = true;
+                
+                // Подсветка башни
+                this.sprite.tint = 0xFFFF00;
+            }
+            
+            deselect() {
+                this.rangeCircle.visible = false;
+                this.sprite.tint = 0xFFFFFF;
+            }
+            
+            destroy() {
+                towersContainer.removeChild(this.sprite);
+                towersContainer.removeChild(this.rangeCircle);
+                this.sprite.destroy();
+                this.rangeCircle.destroy();
+            }
+        }
+
+        // Выбор башни
+        function selectTower(tower) {
+            if (game.selectedTower) {
+                game.selectedTower.deselect();
+            }
+            
+            game.selectedTower = tower;
+            tower.select();
+            
+            document.getElementById('panel').style.display = 'block';
+            document.getElementById('selectedInfo').textContent = 
+                `Tower (${Math.round(tower.sprite.x)}, ${Math.round(tower.sprite.y)})`;
+        }
+
+        // Отмена выбора
+        function deselectTower() {
+            if (game.selectedTower) {
+                game.selectedTower.deselect();
+                game.selectedTower = null;
+            }
+            document.getElementById('panel').style.display = 'none';
+        }
+
+        // Удаление башни
+        function deleteTower() {
+            if (game.selectedTower) {
+                const index = game.towers.indexOf(game.selectedTower);
+                if (index !== -1) {
+                    const tower = game.towers[index];
+                    game.towerPositions.delete(`${Math.round(tower.sprite.x)}_${Math.round(tower.sprite.y)}`);
+                    game.towers.splice(index, 1);
+                    game.money += Math.floor(config.tower.cost * 0.7);
+                    tower.destroy();
+                }
+                deselectTower();
+            }
+        }
+
+        // Обновление снарядов
+        function updateProjectiles(delta) {
+            for (let i = game.projectiles.length - 1; i >= 0; i--) {
+                const p = game.projectiles[i];
+                
+                if (!p.target || p.target.health <= 0) {
+                    projectilesContainer.removeChild(p.sprite);
+                    p.sprite.destroy();
+                    game.projectiles.splice(i, 1);
+                    continue;
+                }
+
+                const dx = p.target.x - p.x;
+                const dy = p.target.y - p.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const speed = p.speed * (delta / 16);
+
+                if (distance < 5) {
+                    // Попадание
+                    if (p.target.takeDamage(p.damage)) {
+                        game.money += 20;
+                    }
+                    projectilesContainer.removeChild(p.sprite);
+                    p.sprite.destroy();
+                    game.projectiles.splice(i, 1);
+                } else {
+                    // Движение к цели
+                    p.x += (dx / distance) * speed;
+                    p.y += (dy / distance) * speed;
+                    p.sprite.position.set(p.x, p.y);
+                }
+            }
+        }
+
+        // Проверка позиции для башни
+        function isValidTowerPosition(x, y) {
+            // Проверка занятости позиции
+            const positionKey = `${Math.round(x)}_${Math.round(y)}`;
+            if (game.towerPositions.has(positionKey)) {
+                return false;
+            }
+            
+            // Проверка, что не на пути
+            for (let i = 0; i < game.waterPath.length - 1; i++) {
+                const p1 = game.waterPath[i];
+                const p2 = game.waterPath[i + 1];
+                
+                const A = x - p1.x;
+                const B = y - p1.y;
+                const C = p2.x - p1.x;
+                const D = p2.y - p1.y;
+
+                const dot = A * C + B * D;
+                const len_sq = C * C + D * D;
+                let param = -1;
+                if (len_sq !== 0) param = dot / len_sq;
+
+                let xx, yy;
+
+                if (param < 0) {
+                    xx = p1.x;
+                    yy = p1.y;
+                } else if (param > 1) {
+                    xx = p2.x;
+                    yy = p2.y;
+                } else {
+                    xx = p1.x + param * C;
+                    yy = p1.y + param * D;
+                }
+
+                const dx = x - xx;
+                const dy = y - yy;
+                if (Math.sqrt(dx * dx + dy * dy) < 40) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Обработка кликов
+        function handleClick(x, y) {
+            // Если есть выбранная башня, проверяем клик по UI
+            if (game.selectedTower) {
+                return;
+            }
+            
+            // Проверяем, можно ли поставить башню
+            if (isValidTowerPosition(x, y) && game.money >= config.tower.cost) {
+                game.towers.push(new Tower(x, y));
+                game.towerPositions.add(`${Math.round(x)}_${Math.round(y)}`);
+                game.money -= config.tower.cost;
+            }
+        }
+
+        // UI элементы
+        const moneyText = new PIXI.Text(`Money: $${game.money}`, {
+            fontFamily: 'Arial',
+            fontSize: 20,
+            fill: 0xFFFFFF,
+            align: 'left'
+        });
+        moneyText.position.set(10, 10);
+        uiContainer.addChild(moneyText);
+
+        // Инициализация UI кнопок
+        document.getElementById('deleteBtn').addEventListener('click', deleteTower);
+        document.getElementById('cancelBtn').addEventListener('click', deselectTower);
+
+        // Обработчики событий
+        app.stage.interactive = true;
+        app.stage.hitArea = new PIXI.Rectangle(0, 0, app.screen.width, app.screen.height);
+        app.stage.on('pointerdown', (e) => {
+            handleClick(e.global.x, e.global.y);
+        });
+
+        // Игровой цикл
+        let lastTime = 0;
+        app.ticker.add((delta) => {
+            const now = Date.now();
+            const deltaTime = now - lastTime;
+            lastTime = now;
+
+            // Спавн врагов
+            if (now - game.lastSpawnTime > config.enemy.spawnInterval) {
+                game.enemies.push(new Enemy());
+                game.lastSpawnTime = now;
+            }
+
+            // Обновление врагов
+            for (let i = game.enemies.length - 1; i >= 0; i--) {
+                if (!game.enemies[i].update(delta)) {
+                    game.enemies[i].destroy();
+                    game.enemies.splice(i, 1);
+                }
+            }
+
+            // Обновление башен
+            for (const tower of game.towers) {
+                tower.update(delta);
+            }
+
+            // Обновление снарядов
+            updateProjectiles(delta);
+
+            // Обновление UI
+            moneyText.text = `Money: $${game.money}`;
+        });
+
+        // Запуск игры
+        createWaterPath();
+
+        // Ресайз
+        window.addEventListener('resize', () => {
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+            createWaterPath();
+        });
+    </script>
+</body>
+</html>

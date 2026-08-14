@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Огненный снаряд</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #111;
+            cursor: crosshair;
+        }
+        canvas {
+            display: block;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="info">Кликните в любом месте для выстрела огненным шаром</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const info = document.getElementById('info');
+        
+        // Настройка canvas
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Хранилище огненных снарядов
+        const fireballs = [];
+        
+        // Класс огненного снаряда
+        class Fireball {
+            constructor(x, y, targetX, targetY) {
+                this.x = x;
+                this.y = y;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.size = 15;
+                this.particles = [];
+                this.life = 100;
+                this.speed = 7;
+                this.angle = Math.atan2(targetY - y, targetX - x);
+                this.createInitialParticles(15);
+            }
+            
+            createInitialParticles(count) {
+                for (let i = 0; i < count; i++) {
+                    this.addParticle(true);
+                }
+            }
+            
+            addParticle(isInitial = false) {
+                const size = Math.random() * 4 + 2;
+                this.particles.push({
+                    x: this.x,
+                    y: this.y,
+                    size: size,
+                    maxSize: size,
+                    life: Math.random() * 40 + 20,
+                    speedX: (Math.random() - 0.5) * 2,
+                    speedY: (Math.random() - 0.5) * 2,
+                    color: this.getFireColor(),
+                    growth: isInitial ? 0 : Math.random() * 0.2
+                });
+            }
+            
+            getFireColor() {
+                const hue = Math.random() * 20 + 10;
+                const saturation = 100;
+                const lightness = Math.random() * 30 + 50;
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            }
+            
+            update() {
+                // Движение снаряда
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                
+                // Обновление частиц
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    
+                    // Физика частиц
+                    p.x += p.speedX;
+                    p.y += p.speedY - 0.2; // Пламя стремится вверх
+                    p.speedX *= 0.96;
+                    p.speedY *= 0.96;
+                    p.life--;
+                    
+                    // Рост и уменьшение частиц
+                    if (p.growth > 0 && p.size < p.maxSize * 1.5) {
+                        p.size += p.growth;
+                    } else {
+                        p.size *= 0.96;
+                    }
+                    
+                    // Удаление мертвых частиц
+                    if (p.life <= 0 || p.size < 0.1) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+                
+                // Добавление новых частиц
+                if (Math.random() > 0.3) {
+                    this.addParticle();
+                }
+                
+                this.life--;
+                return this.life > 0 && 
+                       this.x > 0 && this.x < canvas.width && 
+                       this.y > 0 && this.y < canvas.height;
+            }
+            
+            draw(ctx) {
+                // Рисуем частицы (задние)
+                for (const p of this.particles) {
+                    const alpha = Math.min(p.life / 40, 0.8);
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Ядро огня
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.size
+                );
+                gradient.addColorStop(0, 'rgba(255, 200, 0, 0.8)');
+                gradient.addColorStop(0.7, 'rgba(255, 80, 0, 0.5)');
+                gradient.addColorStop(1, 'rgba(255, 40, 0, 0)');
+                
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Эффект свечения
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = 'rgba(255, 100, 0, 0.6)';
+                ctx.globalAlpha = 0.3;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Обработчик клика - создаем новый огненный шар
+        canvas.addEventListener('click', (e) => {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            fireballs.push(new Fireball(centerX, centerY, e.clientX, e.clientY));
+        });
+        
+        // Игровой цикл
+        function gameLoop() {
+            // Очистка canvas с эффектом затемнения
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Обновление и отрисовка снарядов
+            for (let i = fireballs.length - 1; i >= 0; i--) {
+                if (!fireballs[i].update()) {
+                    fireballs.splice(i, 1);
+                } else {
+                    fireballs[i].draw(ctx);
+                }
+            }
+            
+            // Статистика
+            info.innerHTML = `Кликните для выстрела<br>
+                             Активных снарядов: ${fireballs.length}<br>
+                             Всего частиц: ${fireballs.reduce((sum, fb) => sum + fb.particles.length, 0)}`;
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Запуск игры
+        gameLoop();
+        
+        // Обработка изменения размера окна
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

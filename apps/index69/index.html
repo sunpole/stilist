@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>TD — Кастомные башни из расходников (Pro) — Исправлено</title>
+<style>
+    :root{
+        --bg:#0f1220;--panel:#171b2e;--panel2:#1e2440;--text:#e7ecff;--muted:#9aa4d6;--accent:#6ee7ff;--ok:#57d88a;--warn:#ffb86b;--bad:#ff6b6b;
+        --slot-ok:#2a334f;--slot-max:#40518d;--btn:#2b7cff;--btn2:#2e9d6c;--btn3:#f0b429;--btn-dis:#3a4161;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+        margin:0;background:linear-gradient(180deg,#0b0f1d,#121632);
+        color:var(--text);font:500 14px/1.4 system-ui,Segoe UI,Roboto,Arial;
+        touch-action:manipulation;
+    }
+    #wrap{max-width:1000px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+    header{padding:10px 12px;background:#121737;box-shadow:0 2px 0 rgba(0,0,0,.35);position:sticky;top:0;z-index:50}
+    header h1{font-size:18px;margin:0}
+    #hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
+    .chip{background:var(--panel);padding:8px 10px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .chip b{font-size:16px;margin-left:6px}
+    #board-wrap{padding:10px}
+    #board{position:relative;height:420px;border-radius:16px;overflow:hidden;background:#0b1b21;box-shadow:inset 0 0 0 2px #0c2c39}
+    #path{position:absolute;inset:0;pointer-events:none}
+    /* overlay для радиуса */
+    #overlay{position:absolute;inset:0;pointer-events:none;z-index:30}
+    .slot{
+        position:absolute;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+        color:#fff;font-weight:800;font-size:12px;transform:translate(-50%,-50%);cursor:pointer;user-select:none;
+        border:2px solid #88a;box-shadow:0 0 0 2px rgba(0,0,0,.2) inset;
+        z-index:10;
+    }
+    .slot .slot-label{font-size:11px;pointer-events:none; display:flex; gap:6px; align-items:center}
+    .slot.l15{background:linear-gradient(180deg,#284,#173)} .slot.l10{background:linear-gradient(180deg,#484,#262)} .slot.l6{background:linear-gradient(180deg,#448,#226)}
+    .slot.max{outline:2px dashed #ffd166}
+    /* башня выше по z-index и полностью кликабельна */
+    .tower{position:absolute;width:40px;height:40px;border-radius:50%;transform:translate(-50%,-50%);background:#2b7cff;border:3px solid #0f4fd6;
+        z-index:20; cursor:pointer; display:flex; align-items:center; justify-content:center; pointer-events:auto;}
+    .tower .lvl-badge{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:2px 6px;border-radius:10px;font-size:12px}
+    .tower::after{content:'';position:absolute;inset:-4px;border-radius:50%;box-shadow:0 0 0 2px rgba(110,231,255,.12)}
+    .enemy{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);background:#ff6b6b;box-shadow:0 0 10px rgba(255,107,107,.6)}
+    .hp{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:22px;height:3px;background:rgba(0,0,0,.4);border-radius:2px}
+    .hp>i{display:block;height:100%;background:#57d88a;border-radius:2px}
+    .proj{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);background:#ffeb3b;box-shadow:0 0 8px rgba(255,235,59,.8);z-index:25;pointer-events:none}
+    #ui{display:grid;grid-template-columns:1fr;gap:10px;padding:10px;z-index:40}
+    .panel{background:var(--panel2);border-radius:16px;padding:10px}
+    .panel h3{margin:0 0 8px 0;font-size:14px;color:#b7c3ff}
+    #inv{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:8px}
+    .comp{background:var(--panel);border:1px solid #2d3760;border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:4px;cursor:pointer}
+    .comp.sel{outline:2px solid var(--accent)}
+    .badge{font-size:11px;color:#9aa4d6;background:#0f1c3a;padding:1px 6px;border-radius:999px;margin-left:6px}
+    .lvl1{background:#1f3b2f} .lvl2{background:#214a3b} .lvl3{background:#245447} .lvl4{background:#276055}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    button{background:var(--btn);border:0;color:#fff;padding:10px 12px;border-radius:12px;font-weight:700;cursor:pointer}
+    .b2{background:var(--btn2)} .b3{background:var(--btn3)} .bd{background:var(--btn-dis)!important;cursor:not-allowed}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .note{color:var(--muted);font-size:12px}
+    #toast{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:#0e1430;color:#fff;padding:10px 14px;border-radius:12px;display:none;z-index:60}
+    #modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:70}
+    #modal>.card{background:#0f1536;border-radius:16px;padding:14px;max-width:92vw;width:520px}
+    .small{font-size:12px;color:#9fb3ff}
+    .stat{display:grid;grid-template-columns:1fr auto;gap:4px}
+    .pill{padding:2px 6px;border-radius:999px;background:#0e1a3b;color:#bcd}
+    .costline{margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
+    .cost{background:#0c1a35;border:1px solid #293a6a;padding:4px 8px;border-radius:8px}
+    select, .sel{background:#0d1a3b;border:1px solid #2a3a6a;color:#cfe;padding:6px 8px;border-radius:10px}
+    .upgrade-row{display:flex;gap:8px;align-items:center;margin:6px 0}
+    .upgrade-row button{padding:6px 8px;border-radius:8px;font-size:13px}
+    @media (min-width:860px){
+        #ui{grid-template-columns:1.2fr .8fr}
+    }
+</style>
+</head>
+<body>
+<div id="wrap">
+    <header>
+        <h1>Башенная оборона — конструктор башен из расходников</h1>
+        <div id="hud">
+            <div class="chip">💰 Деньги: <b id="money">0</b></div>
+            <div class="chip">❤️ Жизни: <b id="lives">20</b></div>
+            <div class="chip">🌊 Волна: <b id="wave">0</b></div>
+            <div class="chip">👾 Врагов: <b><span id="left">0</span>/<span id="total">0</span></b></div>
+        </div>
+    </header>
+
+    <div id="board-wrap">
+        <div id="board">
+            <!-- Путь -->
+            <svg id="path" viewBox="0 0 920 420" preserveAspectRatio="none">
+                <defs>
+                    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                </defs>
+                <!-- track используется ОДИН для логики перемещения и для визуала -->
+                <path id="track" d="M20,360
+                    C180,360 180,60 320,60
+                    S460,360 600,360
+                    S740,60 900,60" fill="none" stroke="#2a845f" stroke-width="26" opacity=".25" />
+                <path id="trackLine" d="M20,360
+                    C180,360 180,60 320,60
+                    S460,360 600,360
+                    S740,60 900,60" fill="none" stroke="#42e39f" stroke-width="6" filter="url(#glow)" />
+            </svg>
+            <!-- Overlay радиуса -->
+            <svg id="overlay" viewBox="0 0 920 420" preserveAspectRatio="none">
+                <circle id="range" cx="-1000" cy="-1000" r="10" fill="rgba(110,231,255,0.08)" stroke="rgba(110,231,255,0.6)" stroke-width="2" />
+            </svg>
+            <!-- Слоты (ставятся скриптом) -->
+        </div>
+    </div>
+
+    <div id="ui">
+        <div class="panel">
+            <h3>Инвентарь расходников</h3>
+            <div id="inv"></div>
+            <div class="row" style="margin-top:8px">
+                <button id="combine" class="b3">Комбинировать: 3×L1→L2, 3×L2→L3</button>
+                <button id="newComp" class="b2">Купить случайный (шанс L1..L4) (💰 25)</button>
+                <button id="sellInv">Продать выделенный</button>
+                <button id="sortInv">Сортировать</button>
+            </div>
+            <div class="note">Типы: Ствол = урон, Затвор = перезарядка, Прицел = дальность, Порох = скорость снаряда.</div>
+        </div>
+        <div class="panel">
+            <h3>Управление</h3>
+            <div class="grid">
+                <button id="start">▶ Следующая волна</button>
+                <button id="reset" class="b2">🔄 Новая игра</button>
+            </div>
+            <div class="row" style="margin-top:8px">
+                <button id="pause">⏸ Пауза</button>
+                <label class="sel">Скорость:
+                    <select id="speed">
+                        <option value="1">×1</option>
+                        <option value="2">×2</option>
+                        <option value="3">×3</option>
+                    </select>
+                </label>
+                <button id="save">💾 Сохранить</button>
+                <button id="load">📂 Загрузить</button>
+            </div>
+            <div id="wavePrev" class="small" style="margin-top:8px"></div>
+            <div style="margin-top:8px" class="small">
+                Ограничения слотов: 2× до 15 лвл, 2× до 10 лвл, 3× до 6 лвл. На башне может быть сколько угодно апгрейдов, если <b>сумма уровней ≤ лимита</b>.
+            </div>
+            <div style="margin-top:8px" class="small">
+                Стоимость установки: base×уровень. Добавление в башню дорожает по месту и за 4-й уровень (×5/×7).
+            </div>
+            <div class="small" style="margin-top:6px">Хоткеи: <b>Space</b> — волна • <b>P</b> — пауза • <b>1/2/3</b> — скорость • <b>Esc</b> — закрыть окно</div>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Модалка башни -->
+<div id="modal">
+    <div class="card">
+        <h3 id="mTitle">Башня</h3>
+        <div id="mStats" class="stat" style="margin-bottom:8px"></div>
+        <div class="row small" style="align-items:center;margin:6px 0">
+            <label>Режим прицеливания:&nbsp;</label>
+            <select id="aimMode" class="sel">
+                <option value="first">Первый по пути</option>
+                <option value="near">Ближайший к башне</option>
+                <option value="strong">Самый крепкий</option>
+            </select>
+        </div>
+        <div id="mList"></div>
+        <div id="mCosts" class="small"></div>
+        <div class="row" style="margin-top:10px">
+            <button id="mClose">Закрыть</button>
+            <button id="mSellAll" class="b3">Снести башню (продать всё)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ======== БАЛАНС ======== */
+// Базовые значения централизованы здесь
+const BASE_TOWER = { dmg:14, rng:100, proj:100, rld:0.50 }; // +40% dmg, x2 range (как просили)
+const TYPES = {
+    BARREL : {key:'BARREL', name:'Ствол',   stat:'dmg', icon:'🔫', color:'#2b7cff'},
+    BREECH : {key:'BREECH', name:'Затвор',  stat:'rld', icon:'🔧', color:'#ffcc66'},
+    SCOPE  : {key:'SCOPE',  name:'Прицел',  stat:'rng', icon:'🎯', color:'#57d88a'},
+    POWDER : {key:'POWDER', name:'Порох',   stat:'proj',icon:'⚡', color:'#ffd54f'}
+};
+const LEVELS = {
+    1:{ multi:1.20, cost:20,  drop:0.15 },
+    2:{ multi:1.50, cost:60,  drop:0.07 },
+    3:{ multi:2.00, cost:160, drop:0.03 },
+    4:{ multi:3.00, cost:400, drop:0.01 }
+};
+const SLOTS = [
+    {max:15, x:170,y:310},{max:15, x:560,y:120},
+    {max:10, x:330,y:120},{max:10, x:740,y:330},
+    {max:6,  x:240,y:230},{max:6,  x:480,y:300},{max:6,  x:680,y:190},
+];
+const PLACE_BASE_COST = 10;
+const SECOND_L4_MULT = 5;
+const THIRD_L4_MULT  = 7;
+const REFUND_RATE_TOWER = 0.6; // возврат при продаже из башни
+const REFUND_RATE_INV   = 0.5; // продажа из инвентаря
+
+/* ======== ИГРОВОЕ СОСТОЯНИЕ ======== */
+const st = {
+    money: 250, // стартовое золото по требованию
+    lives: 20, wave: 0,
+    enemies: [], projs: [], towers: [], // tower: {comps:[{type,level,purchaseCost}], level, stats, lastShot, mode}
+    inv: [],
+    pathLen: 0, lastTs: performance.now(),
+    spawning:false, left:0, total:0,
+    paused:false, speed:1
+};
+
+/* ======== УТИЛИТЫ ======== */
+const $ = s=>document.querySelector(s);
+const $$ = s=>document.querySelectorAll(s);
+const fmt = n => n.toLocaleString('ru-RU');
+function toast(msg, ms=1400){ const t=$("#toast"); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',ms); }
+function ruStat(k){ return {dmg:'урону', rld:'перезарядке (меньше — быстрее)', rng:'дальности', proj:'скорости снаряда'}[k]; }
+
+/* ======== ПУТЬ - единый источник правды ======== */
+const path = $("#track");
+// path используется и для отрисовки и для движения юнитов — чтобы визуал синхронизировался с логикой
+st.pathLen = path.getTotalLength();
+function pointAt(dist){
+    // dist в пикселях вдоль пути
+    const d = Math.min(Math.max(dist,0), st.pathLen-0.001);
+    const p = path.getPointAtLength(d);
+    return {x:p.x, y:p.y};
+}
+
+/* ======== СЛОТЫ: рендер и обновление текста (тек/макс) ======== */
+const board = $("#board");
+function drawSlots(){
+    $$(".slot").forEach(e=>e.remove());
+    SLOTS.forEach((s, i)=>{
+        const el = document.createElement('div');
+        el.className = 'slot ' + (s.max===15?'l15':s.max===10?'l10':'l6');
+        el.style.left = s.x+'px'; el.style.top = s.y+'px';
+        el.dataset.idx = i;
+        el.title = `Слот ${i+1} • лимит уровня: ${s.max}`;
+        // Показываем "текущий/максимум" — обновляется в updateSlotLabel()
+        el.innerHTML = `<div class="slot-label"><span class="cur">0</span>/<span class="max">${s.max}</span></div>`;
+        el.addEventListener('click', ()=>openTowerModal(i));
+        // подсветка радиуса по наведению (если есть башня)
+        el.addEventListener('mouseenter', ()=>{
+            const t = st.towers[i];
+            if(t) drawRange(s.x, s.y, t.stats.rng);
+        });
+        el.addEventListener('mouseleave', hideRange);
+        board.appendChild(el);
+    });
+}
+function updateSlotLabel(i){
+    const slotEl = document.querySelector(`.slot[data-idx="${i}"]`);
+    if(!slotEl) return;
+    const t = st.towers[i];
+    const cur = t ? t.level : 0;
+    const max = SLOTS[i].max;
+    slotEl.querySelector('.cur').textContent = cur;
+    slotEl.querySelector('.max').textContent = max;
+    if(t && t.level >= max) slotEl.classList.add('max'); else slotEl.classList.remove('max');
+}
+function updateAllSlotLabels(){ SLOTS.forEach((_,i)=>updateSlotLabel(i)); }
+function towerAt(i){ return st.towers[i]||null; }
+
+/* ======== СТАТЫ / СТОИМОСТИ ======== */
+function sumLevel(comps){ return comps.reduce((a,c)=>a+c.level,0); }
+function countL4(comps){ return comps.filter(c=>c.level===4).length; }
+function calcStats(comps){
+    const s = {...BASE_TOWER};
+    for(const c of comps){
+        const m = LEVELS[c.level].multi;
+        if (TYPES[c.type].stat==='rld') s.rld = s.rld / m; else s[TYPES[c.type].stat]*=m;
+    }
+    return s;
+}
+function placeCost(levelSum){ return PLACE_BASE_COST * Math.max(1, levelSum); }
+function addComponentCost(tower, comp){
+    const base = LEVELS[comp.level].cost;
+    const count = tower.comps.length;
+    const progressive = 1 + count*2; // 1,3,5...
+    let mult = progressive;
+    const futureL4s = countL4(tower.comps) + (comp.level===4?1:0);
+    if (futureL4s===2) mult *= SECOND_L4_MULT;
+    if (futureL4s===3) mult *= THIRD_L4_MULT;
+    return Math.round(base * mult);
+}
+
+/* ======== АВТОСЛИЯНИЕ В БАШНЕ (3->2 и 3->3) ======== */
+function compactTowerUpgrades(tower){
+    let changed = true;
+    while(changed){
+        changed = false;
+        for(const tp of Object.keys(TYPES)){
+            for(const lv of [1,2]){ // только 1 и 2 объединяются (3 и 4 нет)
+                const idxs = [];
+                for(let i=0;i<tower.comps.length;i++){
+                    const c=tower.comps[i];
+                    if(c.type===tp && c.level===lv) idxs.push(i);
+                }
+                if(idxs.length>=3){
+                    const rem = idxs.slice(-3).sort((a,b)=>b-a);
+                    // суммируем себестоимость
+                    let sumCost=0;
+                    rem.forEach(i=>{ sumCost += tower.comps[i].purchaseCost||0; tower.comps.splice(i,1); });
+                    tower.comps.push({type:tp, level:lv+1, purchaseCost:sumCost});
+                    changed = true;
+                }
+            }
+        }
+    }
+    tower.level = sumLevel(tower.comps);
+    tower.stats = calcStats(tower.comps);
+}
+
+/* симуляция добавления для предпросмотра */
+function simulateAdd(tower, comp){
+    const tmp = { comps: (tower? tower.comps.map(c=>({type:c.type, level:c.level, purchaseCost:c.purchaseCost||0})) : []) };
+    if(comp) tmp.comps.push({type:comp.type, level:comp.level, purchaseCost:0});
+    compactTowerUpgrades(tmp);
+    return {level: tmp.level, stats: tmp.stats};
+}
+
+/* ======== ИНВЕНТАРЬ ======== */
+const invWrap = $("#inv");
+let invSel = -1;
+
+function renderInv(){
+    invWrap.innerHTML='';
+    st.inv.forEach((c, i)=>{
+        const d = document.createElement('div');
+        d.className='comp '+(invSel===i?'sel':'')+' lvl'+c.level;
+        d.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><b>${TYPES[c.type].icon} ${TYPES[c.type].name}</b><span class="badge">L${c.level}</span></div>
+                       <div class="small">Бонус: ${LEVELS[c.level].multi.toFixed(2)}× к ${ruStat(TYPES[c.type].stat)}</div>`;
+        d.addEventListener('click',()=>{ invSel = (invSel===i?-1:i); renderInv(); if(modal.style.display==='flex') updateModalCosts(); });
+        invWrap.appendChild(d);
+    });
+}
+
+/* комбинирование: теперь 3->2 и 3->3 (везде одинаково) */
+$("#combine").addEventListener('click', ()=>{
+    const map = {};
+    st.inv.forEach((c,idx)=>{ const key=c.type+'_'+c.level; (map[key]??=[]).push(idx); });
+    let upgraded=false;
+    for(const tp of Object.keys(TYPES)){
+        const k=tp+'_1';
+        if(map[k] && map[k].length>=3){
+            const idxs=map[k].splice(0,3).sort((a,b)=>b-a);
+            idxs.forEach(i=>st.inv.splice(i,1));
+            st.inv.push({type:tp, level:2});
+            upgraded=true; break;
+        }
+    }
+    if(!upgraded){
+        for(const tp of Object.keys(TYPES)){
+            const k=tp+'_2';
+            if(map[k] && map[k].length>=3){ // изменено на 3
+                const idxs=map[k].splice(0,3).sort((a,b)=>b-a);
+                idxs.forEach(i=>st.inv.splice(i,1));
+                st.inv.push({type:tp, level:3});
+                upgraded=true; break;
+            }
+        }
+    }
+    toast(upgraded?'Комбинация выполнена':'Недостаточно расходников для комбинации');
+    invSel=-1; renderInv(); if(modal.style.display==='flex') updateModalCosts();
+});
+
+/* покупка случайного расходника в магазине
+   шанс: пользователь просил уменьшить шансы — используем заданные низкие шансы:
+   L4 0.5%, L3 1.5%, L2 3.5%, остальное L1
+*/
+$("#newComp").addEventListener('click', ()=>{
+    const price=25;
+    if(st.money<price){ toast('Не хватает денег'); return; }
+    st.money-=price;
+    const r = Math.random()*100;
+    let lvl = 1;
+    if(r < 0.5) lvl = 4;
+    else if(r < 0.5 + 1.5) lvl = 3;
+    else if(r < 0.5 + 1.5 + 3.5) lvl = 2;
+    else lvl = 1;
+    const keys=Object.keys(TYPES); const tp=keys[(Math.random()*keys.length)|0];
+    st.inv.push({type:tp, level:lvl});
+    updateHUD(); renderInv(); if(modal.style.display==='flex') updateModalCosts();
+});
+
+/* продажа выделенного расходника */
+$("#sellInv").addEventListener('click', ()=>{
+    if(invSel<0){ toast('Выделите предмет в инвентаре'); return; }
+    const c = st.inv[invSel];
+    const refund = Math.floor(LEVELS[c.level].cost * REFUND_RATE_INV);
+    st.money += refund;
+    st.inv.splice(invSel,1); invSel=-1;
+    renderInv(); updateHUD();
+    toast(`Продано из инвентаря: +${fmt(refund)}💰`);
+});
+$("#sortInv").addEventListener('click', ()=>{
+    st.inv.sort((a,b)=> b.level-a.level || a.type.localeCompare(b.type));
+    invSel=-1; renderInv();
+});
+
+/* ======== РЕНДЕР БАШЕН И КЛИКИ: башня кликабельна по всей форме ======== */
+function renderTowers(){
+    // удалить визуальные башни и поставить заново
+    $$(".tower").forEach(e=>e.remove());
+    SLOTS.forEach((s,i)=>{
+        const t = st.towers[i]; if(!t) return;
+        const el = document.createElement('div');
+        el.className='tower';
+        el.style.left=s.x+'px'; el.style.top=s.y+'px';
+        el.dataset.idx = i;
+        // бейдж с текущим/максимум
+        const badge = document.createElement('div');
+        badge.className = 'lvl-badge';
+        badge.textContent = `${t.level}/${SLOTS[i].max}`;
+        el.appendChild(badge);
+
+        el.title=`Башня L${t.level}  Урон:${t.stats.dmg.toFixed(1)}  Дал:${t.stats.rng.toFixed(0)}  КД:${t.stats.rld.toFixed(2)}с  Пуля:${t.stats.proj.toFixed(0)}  • ${aimModeName(t.mode)}`;
+
+        // кликабельность — открывает модалку
+        el.addEventListener('click', (e)=>{
+            e.stopPropagation(); // чтобы слот не получил клик
+            openTowerModal(i);
+        });
+        // hover показывает радиус
+        el.addEventListener('mouseenter', ()=> drawRange(s.x, s.y, t.stats.rng));
+        el.addEventListener('mouseleave', hideRange);
+
+        board.appendChild(el);
+    });
+    // обновляем лейблы слотов
+    updateAllSlotLabels();
+}
+
+/* ======== МОДАЛКА БАШНИ: список всех доступных улучшений (и покупка прямо из модалки) ======== */
+const modal = $("#modal"), mTitle=$("#mTitle"), mStats=$("#mStats"), mList=$("#mList"), mCosts=$("#mCosts"), aimSel=$("#aimMode");
+$("#mClose").addEventListener('click',()=>{ modal.style.display='none'; hideRange(); });
+document.addEventListener('keydown', e=>{
+    if(e.key==='Escape') { modal.style.display='none'; hideRange(); }
+    if(e.key===' '){ e.preventDefault(); $("#start").click(); }
+    if(e.key.toLowerCase()==='p'){ togglePause(); }
+    if(e.key==='1'||e.key==='2'||e.key==='3'){ $("#speed").value=e.key; st.speed=+e.key; toast(`Скорость ×${e.key}`); }
+});
+
+let updateModalCosts = ()=>{};
+function openTowerModal(slotIdx){
+    const slot = SLOTS[slotIdx];
+    let t = st.towers[slotIdx];
+    mList.innerHTML=''; mCosts.innerHTML='';
+    if(!t){
+        mTitle.textContent = `Установка башни (слот ${slotIdx+1}, лимит ${slot.max})`;
+        mStats.innerHTML='';
+        aimSel.disabled = true;
+        const choose = document.createElement('div');
+        choose.className='small';
+        choose.textContent='Выделите расходник в инвентаре и поставьте башню. Ограничение: сумма уровней апгрейдов ≤ лимита слота.';
+        mList.appendChild(choose);
+
+        const btn = document.createElement('button');
+        btn.id = 'btnPlace';
+        btn.textContent='Поставить (из выделенного)';
+        btn.addEventListener('click', ()=>{
+            if(invSel<0){ toast('Сначала выделите расходник в инвентаре'); return; }
+            const comp = st.inv[invSel];
+            if(comp.level>slot.max){ toast('Превышен лимит уровня слота'); return; }
+            const lvl = comp.level;
+            const cost = placeCost(lvl);
+            if(st.money<cost){ toast('Недостаточно денег'); return; }
+            // создаём компонент с фиксацией себестоимости
+            const c = {type:comp.type, level:comp.level, purchaseCost:cost};
+            st.money-=cost; st.inv.splice(invSel,1); invSel=-1; renderInv();
+            t = { comps:[c], level:lvl, stats: calcStats([c]), lastShot:0, mode:'first' };
+            st.towers[slotIdx]=t; renderTowers(); updateHUD();
+            toast(`Башня установлена. Списано ${fmt(cost)}💰`);
+            modal.style.display='none'; hideRange();
+        });
+        mList.appendChild(btn);
+
+        // предпросмотр радиуса по выделенному
+        updateModalCosts = function(){
+            if(invSel<0){ mCosts.innerHTML = `<div class="costline"><div>Стоимость установки</div><div class="cost">—</div></div>`; hideRange(); return; }
+            const comp = st.inv[invSel];
+            if(comp.level>slot.max){
+                mCosts.innerHTML = `<div class="costline"><div>Стоимость установки</div><div class="cost">недоступно (лимит ${slot.max})</div></div>`;
+                hideRange();
+            }else{
+                const cost = placeCost(comp.level);
+                const sim = simulateAdd(null, comp);
+                mCosts.innerHTML = `<div class="costline"><div>Стоимость установки</div><div class="cost">💰 ${fmt(cost)}</div></div>`;
+                drawRange(slot.x, slot.y, sim.stats.rng);
+            }
+        };
+        updateModalCosts();
+    } else {
+        // Открываем модалку для существующей башни — показываем текущие компоненты, доступные покупки/апгрейды внутри модалки
+        mTitle.textContent = `Башня (слот ${slotIdx+1}) • уровень ${t.level}/${slot.max}`;
+        aimSel.disabled = false; aimSel.value = t.mode||'first';
+        aimSel.onchange = ()=>{ t.mode = aimSel.value; renderTowers(); };
+
+        drawRange(slot.x, slot.y, t.stats.rng);
+
+        mStats.innerHTML = `
+            <div>Урон</div><div class="pill">${t.stats.dmg.toFixed(1)}</div>
+            <div>Дальность</div><div class="pill">${t.stats.rng.toFixed(0)} px</div>
+            <div>Перезарядка</div><div class="pill">${t.stats.rld.toFixed(2)} с</div>
+            <div>Скорость снаряда</div><div class="pill">${t.stats.proj.toFixed(0)} px/с</div>
+        `;
+
+        const hint = document.createElement('div');
+        hint.className='small'; hint.style.margin='8px 0';
+        hint.innerHTML='Добавьте расходник из инвентаря или купите прямо здесь. Автослияние: 3×L1→L2, 3×L2→L3.';
+        mList.appendChild(hint);
+
+        // список текущих расходников с продажей
+        const list = document.createElement('div');
+        list.style.marginTop='6px';
+        t.comps.forEach((c, idx)=>{
+            const row = document.createElement('div');
+            row.className='row small';
+            row.style.justifyContent='space-between';
+            const refund = Math.floor((c.purchaseCost||0) * REFUND_RATE_TOWER);
+            row.innerHTML = `<div>• ${TYPES[c.type].name} L${c.level} <span class="pill">стоил ${fmt(c.purchaseCost||0)}💰</span></div>`;
+            const btnS = document.createElement('button'); btnS.textContent=`Продать (+${fmt(refund)}💰)`;
+            btnS.addEventListener('click', ()=>{
+                st.money += refund;
+                t.comps.splice(idx,1);
+                if(t.comps.length===0){ // сносим башню
+                    st.towers[slotIdx]=null; renderTowers(); updateHUD(); toast(`Башня снята (+${fmt(refund)}💰)`); modal.style.display='none'; hideRange(); return;
+                }
+                // пересчет
+                t.level = sumLevel(t.comps);
+                t.stats = calcStats(t.comps);
+                renderTowers(); updateHUD();
+                toast(`Продано с башни: +${fmt(refund)}💰`);
+                openTowerModal(slotIdx);
+            });
+            row.appendChild(btnS);
+            list.appendChild(row);
+        });
+        mList.appendChild(list);
+
+        // Добавление из выделенного (как раньше)
+        const btnAdd = document.createElement('button');
+        btnAdd.id='btnAdd';
+        btnAdd.textContent='Добавить в башню (из выделенного)';
+        btnAdd.addEventListener('click', ()=>{
+            if(invSel<0){ toast('Выделите расходник в инвентаре'); return; }
+            const c0 = st.inv[invSel];
+            const newLevel = t.level + c0.level;
+            if(newLevel>slot.max){ toast('Превышен лимит уровня слота'); return; }
+            const cost = addComponentCost(t, c0);
+            if(st.money<cost){ toast('Недостаточно денег'); return; }
+            st.money-=cost; const c = {type:c0.type, level:c0.level, purchaseCost:cost};
+            st.inv.splice(invSel,1); invSel=-1; renderInv();
+            t.comps.push(c);
+            compactTowerUpgrades(t);
+            renderTowers(); updateHUD();
+            toast(`Добавлено: ${TYPES[c.type].name} L${c.level} (стоимость ${fmt(cost)}💰)`);
+            modal.style.display='none'; hideRange();
+        });
+        mList.appendChild(btnAdd);
+
+        // Покупка апгрейда прямо из модалки — показываем все варианты (тип x уровень)
+        const shopTitle = document.createElement('div'); shopTitle.className='small'; shopTitle.style.marginTop='10px';
+        shopTitle.textContent = 'Доступные покупки (купить и сразу поставить в эту башню):';
+        mList.appendChild(shopTitle);
+
+        // Для каждого типа и уровня показываем кнопку покупки, если не нарушит лимит
+        const shopBox = document.createElement('div');
+        Object.keys(TYPES).forEach(tp=>{
+            const row = document.createElement('div');
+            row.className='upgrade-row';
+            const label = document.createElement('div');
+            label.style.width='140px';
+            label.innerHTML = `<b>${TYPES[tp].icon} ${TYPES[tp].name}</b>`;
+            row.appendChild(label);
+            for(let lvl=1; lvl<=4; lvl++){
+                const btn = document.createElement('button');
+                btn.textContent = `L${lvl} — ${fmt(LEVELS[lvl].cost)}💰`;
+                const tempComp = {type:tp, level: lvl};
+                const newLevel = t.level + lvl;
+                const possible = (newLevel <= slot.max);
+                const cost = addComponentCost(t, tempComp);
+                // если превышает лимит или денег нет — дизейбл
+                if(!possible) btn.classList.add('bd');
+                btn.addEventListener('click', ()=>{
+                    if(!possible){ toast('Превысите лимит слота'); return; }
+                    if(st.money < cost){ toast('Недостаточно денег'); return; }
+                    st.money -= cost;
+                    const c = {type:tp, level: lvl, purchaseCost: cost};
+                    t.comps.push(c);
+                    compactTowerUpgrades(t);
+                    renderTowers(); updateHUD();
+                    toast(`Куплено ${TYPES[tp].name} L${lvl} → установлено в башню (стоимость ${fmt(cost)}💰)`);
+                    modal.style.display='none'; hideRange();
+                });
+                row.appendChild(btn);
+            }
+            shopBox.appendChild(row);
+        });
+        mList.appendChild(shopBox);
+
+        // Кнопка снос (продать всё)
+        $("#mSellAll").onclick = ()=>{
+            let sum=0; t.comps.forEach(c=> sum += Math.floor((c.purchaseCost||0) * REFUND_RATE_TOWER));
+            st.money += sum;
+            st.towers[slotIdx]=null; renderTowers(); updateHUD(); toast(`Башня снесена: +${fmt(sum)}💰`);
+            modal.style.display='none'; hideRange();
+        };
+
+        updateModalCosts = function(){
+            if(invSel<0){
+                mCosts.innerHTML = `<div class="costline"><div>Стоимость улучшения</div><div class="cost">—</div></div>`;
+                drawRange(slot.x, slot.y, t.stats.rng); return;
+            }
+            const c0 = st.inv[invSel];
+            const newLevel = t.level + c0.level;
+            if(newLevel>slot.max){
+                mCosts.innerHTML = `<div class="costline"><div>Стоимость улучшения</div><div class="cost">недоступно (лимит ${slot.max})</div></div>`;
+                drawRange(slot.x, slot.y, t.stats.rng);
+            }else{
+                const cost = addComponentCost(t, c0);
+                const sim = simulateAdd(t, c0);
+                mCosts.innerHTML = `<div class="costline"><div>Стоимость улучшения</div><div class="cost">💰 ${fmt(cost)}</div></div>`;
+                drawRange(slot.x, slot.y, sim.stats.rng);
+            }
+        };
+        updateModalCosts();
+    }
+    modal.style.display='flex';
+}
+
+/* ======== РИСОВАНИЕ РАДИУСА (overlay) ======== */
+const rangeEl = $("#range");
+function drawRange(x,y,r){ rangeEl.setAttribute('cx',x); rangeEl.setAttribute('cy',y); rangeEl.setAttribute('r',Math.max(8,r)); }
+function hideRange(){ rangeEl.setAttribute('cx',-1000); rangeEl.setAttribute('cy',-1000); }
+
+/* ======== ВОЛНЫ: конфиг и предпросмотр ======== */
+function waveConfig(w){
+    const count = Math.min(8 + Math.floor(w*1.5), 45);
+    const hp = Math.floor(35 * Math.pow(1.16, Math.max(0,w-1)));
+    const money = 6 + Math.floor(w/2);
+    const speed = 60 + Math.min(100, Math.floor(Math.max(0,w-1)*6));
+    return {count, hp, money, speed};
+}
+function updateWavePreview(){
+    const n = st.wave+1; const w = waveConfig(n);
+    $("#wavePrev").innerHTML = `Следующая волна <b>#${n}</b>: врагов <b>${w.count}</b> • HP <b>${w.hp}</b> • скорость <b>${w.speed}px/с</b> • награда за убийство <b>${w.money}💰</b>`;
+}
+
+/* ======== ВРАГИ/ПУЛИ ======== */
+function spawnEnemy(hp, speedPx, reward){
+    const e = { d:0, hp, max:hp, sp:speedPx, money:reward, dead:false, el:null };
+    const p = pointAt(0);
+    e.x=p.x; e.y=p.y;
+    st.enemies.push(e); st.left++; updateHUD();
+    const el = document.createElement('div'); el.className='enemy';
+    const hpEl = document.createElement('div'); hpEl.className='hp'; const i = document.createElement('i'); hpEl.appendChild(i); el.appendChild(hpEl);
+    board.appendChild(el); e.el = el;
+}
+function killEnemy(e, reward=true){
+    if(e.dead) return;
+    e.dead = true;
+    e.el && e.el.remove();
+    st.enemies = st.enemies.filter(x=>x!==e);
+    st.left = Math.max(0, st.left-1);
+    if(reward){ st.money += e.money; }
+    updateHUD();
+}
+function enemyReachedEnd(e){
+    if(e.dead) return;
+    e.dead = true;
+    e.el && e.el.remove();
+    // уменьшаем жизни на 1, но не даём уйти в минус
+    st.enemies = st.enemies.filter(x=>x!==e);
+    st.left = Math.max(0, st.left-1);
+    st.lives = Math.max(0, st.lives - 1);
+    updateHUD();
+    if(st.lives===0){ gameOver(false); }
+}
+function spawnWave(){
+    if(st.spawning || st.enemies.length>0) return;
+    st.wave++; const w = waveConfig(st.wave);
+    st.total = w.count; st.left = 0; st.spawning = true; updateHUD();
+    let spawned=0;
+    const int = setInterval(()=>{
+        if(st.paused) return;
+        spawnEnemy(w.hp, w.speed, w.money);
+        spawned++;
+        if(spawned>=w.count){ clearInterval(int); st.spawning=false; }
+    }, 420);
+}
+
+/* ======== HUD / ОБНОВЛЕНИЕ ======== */
+function updateHUD(){
+    $("#money").textContent = fmt(st.money);
+    $("#lives").textContent = fmt(st.lives);
+    $("#wave").textContent  = fmt(st.wave);
+    $("#left").textContent  = fmt(st.left);
+    $("#total").textContent = fmt(st.total);
+    const canStart = (!st.spawning && st.enemies.length===0);
+    $("#start").classList.toggle('bd', !canStart || st.paused);
+    updateWavePreview();
+}
+
+/* ======== ТАРГЕТИНГ И ГЕЙМЛУП ======== */
+function towerPickTarget(t, sx, sy){
+    if(st.enemies.length===0) return null;
+    let chosen=null;
+    if((t.mode||'first')==='near'){
+        let best=1e9;
+        for(const e of st.enemies){
+            const d = Math.hypot(e.x-sx,e.y-sy);
+            if(d<=t.stats.rng && d<best){ best=d; chosen=e; }
+        }
+    } else if(t.mode==='strong'){
+        let best=-1;
+        for(const e of st.enemies){
+            const d = Math.hypot(e.x-sx,e.y-sy);
+            if(d<=t.stats.rng && e.hp>best){ best=e.hp; chosen=e; }
+        }
+    } else { // first по прогрессу
+        let best=-1;
+        for(const e of st.enemies){
+            const d = Math.hypot(e.x-sx,e.y-sy);
+            if(d<=t.stats.rng && e.d>best){ best=e.d; chosen=e; }
+        }
+    }
+    return chosen;
+}
+function aimModeName(m){ return m==='near'?'Ближайший':m==='strong'?'Самый крепкий':'Первый по пути'; }
+
+function step(ts){
+    let dt = Math.min(0.05, (ts - st.lastTs)/1000);
+    st.lastTs = ts;
+    if(st.paused){ requestAnimationFrame(step); return; }
+    dt *= st.speed;
+
+    // ENEMIES
+    for(const e of st.enemies.slice()){ // slice чтобы избежать проблем при удалении
+        if(e.dead) continue;
+        e.d += e.sp * dt;
+        if(e.d >= st.pathLen-1){ enemyReachedEnd(e); continue; }
+        const p = pointAt(e.d);
+        e.x=p.x; e.y=p.y;
+        if(e.el){
+            e.el.style.left = e.x+'px';
+            e.el.style.top  = e.y+'px';
+            const ratio = Math.max(0, e.hp)/e.max;
+            const bar = e.el.querySelector('.hp>i'); if(bar) bar.style.width=(Math.max(0,ratio)*22)+'px';
+        }
+    }
+
+    // TOWERS SHOOT
+    const now = ts/1000;
+    SLOTS.forEach((s,i)=>{
+        const t = st.towers[i]; if(!t) return;
+        if(!t.lastShot) t.lastShot=0;
+        if(now - t.lastShot < t.stats.rld / st.speed) return; // учёт скорости игры
+
+        const tgt = towerPickTarget(t, s.x, s.y);
+        if(tgt){
+            const pr = { x:s.x, y:s.y, v:t.stats.proj, dmg:t.stats.dmg, tgt:tgt, dead:false, el:null };
+            const pel = document.createElement('div'); pel.className='proj'; board.appendChild(pel); pr.el=pel;
+            st.projs.push(pr);
+            t.lastShot = now;
+        }
+    });
+
+    // PROJECTILES
+    for(const p of st.projs.slice()){
+        if(p.dead){ p.el && p.el.remove(); continue; }
+        if(!p.tgt || p.tgt.dead){ p.dead=true; p.el && p.el.remove(); continue; }
+        const dx = p.tgt.x - p.x, dy = p.tgt.y - p.y;
+        const dist = Math.hypot(dx,dy);
+        const mv = p.v * dt;
+        if(dist <= mv){
+            p.tgt.hp -= p.dmg;
+            p.dead = true; p.el && p.el.remove();
+            if(p.tgt.hp<=0){ killEnemy(p.tgt,true); }
+        } else {
+            p.x += dx/dist * mv; p.y += dy/dist * mv;
+            p.el.style.left=p.x+'px'; p.el.style.top=p.y+'px';
+        }
+    }
+    st.projs = st.projs.filter(pr=>!pr.dead);
+
+    // WAVE END
+    if(!st.spawning && st.enemies.length===0 && st.total>0 && st.left===0){
+        const bonus = 50 + st.wave*12;
+        st.money += bonus; updateHUD();
+        dropComponentsAfterWave();
+        st.total = 0;
+        toast(`Волна ${st.wave} пройдена! Бонус +${fmt(bonus)}💰`);
+    }
+
+    requestAnimationFrame(step);
+}
+
+/* ======== ДРОП ======== */
+function dropComponentsAfterWave(){
+    [1,2,3,4].forEach(lvl=>{
+        if(Math.random() < LEVELS[lvl].drop){
+            const keys=Object.keys(TYPES); const tp=keys[(Math.random()*keys.length)|0];
+            st.inv.push({type:tp, level:lvl});
+        }
+    });
+    renderInv();
+}
+
+/* ======== СЕЙВ/ЛОАД ======== */
+function saveGame(){
+    const data = {
+        money:st.money, lives:st.lives, wave:st.wave,
+        inv: st.inv.slice(),
+        towers: SLOTS.map((_,i)=>{
+            const t = st.towers[i];
+            if(!t) return null;
+            return {comps: t.comps.map(c=>({type:c.type,level:c.level,purchaseCost:c.purchaseCost||0})), mode:t.mode||'first'};
+        })
+    };
+    localStorage.setItem('td_save', JSON.stringify(data));
+    toast('Игра сохранена');
+}
+function loadGame(){
+    const raw = localStorage.getItem('td_save');
+    if(!raw){ toast('Нет сохранения'); return; }
+    try{
+        const data = JSON.parse(raw);
+        // wipe
+        st.enemies.forEach(e=>e.el&&e.el.remove()); st.enemies=[];
+        st.projs.forEach(p=>p.el&&p.el.remove()); st.projs=[];
+        st.spawning=false; st.left=0; st.total=0;
+
+        st.money=data.money||250; st.lives=data.lives||20; st.wave=data.wave||0;
+        st.inv = (data.inv||[]).map(c=>({type:c.type, level:c.level}));
+        st.towers = [];
+        (data.towers||[]).forEach((t,i)=>{
+            if(!t){ st.towers[i]=null; return; }
+            const comps = (t.comps||[]).map(c=>({type:c.type, level:c.level, purchaseCost:c.purchaseCost||0}));
+            const tw = {comps, level: sumLevel(comps), stats: calcStats(comps), lastShot:0, mode:t.mode||'first'};
+            st.towers[i]=tw;
+        });
+        renderInv(); renderTowers(); updateHUD();
+        toast('Сохранение загружено');
+    }catch(e){ console.error(e); toast('Ошибка загрузки'); }
+}
+
+/* ======== КОНТРОЛЬ И КНОПКИ ИГРЫ ======== */
+function gameOver(victory){
+    toast(victory?'Победа!':'Поражение!');
+    st.spawning=false;
+    st.enemies.forEach(e=>e.el&&e.el.remove());
+    st.projs.forEach(p=>p.el&&p.el.remove());
+    st.enemies=[]; st.projs=[];
+    updateHUD();
+}
+function newGame(){
+    st.money = 250; st.lives = 20; st.wave = 0;
+    st.enemies.forEach(e=>e.el&&e.el.remove()); st.enemies=[];
+    st.projs.forEach(p=>p.el&&p.el.remove()); st.projs=[];
+    st.towers = [];
+    st.inv = [];
+    st.total=0; st.left=0; st.spawning=false; st.paused=false; st.speed=1; $("#speed").value='1';
+    const keys=Object.keys(TYPES);
+    for(let i=0;i<3;i++){
+        const tp = keys[(Math.random()*keys.length)|0];
+        st.inv.push({type:tp, level:1});
+    }
+    renderInv(); renderTowers(); updateHUD(); hideRange();
+    toast('Новая игра начата');
+}
+function togglePause(){
+    st.paused = !st.paused;
+    $("#pause").textContent = st.paused ? '▶ Продолжить' : '⏸ Пауза';
+    updateHUD();
+}
+
+/* ======== ИНИЦИАЛИЗАЦИЯ ======== */
+drawSlots();
+newGame();
+requestAnimationFrame(step);
+
+/* ======== БИНДИНГ UI ======== */
+$("#start").addEventListener('click', ()=>{ if($("#start").classList.contains('bd')) return; spawnWave(); });
+$("#reset").addEventListener('click', newGame);
+$("#pause").addEventListener('click', togglePause);
+$("#speed").addEventListener('change', e=>{ st.speed = +e.target.value; });
+$("#save").addEventListener('click', saveGame);
+$("#load").addEventListener('click', loadGame);
+
+/* ======== МЕЛОЧИ ======== */
+window.addEventListener('resize', ()=>{ /* адаптив без перерасчёта пути */ });
+document.addEventListener('visibilitychange', ()=>{ st.lastTs = performance.now(); });
+</script>
+</body>
+</html>

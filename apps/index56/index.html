@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Огненная пушка</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            text-shadow: 0 0 5px black;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="instructions">Коснитесь экрана для выстрела</div>
+
+    <script>
+        // Инициализация
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let canvasWidth = window.innerWidth;
+        let canvasHeight = window.innerHeight;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // Пушка
+        const cannon = {
+            x: canvasWidth / 2,
+            y: canvasHeight - 50,
+            width: 60,
+            height: 80,
+            angle: -Math.PI/2, // Направление вверх
+            power: 0,
+            maxPower: 15,
+            charging: false,
+            chargeSpeed: 0.1
+        };
+
+        // Огненные снаряды
+        const fireballs = [];
+        const particles = [];
+
+        // Класс огненного снаряда
+        class Fireball {
+            constructor(x, y, power, angle) {
+                this.x = x;
+                this.y = y;
+                this.power = power;
+                this.angle = angle;
+                this.size = 15 + power * 2;
+                this.life = 100 + power * 10;
+                this.speedX = Math.cos(angle) * (5 + power * 0.5);
+                this.speedY = Math.sin(angle) * (5 + power * 0.5);
+                this.trailTimer = 0;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedY += 0.05; // Гравитация
+                this.size *= 0.99;
+                this.life--;
+                
+                // Добавляем частицы следа
+                if (this.trailTimer++ % 3 === 0) {
+                    this.addParticles(2);
+                }
+                
+                return this.life > 0 && 
+                       this.x > -50 && this.x < canvasWidth + 50 && 
+                       this.y > -50 && this.y < canvasHeight + 50;
+            }
+
+            addParticles(count) {
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: this.x,
+                        y: this.y,
+                        size: Math.random() * 5 + 2,
+                        life: Math.random() * 30 + 20,
+                        speedX: this.speedX * 0.3 + (Math.random() - 0.5) * 2,
+                        speedY: this.speedY * 0.3 + (Math.random() - 0.5) * 2,
+                        color: `hsl(${Math.random() * 20 + 15}, 100%, 50%)`
+                    });
+                }
+            }
+
+            draw(ctx) {
+                // Ядро огня
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.size
+                );
+                gradient.addColorStop(0, 'rgba(255, 200, 0, 0.9)');
+                gradient.addColorStop(0.7, 'rgba(255, 80, 0, 0.6)');
+                gradient.addColorStop(1, 'rgba(150, 0, 0, 0)');
+                
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Свечение
+                ctx.shadowBlur = this.size * 2;
+                ctx.shadowColor = 'rgba(255, 100, 0, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // Обновление частиц
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.speedY += 0.02;
+                p.life--;
+                p.size *= 0.96;
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        // Рисование частиц
+        function drawParticles(ctx) {
+            ctx.globalCompositeOperation = 'lighter';
+            for (const p of particles) {
+                const alpha = Math.min(p.life / 30, 0.8);
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        // Рисование пушки
+        function drawCannon(ctx) {
+            // Основание
+            ctx.fillStyle = '#333';
+            ctx.fillRect(
+                cannon.x - cannon.width/2, 
+                cannon.y - 10, 
+                cannon.width, 
+                cannon.height
+            );
+            
+            // Ствол (с учетом мощности)
+            ctx.save();
+            ctx.translate(cannon.x, cannon.y);
+            ctx.rotate(cannon.angle);
+            
+            const powerRatio = cannon.power / cannon.maxPower;
+            const barrelLength = 60 + powerRatio * 40;
+            
+            ctx.fillStyle = '#555';
+            ctx.fillRect(-10, -15, barrelLength, 30);
+            
+            // Заряд (если есть)
+            if (cannon.charging) {
+                ctx.fillStyle = `rgba(255, ${100 + powerRatio * 155}, 0, ${0.3 + powerRatio * 0.7})`;
+                ctx.fillRect(5, -12, barrelLength - 15, 24);
+            }
+            
+            ctx.restore();
+            
+            // Огненный эффект при выстреле
+            if (cannon.power > 0 && !cannon.charging) {
+                const flashSize = cannon.power * 5;
+                
+                const gradient = ctx.createRadialGradient(
+                    cannon.x + Math.cos(cannon.angle) * 20,
+                    cannon.y + Math.sin(cannon.angle) * 20,
+                    0,
+                    cannon.x + Math.cos(cannon.angle) * 20,
+                    cannon.y + Math.sin(cannon.angle) * 20,
+                    flashSize
+                );
+                gradient.addColorStop(0, 'rgba(255, 200, 0, 0.9)');
+                gradient.addColorStop(1, 'rgba(255, 50, 0, 0)');
+                
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(
+                    cannon.x + Math.cos(cannon.angle) * 20,
+                    cannon.y + Math.sin(cannon.angle) * 20,
+                    flashSize,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+        }
+
+        // Обработка касаний
+        function handleTouchStart(e) {
+            e.preventDefault();
+            cannon.charging = true;
+            cannon.power = 0;
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            if (cannon.charging) {
+                // Выстрел
+                fireballs.push(new Fireball(
+                    cannon.x + Math.cos(cannon.angle) * 40,
+                    cannon.y + Math.sin(cannon.angle) * 40,
+                    cannon.power,
+                    cannon.angle
+                ));
+                
+                // Отдача
+                cannon.power = -cannon.power * 0.2;
+            }
+            cannon.charging = false;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0] || e;
+            const dx = touch.clientX - cannon.x;
+            const dy = touch.clientY - cannon.y;
+            cannon.angle = Math.atan2(dy, dx);
+        }
+
+        // Игровой цикл
+        function gameLoop() {
+            // Очистка с эффектом затемнения
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Зарядка пушки
+            if (cannon.charging && cannon.power < cannon.maxPower) {
+                cannon.power += cannon.chargeSpeed;
+            }
+            
+            // Обновление снарядов
+            for (let i = fireballs.length - 1; i >= 0; i--) {
+                if (!fireballs[i].update()) {
+                    fireballs.splice(i, 1);
+                }
+            }
+            
+            // Обновление частиц
+            updateParticles();
+            
+            // Рисование
+            drawParticles(ctx);
+            for (const fireball of fireballs) {
+                fireball.draw(ctx);
+            }
+            drawCannon(ctx);
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Обработчики событий
+        canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
+        canvas.addEventListener('touchend', handleTouchEnd, {passive: false});
+        canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+        
+        // Для десктопов
+        canvas.addEventListener('mousedown', handleTouchStart);
+        canvas.addEventListener('mouseup', handleTouchEnd);
+        canvas.addEventListener('mousemove', handleTouchMove);
+        
+        // Ресайз
+        window.addEventListener('resize', () => {
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            cannon.x = canvasWidth / 2;
+            cannon.y = canvasHeight - 50;
+        });
+
+        // Запуск
+        gameLoop();
+
+        // Скрываем инструкции через 5 сек
+        setTimeout(() => {
+            document.getElementById('instructions').style.opacity = '0';
+        }, 5000);
+    </script>
+</body>
+</html>

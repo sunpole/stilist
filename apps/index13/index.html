@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аудио-нарезчик</title>
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --primary: #bb86fc;
+            --text: #e1e1e1;
+            --error: #cf6679;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: rgba(187, 134, 252, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: block;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .wave-container {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        #waveform {
+            width: 100%;
+            height: 150px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        select {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 5px;
+            flex: 1;
+        }
+        
+        .storage-info {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            button, select {
+                width: 100%;
+            }
+            
+            .upload-area {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Аудио-нарезчик</h1>
+        
+        <div class="storage-info">
+            <div>Свободно места: <span id="free-space">...</span></div>
+            <div class="progress-bar">
+                <div class="progress" id="storage-progress"></div>
+            </div>
+        </div>
+        
+        <div class="upload-area" id="upload-area">
+            <i>⬆️</i>
+            <h2>Перетащите аудиофайл сюда</h2>
+            <p>или кликните для выбора</p>
+            <input type="file" id="file-input" accept=".mp3,.wav,.flac,.ogg,.m4a">
+        </div>
+        
+        <div class="wave-container" id="wave-container">
+            <div id="waveform"></div>
+            <div class="controls">
+                <button id="play-btn">▶️ Воспроизвести</button>
+                <button id="pause-btn">⏸️ Пауза</button>
+                <button id="cut-btn" disabled>✂️ Нарезать (Пробел)</button>
+                <select id="wave-type">
+                    <option value="waveform">Обычная волна</option>
+                    <option value="bars">Рваные полосы</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Wavesurfer
+        const wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#bb86fc',
+            progressColor: '#9a67ea',
+            cursorColor: '#fff',
+            cursorWidth: 2,
+            height: 150,
+            barWidth: 2,
+            barGap: 1,
+            barRadius: 2,
+            responsive: true
+        });
+
+        // Элементы DOM
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const waveContainer = document.getElementById('wave-container');
+        const playBtn = document.getElementById('play-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const cutBtn = document.getElementById('cut-btn');
+        const waveTypeSelect = document.getElementById('wave-type');
+        const freeSpaceSpan = document.getElementById('free-space');
+        const storageProgress = document.getElementById('storage-progress');
+
+        // Проверка свободного места
+        function updateStorageInfo() {
+            if (navigator.storage && navigator.storage.estimate) {
+                navigator.storage.estimate().then(estimate => {
+                    const free = (estimate.quota - estimate.usage) / 1024 / 1024;
+                    const total = estimate.quota / 1024 / 1024;
+                    const usedPercent = (estimate.usage / estimate.quota * 100).toFixed(1);
+                    
+                    freeSpaceSpan.textContent = `${free.toFixed(1)} MB из ${total.toFixed(1)} MB`;
+                    storageProgress.style.width = `${usedPercent}%`;
+                    
+                    if (free < 50) {
+                        freeSpaceSpan.innerHTML += ' <span style="color: var(--error)">(Мало места!)</span>';
+                    }
+                });
+            } else {
+                freeSpaceSpan.textContent = "Информация недоступна";
+            }
+        }
+
+        // Рваные полосы для волны
+        function drawBars(peaks, ctx, width, height, offsetX, offsetY) {
+            const barWidth = 3;
+            const gap = 1;
+            const scale = height / Math.max(...peaks.map(Math.abs));
+            
+            ctx.fillStyle = '#bb86fc';
+            for (let i = 0; i < peaks.length; i++) {
+                const x = offsetX + i * (barWidth + gap);
+                const h = Math.round(peaks[i] * scale);
+                ctx.fillRect(x, offsetY + height / 2 - h / 2, barWidth, h);
+            }
+        }
+
+        // Загрузка файла
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(187, 134, 252, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.match('audio.*')) {
+                alert('Пожалуйста, выберите аудиофайл!');
+                return;
+            }
+            
+            // Сохраняем в LocalStorage
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    localStorage.setItem('lastAudio', e.target.result);
+                    localStorage.setItem('lastAudioName', file.name);
+                    loadAudio(e.target.result);
+                } catch (error) {
+                    if (error.name === 'QuotaExceededError') {
+                        alert('Недостаточно места для сохранения файла!');
+                    } else {
+                        alert('Ошибка загрузки файла: ' + error.message);
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadAudio(url) {
+            waveContainer.style.display = 'block';
+            wavesurfer.load(url);
+            cutBtn.disabled = false;
+            updateStorageInfo();
+        }
+
+        // Восстановление последнего файла при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            updateStorageInfo();
+            const lastAudio = localStorage.getItem('lastAudio');
+            if (lastAudio) {
+                loadAudio(lastAudio);
+            }
+        });
+
+        // Управление воспроизведением
+        playBtn.addEventListener('click', () => wavesurfer.playPause());
+        pauseBtn.addEventListener('click', () => wavesurfer.pause());
+
+        // Горячая клавиша для нарезки
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.target.matches('input, textarea, button, select')) {
+                e.preventDefault();
+                splitAtCursor();
+            }
+        });
+
+        // Нарезка по курсору
+        function splitAtCursor() {
+            const time = wavesurfer.getCurrentTime();
+            wavesurfer.addRegion({
+                start: time - 0.01,
+                end: time + 0.01,
+                color: 'rgba(255, 100, 100, 0.3)',
+                drag: false,
+            });
+        }
+
+        // Переключение вида волны
+        waveTypeSelect.addEventListener('change', (e) => {
+            wavesurfer.setOptions({
+                renderFunction: e.target.value === 'bars' ? drawBars : null,
+            });
+            wavesurfer.zoom(20);
+        });
+    </script>
+</body>
+</html>

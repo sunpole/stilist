@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Adventure</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 100%;
+            padding: 10px;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .panel {
+            background-color: #16213e;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .stats-panel {
+            grid-column: 1 / 3;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px;
+        }
+        .location-panel {
+            grid-column: 1 / 3;
+            text-align: center;
+            padding: 8px;
+        }
+        button {
+            background-color: #0f3460;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 3px;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #1a5fb4;
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .small-button {
+            padding: 3px 6px;
+            font-size: 11px;
+            margin: 2px;
+        }
+        .progress-bar {
+            height: 15px;
+            background-color: #333;
+            border-radius: 8px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.3s;
+        }
+        .hp-fill {
+            background-color: #e94560;
+        }
+        .xp-fill {
+            background-color: #533483;
+        }
+        .log {
+            height: 100px;
+            overflow-y: auto;
+            background-color: #0f3460;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .log p {
+            margin: 3px 0;
+        }
+        .inventory {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .item {
+            background-color: #0f3460;
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .equipment {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        .equipment-slot {
+            background-color: #0f3460;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            min-height: 50px;
+            font-size: 12px;
+        }
+        .combat-log {
+            color: #e94560;
+            font-weight: bold;
+        }
+        .loot-log {
+            color: #4ecca3;
+            font-weight: bold;
+        }
+        .info-log {
+            color: #533483;
+            font-weight: bold;
+        }
+        .npc-log {
+            color: #f9a826;
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        p {
+            margin: 3px 0;
+            font-size: 12px;
+        }
+        .resource {
+            display: inline-block;
+            margin: 2px 5px 2px 0;
+            padding: 2px 5px;
+            background: #0f3460;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .auto-combat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px 0;
+        }
+        @media (max-width: 480px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .stats-panel, .location-panel {
+                grid-column: 1;
+            }
+            .inventory {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>RPG Adventure</h1>
+    
+    <div class="stats-panel panel">
+        <div>
+            <h3>Герой</h3>
+            <p>Ур: <span id="level">1</span></p>
+            <p>Опыт: <span id="xp">0</span>/<span id="nextLevelXp">100</span></p>
+            <div class="progress-bar">
+                <div class="progress-fill xp-fill" id="xpBar" style="width: 0%;"></div>
+            </div>
+        </div>
+        <div>
+            <h3>Здоровье</h3>
+            <p><span id="hp">50</span>/<span id="maxHp">50</span></p>
+            <div class="progress-bar">
+                <div class="progress-fill hp-fill" id="hpBar" style="width: 100%;"></div>
+            </div>
+            <button id="usePotionButton" class="small-button">Зелье</button>
+        </div>
+        <div>
+            <h3>Характеристики</h3>
+            <p>Атака: <span id="attack">5</span></p>
+            <p>Защита: <span id="defense">2</span></p>
+        </div>
+    </div>
+    
+    <div class="location-panel panel">
+        <h2 id="locationName">Деревня</h2>
+        <p id="locationDescription">Вы находитесь в своей родной деревне.</p>
+        <div id="locationActions">
+            <button id="travelButton">Путешествие</button>
+        </div>
+        <div class="log" id="actionLog"></div>
+    </div>
+    
+    <div class="panel">
+        <h3>Ресурсы</h3>
+        <div id="resources">
+            <span class="resource">⛏️: <span id="ore">0</span></span>
+            <span class="resource">🪵: <span id="wood">0</span></span>
+            <span class="resource">🪨: <span id="stone">0</span></span>
+            <span class="resource">🔥: <span id="coal">0</span></span>
+            <span class="resource">🔨: <span id="hammer">0</span></span>
+            <span class="resource">⚒️: <span id="brand">0</span></span>
+            <span class="resource">💠: <span id="crystal">0</span></span>
+            <span class="resource">❤️: <span id="potions">0</span></span>
+        </div>
+    </div>
+    
+    <div class="panel">
+        <h3>Экипировка</h3>
+        <div class="equipment">
+            <div class="equipment-slot" data-slot="weapon">⚔️: Нет</div>
+            <div class="equipment-slot" data-slot="armor">🛡️: Нет</div>
+            <div class="equipment-slot" data-slot="helmet">⛑️: Нет</div>
+            <div class="equipment-slot" data-slot="boots">👢: Нет</div>
+        </div>
+    </div>
+    
+    <div class="panel">
+        <h3>Инвентарь</h3>
+        <div class="inventory" id="inventory"></div>
+    </div>
+
+    <script>
+        // КОНФИГУРАЦИЯ ИГРЫ
+        const CONFIG = {
+            // Настройки игрока
+            player: {
+                baseHp: 50,
+                baseAttack: 5,
+                baseDefense: 2,
+                xpMultiplier: 1.5
+            },
+            
+            // Настройки врагов
+            enemies: {
+                forest: ['Волк', 'Кабан'],
+                mountains: ['Орк', 'Гоблин'],
+                cave: ['Скелет', 'Паук'],
+                lake: ['Рыба-монстр', 'Водяной'],
+                baseHp: 15,
+                baseAttack: 3,
+                baseDefense: 1,
+                variation: 10
+            },
+            
+            // Настройки дропа
+            dropRates: {
+                ore: 0.8,
+                wood: 0.7,
+                stone: 0.6,
+                coal: 0.5,
+                hammer: 0.3,
+                brand: 0.2,
+                crystal: 0.1,
+                potion: 0.4
+            },
+            
+            // Настройки крафта
+            crafting: {
+                wooden_sword: { ore: 2, wood: 3 },
+                leather_armor: { ore: 2, wood: 2, coal: 1 },
+                leather_helmet: { ore: 1, wood: 2 },
+                leather_boots: { ore: 1, wood: 1, coal: 1 },
+                iron_sword: { ore: 5, coal: 2 },
+                chain_armor: { ore: 6, coal: 3 },
+                iron_helmet: { ore: 3, coal: 1 },
+                iron_boots: { ore: 3, coal: 2 },
+                health_potion: { wood: 2, stone: 1 }
+            },
+            
+            // Настройки боя
+            combat: {
+                fleeChance: 0.6,
+                autoAttackInterval: 1500,
+                potionHeal: 20
+            }
+        };
+
+        // Игровые данные
+        const game = {
+            player: {
+                level: 1,
+                xp: 0,
+                nextLevelXp: 100,
+                hp: CONFIG.player.baseHp,
+                maxHp: CONFIG.player.baseHp,
+                attack: CONFIG.player.baseAttack,
+                defense: CONFIG.player.baseDefense,
+                resources: {
+                    ore: 0,
+                    wood: 0,
+                    stone: 0,
+                    coal: 0,
+                    hammer: 0,
+                    brand: 0,
+                    crystal: 0,
+                    potions: 0
+                },
+                inventory: [],
+                equipment: {
+                    weapon: null,
+                    armor: null,
+                    helmet: null,
+                    boots: null
+                }
+            },
+            locations: [
+                {
+                    id: 'village',
+                    name: 'Деревня',
+                    description: 'Вы находитесь в своей родной деревне.',
+                    actions: ['travel']
+                },
+                {
+                    id: 'forest',
+                    name: 'Лес',
+                    description: 'Вы в густом лесу. Здесь можно собирать дерево.',
+                    actions: ['gather', 'combat', 'return'],
+                    gatherResource: 'wood',
+                    enemies: CONFIG.enemies.forest
+                },
+                {
+                    id: 'mountains',
+                    name: 'Горы',
+                    description: 'Вы в высоких горах. Здесь можно добывать камень.',
+                    actions: ['gather', 'combat', 'return'],
+                    gatherResource: 'stone',
+                    enemies: CONFIG.enemies.mountains
+                },
+                {
+                    id: 'cave',
+                    name: 'Пещера',
+                    description: 'Вы в темной пещере. Здесь можно добывать руду.',
+                    actions: ['gather', 'combat', 'return'],
+                    gatherResource: 'ore',
+                    enemies: CONFIG.enemies.cave
+                },
+                {
+                    id: 'lake',
+                    name: 'Озеро',
+                    description: 'Вы у тихого озера. Здесь можно найти уголь.',
+                    actions: ['gather', 'combat', 'return'],
+                    gatherResource: 'coal',
+                    enemies: CONFIG.enemies.lake
+                }
+            ],
+            currentLocation: 'village',
+            currentEnemy: null,
+            inCombat: false,
+            autoCombat: false,
+            blacksmithAvailable: false,
+            items: {
+                // Оружие
+                'wooden_sword': { name: 'Деревянный меч', type: 'weapon', attack: 3, tier: 1 },
+                'iron_sword': { name: 'Железный меч', type: 'weapon', attack: 7, tier: 2 },
+                'steel_sword': { name: 'Стальной меч', type: 'weapon', attack: 12, tier: 3 },
+                
+                // Броня
+                'leather_armor': { name: 'Кожаная броня', type: 'armor', defense: 3, tier: 1 },
+                'chain_armor': { name: 'Кольчуга', type: 'armor', defense: 6, tier: 2 },
+                'plate_armor': { name: 'Латная броня', type: 'armor', defense: 10, tier: 3 },
+                
+                // Шлемы
+                'leather_helmet': { name: 'Кожаный шлем', type: 'helmet', defense: 1, tier: 1 },
+                'iron_helmet': { name: 'Железный шлем', type: 'helmet', defense: 2, tier: 2 },
+                'steel_helmet': { name: 'Стальной шлем', type: 'helmet', defense: 4, tier: 3 },
+                
+                // Обувь
+                'leather_boots': { name: 'Кожаные сапоги', type: 'boots', defense: 1, tier: 1 },
+                'iron_boots': { name: 'Железные сапоги', type: 'boots', defense: 2, tier: 2 },
+                'steel_boots': { name: 'Стальные сапоги', type: 'boots', defense: 3, tier: 3 },
+                
+                // Прочее
+                'health_potion': { name: 'Зелье здоровья', type: 'consumable', restore: CONFIG.combat.potionHeal }
+            },
+            autoAttackInterval: null
+        };
+
+        // DOM элементы
+        const elements = {
+            level: document.getElementById('level'),
+            xp: document.getElementById('xp'),
+            nextLevelXp: document.getElementById('nextLevelXp'),
+            xpBar: document.getElementById('xpBar'),
+            hp: document.getElementById('hp'),
+            maxHp: document.getElementById('maxHp'),
+            hpBar: document.getElementById('hpBar'),
+            attack: document.getElementById('attack'),
+            defense: document.getElementById('defense'),
+            locationName: document.getElementById('locationName'),
+            locationDescription: document.getElementById('locationDescription'),
+            locationActions: document.getElementById('locationActions'),
+            actionLog: document.getElementById('actionLog'),
+            ore: document.getElementById('ore'),
+            wood: document.getElementById('wood'),
+            stone: document.getElementById('stone'),
+            coal: document.getElementById('coal'),
+            hammer: document.getElementById('hammer'),
+            brand: document.getElementById('brand'),
+            crystal: document.getElementById('crystal'),
+            potions: document.getElementById('potions'),
+            inventory: document.getElementById('inventory'),
+            travelButton: document.getElementById('travelButton'),
+            usePotionButton: document.getElementById('usePotionButton')
+        };
+
+        // Функции игры
+        function logMessage(message, type = 'info') {
+            const logEntry = document.createElement('p');
+            logEntry.innerHTML = message;
+            logEntry.className = `${type}-log`;
+            elements.actionLog.appendChild(logEntry);
+            elements.actionLog.scrollTop = elements.actionLog.scrollHeight;
+        }
+
+        function updateStats() {
+            elements.level.textContent = game.player.level;
+            elements.xp.textContent = game.player.xp;
+            elements.nextLevelXp.textContent = game.player.nextLevelXp;
+            elements.xpBar.style.width = `${(game.player.xp / game.player.nextLevelXp) * 100}%`;
+            
+            elements.hp.textContent = game.player.hp;
+            elements.maxHp.textContent = game.player.maxHp;
+            elements.hpBar.style.width = `${(game.player.hp / game.player.maxHp) * 100}%`;
+            
+            // Пересчитываем характеристики с учетом экипировки
+            let totalAttack = game.player.attack;
+            let totalDefense = game.player.defense;
+            
+            for (const slot in game.player.equipment) {
+                const item = game.player.equipment[slot];
+                if (item) {
+                    if (game.items[item].attack) totalAttack += game.items[item].attack;
+                    if (game.items[item].defense) totalDefense += game.items[item].defense;
+                }
+            }
+            
+            elements.attack.textContent = totalAttack;
+            elements.defense.textContent = totalDefense;
+            
+            // Обновляем ресурсы
+            elements.ore.textContent = game.player.resources.ore;
+            elements.wood.textContent = game.player.resources.wood;
+            elements.stone.textContent = game.player.resources.stone;
+            elements.coal.textContent = game.player.resources.coal;
+            elements.hammer.textContent = game.player.resources.hammer;
+            elements.brand.textContent = game.player.resources.brand;
+            elements.crystal.textContent = game.player.resources.crystal;
+            elements.potions.textContent = game.player.resources.potions;
+            
+            updateInventory();
+            updateEquipment();
+        }
+
+        function updateInventory() {
+            elements.inventory.innerHTML = '';
+            
+            game.player.inventory.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'item';
+                
+                const itemName = document.createElement('div');
+                itemName.textContent = game.items[item].name;
+                itemElement.appendChild(itemName);
+                
+                const useButton = document.createElement('button');
+                useButton.textContent = 'Исп';
+                useButton.className = 'small-button';
+                useButton.onclick = () => useItem(index);
+                itemElement.appendChild(useButton);
+                
+                const sellButton = document.createElement('button');
+                sellButton.textContent = 'Продать';
+                sellButton.className = 'small-button';
+                sellButton.onclick = () => sellItem(index);
+                itemElement.appendChild(sellButton);
+                
+                elements.inventory.appendChild(itemElement);
+            });
+            
+            // Добавляем пустые ячейки
+            const emptySlots = 9 - game.player.inventory.length;
+            for (let i = 0; i < emptySlots; i++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'item';
+                emptySlot.textContent = 'Пусто';
+                elements.inventory.appendChild(emptySlot);
+            }
+        }
+
+        function updateEquipment() {
+            for (const slot in game.player.equipment) {
+                const element = document.querySelector(`.equipment-slot[data-slot="${slot}"]`);
+                const item = game.player.equipment[slot];
+                
+                element.innerHTML = '';
+                
+                const slotName = document.createElement('div');
+                slotName.textContent = slot === 'weapon' ? '⚔️' : 
+                                      slot === 'armor' ? '🛡️' : 
+                                      slot === 'helmet' ? '⛑️' : '👢';
+                element.appendChild(slotName);
+                
+                const itemName = document.createElement('div');
+                itemName.textContent = item ? game.items[item].name : 'Нет';
+                element.appendChild(itemName);
+                
+                if (item) {
+                    const sellButton = document.createElement('button');
+                    sellButton.textContent = 'Продать';
+                    sellButton.className = 'small-button';
+                    sellButton.onclick = () => sellEquippedItem(slot);
+                    element.appendChild(sellButton);
+                }
+            }
+        }
+
+        function useItem(index) {
+            if (index >= game.player.inventory.length) return;
+            
+            const itemId = game.player.inventory[index];
+            const item = game.items[itemId];
+            
+            if (item.type === 'consumable') {
+                game.player.hp = Math.min(game.player.maxHp, game.player.hp + item.restore);
+                game.player.inventory.splice(index, 1);
+                logMessage(`Вы использовали ${item.name} и восстановили ${item.restore} HP.`, 'combat');
+                updateStats();
+            } else if (['weapon', 'armor', 'helmet', 'boots'].includes(item.type)) {
+                // Снимаем текущую экипировку
+                const currentItem = game.player.equipment[item.type];
+                if (currentItem) {
+                    game.player.inventory.push(currentItem);
+                }
+                
+                // Надеваем новую экипировку
+                game.player.equipment[item.type] = itemId;
+                game.player.inventory.splice(index, 1);
+                logMessage(`Вы экипировали ${item.name}.`, 'info');
+                updateStats();
+            }
+        }
+
+        function usePotion() {
+            if (game.player.resources.potions > 0) {
+                game.player.resources.potions--;
+                game.player.hp = Math.min(game.player.maxHp, game.player.hp + CONFIG.combat.potionHeal);
+                logMessage(`Вы использовали зелье здоровья и восстановили ${CONFIG.combat.potionHeal} HP.`, 'combat');
+                updateStats();
+            } else {
+                logMessage('У вас нет зелий здоровья!', 'info');
+            }
+        }
+
+        function sellItem(index) {
+            if (index >= game.player.inventory.length) return;
+            
+            const itemId = game.player.inventory[index];
+            const item = game.items[itemId];
+            
+            // Определяем цену в зависимости от тира предмета
+            let price = 0;
+            if (item.tier === 1) price = 3;
+            else if (item.tier === 2) price = 7;
+            else if (item.tier === 3) price = 15;
+            else if (item.type === 'consumable') price = 2;
+            
+            // Продаем предмет
+            game.player.inventory.splice(index, 1);
+            
+            // Получаем случайный ресурс в качестве оплаты
+            const resources = ['ore', 'wood', 'stone', 'coal'];
+            const randomResource = resources[Math.floor(Math.random() * resources.length)];
+            game.player.resources[randomResource] += price;
+            
+            logMessage(`Вы продали ${item.name} за ${price} ${randomResource === 'ore' ? 'руды' : randomResource === 'wood' ? 'дерева' : randomResource === 'stone' ? 'камня' : 'угля'}.`, 'loot');
+            updateStats();
+        }
+
+        function sellEquippedItem(slot) {
+            const itemId = game.player.equipment[slot];
+            if (!itemId) return;
+            
+            const item = game.items[itemId];
+            
+            // Определяем цену в зависимости от тира предмета
+            let price = 0;
+            if (item.tier === 1) price = 5;
+            else if (item.tier === 2) price = 10;
+            else if (item.tier === 3) price = 20;
+            
+            // Продаем предмет
+            game.player.equipment[slot] = null;
+            
+            // Получаем случайный ресурс в качестве оплаты
+            const resources = ['ore', 'wood', 'stone', 'coal'];
+            const randomResource = resources[Math.floor(Math.random() * resources.length)];
+            game.player.resources[randomResource] += price;
+            
+            logMessage(`Вы продали ${item.name} за ${price} ${randomResource === 'ore' ? 'руды' : randomResource === 'wood' ? 'дерева' : randomResource === 'stone' ? 'камня' : 'угля'}.`, 'loot');
+            updateStats();
+        }
+
+        function travel() {
+            // Случайным образом выбираем локацию (кроме деревни)
+            const availableLocations = game.locations.filter(loc => loc.id !== 'village');
+            const randomLocation = availableLocations[Math.floor(Math.random() * availableLocations.length)];
+            
+            game.currentLocation = randomLocation.id;
+            updateLocation();
+            
+            // С вероятностью 30% появляется кузнец
+            game.blacksmithAvailable = Math.random() < 0.3;
+            
+            logMessage(`Вы отправились в: ${randomLocation.name}.`, 'info');
+            
+            if (game.blacksmithAvailable) {
+                logMessage('Вы заметили странствующего кузнеца.', 'npc');
+            }
+        }
+
+        function gatherResource() {
+            const location = game.locations.find(loc => loc.id === game.currentLocation);
+            if (!location || !location.gatherResource) return;
+            
+            const resource = location.gatherResource;
+            let amount = 1;
+            
+            // Шанс получить дополнительный ресурс
+            if (Math.random() < 0.3) amount++;
+            
+            game.player.resources[resource] += amount;
+            logMessage(`Вы собрали ${amount} ${resource === 'wood' ? 'дерева' : resource === 'stone' ? 'камня' : resource === 'ore' ? 'руды' : 'угля'}.`, 'loot');
+            
+            // Шанс получить дополнительные ресурсы
+            for (const [res, chance] of Object.entries(CONFIG.dropRates)) {
+                if (Math.random() < chance) {
+                    game.player.resources[res]++;
+                    logMessage(`Вы нашли ${res === 'hammer' ? 'молот' : res === 'brand' ? 'клеймо' : res === 'crystal' ? 'кристалл' : 'зелье'}!`, 'loot');
+                }
+            }
+            
+            // Проверяем, не появился ли враг (50% шанс)
+            if (Math.random() < 0.5) {
+                startCombat();
+            }
+            
+            updateStats();
+        }
+
+        function startCombat() {
+            if (game.inCombat) return;
+            
+            const location = game.locations.find(loc => loc.id === game.currentLocation);
+            if (!location || !location.enemies) return;
+            
+            // Выбираем случайного врага
+            const enemyName = location.enemies[Math.floor(Math.random() * location.enemies.length)];
+            
+            // Создаем врага
+            game.currentEnemy = {
+                name: enemyName,
+                hp: CONFIG.enemies.baseHp + Math.floor(Math.random() * CONFIG.enemies.variation),
+                maxHp: CONFIG.enemies.baseHp + Math.floor(Math.random() * CONFIG.enemies.variation),
+                attack: CONFIG.enemies.baseAttack + Math.floor(Math.random() * 3),
+                defense: CONFIG.enemies.baseDefense + Math.floor(Math.random() * 2)
+            };
+            
+            game.inCombat = true;
+            game.autoCombat = false;
+            
+            logMessage(`На вас напал ${enemyName}!`, 'combat');
+            updateCombatUI();
+        }
+
+        function updateCombatUI() {
+            if (game.inCombat) {
+                elements.locationActions.innerHTML = `
+                    <button id="attackButton">Атака</button>
+                    <button id="autoAttackButton">Автоатака</button>
+                    <button id="fleeButton">Сбежать</button>
+                    <div class="auto-combat">
+                        <span>Автоатака: ${game.autoCombat ? 'ВКЛ' : 'ВЫКЛ'}</span>
+                    </div>
+                    <div>
+                        <h3>${game.currentEnemy.name}</h3>
+                        <p>HP: ${game.currentEnemy.hp}/${game.currentEnemy.maxHp}</p>
+                    </div>
+                `;
+                
+                document.getElementById('attackButton').onclick = attackEnemy;
+                document.getElementById('autoAttackButton').onclick = toggleAutoAttack;
+                document.getElementById('fleeButton').onclick = fleeCombat;
+            } else {
+                updateLocation();
+            }
+        }
+
+        function attackEnemy() {
+            if (!game.inCombat) return;
+            performAttack();
+        }
+
+        function toggleAutoAttack() {
+            game.autoCombat = !game.autoCombat;
+            
+            if (game.autoCombat) {
+                logMessage('Автоатака включена.', 'info');
+                game.autoAttackInterval = setInterval(performAttack, CONFIG.combat.autoAttackInterval);
+            } else {
+                logMessage('Автоатака выключена.', 'info');
+                clearInterval(game.autoAttackInterval);
+            }
+            updateCombatUI();
+        }
+
+        function performAttack() {
+            if (!game.inCombat || !game.currentEnemy) return;
+            
+            // Вычисляем урон игрока
+            let playerAttack = game.player.attack;
+            if (game.player.equipment.weapon) {
+                playerAttack += game.items[game.player.equipment.weapon].attack;
+            }
+            
+            const playerDamage = Math.max(1, playerAttack - game.currentEnemy.defense);
+            game.currentEnemy.hp -= playerDamage;
+            
+            logMessage(`Вы нанесли ${playerDamage} урона ${game.currentEnemy.name}.`, 'combat');
+            
+            // Проверяем, побежден ли враг
+            if (game.currentEnemy.hp <= 0) {
+                endCombat(true);
+                return;
+            }
+            
+            // Ход врага
+            const enemyDamage = Math.max(1, game.currentEnemy.attack - game.player.defense);
+            game.player.hp -= enemyDamage;
+            
+            logMessage(`${game.currentEnemy.name} наносит вам ${enemyDamage} урона.`, 'combat');
+            
+            // Проверяем, побежден ли игрок
+            if (game.player.hp <= 0) {
+                game.player.hp = 0;
+                logMessage('Вы побеждены! Возвращаетесь в деревню.', 'combat');
+                game.currentLocation = 'village';
+                game.inCombat = false;
+                game.autoCombat = false;
+                clearInterval(game.autoAttackInterval);
+            }
+            
+            updateStats();
+            updateCombatUI();
+        }
+
+        function fleeCombat() {
+            if (Math.random() < CONFIG.combat.fleeChance) {
+                logMessage('Вам удалось сбежать!', 'combat');
+                game.inCombat = false;
+                game.autoCombat = false;
+                clearInterval(game.autoAttackInterval);
+                updateLocation();
+            } else {
+                logMessage('Вам не удалось сбежать!', 'combat');
+                
+                // Враг атакует
+                const enemyDamage = Math.max(1, game.currentEnemy.attack - game.player.defense);
+                game.player.hp -= enemyDamage;
+                
+                logMessage(`${game.currentEnemy.name} наносит вам ${enemyDamage} урона.`, 'combat');
+                
+                if (game.player.hp <= 0) {
+                    game.player.hp = 0;
+                    logMessage('Вы побеждены! Возвращаетесь в деревню.', 'combat');
+                    game.currentLocation = 'village';
+                    game.inCombat = false;
+                    game.autoCombat = false;
+                    clearInterval(game.autoAttackInterval);
+                }
+                
+                updateStats();
+                updateCombatUI();
+            }
+        }
+
+        function endCombat(victory) {
+            if (victory) {
+                const xpGain = 10 + Math.floor(Math.random() * 10);
+                game.player.xp += xpGain;
+                
+                logMessage(`Вы победили ${game.currentEnemy.name} и получили ${xpGain} опыта.`, 'loot');
+                
+                // Шанс получить ресурсы
+                for (const [resource, chance] of Object.entries(CONFIG.dropRates)) {
+                    if (Math.random() < chance) {
+                        game.player.resources[resource]++;
+                        logMessage(`Вы нашли ${resource === 'hammer' ? 'молот' : resource === 'brand' ? 'клеймо' : resource === 'crystal' ? 'кристалл' : 'зелье'}!`, 'loot');
+                    }
+                }
+                
+                checkLevelUp();
+            }
+            
+            game.inCombat = false;
+            game.autoCombat = false;
+            clearInterval(game.autoAttackInterval);
+            updateLocation();
+            updateStats();
+        }
+
+        function checkLevelUp() {
+            if (game.player.xp >= game.player.nextLevelXp) {
+                game.player.level++;
+                game.player.xp -= game.player.nextLevelXp;
+                game.player.nextLevelXp = Math.floor(game.player.nextLevelXp * CONFIG.player.xpMultiplier);
+                
+                // Увеличиваем характеристики
+                game.player.maxHp += 10;
+                game.player.hp = game.player.maxHp;
+                game.player.attack += 2;
+                game.player.defense += 1;
+                
+                logMessage(`Поздравляем! Вы достигли ${game.player.level} уровня!`, 'info');
+                checkLevelUp();
+            }
+        }
+
+        function returnToVillage() {
+            game.currentLocation = 'village';
+            game.inCombat = false;
+            game.autoCombat = false;
+            clearInterval(game.autoAttackInterval);
+            updateLocation();
+            logMessage('Вы вернулись в деревню.', 'info');
+        }
+
+        function showBlacksmith() {
+            elements.locationActions.innerHTML = `
+                <h3>Кузнец</h3>
+                <p>Кузнец может скрафтить вам предметы за ресурсы.</p>
+                <div id="blacksmithOptions"></div>
+                <button onclick="updateLocation()">Назад</button>
+            `;
+            
+            const blacksmithOptions = document.getElementById('blacksmithOptions');
+            blacksmithOptions.innerHTML = '';
+            
+            // Показываем доступные рецепты
+            for (const [itemId, recipe] of Object.entries(CONFIG.crafting)) {
+                const canCraft = Object.entries(recipe).every(([resource, amount]) => {
+                    return game.player.resources[resource] >= amount;
+                });
+                
+                const button = document.createElement('button');
+                button.textContent = game.items[itemId].name;
+                button.disabled = !canCraft;
+                button.className = 'small-button';
+                
+                if (canCraft) {
+                    button.onclick = () => craftItem(itemId, recipe);
+                }
+                
+                blacksmithOptions.appendChild(button);
+            }
+        }
+
+        function craftItem(itemId, recipe) {
+            if (game.player.inventory.length >= 9) {
+                logMessage('Инвентарь полон!', 'info');
+                return;
+            }
+            
+            // Списание ресурсов
+            for (const [resource, amount] of Object.entries(recipe)) {
+                game.player.resources[resource] -= amount;
+            }
+            
+            // Добавление предмета
+            game.player.inventory.push(itemId);
+            
+            logMessage(`Вы создали ${game.items[itemId].name}!`, 'loot');
+            updateStats();
+            showBlacksmith();
+        }
+
+        function updateLocation() {
+            const location = game.locations.find(loc => loc.id === game.currentLocation);
+            
+            elements.locationName.textContent = location.name;
+            elements.locationDescription.textContent = location.description;
+            
+            elements.locationActions.innerHTML = '';
+            
+            if (location.actions.includes('travel')) {
+                const travelButton = document.createElement('button');
+                travelButton.textContent = 'Путешествие';
+                travelButton.onclick = travel;
+                elements.locationActions.appendChild(travelButton);
+            }
+            
+            if (location.actions.includes('gather')) {
+                const gatherButton = document.createElement('button');
+                gatherButton.textContent = location.gatherResource === 'wood' ? 'Собирать дерево' :
+                                         location.gatherResource === 'stone' ? 'Добывать камень' :
+                                         location.gatherResource === 'ore' ? 'Добывать руду' : 'Собирать уголь';
+                gatherButton.onclick = gatherResource;
+                elements.locationActions.appendChild(gatherButton);
+            }
+            
+            if (location.actions.includes('return')) {
+                const returnButton = document.createElement('button');
+                returnButton.textContent = 'В деревню';
+                returnButton.onclick = returnToVillage;
+                elements.locationActions.appendChild(returnButton);
+            }
+            
+            if (game.blacksmithAvailable) {
+                const blacksmithButton = document.createElement('button');
+                blacksmithButton.textContent = 'Кузнец';
+                blacksmithButton.onclick = showBlacksmith;
+                elements.locationActions.appendChild(blacksmithButton);
+            }
+        }
+
+        // Инициализация игры
+        function initGame() {
+            elements.usePotionButton.onclick = usePotion;
+            updateStats();
+            updateLocation();
+            logMessage('Добро пожаловать в RPG Adventure!', 'info');
+        }
+
+        // Запуск игры
+        window.onload = initGame;
+    </script>
+</body>
+</html>

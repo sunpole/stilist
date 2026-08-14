@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TD Интерфейс</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      background-color: #2f3238;
+      color: #fff;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body.disable-select * {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+
+    @media (min-width: 900px) {
+      .app-container {
+        flex-direction: row;
+      }
+      .left-panel {
+        flex: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 10px;
+      }
+      .modal-content.converter {
+        max-width: 1000px;
+        width: 90%;
+        height: 80%;
+      }
+    }
+
+    .header {
+      width: 100%;
+      background: #1e2024;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    .header .info-box {
+      background: #3b3e44;
+      padding: 6px;
+      border-radius: 6px;
+      text-align: center;
+      flex: 1;
+      margin-right: 4px;
+    }
+
+    .header .notify {
+      flex: 2;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .header .menu-button {
+      background: #3b3e44;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+    }
+
+    .currencies {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      background: #3b3e44;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+
+    .currency {
+      background: #4a4d52;
+      text-align: center;
+      font-size: 0.7rem;
+      padding: 3px;
+      border-radius: 3px;
+      color: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .currency span {
+      display: block;
+      font-size: 0.6rem;
+      opacity: 0.9;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(12, 1fr);
+      aspect-ratio: 1 / 1;
+      width: 90vmin;
+      max-width: 600px;
+      background: #3b3e44;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .game-cell {
+      border: 1px solid #4b4e54;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .tower-placed {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 4px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 4px 0;
+      flex-shrink: 0;
+    }
+
+    .controls button {
+      background: #3b3e44;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .controls button.active {
+      background: #3656ff;
+    }
+
+    .tower-list {
+      width: 100%;
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+
+    .tower-card {
+      background: #3b3e44;
+      border-radius: 6px;
+      padding: 4px;
+      font-size: 0.7rem;
+      flex: 0 0 100px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .tower-card:hover {
+      transform: scale(1.05);
+    }
+
+    .tower-card h3 {
+      margin: 0 0 2px 0;
+      color: var(--color, #b7ff00);
+      font-size: 0.9rem;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: #2f3238;
+      padding: 16px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .modal-content.converter {
+      max-width: 1000px;
+      width: 90%;
+      height: 80%;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .modal-grid button {
+      background: #3b3e44;
+      border: none;
+      color: white;
+      padding: 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="left-panel">
+      <div class="game-grid" id="gameGrid"></div>
+    </div>
+    <div class="right-panel">
+      <div class="header">
+        <div class="info-box">
+          <div>ВОЛНА: 1</div>
+          <div>УРОВЕНЬ: 5</div>
+          <div>ЖИЗНИ: 100</div>
+        </div>
+        <div class="notify">ОБЛАСТЬ ДЛЯ УВЕДОМЛЕНИЙ</div>
+        <button class="menu-button" id="openSettings">☰</button>
+      </div>
+
+      <div class="currencies" id="currencyBar"></div>
+
+      <div class="controls">
+        <button class="active" data-tier="1">ТИР 1</button>
+        <button data-tier="2">ТИР 2</button>
+        <button data-tier="3">ТИР 3</button>
+        <button data-tier="4">ТИР 4</button>
+        <button id="reset">СБРОС</button>
+      </div>
+
+      <div class="tower-list" id="towerList"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <h2>Настройки</h2>
+      <label><input type="checkbox" id="disableSelect"> Запрет выделения текста</label><br>
+      <label><input type="checkbox" id="disableZoom"> Запрет масштабирования</label>
+      <button class="close-btn" id="closeSettings">Закрыть</button>
+    </div>
+  </div>
+
+  <div class="modal" id="converterModal">
+    <div class="modal-content converter">
+      <h2>Конвертер валют</h2>
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div style="flex:1">
+          <div class="modal-grid" id="fromGrid"></div>
+        </div>
+        <div style="flex:1">
+          <div class="modal-grid" id="toGrid"></div>
+        </div>
+      </div>
+      <p id="exchangeRate">Курс: 1 к 1</p>
+      <input type="range" min="1" max="100" value="50" class="slider" id="amountRange">
+      <p id="amountLabel">Количество: 50</p>
+      <button class="exchange-btn">Обменять</button>
+      <button class="close-btn" id="closeConverter">Отмена</button>
+    </div>
+  </div>
+
+  <div class="modal" id="towerModal">
+    <div class="modal-content">
+      <h2 id="towerTitle">Башня</h2>
+      <p id="towerStats"></p>
+      <button class="close-btn" id="closeTowerModal">Закрыть</button>
+    </div>
+  </div>
+
+  <script>
+    const grid = document.getElementById('gameGrid');
+    for (let i = 0; i < 144; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'game-cell';
+      cell.onclick = () => {
+        if (selectedTower) {
+          if (cell.querySelector('.tower-placed')) return;
+          const placed = document.createElement('div');
+          placed.className = 'tower-placed';
+          placed.style.background = selectedTower.color;
+          cell.appendChild(placed);
+          placed.onclick = (e) => {
+            e.stopPropagation();
+            towerModal.style.display = 'flex';
+            document.getElementById('towerTitle').textContent = selectedTower.name;
+            document.getElementById('towerStats').innerHTML = `Damage: ${selectedTower.dmg}<br>Speed: ${selectedTower.spd}<br>Range: ${selectedTower.rng}`;
+          };
+        }
+      };
+      grid.appendChild(cell);
+    }
+
+    const openSettings = document.getElementById('openSettings');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettings = document.getElementById('closeSettings');
+    const disableSelect = document.getElementById('disableSelect');
+    const disableZoom = document.getElementById('disableZoom');
+    const body = document.body;
+
+    const converterModal = document.getElementById('converterModal');
+    const closeConverter = document.getElementById('closeConverter');
+    const towerModal = document.getElementById('towerModal');
+    const closeTowerModal = document.getElementById('closeTowerModal');
+
+    openSettings.onclick = () => settingsModal.style.display = 'flex';
+    closeSettings.onclick = () => settingsModal.style.display = 'none';
+    closeConverter.onclick = () => converterModal.style.display = 'none';
+    closeTowerModal.onclick = () => towerModal.style.display = 'none';
+
+    window.onclick = e => {
+      if (e.target === settingsModal) settingsModal.style.display = 'none';
+      if (e.target === converterModal) converterModal.style.display = 'none';
+      if (e.target === towerModal) towerModal.style.display = 'none';
+    };
+
+    const currencyBar = document.getElementById('currencyBar');
+    const fromGrid = document.getElementById('fromGrid');
+    const toGrid = document.getElementById('toGrid');
+
+    const currencyColors = ['#ffcc00','#ff6600','#ff0000','#cc00ff','#6600ff','#0099ff','#00ccff','#00ff99','#66ff33','#ccff33','#ffcc33','#ff9933','#ffffff'];
+    const currencies = ['Лепта','Кодрант','Ассарий','Динарий','Гера','Бека','Сикль','Статир','Дарик','Мина З','Мина С','Талант','Всего'];
+
+    currencies.forEach((c,i)=>{
+      const div=document.createElement('div');
+      div.className='currency';
+      div.style.background=currencyColors[i];
+      div.innerHTML=`${c}<span>${Math.floor(Math.random()*9999)}</span>`;
+      div.onclick=()=>converterModal.style.display='flex';
+      currencyBar.appendChild(div);
+    });
+
+    currencies.slice(0,12).forEach((c,i)=>{
+      const btn1=document.createElement('button');btn1.textContent=c;btn1.style.background=currencyColors[i];fromGrid.appendChild(btn1);
+      const btn2=document.createElement('button');btn2.textContent=c;btn2.style.background=currencyColors[i];toGrid.appendChild(btn2);
+    });
+
+    const towerList=document.getElementById('towerList');
+    const tiers=document.querySelectorAll('.controls button[data-tier]');
+    const resetBtn=document.getElementById('reset');
+    let selectedTower=null;
+
+    const towers={
+      1:[{name:'Сардоникс',color:'#ffcc00',dmg:1,spd:800,rng:200},{name:'Топаз',color:'#ff6600',dmg:15,spd:1000,rng:350},{name:'Изумруд',color:'#ff0000',dmg:40,spd:1500,rng:600}],
+      2:[{name:'Аметист',color:'#cc00ff',dmg:70,spd:1800,rng:700},{name:'Рубин',color:'#6600ff',dmg:120,spd:2000,rng:800},{name:'Сапфир',color:'#0099ff',dmg:200,spd:2500,rng:900}],
+      3:[{name:'Оникс',color:'#00ccff',dmg:300,spd:2700,rng:1000},{name:'Гранат',color:'#00ff99',dmg:400,spd:2800,rng:1100},{name:'Бирюза',color:'#66ff33',dmg:500,spd:2900,rng:1200}],
+      4:[{name:'Алмаз',color:'#ccff33',dmg:700,spd:3000,rng:1300},{name:'Турмалин',color:'#ffcc33',dmg:850,spd:3200,rng:1400},{name:'Цитрин',color:'#ff9933',dmg:1000,spd:3500,rng:1500}]
+    };
+
+    const updateTowers=(tier)=>{
+      towerList.innerHTML=towers[tier].map(tw=>`<div class='tower-card' style='--color:${tw.color}' data-name='${tw.name}'>
+        <h3>${tw.name}</h3>
+        DMG: ${tw.dmg}<br>SPD: ${tw.spd}<br>RNG: ${tw.rng}
+      </div>`).join('');
+
+      document.querySelectorAll('.tower-card').forEach(card=>{
+        card.onclick=()=>{
+          const tower=towers[tier].find(t=>t.name===card.dataset.name);
+          selectedTower=tower;
+        };
+      });
+    };
+
+    tiers.forEach(btn=>{
+      btn.onclick=()=>{
+        tiers.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        updateTowers(btn.dataset.tier);
+      };
+    });
+
+    resetBtn.onclick=()=>{selectedTower=null;};
+    updateTowers(1);
+  </script>
+</body>
+</html>

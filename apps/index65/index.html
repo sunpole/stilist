@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Tower Defense</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            touch-action: manipulation;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            min-height: 100vh;
+        }
+        
+        #game-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        #game-board {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+        }
+        
+        #path {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            stroke: #795548;
+            stroke-width: 40;
+            fill: none;
+        }
+        
+        .enemy {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f44336;
+            border-radius: 50%;
+            transform: translate(-10px, -10px);
+            z-index: 10;
+        }
+        
+        .tower {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #2196F3;
+            border-radius: 50%;
+            transform: translate(-15px, -15px);
+            z-index: 5;
+            border: 2px solid #0d47a1;
+        }
+        
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #FFEB3B;
+            border-radius: 50%;
+            transform: translate(-4px, -4px);
+            z-index: 8;
+        }
+        
+        #ui-container {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        #resources {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        #wave-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        #tower-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .tower-slot {
+            width: 60px;
+            height: 60px;
+            border: 2px dashed #9E9E9E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            background-color: #f5f5f5;
+        }
+        
+        .tower-slot.has-tower {
+            border-color: #4CAF50;
+        }
+        
+        .tower-slot.max-level {
+            border-color: #FF9800;
+        }
+        
+        .tower-slot .level-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #components-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .component {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #BDBDBD;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-align: center;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .component.level-1 { background-color: #C8E6C9; }
+        .component.level-2 { background-color: #81C784; }
+        .component.level-3 { background-color: #4CAF50; }
+        .component.level-4 { background-color: #2E7D32; color: white; }
+        
+        .component .type {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .component .value {
+            font-size: 9px;
+        }
+        
+        #buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #2196F3;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        button:disabled {
+            background-color: #BDBDBD;
+            cursor: not-allowed;
+        }
+        
+        #start-wave {
+            background-color: #4CAF50;
+        }
+        
+        #upgrade-components {
+            background-color: #FF9800;
+        }
+        
+        #game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 100;
+            display: none;
+        }
+        
+        #game-over h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        #game-over button {
+            margin-top: 20px;
+            font-size: 20px;
+            padding: 15px 30px;
+        }
+        
+        .tower-tooltip {
+            position: absolute;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 20;
+            min-width: 120px;
+        }
+        
+        #tower-upgrade {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #BDBDBD;
+            border-radius: 4px;
+            padding: 10px;
+            z-index: 15;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        #tower-upgrade h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        #tower-upgrade .upgrade-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        #tower-upgrade .upgrade-option:hover {
+            background-color: #f0f0f0;
+        }
+        
+        #tower-upgrade .upgrade-cost {
+            margin-left: auto;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        #tower-upgrade .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-header">
+            <h1>Custom Tower Defense</h1>
+        </div>
+        
+        <div id="game-board">
+            <svg id="path" viewBox="0 0 800 400">
+                <path d="M0,200 Q200,200 250,100 Q300,0 400,0 Q500,0 550,100 Q600,200 800,200" />
+            </svg>
+        </div>
+        
+        <div id="ui-container">
+            <div id="resources">
+                <div>Money: $<span id="money">100</span></div>
+                <div>Lives: <span id="lives">20</span></div>
+            </div>
+            
+            <div id="wave-info">
+                <div>Wave: <span id="wave">1</span></div>
+                <div>Enemies: <span id="enemies-left">0</span>/<span id="total-enemies">0</span></div>
+            </div>
+            
+            <h3>Tower Slots</h3>
+            <div id="tower-slots">
+                <!-- Slots will be added dynamically -->
+            </div>
+            
+            <h3>Components Inventory</h3>
+            <div id="components-container">
+                <!-- Components will be added dynamically -->
+            </div>
+            
+            <div id="buttons">
+                <button id="upgrade-components">Upgrade Components (3x L1 → L2, 5x L2 → L3)</button>
+                <button id="start-wave">Start Wave</button>
+            </div>
+        </div>
+        
+        <div id="game-over">
+            <h2 id="game-over-text">Game Over</h2>
+            <p id="final-stats">You survived X waves!</p>
+            <button id="new-game">New Game</button>
+        </div>
+        
+        <div id="tower-upgrade">
+            <span class="close-btn">×</span>
+            <h3>Upgrade Tower</h3>
+            <div id="upgrade-options">
+                <!-- Options will be added dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game constants
+        const BASE_TOWER_STATS = {
+            damage: 10,
+            range: 50,
+            projectileSpeed: 100,
+            reloadTime: 0.5
+        };
+        
+        const COMPONENT_TYPES = {
+            DAMAGE: { name: "Barrel", stat: "damage", icon: "🔫" },
+            RELOAD: { name: "Breech", stat: "reloadTime", icon: "🔧" },
+            RANGE: { name: "Scope", stat: "range", icon: "🎯" },
+            SPEED: { name: "Powder", stat: "projectileSpeed", icon: "⚡" }
+        };
+        
+        const COMPONENT_LEVELS = {
+            1: { multiplier: 1.2, cost: 10, dropChance: 0.15 },
+            2: { multiplier: 1.5, cost: 30, dropChance: 0.07 },
+            3: { multiplier: 2.0, cost: 80, dropChance: 0.03 },
+            4: { multiplier: 3.0, cost: 200, dropChance: 0.01 }
+        };
+        
+        const TOWER_SLOTS = [
+            { maxLevel: 15 },
+            { maxLevel: 15 },
+            { maxLevel: 10 },
+            { maxLevel: 10 },
+            { maxLevel: 6 },
+            { maxLevel: 6 },
+            { maxLevel: 6 }
+        ];
+        
+        const WAVE_ENEMIES = [
+            { count: 10, health: 30, speed: 0.5, money: 5 },
+            { count: 15, health: 40, speed: 0.6, money: 6 },
+            { count: 18, health: 50, speed: 0.6, money: 7 },
+            { count: 20, health: 60, speed: 0.7, money: 8 },
+            { count: 25, health: 70, speed: 0.7, money: 9 },
+            { count: 25, health: 80, speed: 0.8, money: 10 },
+            { count: 30, health: 90, speed: 0.8, money: 11 },
+            { count: 30, health: 100, speed: 0.9, money: 12 },
+            { count: 35, health: 120, speed: 0.9, money: 13 },
+            { count: 40, health: 150, speed: 1.0, money: 15 }
+        ];
+        
+        // Game state
+        let gameState = {
+            money: 100,
+            lives: 20,
+            wave: 0,
+            enemies: [],
+            towers: [],
+            projectiles: [],
+            components: [],
+            selectedComponent: null,
+            selectedTowerSlot: null,
+            waveInProgress: false,
+            enemiesLeft: 0,
+            totalEnemies: 0,
+            pathPoints: []
+        };
+        
+        // DOM elements
+        const moneyEl = document.getElementById('money');
+        const livesEl = document.getElementById('lives');
+        const waveEl = document.getElementById('wave');
+        const enemiesLeftEl = document.getElementById('enemies-left');
+        const totalEnemiesEl = document.getElementById('total-enemies');
+        const towerSlotsEl = document.getElementById('tower-slots');
+        const componentsContainerEl = document.getElementById('components-container');
+        const startWaveBtn = document.getElementById('start-wave');
+        const upgradeComponentsBtn = document.getElementById('upgrade-components');
+        const gameOverEl = document.getElementById('game-over');
+        const gameOverTextEl = document.getElementById('game-over-text');
+        const finalStatsEl = document.getElementById('final-stats');
+        const newGameBtn = document.getElementById('new-game');
+        const towerUpgradeEl = document.getElementById('tower-upgrade');
+        const upgradeOptionsEl = document.getElementById('upgrade-options');
+        
+        // Initialize game
+        function initGame() {
+            gameState = {
+                money: 100,
+                lives: 20,
+                wave: 0,
+                enemies: [],
+                towers: [],
+                projectiles: [],
+                components: [],
+                selectedComponent: null,
+                selectedTowerSlot: null,
+                waveInProgress: false,
+                enemiesLeft: 0,
+                totalEnemies: 0,
+                pathPoints: []
+            };
+            
+            // Generate path points
+            generatePathPoints();
+            
+            // Create tower slots
+            towerSlotsEl.innerHTML = '';
+            TOWER_SLOTS.forEach((slot, index) => {
+                const slotEl = document.createElement('div');
+                slotEl.className = 'tower-slot';
+                slotEl.dataset.index = index;
+                slotEl.dataset.maxLevel = slot.maxLevel;
+                slotEl.innerHTML = '<div>+</div>';
+                slotEl.addEventListener('click', () => selectTowerSlot(index));
+                towerSlotsEl.appendChild(slotEl);
+            });
+            
+            // Update UI
+            updateUI();
+            
+            // Hide game over screen
+            gameOverEl.style.display = 'none';
+            
+            // Start with 3 random level 1 components
+            for (let i = 0; i < 3; i++) {
+                addRandomComponent(1);
+            }
+        }
+        
+        // Generate points along the path for enemy movement
+        function generatePathPoints() {
+            const path = document.getElementById('path').querySelector('path');
+            const length = path.getTotalLength();
+            const steps = 100;
+            gameState.pathPoints = [];
+            
+            for (let i = 0; i <= steps; i++) {
+                const point = path.getPointAtLength(length * (i / steps));
+                gameState.pathPoints.push({
+                    x: point.x,
+                    y: point.y
+                });
+            }
+        }
+        
+        // Update UI elements
+        function updateUI() {
+            moneyEl.textContent = gameState.money;
+            livesEl.textContent = gameState.lives;
+            waveEl.textContent = gameState.wave;
+            enemiesLeftEl.textContent = gameState.enemiesLeft;
+            totalEnemiesEl.textContent = gameState.totalEnemies;
+            
+            startWaveBtn.disabled = gameState.waveInProgress;
+            
+            // Update tower slots
+            document.querySelectorAll('.tower-slot').forEach((slotEl, index) => {
+                const tower = gameState.towers[index];
+                if (tower) {
+                    slotEl.classList.add('has-tower');
+                    slotEl.innerHTML = `<div class="level-badge">${tower.level}</div>`;
+                    
+                    if (tower.level >= parseInt(slotEl.dataset.maxLevel)) {
+                        slotEl.classList.add('max-level');
+                    } else {
+                        slotEl.classList.remove('max-level');
+                    }
+                } else {
+                    slotEl.classList.remove('has-tower', 'max-level');
+                    slotEl.innerHTML = '<div>+</div>';
+                }
+            });
+            
+            // Update components
+            componentsContainerEl.innerHTML = '';
+            gameState.components.forEach((component, index) => {
+                const componentEl = document.createElement('div');
+                componentEl.className = `component level-${component.level}`;
+                componentEl.dataset.index = index;
+                
+                const typeInfo = COMPONENT_TYPES[component.type];
+                componentEl.innerHTML = `
+                    <div class="type">${typeInfo.icon} ${typeInfo.name}</div>
+                    <div class="value">Lv. ${component.level}</div>
+                    <div class="value">+${Math.round((COMPONENT_LEVELS[component.level].multiplier - 1) * 100)}%</div>
+                `;
+                
+                if (gameState.selectedComponent === index) {
+                    componentEl.style.border = '2px solid #2196F3';
+                }
+                
+                componentEl.addEventListener('click', () => selectComponent(index));
+                componentsContainerEl.appendChild(componentEl);
+            });
+        }
+        
+        // Select a component from inventory
+        function selectComponent(index) {
+            if (gameState.selectedComponent === index) {
+                gameState.selectedComponent = null;
+            } else {
+                gameState.selectedComponent = index;
+            }
+            updateUI();
+        }
+        
+        // Select a tower slot
+        function selectTowerSlot(index) {
+            const slotEl = document.querySelector(`.tower-slot[data-index="${index}"]`);
+            const maxLevel = parseInt(slotEl.dataset.maxLevel);
+            
+            if (gameState.towers[index]) {
+                // Show upgrade options for existing tower
+                showTowerUpgrade(index);
+            } else if (gameState.selectedComponent !== null) {
+                // Create new tower with selected component
+                createTower(index, gameState.selectedComponent);
+                gameState.selectedComponent = null;
+            } else {
+                // Just select the slot
+                gameState.selectedTowerSlot = index;
+            }
+            
+            updateUI();
+        }
+        
+        // Show tower upgrade options
+        function showTowerUpgrade(towerIndex) {
+            const tower = gameState.towers[towerIndex];
+            const slotEl = document.querySelector(`.tower-slot[data-index="${towerIndex}"]`);
+            const maxLevel = parseInt(slotEl.dataset.maxLevel);
+            
+            // Position the upgrade panel
+            const rect = slotEl.getBoundingClientRect();
+            towerUpgradeEl.style.left = `${rect.left}px`;
+            towerUpgradeEl.style.top = `${rect.bottom + 5}px`;
+            
+            // Clear previous options
+            upgradeOptionsEl.innerHTML = '';
+            
+            // Add upgrade options for each component type not already in the tower
+            Object.keys(COMPONENT_TYPES).forEach(type => {
+                if (!tower.components.some(c => c.type === type)) {
+                    const componentCost = calculateComponentCost(tower.components.length + 1, 1);
+                    
+                    const optionEl = document.createElement('div');
+                    optionEl.className = 'upgrade-option';
+                    optionEl.innerHTML = `
+                        <div>${COMPONENT_TYPES[type].icon} Add ${COMPONENT_TYPES[type].name} (Lv.1)</div>
+                        <div class="upgrade-cost">$${componentCost}</div>
+                    `;
+                    
+                    optionEl.addEventListener('click', () => {
+                        if (gameState.money >= componentCost) {
+                            gameState.money -= componentCost;
+                            addComponentToTower(towerIndex, {
+                                type: type,
+                                level: 1
+                            });
+                            hideTowerUpgrade();
+                            updateUI();
+                        }
+                    });
+                    
+                    upgradeOptionsEl.appendChild(optionEl);
+                }
+            });
+            
+            // Show the upgrade panel
+            towerUpgradeEl.style.display = 'block';
+        }
+        
+        // Hide tower upgrade options
+        function hideTowerUpgrade() {
+            towerUpgradeEl.style.display = 'none';
+        }
+        
+        // Calculate cost to add a component to a tower
+        function calculateComponentCost(currentComponents, componentLevel) {
+            const baseCost = COMPONENT_LEVELS[componentLevel].cost;
+            const multiplier = 1 + (currentComponents * 2); // 100% increase per existing component
+            return Math.round(baseCost * multiplier);
+        }
+        
+        // Create a new tower
+        function createTower(slotIndex, componentIndex) {
+            const component = gameState.components[componentIndex];
+            const slotEl = document.querySelector(`.tower-slot[data-index="${slotIndex}"]`);
+            const maxLevel = parseInt(slotEl.dataset.maxLevel);
+            
+            // Check if we can add this component (wouldn't exceed max level)
+            if (component.level > maxLevel) {
+                alert(`This slot only supports towers up to level ${maxLevel}`);
+                return;
+            }
+            
+            // Remove component from inventory
+            gameState.components.splice(componentIndex, 1);
+            
+            // Create tower
+            const tower = {
+                x: Math.random() * 700 + 50,
+                y: Math.random() * 300 + 50,
+                components: [component],
+                level: component.level,
+                lastShot: 0,
+                stats: calculateTowerStats([component])
+            };
+            
+            gameState.towers[slotIndex] = tower;
+            
+            // Render tower
+            renderTowers();
+        }
+        
+        // Add component to existing tower
+        function addComponentToTower(towerIndex, component) {
+            const tower = gameState.towers[towerIndex];
+            const slotEl = document.querySelector(`.tower-slot[data-index="${towerIndex}"]`);
+            const maxLevel = parseInt(slotEl.dataset.maxLevel);
+            
+            // Check if adding this component would exceed max level
+            if (tower.level + component.level > maxLevel) {
+                alert(`Adding this component would exceed the slot's max level of ${maxLevel}`);
+                return false;
+            }
+            
+            // Add component
+            tower.components.push(component);
+            tower.level += component.level;
+            tower.stats = calculateTowerStats(tower.components);
+            
+            return true;
+        }
+        
+        // Calculate tower stats based on components
+        function calculateTowerStats(components) {
+            const stats = { ...BASE_TOWER_STATS };
+            
+            components.forEach(component => {
+                const typeInfo = COMPONENT_TYPES[component.type];
+                const multiplier = COMPONENT_LEVELS[component.level].multiplier;
+                
+                if (typeInfo.stat === 'reloadTime') {
+                    // Reload time improvement is inverse (lower is better)
+                    stats[typeInfo.stat] = BASE_TOWER_STATS[typeInfo.stat] / multiplier;
+                } else {
+                    stats[typeInfo.stat] = BASE_TOWER_STATS[typeInfo.stat] * multiplier;
+                }
+            });
+            
+            return stats;
+        }
+        
+        // Add a random component to inventory
+        function addRandomComponent(minLevel = 1, maxLevel = 4) {
+            const types = Object.keys(COMPONENT_TYPES);
+            const type = types[Math.floor(Math.random() * types.length)];
+            const level = Math.floor(Math.random() * (maxLevel - minLevel + 1)) + minLevel;
+            
+            gameState.components.push({
+                type: type,
+                level: level
+            });
+            
+            updateUI();
+        }
+        
+        // Upgrade components
+        function upgradeComponents() {
+            // Group components by type and level
+            const componentsByTypeAndLevel = {};
+            
+            gameState.components.forEach((component, index) => {
+                const key = `${component.type}-${component.level}`;
+                if (!componentsByTypeAndLevel[key]) {
+                    componentsByTypeAndLevel[key] = [];
+                }
+                componentsByTypeAndLevel[key].push(index);
+            });
+            
+            // Try to upgrade level 1 components (3 → 1 level 2)
+            for (const type in COMPONENT_TYPES) {
+                const key = `${type}-1`;
+                if (componentsByTypeAndLevel[key] && componentsByTypeAndLevel[key].length >= 3) {
+                    // Remove 3 level 1 components
+                    const toRemove = componentsByTypeAndLevel[key].splice(0, 3);
+                    toRemove.sort((a, b) => b - a); // Remove from end first to avoid index issues
+                    toRemove.forEach(index => gameState.components.splice(index, 1));
+                    
+                    // Add 1 level 2 component
+                    gameState.components.push({
+                        type: type,
+                        level: 2
+                    });
+                    
+                    updateUI();
+                    return;
+                }
+            }
+            
+            // Try to upgrade level 2 components (5 → 1 level 3)
+            for (const type in COMPONENT_TYPES) {
+                const key = `${type}-2`;
+                if (componentsByTypeAndLevel[key] && componentsByTypeAndLevel[key].length >= 5) {
+                    // Remove 5 level 2 components
+                    const toRemove = componentsByTypeAndLevel[key].splice(0, 5);
+                    toRemove.sort((a, b) => b - a); // Remove from end first to avoid index issues
+                    toRemove.forEach(index => gameState.components.splice(index, 1));
+                    
+                    // Add 1 level 3 component
+                    gameState.components.push({
+                        type: type,
+                        level: 3
+                    });
+                    
+                    updateUI();
+                    return;
+                }
+            }
+            
+            alert("Not enough components to upgrade!");
+        }
+        
+        // Start a new wave
+        function startWave() {
+            if (gameState.waveInProgress) return;
+            
+            gameState.wave++;
+            gameState.waveInProgress = true;
+            
+            // Determine wave parameters (repeat after wave 10)
+            const waveIndex = Math.min(gameState.wave - 1, WAVE_ENEMIES.length - 1);
+            const waveParams = WAVE_ENEMIES[waveIndex];
+            
+            gameState.enemiesLeft = waveParams.count;
+            gameState.totalEnemies = waveParams.count;
+            updateUI();
+            
+            // Spawn enemies
+            let spawnCount = 0;
+            const spawnInterval = setInterval(() => {
+                spawnEnemy(waveParams.health, waveParams.speed, waveParams.money);
+                spawnCount++;
+                
+                if (spawnCount >= waveParams.count) {
+                    clearInterval(spawnInterval);
+                }
+            }, 1000);
+        }
+        
+        // Spawn an enemy
+        function spawnEnemy(health, speed, moneyValue) {
+            const enemy = {
+                x: 0,
+                y: 200,
+                health: health,
+                maxHealth: health,
+                speed: speed,
+                moneyValue: moneyValue,
+                pathIndex: 0,
+                distance: 0
+            };
+            
+            gameState.enemies.push(enemy);
+            renderEnemies();
+        }
+        
+        // Game loop
+        function gameLoop(timestamp) {
+            if (!gameState.waveInProgress && gameState.enemies.length === 0 && gameState.wave > 0) {
+                // Wave completed
+                gameState.waveInProgress = false;
+                
+                // Reward money
+                gameState.money += 50 + gameState.wave * 10;
+                
+                // Chance to get components
+                for (const level in COMPONENT_LEVELS) {
+                    if (Math.random() < COMPONENT_LEVELS[level].dropChance) {
+                        addRandomComponent(parseInt(level), parseInt(level));
+                    }
+                }
+                
+                updateUI();
+            }
+            
+            // Move enemies
+            gameState.enemies.forEach(enemy => {
+                enemy.distance += enemy.speed;
+                
+                // Find the path point based on distance
+                while (enemy.pathIndex < gameState.pathPoints.length - 1 && 
+                       enemy.distance > enemy.pathIndex + 1) {
+                    enemy.pathIndex++;
+                }
+                
+                // Interpolate position between path points
+                const prevPoint = gameState.pathPoints[Math.floor(enemy.distance)];
+                const nextPoint = gameState.pathPoints[Math.ceil(enemy.distance)];
+                const progress = enemy.distance - Math.floor(enemy.distance);
+                
+                if (prevPoint && nextPoint) {
+                    enemy.x = prevPoint.x + (nextPoint.x - prevPoint.x) * progress;
+                    enemy.y = prevPoint.y + (nextPoint.y - prevPoint.y) * progress;
+                }
+                
+                // Check if enemy reached the end
+                if (enemy.distance >= gameState.pathPoints.length - 1) {
+                    enemy.reachedEnd = true;
+                }
+            });
+            
+            // Remove enemies that reached the end
+            const enemiesReachedEnd = gameState.enemies.filter(enemy => enemy.reachedEnd);
+            if (enemiesReachedEnd.length > 0) {
+                gameState.lives -= enemiesReachedEnd.length;
+                gameState.enemies = gameState.enemies.filter(enemy => !enemy.reachedEnd);
+                gameState.enemiesLeft = gameState.enemies.length;
+                
+                if (gameState.lives <= 0) {
+                    endGame(false);
+                    return;
+                }
+                
+                updateUI();
+            }
+            
+            // Tower targeting and shooting
+            gameState.towers.forEach(tower => {
+                if (!tower) return;
+                
+                // Find target
+                let closestEnemy = null;
+                let minDist = Infinity;
+                
+                gameState.enemies.forEach(enemy => {
+                    const dx = enemy.x - tower.x;
+                    const dy = enemy.y - tower.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist <= tower.stats.range && dist < minDist) {
+                        closestEnemy = enemy;
+                        minDist = dist;
+                    }
+                });
+                
+                // Shoot at target
+                if (closestEnemy && timestamp - tower.lastShot >= tower.stats.reloadTime * 1000) {
+                    const projectile = {
+                        x: tower.x,
+                        y: tower.y,
+                        targetX: closestEnemy.x,
+                        targetY: closestEnemy.y,
+                        speed: tower.stats.projectileSpeed,
+                        damage: tower.stats.damage,
+                        enemy: closestEnemy
+                    };
+                    
+                    gameState.projectiles.push(projectile);
+                    tower.lastShot = timestamp;
+                }
+            });
+            
+            // Move projectiles
+            gameState.projectiles.forEach(projectile => {
+                const dx = projectile.targetX - projectile.x;
+                const dy = projectile.targetY - projectile.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const moveDist = projectile.speed * (16 / 1000); // Assuming 60fps
+                
+                if (dist <= moveDist) {
+                    // Hit the enemy
+                    projectile.enemy.health -= projectile.damage;
+                    projectile.hit = true;
+                    
+                    // Check if enemy is dead
+                    if (projectile.enemy.health <= 0) {
+                        gameState.money += projectile.enemy.moneyValue;
+                        gameState.enemies = gameState.enemies.filter(e => e !== projectile.enemy);
+                        gameState.enemiesLeft = gameState.enemies.length;
+                    }
+                } else {
+                    // Move toward enemy
+                    projectile.x += (dx / dist) * moveDist;
+                    projectile.y += (dy / dist) * moveDist;
+                }
+            });
+            
+            // Remove hit projectiles
+            gameState.projectiles = gameState.projectiles.filter(p => !p.hit);
+            
+            // Render everything
+            renderEnemies();
+            renderTowers();
+            renderProjectiles();
+            
+            // Continue game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Render enemies
+        function renderEnemies() {
+            // Clear existing enemies
+            document.querySelectorAll('.enemy').forEach(el => el.remove());
+            
+            // Create new enemy elements
+            gameState.enemies.forEach(enemy => {
+                const enemyEl = document.createElement('div');
+                enemyEl.className = 'enemy';
+                enemyEl.style.left = `${enemy.x}px`;
+                enemyEl.style.top = `${enemy.y}px`;
+                
+                // Health bar
+                const healthBar = document.createElement('div');
+                healthBar.style.position = 'absolute';
+                healthBar.style.bottom = '-5px';
+                healthBar.style.left = '0';
+                healthBar.style.width = '20px';
+                healthBar.style.height = '3px';
+                healthBar.style.backgroundColor = 'red';
+                
+                const healthFill = document.createElement('div');
+                healthFill.style.width = `${(enemy.health / enemy.maxHealth) * 100}%`;
+                healthFill.style.height = '100%';
+                healthFill.style.backgroundColor = 'green';
+                healthBar.appendChild(healthFill);
+                
+                enemyEl.appendChild(healthBar);
+                document.getElementById('game-board').appendChild(enemyEl);
+            });
+        }
+        
+        // Render towers
+        function renderTowers() {
+            // Clear existing towers
+            document.querySelectorAll('.tower').forEach(el => el.remove());
+            
+            // Create new tower elements
+            gameState.towers.forEach((tower, index) => {
+                if (!tower) return;
+                
+                const towerEl = document.createElement('div');
+                towerEl.className = 'tower';
+                towerEl.style.left = `${tower.x}px`;
+                towerEl.style.top = `${tower.y}px`;
+                towerEl.dataset.index = index;
+                
+                // Tower tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tower-tooltip';
+                tooltip.innerHTML = `
+                    <div>Damage: ${tower.stats.damage.toFixed(1)}</div>
+                    <div>Range: ${tower.stats.range.toFixed(1)}</div>
+                    <div>Reload: ${tower.stats.reloadTime.toFixed(2)}s</div>
+                    <div>Projectile Speed: ${tower.stats.projectileSpeed.toFixed(1)}</div>
+                    <div>Level: ${tower.level}</div>
+                `;
+                towerEl.appendChild(tooltip);
+                
+                // Show tooltip on hover
+                towerEl.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                });
+                
+                towerEl.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+                
+                document.getElementById('game-board').appendChild(towerEl);
+            });
+        }
+        
+        // Render projectiles
+        function renderProjectiles() {
+            // Clear existing projectiles
+            document.querySelectorAll('.projectile').forEach(el => el.remove());
+            
+            // Create new projectile elements
+            gameState.projectiles.forEach(projectile => {
+                const projectileEl = document.createElement('div');
+                projectileEl.className = 'projectile';
+                projectileEl.style.left = `${projectile.x}px`;
+                projectileEl.style.top = `${projectile.y}px`;
+                document.getElementById('game-board').appendChild(projectileEl);
+            });
+        }
+        
+        // End the game
+        function endGame(victory) {
+            gameState.waveInProgress = false;
+            
+            if (victory) {
+                gameOverTextEl.textContent = "Victory!";
+            } else {
+                gameOverTextEl.textContent = "Game Over";
+            }
+            
+            finalStatsEl.textContent = `You survived ${gameState.wave} waves!`;
+            gameOverEl.style.display = 'flex';
+        }
+        
+        // Event listeners
+        startWaveBtn.addEventListener('click', startWave);
+        upgradeComponentsBtn.addEventListener('click', upgradeComponents);
+        newGameBtn.addEventListener('click', initGame);
+        document.querySelector('.close-btn').addEventListener('click', hideTowerUpgrade);
+        
+        // Close upgrade panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!towerUpgradeEl.contains(e.target) && !e.target.classList.contains('tower-slot')) {
+                hideTowerUpgrade();
+            }
+        });
+        
+        // Initialize and start game
+        initGame();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

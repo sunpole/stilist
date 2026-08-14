@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castle Wars</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #map {
+            position: absolute;
+            width: 2000px;
+            height: 2000px;
+            background-color: #3a5f0b;
+            transform-origin: 0 0;
+        }
+        
+        .castle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 3px solid black;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .castle:hover {
+            transform: scale(1.1);
+        }
+        
+        .castle.fire {
+            background-color: #ff6b6b;
+        }
+        
+        .castle.ice {
+            background-color: #74b9ff;
+        }
+        
+        .castle.space {
+            background-color: #a29bfe;
+        }
+        
+        .castle.forest {
+            background-color: #55efc4;
+        }
+        
+        .castle.player {
+            box-shadow: 0 0 15px gold;
+        }
+        
+        .hp-bar {
+            width: 70px;
+            height: 8px;
+            background-color: #333;
+            margin-top: 5px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .hp-fill {
+            height: 100%;
+            background-color: #00b894;
+            width: 100%;
+        }
+        
+        .road {
+            position: absolute;
+            background-color: #8b4513;
+            height: 20px;
+            transform-origin: 0 0;
+            z-index: 5;
+        }
+        
+        .unit {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            z-index: 8;
+            transform: translate(-6px, -6px);
+        }
+        
+        .unit.fire {
+            background-color: #ff0000;
+            box-shadow: 0 0 5px #ff0000;
+        }
+        
+        .unit.ice {
+            background-color: #00ffff;
+            box-shadow: 0 0 5px #00ffff;
+        }
+        
+        .unit.space {
+            background-color: #9400d3;
+            box-shadow: 0 0 5px #9400d3;
+        }
+        
+        .unit.forest {
+            background-color: #228b22;
+            box-shadow: 0 0 5px #228b22;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .control-btn:hover {
+            background-color: #555;
+        }
+        
+        .control-btn.active {
+            background-color: #00b894;
+        }
+        
+        #attack-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        #zoom-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 100;
+        }
+        
+        #zoom-in, #zoom-out {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            margin: 5px;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            display: none;
+        }
+        
+        #game-over h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: gold;
+        }
+        
+        #mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .mobile-move-btn {
+            width: 60px;
+            height: 60px;
+            margin: 0 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            #mobile-controls {
+                display: flex;
+            }
+            
+            .castle {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+            
+            .hp-bar {
+                width: 50px;
+                height: 6px;
+            }
+            
+            .control-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="map"></div>
+        <div id="ui">
+            <div id="player-info"></div>
+        </div>
+        <div id="controls">
+            <button id="new-game-btn" class="control-btn">Новая игра</button>
+            <div id="attack-controls">
+                <button data-target="0" class="control-btn attack-btn">Атаковать замок 1</button>
+                <button data-target="1" class="control-btn attack-btn">Атаковать замок 2</button>
+                <button data-target="2" class="control-btn attack-btn">Атаковать замок 3</button>
+                <button data-target="3" class="control-btn attack-btn">Атаковать замок 4</button>
+            </div>
+        </div>
+        <div id="mobile-controls">
+            <div class="mobile-move-btn" id="move-up">↑</div>
+            <div class="mobile-move-btn" id="move-left">←</div>
+            <div class="mobile-move-btn" id="move-right">→</div>
+            <div class="mobile-move-btn" id="move-down">↓</div>
+        </div>
+        <div id="zoom-controls">
+            <button id="zoom-in" class="control-btn">+</button>
+            <button id="zoom-out" class="control-btn">-</button>
+        </div>
+        <div id="game-over">
+            <h1 id="game-over-text">Игра окончена</h1>
+            <button id="restart-btn" class="control-btn">Играть снова</button>
+        </div>
+    </div>
+
+    <script>
+        // Game constants
+        const CASTLE_TYPES = ['fire', 'ice', 'space', 'forest'];
+        const CASTLE_ICONS = ['🔥', '❄️', '🚀', '🌲'];
+        const CASTLE_COLORS = ['#ff6b6b', '#74b9ff', '#a29bfe', '#55efc4'];
+        const UNIT_COLORS = ['#ff0000', '#00ffff', '#9400d3', '#228b22'];
+        
+        // Castle stats
+        const CASTLE_STATS = {
+            fire: { attack: 10, spawnInterval: 5000, speed: 20, name: 'Огненный' },
+            ice: { attack: 5, spawnInterval: 2500, speed: 20, name: 'Ледяной' },
+            space: { attack: 5, spawnInterval: 5000, speed: 40, name: 'Космический' },
+            forest: { attack: 7, spawnInterval: 8000, speed: 30, name: 'Лесной' }
+        };
+        
+        // Game variables
+        let gameState = {
+            castles: [],
+            roads: [],
+            units: [],
+            playerCastleIndex: -1,
+            gameRunning: false,
+            lastSpawnTimes: [0, 0, 0, 0],
+            unitCounts: [0, 0, 0, 0],
+            attacking: [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]],
+            hp: [1000, 1000, 1000, 1000],
+            maxUnits: 30,
+            zoom: 1,
+            mapOffset: { x: 0, y: 0 },
+            lastTime: 0,
+            animationFrameId: null
+        };
+        
+        // DOM elements
+        const mapElement = document.getElementById('map');
+        const uiElement = document.getElementById('ui');
+        const playerInfoElement = document.getElementById('player-info');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const attackBtns = document.querySelectorAll('.attack-btn');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const gameOverElement = document.getElementById('game-over');
+        const gameOverText = document.getElementById('game-over-text');
+        const restartBtn = document.getElementById('restart-btn');
+        const moveUpBtn = document.getElementById('move-up');
+        const moveLeftBtn = document.getElementById('move-left');
+        const moveRightBtn = document.getElementById('move-right');
+        const moveDownBtn = document.getElementById('move-down');
+        
+        // Initialize game
+        function initGame() {
+            // Clear previous game
+            mapElement.innerHTML = '';
+            gameState.castles = [];
+            gameState.roads = [];
+            gameState.units = [];
+            gameState.lastSpawnTimes = [0, 0, 0, 0];
+            gameState.unitCounts = [0, 0, 0, 0];
+            gameState.attacking = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]];
+            gameState.hp = [1000, 1000, 1000, 1000];
+            gameState.gameRunning = true;
+            gameOverElement.style.display = 'none';
+            
+            // Generate castles
+            generateCastles();
+            
+            // Generate roads between castles
+            generateRoads();
+            
+            // Randomly assign player to one castle
+            gameState.playerCastleIndex = Math.floor(Math.random() * 4);
+            updateCastleUI();
+            
+            // Start game loop
+            gameState.lastTime = performance.now();
+            if (gameState.animationFrameId) {
+                cancelAnimationFrame(gameState.animationFrameId);
+            }
+            gameLoop();
+            
+            // Center view on player castle
+            centerOnPlayerCastle();
+        }
+        
+        // Generate castles at random positions
+        function generateCastles() {
+            const mapWidth = 2000;
+            const mapHeight = 2000;
+            const minDistance = 400;
+            
+            for (let i = 0; i < 4; i++) {
+                let x, y, validPosition;
+                
+                // Keep trying until we find a valid position
+                do {
+                    validPosition = true;
+                    x = 100 + Math.random() * (mapWidth - 200);
+                    y = 100 + Math.random() * (mapHeight - 200);
+                    
+                    // Check distance to other castles
+                    for (let j = 0; j < gameState.castles.length; j++) {
+                        const otherCastle = gameState.castles[j];
+                        const dx = x - otherCastle.x;
+                        const dy = y - otherCastle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < minDistance) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                } while (!validPosition);
+                
+                const castleType = i; // Each castle gets its own type
+                const castle = {
+                    x: x,
+                    y: y,
+                    type: castleType,
+                    element: null
+                };
+                
+                gameState.castles.push(castle);
+                createCastleElement(castle, i);
+            }
+        }
+        
+        // Create castle DOM element
+        function createCastleElement(castle, index) {
+            const castleElement = document.createElement('div');
+            castleElement.className = `castle ${CASTLE_TYPES[castle.type]}`;
+            if (index === gameState.playerCastleIndex) {
+                castleElement.classList.add('player');
+            }
+            castleElement.innerHTML = `${CASTLE_ICONS[castle.type]}<div class="hp-bar"><div class="hp-fill" id="hp-fill-${index}"></div></div>`;
+            castleElement.style.left = `${castle.x}px`;
+            castleElement.style.top = `${castle.y}px`;
+            castleElement.dataset.index = index;
+            mapElement.appendChild(castleElement);
+            castle.element = castleElement;
+            
+            // Update HP bar
+            updateHPBar(index);
+        }
+        
+        // Generate roads between all castles
+        function generateRoads() {
+            for (let i = 0; i < gameState.castles.length; i++) {
+                for (let j = i + 1; j < gameState.castles.length; j++) {
+                    createRoad(i, j);
+                }
+            }
+        }
+        
+        // Create road between two castles
+        function createRoad(fromIndex, toIndex) {
+            const fromCastle = gameState.castles[fromIndex];
+            const toCastle = gameState.castles[toIndex];
+            
+            // Calculate road position and dimensions
+            const dx = toCastle.x - fromCastle.x;
+            const dy = toCastle.y - fromCastle.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx);
+            
+            const road = {
+                from: fromIndex,
+                to: toIndex,
+                length: length,
+                angle: angle,
+                element: null
+            };
+            
+            gameState.roads.push(road);
+            createRoadElement(road, fromCastle);
+        }
+        
+        // Create road DOM element
+        function createRoadElement(road, fromCastle) {
+            const roadElement = document.createElement('div');
+            roadElement.className = 'road';
+            roadElement.style.left = `${fromCastle.x + 40}px`;
+            roadElement.style.top = `${fromCastle.y + 40}px`;
+            roadElement.style.width = `${road.length}px`;
+            roadElement.style.transform = `rotate(${road.angle}rad)`;
+            mapElement.appendChild(roadElement);
+            road.element = roadElement;
+        }
+        
+        // Game loop
+        function gameLoop(timestamp) {
+            if (!gameState.gameRunning) return;
+            
+            const deltaTime = timestamp - gameState.lastTime;
+            gameState.lastTime = timestamp;
+            
+            // Spawn units
+            spawnUnits(deltaTime);
+            
+            // Move units
+            moveUnits(deltaTime);
+            
+            // Check for castle captures
+            checkCastleCaptures();
+            
+            // Check for game over
+            checkGameOver();
+            
+            // Continue game loop
+            gameState.animationFrameId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Spawn units for all castles
+        function spawnUnits(deltaTime) {
+            for (let i = 0; i < gameState.castles.length; i++) {
+                if (gameState.hp[i] <= 0) continue; // Skip destroyed castles
+                
+                const castleType = gameState.castles[i].type;
+                const spawnInterval = CASTLE_STATS[CASTLE_TYPES[castleType]].spawnInterval;
+                
+                gameState.lastSpawnTimes[i] += deltaTime;
+                
+                // Check if it's time to spawn a new unit
+                if (gameState.lastSpawnTimes[i] >= spawnInterval) {
+                    gameState.lastSpawnTimes[i] -= spawnInterval;
+                    
+                    // Only spawn if we're attacking someone or have less than max units
+                    const isAttacking = gameState.attacking[i].some(val => val);
+                    if (isAttacking || gameState.unitCounts[i] < gameState.maxUnits) {
+                        gameState.unitCounts[i]++;
+                        
+                        // If attacking, immediately send units
+                        if (isAttacking) {
+                            sendUnitsFromCastle(i);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Send units from castle to all attacked castles
+        function sendUnitsFromCastle(castleIndex) {
+            const attackingTargets = gameState.attacking[castleIndex];
+            const castle = gameState.castles[castleIndex];
+            const castleType = castle.type;
+            const unitSpeed = CASTLE_STATS[CASTLE_TYPES[castleType]].speed;
+            
+            for (let targetIndex = 0; targetIndex < attackingTargets.length; targetIndex++) {
+                if (attackingTargets[targetIndex] && castleIndex !== targetIndex && gameState.hp[targetIndex] > 0) {
+                    // Find the road between these castles
+                    const road = gameState.roads.find(r => 
+                        (r.from === castleIndex && r.to === targetIndex) || 
+                        (r.from === targetIndex && r.to === castleIndex)
+                    );
+                    
+                    if (road) {
+                        // Create unit
+                        const unit = {
+                            castleIndex: castleIndex,
+                            targetIndex: targetIndex,
+                            x: castle.x + 40,
+                            y: castle.y + 40,
+                            road: road,
+                            distance: 0,
+                            speed: unitSpeed,
+                            damage: CASTLE_STATS[CASTLE_TYPES[castleType]].attack
+                        };
+                        
+                        gameState.units.push(unit);
+                        createUnitElement(unit);
+                        gameState.unitCounts[castleIndex]--;
+                    }
+                }
+            }
+        }
+        
+        // Create unit DOM element
+        function createUnitElement(unit) {
+            const unitElement = document.createElement('div');
+            unitElement.className = `unit ${CASTLE_TYPES[gameState.castles[unit.castleIndex].type}`;
+            unitElement.style.left = `${unit.x}px`;
+            unitElement.style.top = `${unit.y}px`;
+            unitElement.dataset.id = gameState.units.length - 1;
+            mapElement.appendChild(unitElement);
+            unit.element = unitElement;
+        }
+        
+        // Move all units along their roads
+        function moveUnits(deltaTime) {
+            for (let i = gameState.units.length - 1; i >= 0; i--) {
+                const unit = gameState.units[i];
+                const distanceToMove = (unit.speed * deltaTime) / 1000;
+                unit.distance += distanceToMove;
+                
+                // Calculate new position
+                const angle = unit.road.angle;
+                const dx = Math.cos(angle) * distanceToMove;
+                const dy = Math.sin(angle) * distanceToMove;
+                
+                // Reverse direction if road is the other way
+                const isReverse = unit.road.from !== unit.castleIndex;
+                
+                if (isReverse) {
+                    unit.x -= dx;
+                    unit.y -= dy;
+                } else {
+                    unit.x += dx;
+                    unit.y += dy;
+                }
+                
+                // Update DOM element
+                if (unit.element) {
+                    unit.element.style.left = `${unit.x}px`;
+                    unit.element.style.top = `${unit.y}px`;
+                }
+                
+                // Check if unit reached target
+                if (unit.distance >= unit.road.length) {
+                    // Damage target castle
+                    gameState.hp[unit.targetIndex] -= unit.damage;
+                    updateHPBar(unit.targetIndex);
+                    
+                    // Remove unit
+                    if (unit.element) {
+                        unit.element.remove();
+                    }
+                    gameState.units.splice(i, 1);
+                }
+            }
+        }
+        
+        // Check if any castle has been captured (HP <= 0)
+        function checkCastleCaptures() {
+            for (let i = 0; i < gameState.hp.length; i++) {
+                if (gameState.hp[i] <= 0 && gameState.castles[i].element) {
+                    // Castle destroyed
+                    gameState.castles[i].element.style.opacity = '0.5';
+                    gameState.castles[i].element.style.border = '3px dashed black';
+                    
+                    // Stop attacking this castle
+                    for (let j = 0; j < gameState.attacking.length; j++) {
+                        gameState.attacking[j][i] = false;
+                    }
+                    
+                    // Stop this castle from attacking
+                    gameState.attacking[i] = [false, false, false, false];
+                    
+                    // Update attack buttons
+                    updateAttackButtons();
+                }
+            }
+        }
+        
+        // Check if game is over (only one castle left)
+        function checkGameOver() {
+            const aliveCastles = gameState.hp.filter(hp => hp > 0);
+            
+            if (aliveCastles.length <= 1) {
+                gameState.gameRunning = false;
+                
+                // Find the winner
+                const winnerIndex = gameState.hp.findIndex(hp => hp > 0);
+                
+                if (winnerIndex === gameState.playerCastleIndex) {
+                    gameOverText.textContent = 'Победа!';
+                    gameOverText.style.color = 'gold';
+                } else if (winnerIndex !== -1) {
+                    gameOverText.textContent = 'Поражение!';
+                    gameOverText.style.color = 'red';
+                } else {
+                    gameOverText.textContent = 'Ничья!';
+                    gameOverText.style.color = 'white';
+                }
+                
+                gameOverElement.style.display = 'flex';
+            }
+        }
+        
+        // Update castle HP bar
+        function updateHPBar(index) {
+            const hpFillElement = document.getElementById(`hp-fill-${index}`);
+            if (hpFillElement) {
+                const hpPercentage = Math.max(0, gameState.hp[index]) / 1000 * 100;
+                hpFillElement.style.width = `${hpPercentage}%`;
+                
+                // Change color based on HP
+                if (hpPercentage < 20) {
+                    hpFillElement.style.backgroundColor = '#ff0000';
+                } else if (hpPercentage < 50) {
+                    hpFillElement.style.backgroundColor = '#ffa500';
+                } else {
+                    hpFillElement.style.backgroundColor = '#00b894';
+                }
+            }
+        }
+        
+        // Update player castle UI
+        function updateCastleUI() {
+            if (gameState.playerCastleIndex !== -1) {
+                const castleType = gameState.castles[gameState.playerCastleIndex].type;
+                const castleStats = CASTLE_STATS[CASTLE_TYPES[castleType]];
+                
+                playerInfoElement.innerHTML = `
+                    <h3>Ваш замок: ${castleStats.name} ${CASTLE_ICONS[castleType]}</h3>
+                    <p>Атака: ${castleStats.attack}</p>
+                    <p>Скорость войск: ${castleStats.speed}</p>
+                    <p>Войск в замке: ${gameState.unitCounts[gameState.playerCastleIndex]}/${gameState.maxUnits}</p>
+                `;
+            }
+            
+            updateAttackButtons();
+        }
+        
+        // Update attack buttons state
+        function updateAttackButtons() {
+            attackBtns.forEach((btn, i) => {
+                const targetIndex = parseInt(btn.dataset.target);
+                
+                if (gameState.playerCastleIndex !== -1) {
+                    const isAttacking = gameState.attacking[gameState.playerCastleIndex][targetIndex];
+                    btn.classList.toggle('active', isAttacking);
+                    
+                    // Disable button if target castle is destroyed
+                    btn.disabled = gameState.hp[targetIndex] <= 0;
+                } else {
+                    btn.disabled = true;
+                }
+            });
+        }
+        
+        // Center view on player castle
+        function centerOnPlayerCastle() {
+            if (gameState.playerCastleIndex !== -1) {
+                const castle = gameState.castles[gameState.playerCastleIndex];
+                const containerWidth = window.innerWidth;
+                const containerHeight = window.innerHeight;
+                
+                gameState.mapOffset = {
+                    x: -castle.x + containerWidth / 2 - 40,
+                    y: -castle.y + containerHeight / 2 - 40
+                };
+                
+                updateMapTransform();
+            }
+        }
+        
+        // Update map transform (zoom and pan)
+        function updateMapTransform() {
+            mapElement.style.transform = `translate(${gameState.mapOffset.x}px, ${gameState.mapOffset.y}px) scale(${gameState.zoom})`;
+        }
+        
+        // AI logic for computer castles
+        function updateAI() {
+            if (!gameState.gameRunning) return;
+            
+            for (let i = 0; i < gameState.castles.length; i++) {
+                if (i === gameState.playerCastleIndex || gameState.hp[i] <= 0) continue;
+                
+                // Simple AI: attack random castles
+                if (Math.random() < 0.01) { // 1% chance each frame to change strategy
+                    // Reset all attacks
+                    gameState.attacking[i] = [false, false, false, false];
+                    
+                    // Choose 1-3 random castles to attack
+                    const targets = [0, 1, 2, 3].filter(j => j !== i && gameState.hp[j] > 0);
+                    if (targets.length > 0) {
+                        const numTargets = Math.min(1 + Math.floor(Math.random() * 3), targets.length);
+                        
+                        for (let t = 0; t < numTargets; t++) {
+                            const randomIndex = Math.floor(Math.random() * targets.length);
+                            const target = targets[randomIndex];
+                            gameState.attacking[i][target] = true;
+                            targets.splice(randomIndex, 1); // Don't attack same castle twice
+                        }
+                    }
+                }
+                
+                // Send units if we have any
+                if (gameState.unitCounts[i] > 0) {
+                    sendUnitsFromCastle(i);
+                }
+            }
+        }
+        
+        // Event listeners
+        newGameBtn.addEventListener('click', initGame);
+        restartBtn.addEventListener('click', initGame);
+        
+        attackBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (gameState.playerCastleIndex !== -1) {
+                    const targetIndex = parseInt(btn.dataset.target);
+                    gameState.attacking[gameState.playerCastleIndex][targetIndex] = 
+                        !gameState.attacking[gameState.playerCastleIndex][targetIndex];
+                    
+                    updateAttackButtons();
+                    
+                    // Immediately send units if we have any
+                    if (gameState.attacking[gameState.playerCastleIndex][targetIndex] && gameState.unitCounts[gameState.playerCastleIndex] > 0) {
+                        sendUnitsFromCastle(gameState.playerCastleIndex);
+                    }
+                }
+            });
+        });
+        
+        // Zoom controls
+        zoomInBtn.addEventListener('click', () => {
+            gameState.zoom = Math.min(2, gameState.zoom + 0.1);
+            updateMapTransform();
+        });
+        
+        zoomOutBtn.addEventListener('click', () => {
+            gameState.zoom = Math.max(0.5, gameState.zoom - 0.1);
+            updateMapTransform();
+        });
+        
+        // Mobile movement controls
+        moveUpBtn.addEventListener('click', () => {
+            gameState.mapOffset.y += 50;
+            updateMapTransform();
+        });
+        
+        moveLeftBtn.addEventListener('click', () => {
+            gameState.mapOffset.x += 50;
+            updateMapTransform();
+        });
+        
+        moveRightBtn.addEventListener('click', () => {
+            gameState.mapOffset.x -= 50;
+            updateMapTransform();
+        });
+        
+        moveDownBtn.addEventListener('click', () => {
+            gameState.mapOffset.y -= 50;
+            updateMapTransform();
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.gameRunning) return;
+            
+            const moveAmount = 50;
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                    gameState.mapOffset.y += moveAmount;
+                    break;
+                case 'ArrowLeft':
+                    gameState.mapOffset.x += moveAmount;
+                    break;
+                case 'ArrowRight':
+                    gameState.mapOffset.x -= moveAmount;
+                    break;
+                case 'ArrowDown':
+                    gameState.mapOffset.y -= moveAmount;
+                    break;
+                case '+':
+                case '=':
+                    gameState.zoom = Math.min(2, gameState.zoom + 0.1);
+                    break;
+                case '-':
+                case '_':
+                    gameState.zoom = Math.max(0.5, gameState.zoom - 0.1);
+                    break;
+                default:
+                    return;
+            }
+            
+            updateMapTransform();
+        });
+        
+        // Touch events for panning
+        let touchStart = null;
+        
+        mapElement.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStart = {
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY,
+                    mapX: gameState.mapOffset.x,
+                    mapY: gameState.mapOffset.y
+                };
+            }
+        });
+        
+        mapElement.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1 && touchStart) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                gameState.mapOffset.x = touchStart.mapX + (touch.clientX - touchStart.x);
+                gameState.mapOffset.y = touchStart.mapY + (touch.clientY - touchStart.y);
+                updateMapTransform();
+            }
+        });
+        
+        mapElement.addEventListener('touchend', () => {
+            touchStart = null;
+        });
+        
+        // Pinch zoom
+        let initialDistance = null;
+        
+        mapElement.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        });
+        
+        mapElement.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialDistance !== null) {
+                e.preventDefault();
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                
+                const scale = currentDistance / initialDistance;
+                gameState.zoom = Math.max(0.5, Math.min(2, gameState.zoom * scale));
+                initialDistance = currentDistance;
+                updateMapTransform();
+            }
+        });
+        
+        mapElement.addEventListener('touchend', () => {
+            initialDistance = null;
+        });
+        
+        // Run AI updates periodically
+        setInterval(updateAI, 1000);
+        
+        // Initialize game
+        initGame();
+    </script>
+</body>
+</html>

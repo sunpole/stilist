@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Космический самолётик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            font-family: Arial, sans-serif;
+            position: relative;
+            touch-action: none;
+        }
+
+        #gameScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #startScreen, #gameOverScreen, #winScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
+
+        #gameOverScreen, #winScreen {
+            display: none;
+        }
+
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><polygon points="25,5 45,25 25,45 5,25" fill="cyan" stroke="blue" stroke-width="2"/></svg>') no-repeat;
+            background-size: contain;
+            z-index: 2;
+        }
+
+        .bullet {
+            position: absolute;
+            width: 5px;
+            height: 15px;
+            background: yellow;
+            z-index: 1;
+        }
+
+        .double-bullet {
+            position: absolute;
+            width: 5px;
+            height: 15px;
+            background: orange;
+            z-index: 1;
+        }
+
+        .triple-bullet {
+            position: absolute;
+            width: 5px;
+            height: 15px;
+            background: red;
+            z-index: 1;
+        }
+
+        .enemy {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="gray" stroke="darkgray" stroke-width="2"/></svg>') no-repeat;
+            background-size: contain;
+            z-index: 1;
+        }
+
+        .bonus {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><circle cx="12.5" cy="12.5" r="10" fill="gold" stroke="yellow" stroke-width="1"/></svg>') no-repeat;
+            background-size: contain;
+            z-index: 1;
+        }
+
+        .double-gun {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><rect x="5" y="5" width="15" height="15" fill="orange" stroke="darkorange" stroke-width="1"/></svg>') no-repeat;
+            background-size: contain;
+            z-index: 1;
+        }
+
+        .triple-gun {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path d="M12.5,5 L20,20 L5,20 Z" fill="red" stroke="darkred" stroke-width="1"/></svg>') no-repeat;
+            background-size: contain;
+            z-index: 1;
+        }
+
+        .heart {
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10,6 Q12,0 15,6 T20,10 Q15,15 10,20 Q5,15 0,10 Q5,0 10,6" fill="red"/></svg>') no-repeat;
+            background-size: contain;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        #hearts {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+        }
+
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 20px;
+            z-index: 3;
+        }
+
+        #score {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            color: white;
+            font-size: 20px;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameScreen">
+        <div id="hearts"></div>
+        <div id="timer">Время: 0</div>
+        <div id="score">Пролетел: 0 сек</div>
+        <div id="player"></div>
+    </div>
+
+    <div id="startScreen">
+        <h1>Космический самолётик</h1>
+        <p>Управление: касание экрана</p>
+        <p>Цель: пролететь 200 секунд</p>
+        <button id="startButton">Старт</button>
+    </div>
+
+    <div id="gameOverScreen">
+        <h1>Игра окончена!</h1>
+        <p id="finalTime">Вы пролетели: 0 секунд</p>
+        <button id="restartButton">Рестарт</button>
+    </div>
+
+    <div id="winScreen">
+        <h1>Победа!</h1>
+        <p>Вы пролетели 200 секунд!</p>
+        <button id="winRestartButton">Рестарт</button>
+    </div>
+
+    <script>
+        // Game elements
+        const gameScreen = document.getElementById('gameScreen');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const winScreen = document.getElementById('winScreen');
+        const player = document.getElementById('player');
+        const heartsContainer = document.getElementById('hearts');
+        const timerDisplay = document.getElementById('timer');
+        const scoreDisplay = document.getElementById('score');
+        const finalTimeDisplay = document.getElementById('finalTime');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const winRestartButton = document.getElementById('winRestartButton');
+
+        // Game variables
+        let playerX = 0;
+        let playerY = 0;
+        let gameWidth = 0;
+        let gameHeight = 0;
+        let hearts = 5;
+        let gameTime = 0;
+        let gameInterval;
+        let enemies = [];
+        let bullets = [];
+        let bonuses = [];
+        let powerUps = [];
+        let isDoubleGun = false;
+        let isTripleGun = false;
+        let isGameRunning = false;
+        let touchX = 0;
+        let touchY = 0;
+
+        // Initialize game
+        function initGame() {
+            gameWidth = window.innerWidth;
+            gameHeight = window.innerHeight;
+            
+            // Set player initial position
+            playerX = gameWidth / 2 - 25;
+            playerY = gameHeight - 100;
+            player.style.left = playerX + 'px';
+            player.style.top = playerY + 'px';
+            
+            // Set initial hearts
+            updateHearts();
+            
+            // Reset game state
+            hearts = 5;
+            gameTime = 0;
+            enemies = [];
+            bullets = [];
+            bonuses = [];
+            powerUps = [];
+            isDoubleGun = false;
+            isTripleGun = false;
+            
+            // Clear all elements
+            document.querySelectorAll('.enemy, .bullet, .double-bullet, .triple-bullet, .bonus, .double-gun, .triple-gun').forEach(el => el.remove());
+            
+            // Update displays
+            timerDisplay.textContent = 'Время: 0';
+            scoreDisplay.textContent = 'Пролетел: 0 сек';
+        }
+
+        // Update hearts display
+        function updateHearts() {
+            heartsContainer.innerHTML = '';
+            for (let i = 0; i < hearts; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        // Start game
+        function startGame() {
+            initGame();
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            winScreen.style.display = 'none';
+            isGameRunning = true;
+            
+            // Start game loop
+            gameInterval = setInterval(updateGame, 20);
+            
+            // Start shooting
+            setInterval(shoot, 300);
+            
+            // Spawn enemies
+            setInterval(spawnEnemy, 1000);
+            
+            // Spawn bonuses
+            setInterval(spawnBonus, 15000);
+            
+            // Update timer
+            setInterval(() => {
+                if (isGameRunning) {
+                    gameTime++;
+                    timerDisplay.textContent = 'Время: ' + gameTime;
+                    scoreDisplay.textContent = 'Пролетел: ' + gameTime + ' сек';
+                    
+                    if (gameTime >= 200) {
+                        winGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Game over
+        function gameOver() {
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            finalTimeDisplay.textContent = 'Вы пролетели: ' + gameTime + ' секунд';
+            gameOverScreen.style.display = 'flex';
+        }
+
+        // Win game
+        function winGame() {
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            winScreen.style.display = 'flex';
+        }
+
+        // Update game state
+        function updateGame() {
+            if (!isGameRunning) return;
+            
+            // Move player toward touch position
+            const speed = 5;
+            const dx = touchX - (playerX + 25);
+            const dy = touchY - (playerY + 25);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > speed) {
+                playerX += (dx / distance) * speed;
+                playerY += (dy / distance) * speed;
+            } else {
+                playerX = touchX - 25;
+                playerY = touchY - 25;
+            }
+            
+            // Keep player within bounds
+            playerX = Math.max(0, Math.min(gameWidth - 50, playerX));
+            playerY = Math.max(0, Math.min(gameHeight - 50, playerY));
+            
+            player.style.left = playerX + 'px';
+            player.style.top = playerY + 'px';
+            
+            // Move bullets
+            bullets.forEach((bullet, index) => {
+                const bulletElement = document.querySelector(`.${bullet.className}[id="${bullet.id}"]`);
+                if (bulletElement) {
+                    bullet.y -= bullet.speed;
+                    bulletElement.style.top = bullet.y + 'px';
+                    
+                    // Remove if out of screen
+                    if (bullet.y < -15) {
+                        bulletElement.remove();
+                        bullets.splice(index, 1);
+                    }
+                }
+            });
+            
+            // Move enemies
+            enemies.forEach((enemy, index) => {
+                const enemyElement = document.querySelector(`.enemy[id="${enemy.id}"]`);
+                if (enemyElement) {
+                    enemy.y += enemy.speed;
+                    enemyElement.style.top = enemy.y + 'px';
+                    
+                    // Remove if out of screen
+                    if (enemy.y > gameHeight) {
+                        enemyElement.remove();
+                        enemies.splice(index, 1);
+                    }
+                    
+                    // Check collision with player
+                    if (checkCollision(
+                        { x: playerX, y: playerY, width: 50, height: 50 },
+                        { x: enemy.x, y: enemy.y, width: 30, height: 30 }
+                    )) {
+                        hearts--;
+                        updateHearts();
+                        enemyElement.remove();
+                        enemies.splice(index, 1);
+                        
+                        if (hearts <= 0) {
+                            gameOver();
+                        }
+                    }
+                    
+                    // Check collision with bullets
+                    bullets.forEach((bullet, bulletIndex) => {
+                        const bulletElement = document.querySelector(`.${bullet.className}[id="${bullet.id}"]`);
+                        if (bulletElement && checkCollision(
+                            { x: bullet.x, y: bullet.y, width: 5, height: 15 },
+                            { x: enemy.x, y: enemy.y, width: 30, height: 30 }
+                        )) {
+                            enemyElement.remove();
+                            enemies.splice(index, 1);
+                            bulletElement.remove();
+                            bullets.splice(bulletIndex, 1);
+                        }
+                    });
+                }
+            });
+            
+            // Move bonuses
+            bonuses.forEach((bonus, index) => {
+                const bonusElement = document.querySelector(`.bonus[id="${bonus.id}"]`);
+                if (bonusElement) {
+                    bonus.y += 3;
+                    bonusElement.style.top = bonus.y + 'px';
+                    
+                    // Remove if out of screen
+                    if (bonus.y > gameHeight) {
+                        bonusElement.remove();
+                        bonuses.splice(index, 1);
+                    }
+                    
+                    // Check collision with player
+                    if (checkCollision(
+                        { x: playerX, y: playerY, width: 50, height: 50 },
+                        { x: bonus.x, y: bonus.y, width: 25, height: 25 }
+                    )) {
+                        if (hearts < 5) hearts++;
+                        updateHearts();
+                        bonusElement.remove();
+                        bonuses.splice(index, 1);
+                    }
+                }
+            });
+            
+            // Move power-ups
+            powerUps.forEach((powerUp, index) => {
+                const powerUpElement = document.querySelector(`.${powerUp.type}[id="${powerUp.id}"]`);
+                if (powerUpElement) {
+                    powerUp.y += 3;
+                    powerUpElement.style.top = powerUp.y + 'px';
+                    
+                    // Remove if out of screen
+                    if (powerUp.y > gameHeight) {
+                        powerUpElement.remove();
+                        powerUps.splice(index, 1);
+                    }
+                    
+                    // Check collision with player
+                    if (checkCollision(
+                        { x: playerX, y: playerY, width: 50, height: 50 },
+                        { x: powerUp.x, y: powerUp.y, width: 25, height: 25 }
+                    )) {
+                        if (powerUp.type === 'double-gun') {
+                            isDoubleGun = true;
+                            isTripleGun = false;
+                            setTimeout(() => {
+                                isDoubleGun = false;
+                            }, 10000);
+                        } else if (powerUp.type === 'triple-gun') {
+                            isTripleGun = true;
+                            isDoubleGun = false;
+                            setTimeout(() => {
+                                isTripleGun = false;
+                            }, 10000);
+                        }
+                        powerUpElement.remove();
+                        powerUps.splice(index, 1);
+                    }
+                }
+            });
+        }
+
+        // Check collision between two objects
+        function checkCollision(obj1, obj2) {
+            return (
+                obj1.x < obj2.x + obj2.width &&
+                obj1.x + obj1.width > obj2.x &&
+                obj1.y < obj2.y + obj2.height &&
+                obj1.y + obj1.height > obj2.y
+            );
+        }
+
+        // Shoot bullets
+        function shoot() {
+            if (!isGameRunning) return;
+            
+            if (isTripleGun) {
+                // Triple gun
+                for (let i = -1; i <= 1; i++) {
+                    const bullet = {
+                        id: 'bullet-' + Date.now() + '-' + i,
+                        x: playerX + 22 + i * 10,
+                        y: playerY - 15,
+                        speed: 12,
+                        className: 'triple-bullet'
+                    };
+                    
+                    bullets.push(bullet);
+                    
+                    const bulletElement = document.createElement('div');
+                    bulletElement.className = 'triple-bullet';
+                    bulletElement.id = bullet.id;
+                    bulletElement.style.left = bullet.x + 'px';
+                    bulletElement.style.top = bullet.y + 'px';
+                    gameScreen.appendChild(bulletElement);
+                }
+            } else if (isDoubleGun) {
+                // Double gun
+                for (let i = 0; i < 2; i++) {
+                    const bullet = {
+                        id: 'bullet-' + Date.now() + '-' + i,
+                        x: playerX + 10 + i * 30,
+                        y: playerY - 15,
+                        speed: 12,
+                        className: 'double-bullet'
+                    };
+                    
+                    bullets.push(bullet);
+                    
+                    const bulletElement = document.createElement('div');
+                    bulletElement.className = 'double-bullet';
+                    bulletElement.id = bullet.id;
+                    bulletElement.style.left = bullet.x + 'px';
+                    bulletElement.style.top = bullet.y + 'px';
+                    gameScreen.appendChild(bulletElement);
+                }
+            } else {
+                // Single gun
+                const bullet = {
+                    id: 'bullet-' + Date.now(),
+                    x: playerX + 22,
+                    y: playerY - 15,
+                    speed: 12,
+                    className: 'bullet'
+                };
+                
+                bullets.push(bullet);
+                
+                const bulletElement = document.createElement('div');
+                bulletElement.className = 'bullet';
+                bulletElement.id = bullet.id;
+                bulletElement.style.left = bullet.x + 'px';
+                bulletElement.style.top = bullet.y + 'px';
+                gameScreen.appendChild(bulletElement);
+            }
+        }
+
+        // Spawn enemy
+        function spawnEnemy() {
+            if (!isGameRunning) return;
+            
+            const enemy = {
+                id: 'enemy-' + Date.now(),
+                x: Math.random() * (gameWidth - 30),
+                y: -30,
+                speed: 2 + Math.random() * 3
+            };
+            
+            enemies.push(enemy);
+            
+            const enemyElement = document.createElement('div');
+            enemyElement.className = 'enemy';
+            enemyElement.id = enemy.id;
+            enemyElement.style.left = enemy.x + 'px';
+            enemyElement.style.top = enemy.y + 'px';
+            gameScreen.appendChild(enemyElement);
+        }
+
+        // Spawn bonus
+        function spawnBonus() {
+            if (!isGameRunning) return;
+            
+            // Spawn heart bonus
+            const bonus = {
+                id: 'bonus-' + Date.now(),
+                x: Math.random() * (gameWidth - 25),
+                y: -25
+            };
+            
+            bonuses.push(bonus);
+            
+            const bonusElement = document.createElement('div');
+            bonusElement.className = 'bonus';
+            bonusElement.id = bonus.id;
+            bonusElement.style.left = bonus.x + 'px';
+            bonusElement.style.top = bonus.y + 'px';
+            gameScreen.appendChild(bonusElement);
+            
+            // Spawn power-up (50% chance)
+            if (Math.random() > 0.5) {
+                const powerUpType = Math.random() > 0.5 ? 'double-gun' : 'triple-gun';
+                const powerUp = {
+                    id: 'powerup-' + Date.now(),
+                    x: Math.random() * (gameWidth - 25),
+                    y: -25,
+                    type: powerUpType
+                };
+                
+                powerUps.push(powerUp);
+                
+                const powerUpElement = document.createElement('div');
+                powerUpElement.className = powerUpType;
+                powerUpElement.id = powerUp.id;
+                powerUpElement.style.left = powerUp.x + 'px';
+                powerUpElement.style.top = powerUp.y + 'px';
+                gameScreen.appendChild(powerUpElement);
+            }
+        }
+
+        // Event listeners
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        winRestartButton.addEventListener('click', startGame);
+
+        // Touch controls
+        gameScreen.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
+        });
+
+        gameScreen.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
+        });
+
+        // Mouse controls (for testing on desktop)
+        gameScreen.addEventListener('mousemove', (e) => {
+            touchX = e.clientX;
+            touchY = e.clientY;
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            gameWidth = window.innerWidth;
+            gameHeight = window.innerHeight;
+        });
+
+        // Initialize game on load
+        window.addEventListener('load', () => {
+            gameWidth = window.innerWidth;
+            gameHeight = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

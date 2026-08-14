@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Догонялки PRO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            overflow: hidden;
+            background-color: #222;
+            font-family: Arial, sans-serif;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            background-color: #333;
+            display: block;
+        }
+        
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        #startButton {
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        #gameTitle {
+            color: white;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        #gameInstructions {
+            color: #ccc;
+            font-size: 16px;
+            max-width: 80%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        #joystickContainer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            z-index: 5;
+            touch-action: none;
+        }
+        
+        #joystick {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        #joystickKnob {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            top: 30px;
+            left: 30px;
+            transition: transform 0.1s ease;
+        }
+        
+        #abilitiesContainer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+            touch-action: none;
+        }
+        
+        .abilityButton {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            z-index: 10;
+        }
+        
+        .abilityButton.active {
+            border-color: white;
+            box-shadow: 0 0 10px white;
+        }
+        
+        .abilityButton:active {
+            transform: scale(0.9);
+        }
+        
+        #timerContainer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 15px;
+            border-radius: 10px;
+            z-index: 5;
+        }
+        
+        #resultScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+        
+        #resultText {
+            color: white;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        #restartButton {
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        #timeSurvived {
+            color: #4CAF50;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        #soundToggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            z-index: 30;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <button id="soundToggle">🔊</button>
+        
+        <div id="joystickContainer">
+            <div id="joystick">
+                <div id="joystickKnob"></div>
+            </div>
+        </div>
+        
+        <div id="abilitiesContainer">
+            <div class="abilityButton" id="ability1">❌</div>
+            <div class="abilityButton" id="ability2">❌</div>
+            <div class="abilityButton" id="ability3">❌</div>
+            <div class="abilityButton" id="ability4">❌</div>
+        </div>
+        
+        <div id="timerContainer">01:00</div>
+        
+        <div id="startScreen">
+            <h1 id="gameTitle">Догонялки PRO</h1>
+            <p id="gameInstructions">
+                Убегайте от врага 60 секунд!<br>
+                Используйте джойстик слева для движения.<br>
+                Подбирайте способности на поле и активируйте их кнопками справа.<br>
+                Способности: ускорение, сброс ящика, прыжок и остановка врага.
+            </p>
+            <button id="startButton">Начать игру</button>
+        </div>
+        
+        <div id="resultScreen">
+            <h2 id="resultText"></h2>
+            <div id="timeSurvived"></div>
+            <button id="restartButton">Играть снова</button>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация игры
+        const config = {
+            playerSize: 20,
+            enemySize: 20,
+            boxSize: 30,
+            abilitySize: 20,
+            playerSpeed: 3,
+            enemySpeed: 2.25, // Уменьшено с 2.5 до 2.25
+            playerSpeedBoost: 1.3, // +30%
+            abilityDuration: 3000, // 3 секунды для ускорения
+            enemyFreezeDuration: 2000, // 2 секунды остановки врага
+            abilityBlinkDuration: 5000, // 5 секунд мигания способности
+            winTime: 60000, // 60 секунд для победы
+            boxCount: 15, // Количество ящиков на карте
+            abilitySpawnInterval: 10000, // Интервал появления способностей (10 сек)
+            maxAbilities: 4, // Максимальное количество способностей у игрока
+            soundVolume: 0.1 // Громкость звуков 10%
+        };
+
+        // Состояние игры
+        const gameState = {
+            isRunning: false,
+            startTime: 0,
+            currentTime: 0,
+            player: {
+                x: 0,
+                y: 0,
+                dx: 0,
+                dy: 0,
+                speed: config.playerSpeed,
+                isBoosting: false,
+                boostEndTime: 0,
+                canDropBox: true,
+                canJump: true
+            },
+            enemy: {
+                x: 0,
+                y: 0,
+                isFrozen: false,
+                freezeEndTime: 0
+            },
+            boxes: [],
+            abilities: [],
+            playerAbilities: Array(config.maxAbilities).fill(null),
+            joystickActive: false,
+            joystickAngle: 0,
+            joystickDistance: 0,
+            canvasSize: {
+                width: 0,
+                height: 0
+            },
+            lastAbilitySpawnTime: 0,
+            activeTouches: {},
+            soundEnabled: true
+        };
+
+        // Типы способностей
+        const AbilityType = {
+            SPEED_BOOST: { emoji: "⚡", color: "#FFD700", name: "Ускорение", sound: "boost" },
+            DROP_BOX: { emoji: "📦", color: "#8B4513", name: "Ящик", sound: "drop" },
+            JUMP: { emoji: "🦘", color: "#00BFFF", name: "Прыжок", sound: "jump" },
+            FREEZE_ENEMY: { emoji: "❄️", color: "#ADD8E6", name: "Заморозка", sound: "freeze" }
+        };
+
+        // Звуковые эффекты
+        const sounds = {
+            background: new Audio(),
+            abilitySpawn: new Audio(),
+            abilityPickup: new Audio(),
+            boost: new Audio(),
+            drop: new Audio(),
+            jump: new Audio(),
+            freeze: new Audio(),
+            win: new Audio(),
+            lose: new Audio()
+        };
+
+        // DOM элементы
+        const elements = {
+            canvas: document.getElementById("gameCanvas"),
+            ctx: null,
+            startScreen: document.getElementById("startScreen"),
+            startButton: document.getElementById("startButton"),
+            joystick: document.getElementById("joystick"),
+            joystickKnob: document.getElementById("joystickKnob"),
+            abilities: [
+                document.getElementById("ability1"),
+                document.getElementById("ability2"),
+                document.getElementById("ability3"),
+                document.getElementById("ability4")
+            ],
+            timer: document.getElementById("timerContainer"),
+            resultScreen: document.getElementById("resultScreen"),
+            resultText: document.getElementById("resultText"),
+            timeSurvived: document.getElementById("timeSurvived"),
+            restartButton: document.getElementById("restartButton"),
+            soundToggle: document.getElementById("soundToggle")
+        };
+
+        // Инициализация звуков
+        function initSounds() {
+            // Здесь должны быть пути к вашим звуковым файлам
+            // Для примера используем базовые звуки
+            sounds.background.src = "https://assets.mixkit.co/sfx/preview/mixkit-game-show-suspense-waiting-668.mp3";
+            sounds.background.loop = true;
+            sounds.abilitySpawn.src = "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3";
+            sounds.abilityPickup.src = "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3";
+            sounds.boost.src = "https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3";
+            sounds.drop.src = "https://assets.mixkit.co/sfx/preview/mixkit-wooden-hit-1095.mp3";
+            sounds.jump.src = "https://assets.mixkit.co/sfx/preview/mixkit-player-jumping-in-a-video-game-2043.mp3";
+            sounds.freeze.src = "https://assets.mixkit.co/sfx/preview/mixkit-ice-sci-fi-spell-2820.mp3";
+            sounds.win.src = "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3";
+            sounds.lose.src = "https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3";
+            
+            // Устанавливаем громкость
+            Object.values(sounds).forEach(sound => {
+                sound.volume = config.soundVolume;
+            });
+        }
+
+        // Воспроизведение звука
+        function playSound(soundName) {
+            if (!gameState.soundEnabled) return;
+            
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Audio play error:", e));
+            }
+        }
+
+        // Инициализация игры
+        function initGame() {
+            elements.ctx = elements.canvas.getContext("2d");
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
+            
+            // Инициализация звуков
+            initSounds();
+            
+            // Инициализация управления
+            initControls();
+            
+            // Начальные обработчики событий
+            elements.startButton.addEventListener("click", startGame);
+            elements.restartButton.addEventListener("click", startGame);
+            elements.soundToggle.addEventListener("click", toggleSound);
+            
+            // Обработчики для кнопок способностей
+            elements.abilities.forEach((ability, index) => {
+                ability.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    useAbility(index);
+                });
+                
+                ability.addEventListener("click", () => useAbility(index));
+            });
+            
+            // Запрет контекстного меню
+            document.addEventListener("contextmenu", (e) => e.preventDefault());
+        }
+
+        // Переключение звука
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            elements.soundToggle.textContent = gameState.soundEnabled ? "🔊" : "🔇";
+            
+            if (gameState.soundEnabled && gameState.isRunning) {
+                sounds.background.play().catch(e => console.log("Audio play error:", e));
+            } else {
+                sounds.background.pause();
+            }
+        }
+
+        // Изменение размера canvas
+        function resizeCanvas() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            elements.canvas.width = width;
+            elements.canvas.height = height;
+            
+            gameState.canvasSize.width = width;
+            gameState.canvasSize.height = height;
+            
+            if (gameState.isRunning) {
+                renderGame();
+            }
+        }
+
+        // Инициализация управления
+        function initControls() {
+            // Сенсорное управление
+            elements.joystick.addEventListener("touchstart", handleJoystickStart);
+            elements.joystick.addEventListener("touchmove", handleJoystickMove);
+            elements.joystick.addEventListener("touchend", handleJoystickEnd);
+            
+            // Мышь для тестирования на ПК
+            elements.joystick.addEventListener("mousedown", handleJoystickStart);
+            document.addEventListener("mousemove", handleJoystickMove);
+            document.addEventListener("mouseup", handleJoystickEnd);
+            
+            // Мультитач для всего игрового поля
+            elements.canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+            elements.canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+            elements.canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+        }
+
+        // Обработка касаний (мультитач)
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                
+                // Касание джойстика
+                if (element && (element.id === 'joystick' || element.id === 'joystickKnob')) {
+                    gameState.activeTouches[touch.identifier] = 'joystick';
+                    gameState.joystickActive = true;
+                    updateJoystickPosition(e);
+                }
+                // Касание способности
+                else if (element && element.classList.contains('abilityButton')) {
+                    gameState.activeTouches[touch.identifier] = 'ability';
+                    const index = elements.abilities.indexOf(element);
+                    if (index !== -1) {
+                        useAbility(index);
+                    }
+                }
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!gameState.joystickActive) return;
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                
+                // Если это касание джойстика
+                if (gameState.activeTouches[touch.identifier] === 'joystick') {
+                    updateJoystickPosition(e);
+                }
+            }
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                
+                // Если это касание джойстика
+                if (gameState.activeTouches[touch.identifier] === 'joystick') {
+                    gameState.joystickActive = false;
+                    gameState.joystickDistance = 0;
+                    gameState.player.dx = 0;
+                    gameState.player.dy = 0;
+                    positionJoystickKnob(0, 0);
+                }
+                
+                delete gameState.activeTouches[touch.identifier];
+            }
+        }
+
+        // Обработка начала движения джойстика
+        function handleJoystickStart(e) {
+            e.preventDefault();
+            gameState.joystickActive = true;
+            updateJoystickPosition(e);
+        }
+
+        // Обработка движения джойстика
+        function handleJoystickMove(e) {
+            if (gameState.joystickActive) {
+                e.preventDefault();
+                updateJoystickPosition(e);
+            }
+        }
+
+        // Обработка окончания движения джойстика
+        function handleJoystickEnd(e) {
+            if (gameState.joystickActive) {
+                e.preventDefault();
+                gameState.joystickActive = false;
+                gameState.joystickDistance = 0;
+                gameState.player.dx = 0;
+                gameState.player.dy = 0;
+                positionJoystickKnob(0, 0);
+            }
+        }
+
+        // Обновление позиции джойстика
+        function updateJoystickPosition(e) {
+            const rect = elements.joystick.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            let clientX, clientY;
+            
+            if (e.type.includes("touch")) {
+                const touch = Array.from(e.touches).find(t => 
+                    gameState.activeTouches[t.identifier] === 'joystick');
+                if (!touch) return;
+                clientX = touch.clientX;
+                clientY = touch.clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            const dx = clientX - centerX;
+            const dy = clientY - centerY;
+            const distance = Math.min(Math.sqrt(dx * dx + dy * dy), rect.width / 2);
+            
+            const angle = Math.atan2(dy, dx);
+            const normalizedDistance = distance / (rect.width / 2);
+            
+            gameState.joystickAngle = angle;
+            gameState.joystickDistance = normalizedDistance;
+            
+            // Обновление движения игрока
+            gameState.player.dx = Math.cos(angle) * normalizedDistance;
+            gameState.player.dy = Math.sin(angle) * normalizedDistance;
+            
+            // Позиционирование ручки джойстика
+            positionJoystickKnob(dx * 0.7, dy * 0.7);
+        }
+
+        // Позиционирование ручки джойстика
+        function positionJoystickKnob(x, y) {
+            elements.joystickKnob.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        // Начало игры
+        function startGame() {
+            // Сброс состояния игры
+            resetGameState();
+            
+            // Инициализация игровых объектов
+            initGameObjects();
+            
+            // Скрытие стартового экрана и экрана результата
+            elements.startScreen.style.display = "none";
+            elements.resultScreen.style.display = "none";
+            
+            // Запуск игрового цикла
+            gameState.isRunning = true;
+            gameState.startTime = Date.now();
+            gameState.lastAbilitySpawnTime = gameState.startTime;
+            
+            // Воспроизведение фоновой музыки
+            if (gameState.soundEnabled) {
+                sounds.background.play().catch(e => console.log("Audio play error:", e));
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Сброс состояния игры
+        function resetGameState() {
+            gameState.isRunning = false;
+            gameState.startTime = 0;
+            gameState.currentTime = 0;
+            gameState.player = {
+                x: 0,
+                y: 0,
+                dx: 0,
+                dy: 0,
+                speed: config.playerSpeed,
+                isBoosting: false,
+                boostEndTime: 0,
+                canDropBox: true,
+                canJump: true
+            };
+            gameState.enemy = {
+                x: 0,
+                y: 0,
+                isFrozen: false,
+                freezeEndTime: 0
+            };
+            gameState.boxes = [];
+            gameState.abilities = [];
+            gameState.playerAbilities = Array(config.maxAbilities).fill(null);
+            gameState.joystickActive = false;
+            gameState.joystickAngle = 0;
+            gameState.joystickDistance = 0;
+            gameState.lastAbilitySpawnTime = 0;
+            gameState.activeTouches = {};
+            
+            // Остановка фоновой музыки
+            sounds.background.pause();
+            sounds.background.currentTime = 0;
+            
+            // Сброс кнопок способностей
+            elements.abilities.forEach(ability => {
+                ability.textContent = "❌";
+                ability.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+                ability.classList.remove("active");
+            });
+            
+            // Сброс джойстика
+            positionJoystickKnob(0, 0);
+        }
+
+        // Инициализация игровых объектов
+        function initGameObjects() {
+            const margin = 50;
+            const width = gameState.canvasSize.width - margin * 2;
+            const height = gameState.canvasSize.height - margin * 2;
+            
+            // Позиция игрока
+            gameState.player.x = margin + width / 4;
+            gameState.player.y = margin + height / 2;
+            
+            // Позиция врага (в противоположной стороне)
+            gameState.enemy.x = margin + width * 3 / 4;
+            gameState.enemy.y = margin + height / 2;
+            
+            // Создание ящиков
+            gameState.boxes = [];
+            for (let i = 0; i < config.boxCount; i++) {
+                let box;
+                let overlapping;
+                
+                do {
+                    overlapping = false;
+                    box = {
+                        x: margin + Math.random() * width,
+                        y: margin + Math.random() * height,
+                        width: config.boxSize,
+                        height: config.boxSize
+                    };
+                    
+                    // Проверка пересечения с игроком
+                    if (checkCollision(
+                        box.x - config.playerSize/2, box.y - config.playerSize/2, 
+                        box.width + config.playerSize, box.height + config.playerSize,
+                        gameState.player.x - config.playerSize/2, gameState.player.y - config.playerSize/2,
+                        config.playerSize, config.playerSize
+                    )) {
+                        overlapping = true;
+                        continue;
+                    }
+                    
+                    // Проверка пересечения с врагом
+                    if (checkCollision(
+                        box.x - config.enemySize/2, box.y - config.enemySize/2, 
+                        box.width + config.enemySize, box.height + config.enemySize,
+                        gameState.enemy.x - config.enemySize/2, gameState.enemy.y - config.enemySize/2,
+                        config.enemySize, config.enemySize
+                    )) {
+                        overlapping = true;
+                        continue;
+                    }
+                    
+                    // Проверка пересечения с другими ящиками
+                    for (const otherBox of gameState.boxes) {
+                        if (checkCollision(
+                            box.x, box.y, box.width, box.height,
+                            otherBox.x, otherBox.y, otherBox.width, otherBox.height
+                        )) {
+                            overlapping = true;
+                            break;
+                        }
+                    }
+                } while (overlapping);
+                
+                gameState.boxes.push(box);
+            }
+        }
+
+        // Игровой цикл
+        function gameLoop() {
+            if (!gameState.isRunning) return;
+            
+            // Обновление времени
+            gameState.currentTime = Date.now();
+            const elapsedTime = gameState.currentTime - gameState.startTime;
+            
+            // Проверка условий победы/поражения
+            if (elapsedTime >= config.winTime) {
+                endGame(true);
+                return;
+            }
+            
+            // Обновление состояния игры
+            updateGame(elapsedTime);
+            
+            // Отрисовка игры
+            renderGame();
+            
+            // Продолжение цикла
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Обновление состояния игры
+        function updateGame(elapsedTime) {
+            // Обновление таймера
+            updateTimer(elapsedTime);
+            
+            // Спавн новых способностей
+            if (gameState.currentTime - gameState.lastAbilitySpawnTime > config.abilitySpawnInterval) {
+                spawnRandomAbility();
+                gameState.lastAbilitySpawnTime = gameState.currentTime;
+            }
+            
+            // Обновление состояния игрока
+            updatePlayer();
+            
+            // Обновление состояния врага
+            updateEnemy();
+            
+            // Проверка столкновений
+            checkCollisions();
+            
+            // Обновление состояния способностей
+            updateAbilities();
+        }
+
+        // Обновление таймера
+        function updateTimer(elapsedTime) {
+            const seconds = Math.floor(elapsedTime / 1000);
+            const remainingSeconds = Math.max(0, Math.floor((config.winTime - elapsedTime) / 1000));
+            const minutes = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            elements.timer.textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Спавн случайной способности
+        function spawnRandomAbility() {
+            if (gameState.abilities.length >= 3) return; // Ограничение на количество способностей на карте
+            
+            const abilityTypes = Object.values(AbilityType);
+            const randomType = abilityTypes[Math.floor(Math.random() * abilityTypes.length)];
+            
+            spawnAbility(randomType);
+            playSound("abilitySpawn");
+        }
+
+        // Спавн конкретной способности
+        function spawnAbility(abilityType) {
+            const margin = 50;
+            const width = gameState.canvasSize.width - margin * 2;
+            const height = gameState.canvasSize.height - margin * 2;
+            
+            let ability;
+            let overlapping;
+            
+            do {
+                overlapping = false;
+                ability = {
+                    x: margin + Math.random() * width,
+                    y: margin + Math.random() * height,
+                    type: abilityType,
+                    spawnTime: gameState.currentTime,
+                    blinkPhase: 0
+                };
+                
+                // Проверка пересечения с игроком
+                if (checkCollision(
+                    ability.x - config.playerSize/2, ability.y - config.playerSize/2, 
+                    config.abilitySize + config.playerSize, config.abilitySize + config.playerSize,
+                    gameState.player.x - config.playerSize/2, gameState.player.y - config.playerSize/2,
+                    config.playerSize, config.playerSize
+                )) {
+                    overlapping = true;
+                    continue;
+                }
+                
+                // Проверка пересечения с врагом
+                if (checkCollision(
+                    ability.x - config.enemySize/2, ability.y - config.enemySize/2, 
+                    config.abilitySize + config.enemySize, config.abilitySize + config.enemySize,
+                    gameState.enemy.x - config.enemySize/2, gameState.enemy.y - config.enemySize/2,
+                    config.enemySize, config.enemySize
+                )) {
+                    overlapping = true;
+                    continue;
+                }
+                
+                // Проверка пересечения с ящиками
+                for (const box of gameState.boxes) {
+                    if (checkCollision(
+                        ability.x, ability.y, config.abilitySize, config.abilitySize,
+                        box.x, box.y, box.width, box.height
+                    )) {
+                        overlapping = true;
+                        break;
+                    }
+                }
+                
+                // Проверка пересечения с другими способностями
+                for (const otherAbility of gameState.abilities) {
+                    if (checkCollision(
+                        ability.x, ability.y, config.abilitySize, config.abilitySize,
+                        otherAbility.x, otherAbility.y, config.abilitySize, config.abilitySize
+                    )) {
+                        overlapping = true;
+                        break;
+                    }
+                }
+            } while (overlapping);
+            
+            gameState.abilities.push(ability);
+        }
+
+        // Обновление состояния игрока
+        function updatePlayer() {
+            // Проверка ускорения
+            if (gameState.player.isBoosting && gameState.currentTime >= gameState.player.boostEndTime) {
+                gameState.player.isBoosting = false;
+                gameState.player.speed = config.playerSpeed;
+            }
+            
+            // Обновление позиции игрока
+            if (gameState.joystickActive && gameState.joystickDistance > 0.1) {
+                const speed = gameState.player.speed;
+                let newX = gameState.player.x + gameState.player.dx * speed;
+                let newY = gameState.player.y + gameState.player.dy * speed;
+                
+                // Проверка столкновений с границами
+                newX = Math.max(config.playerSize/2, Math.min(gameState.canvasSize.width - config.playerSize/2, newX));
+                newY = Math.max(config.playerSize/2, Math.min(gameState.canvasSize.height - config.playerSize/2, newY));
+                
+                // Проверка столкновений с ящиками (непроходимость)
+                let canMoveX = true;
+                let canMoveY = true;
+                
+                for (const box of gameState.boxes) {
+                    if (checkCollision(
+                        newX - config.playerSize/2, gameState.player.y - config.playerSize/2, 
+                        config.playerSize, config.playerSize,
+                        box.x, box.y, box.width, box.height
+                    )) {
+                        canMoveX = false;
+                    }
+                    
+                    if (checkCollision(
+                        gameState.player.x - config.playerSize/2, newY - config.playerSize/2, 
+                        config.playerSize, config.playerSize,
+                        box.x, box.y, box.width, box.height
+                    )) {
+                        canMoveY = false;
+                    }
+                }
+                
+                if (canMoveX) {
+                    gameState.player.x = newX;
+                }
+                
+                if (canMoveY) {
+                    gameState.player.y = newY;
+                }
+            }
+            
+            // Проверка подбора способностей
+            checkAbilityPickup();
+        }
+
+        // Обновление состояния врага
+        function updateEnemy() {
+            // Проверка заморозки
+            if (gameState.enemy.isFrozen) {
+                if (gameState.currentTime >= gameState.enemy.freezeEndTime) {
+                    gameState.enemy.isFrozen = false;
+                } else {
+                    return; // Враг заморожен - не двигается
+                }
+            }
+            
+            // Простое преследование игрока
+            const dx = gameState.player.x - gameState.enemy.x;
+            const dy = gameState.player.y - gameState.enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > 0) {
+                const speed = config.enemySpeed;
+                const vx = (dx / distance) * speed;
+                const vy = (dy / distance) * speed;
+                
+                // Проверка столкновений с ящиками
+                let newX = gameState.enemy.x + vx;
+                let newY = gameState.enemy.y + vy;
+                
+                // Проверка столкновений с ящиками (непроходимость)
+                let canMoveX = true;
+                let canMoveY = true;
+                
+                for (const box of gameState.boxes) {
+                    if (checkCollision(
+                        newX - config.enemySize/2, gameState.enemy.y - config.enemySize/2, 
+                        config.enemySize, config.enemySize,
+                        box.x, box.y, box.width, box.height
+                    )) {
+                        canMoveX = false;
+                    }
+                    
+                    if (checkCollision(
+                        gameState.enemy.x - config.enemySize/2, newY - config.enemySize/2, 
+                        config.enemySize, config.enemySize,
+                        box.x, box.y, box.width, box.height
+                    )) {
+                        canMoveY = false;
+                    }
+                }
+                
+                if (canMoveX) {
+                    gameState.enemy.x = newX;
+                }
+                
+                if (canMoveY) {
+                    gameState.enemy.y = newY;
+                }
+            }
+        }
+
+        // Проверка подбора способностей
+        function checkAbilityPickup() {
+            for (let i = gameState.abilities.length - 1; i >= 0; i--) {
+                const ability = gameState.abilities[i];
+                
+                // Проверка столкновения с игроком
+                if (checkCollision(
+                    gameState.player.x - config.playerSize/2, gameState.player.y - config.playerSize/2, 
+                    config.playerSize, config.playerSize,
+                    ability.x, ability.y, config.abilitySize, config.abilitySize
+                )) {
+                    // Добавление способности в инвентарь, если есть свободное место
+                    const emptySlot = gameState.playerAbilities.findIndex(slot => slot === null);
+                    if (emptySlot !== -1) {
+                        gameState.playerAbilities[emptySlot] = ability.type;
+                        updateAbilityButton(emptySlot, ability.type);
+                        gameState.abilities.splice(i, 1);
+                        playSound("abilityPickup");
+                    }
+                }
+                
+                // Удаление способности, если время истекло
+                else if (gameState.currentTime - ability.spawnTime > config.abilityBlinkDuration) {
+                    gameState.abilities.splice(i, 1);
+                }
+            }
+        }
+
+        // Обновление кнопки способности
+        function updateAbilityButton(index, abilityType) {
+            if (abilityType) {
+                elements.abilities[index].textContent = abilityType.emoji;
+                elements.abilities[index].style.backgroundColor = abilityType.color;
+                elements.abilities[index].classList.add("active");
+            } else {
+                elements.abilities[index].textContent = "❌";
+                elements.abilities[index].style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+                elements.abilities[index].classList.remove("active");
+            }
+        }
+
+        // Использование способности
+        function useAbility(index) {
+            if (!gameState.isRunning || !gameState.playerAbilities[index]) return;
+            
+            const ability = gameState.playerAbilities[index];
+            
+            // Анимация нажатия
+            elements.abilities[index].style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                elements.abilities[index].style.transform = 'scale(1)';
+            }, 100);
+            
+            // Воспроизведение звука способности
+            playSound(ability.sound);
+            
+            switch (ability) {
+                case AbilityType.SPEED_BOOST:
+                    // Ускорение игрока
+                    gameState.player.isBoosting = true;
+                    gameState.player.speed = config.playerSpeed * config.playerSpeedBoost;
+                    gameState.player.boostEndTime = gameState.currentTime + config.abilityDuration;
+                    break;
+                
+                case AbilityType.DROP_BOX:
+                    // Сброс ящика за собой
+                    if (gameState.player.canDropBox) {
+                        dropBoxBehindPlayer();
+                        gameState.player.canDropBox = false;
+                        setTimeout(() => {
+                            gameState.player.canDropBox = true;
+                        }, 1000);
+                    } else {
+                        return; // Не тратим способность, если нельзя сбросить ящик
+                    }
+                    break;
+                
+                case AbilityType.JUMP:
+                    // Прыжок через ближайший ящик или стенку
+                    if (gameState.player.canJump) {
+                        jumpOverObstacle();
+                        gameState.player.canJump = false;
+                        setTimeout(() => {
+                            gameState.player.canJump = true;
+                        }, 1000);
+                    } else {
+                        return; // Не тратим способность, если нельзя прыгнуть
+                    }
+                    break;
+                
+                case AbilityType.FREEZE_ENEMY:
+                    // Заморозка врага
+                    gameState.enemy.isFrozen = true;
+                    gameState.enemy.freezeEndTime = gameState.currentTime + config.enemyFreezeDuration;
+                    break;
+            }
+            
+            // Удаление использованной способности
+            gameState.playerAbilities[index] = null;
+            updateAbilityButton(index, null);
+        }
+
+        // Сброс ящика за игроком
+        function dropBoxBehindPlayer() {
+            const angle = Math.atan2(gameState.player.dy, gameState.player.dx);
+            const distance = 40; // Дистанция от игрока
+            
+            const boxX = gameState.player.x - Math.cos(angle) * distance - config.boxSize/2;
+            const boxY = gameState.player.y - Math.sin(angle) * distance - config.boxSize/2;
+            
+            // Проверка, чтобы ящик не выходил за границы
+            if (boxX >= 0 && boxX + config.boxSize <= gameState.canvasSize.width &&
+                boxY >= 0 && boxY + config.boxSize <= gameState.canvasSize.height) {
+                
+                // Проверка пересечения с другими объектами
+                let canPlace = true;
+                
+                // С игроком
+                if (checkCollision(
+                    boxX, boxY, config.boxSize, config.boxSize,
+                    gameState.player.x - config.playerSize/2, gameState.player.y - config.playerSize/2,
+                    config.playerSize, config.playerSize
+                )) {
+                    canPlace = false;
+                }
+                
+                // С врагом
+                if (checkCollision(
+                    boxX, boxY, config.boxSize, config.boxSize,
+                    gameState.enemy.x - config.enemySize/2, gameState.enemy.y - config.enemySize/2,
+                    config.enemySize, config.enemySize
+                )) {
+                    canPlace = false;
+                }
+                
+                // С другими ящиками
+                for (const otherBox of gameState.boxes) {
+                    if (checkCollision(
+                        boxX, boxY, config.boxSize, config.boxSize,
+                        otherBox.x, otherBox.y, otherBox.width, otherBox.height
+                    )) {
+                        canPlace = false;
+                        break;
+                    }
+                }
+                
+                if (canPlace) {
+                    gameState.boxes.push({
+                        x: boxX,
+                        y: boxY,
+                        width: config.boxSize,
+                        height: config.boxSize
+                    });
+                }
+            }
+        }
+
+        // Прыжок через препятствие
+        function jumpOverObstacle() {
+            const jumpDistance = 100; // Дистанция прыжка
+            const angle = Math.atan2(gameState.player.dy, gameState.player.dx);
+            
+            let newX = gameState.player.x + Math.cos(angle) * jumpDistance;
+            let newY = gameState.player.y + Math.sin(angle) * jumpDistance;
+            
+            // Проверка границ
+            newX = Math.max(config.playerSize/2, Math.min(gameState.canvasSize.width - config.playerSize/2, newX));
+            newY = Math.max(config.playerSize/2, Math.min(gameState.canvasSize.height - config.playerSize/2, newY));
+            
+            // Проверка столкновений с ящиками на пути
+            let hasObstacle = false;
+            
+            for (const box of gameState.boxes) {
+                if (checkCollision(
+                    newX - config.playerSize/2, newY - config.playerSize/2, 
+                    config.playerSize, config.playerSize,
+                    box.x, box.y, box.width, box.height
+                )) {
+                    hasObstacle = true;
+                    break;
+                }
+            }
+            
+            // Если есть препятствие - прыгаем через него (увеличиваем дистанцию)
+            if (hasObstacle) {
+                newX = gameState.player.x + Math.cos(angle) * jumpDistance * 1.5;
+                newY = gameState.player.y + Math.sin(angle) * jumpDistance * 1.5;
+                
+                // Проверка границ
+                newX = Math.max(config.playerSize/2, Math.min(gameState.canvasSize.width - config.playerSize/2, newX));
+                newY = Math.max(config.playerSize/2, Math.min(gameState.canvasSize.height - config.playerSize/2, newY));
+            }
+            
+            // Устанавливаем новую позицию
+            gameState.player.x = newX;
+            gameState.player.y = newY;
+        }
+
+        // Проверка столкновений
+        function checkCollisions() {
+            // Проверка столкновения игрока с врагом
+            if (checkCollision(
+                gameState.player.x - config.playerSize/2, gameState.player.y - config.playerSize/2, 
+                config.playerSize, config.playerSize,
+                gameState.enemy.x - config.enemySize/2, gameState.enemy.y - config.enemySize/2, 
+                config.enemySize, config.enemySize
+            )) {
+                endGame(false);
+            }
+        }
+
+        // Обновление состояния способностей на карте
+        function updateAbilities() {
+            for (const ability of gameState.abilities) {
+                // Обновление фазы мигания (0-1)
+                const timeSinceSpawn = gameState.currentTime - ability.spawnTime;
+                ability.blinkPhase = 1 - Math.min(1, timeSinceSpawn / config.abilityBlinkDuration);
+            }
+        }
+
+        // Проверка столкновения двух прямоугольников
+        function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+            return x1 < x2 + w2 && 
+                   x1 + w1 > x2 && 
+                   y1 < y2 + h2 && 
+                   y1 + h1 > y2;
+        }
+
+        // Отрисовка игры
+        function renderGame() {
+            const ctx = elements.ctx;
+            const width = gameState.canvasSize.width;
+            const height = gameState.canvasSize.height;
+            
+            // Очистка canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Отрисовка фона
+            ctx.fillStyle = "#333";
+            ctx.fillRect(0, 0, width, height);
+            
+            // Отрисовка ящиков
+            ctx.fillStyle = "#8B4513"; // Коричневый
+            for (const box of gameState.boxes) {
+                ctx.fillRect(box.x, box.y, box.width, box.height);
+                ctx.strokeStyle = "#000";
+                ctx.strokeRect(box.x, box.y, box.width, box.height);
+            }
+            
+            // Отрисовка способностей
+            for (const ability of gameState.abilities) {
+                const size = config.abilitySize;
+                const halfSize = size / 2;
+                
+                // Мигание (изменение прозрачности)
+                const alpha = 0.7 + 0.3 * Math.sin(ability.blinkPhase * Math.PI * 10);
+                ctx.globalAlpha = alpha;
+                
+                // Отрисовка способности
+                ctx.fillStyle = ability.type.color;
+                ctx.beginPath();
+                ctx.arc(ability.x + halfSize, ability.y + halfSize, halfSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Текст (эмодзи)
+                ctx.fillStyle = "#000";
+                ctx.font = `${halfSize}px Arial`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(ability.type.emoji, ability.x + halfSize, ability.y + halfSize);
+                
+                ctx.globalAlpha = 1;
+            }
+            
+            // Отрисовка врага
+            ctx.fillStyle = gameState.enemy.isFrozen ? "#ADD8E6" : "#FF0000"; // Синий если заморожен, иначе красный
+            ctx.beginPath();
+            ctx.arc(gameState.enemy.x, gameState.enemy.y, config.enemySize/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Глаза врага (чтобы показать направление движения к игроку)
+            const angleToPlayer = Math.atan2(
+                gameState.player.y - gameState.enemy.y, 
+                gameState.player.x - gameState.enemy.x
+            );
+            
+            const eyeOffsetX = Math.cos(angleToPlayer) * 5;
+            const eyeOffsetY = Math.sin(angleToPlayer) * 5;
+            
+            ctx.fillStyle = "#FFF";
+            ctx.beginPath();
+            ctx.arc(
+                gameState.enemy.x + eyeOffsetX - 3, 
+                gameState.enemy.y + eyeOffsetY - 3, 
+                3, 0, Math.PI * 2
+            );
+            ctx.arc(
+                gameState.enemy.x + eyeOffsetX + 3, 
+                gameState.enemy.y + eyeOffsetY - 3, 
+                3, 0, Math.PI * 2
+            );
+            ctx.fill();
+            
+            // Отрисовка игрока
+            ctx.fillStyle = gameState.player.isBoosting ? "#FFFF00" : "#00FF00"; // Желтый если ускорение, иначе зеленый
+            ctx.beginPath();
+            ctx.arc(gameState.player.x, gameState.player.y, config.playerSize/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Глаза игрока (показывают направление движения)
+            if (gameState.joystickDistance > 0.1) {
+                const eyeOffsetX = Math.cos(gameState.joystickAngle) * 5;
+                const eyeOffsetY = Math.sin(gameState.joystickAngle) * 5;
+                
+                ctx.fillStyle = "#FFF";
+                ctx.beginPath();
+                ctx.arc(
+                    gameState.player.x + eyeOffsetX - 3, 
+                    gameState.player.y + eyeOffsetY - 3, 
+                    3, 0, Math.PI * 2
+                );
+                ctx.arc(
+                    gameState.player.x + eyeOffsetX + 3, 
+                    gameState.player.y + eyeOffsetY - 3, 
+                    3, 0, Math.PI * 2
+                );
+                ctx.fill();
+            }
+        }
+
+        // Завершение игры
+        function endGame(isWin) {
+            gameState.isRunning = false;
+            
+            const elapsedTime = gameState.currentTime - gameState.startTime;
+            const seconds = (elapsedTime / 1000).toFixed(1);
+            
+            elements.resultText.textContent = isWin ? "Победа!" : "Поражение!";
+            elements.timeSurvived.textContent = `Вы продержались: ${seconds} сек`;
+            
+            // Воспроизведение звука победы/поражения
+            if (isWin) {
+                playSound("win");
+            } else {
+                playSound("lose");
+            }
+            
+            // Остановка фоновой музыки
+            sounds.background.pause();
+            
+            elements.resultScreen.style.display = "flex";
+        }
+
+        // Инициализация игры при загрузке страницы
+        window.addEventListener("load", initGame);
+    </script>
+</body>
+</html>

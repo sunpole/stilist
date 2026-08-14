@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Albion Craft Master</title>
+    <!-- Библиотеки для кроссбраузерной совместимости -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <!-- Библиотека для мобильных жестов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <style>
+        /* Сброс стилей для кроссбраузерности */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Для старых браузеров */
+        article, aside, details, figcaption, figure, 
+        footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+
+        /* Улучшение рендеринга на мобильных */
+        html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            line-height: 1.5;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Хак для старых iOS */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                min-height: -webkit-fill-available;
+            }
+        }
+
+        /* Шапка */
+        .header {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #95a5a6;
+        }
+
+        /* Основной контейнер */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 16px;
+            max-height: calc(100vh - 120px);
+        }
+
+        /* Сетка приложения */
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .app-grid {
+                grid-template-columns: 1fr 1fr;
+                max-height: calc(100vh - 140px);
+            }
+        }
+
+        /* Карточки */
+        .card {
+            background: rgba(20, 20, 35, 0.9);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #3498db;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .tab {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #95a5a6;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        /* Фильтры */
+        .filters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .filter-select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 13px;
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            position: relative;
+        }
+
+        /* Для старых браузеров, где нет appearance */
+        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            .filter-select {
+                padding-right: 30px;
+                background: rgba(0, 0, 0, 0.3) url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white'%3E%3Cpath d='M4 6l4 4 4-4z'/%3E%3C/svg%3E") no-repeat right 10px center;
+            }
+        }
+
+        /* Стили для мобильных с маленькими экранами */
+        @media (max-width: 360px) {
+            .filters-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #d68910);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        /* Формы */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Загрузка изображений */
+        .image-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .image-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Списки */
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        /* Для старых браузеров без поддержки flexbox gap */
+        .list-container > * + * {
+            margin-top: 8px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            margin-right: 12px;
+            background: #34495e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .item-details {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        /* Коэффициент */
+        .coef-control {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .coef-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f39c12;
+            text-align: center;
+        }
+
+        /* Качества */
+        .qualities {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .quality-btn {
+            padding: 8px 4px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .quality-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .quality-1 { background: #7f8c8d; }
+        .quality-2 { background: #2ecc71; }
+        .quality-3 { background: #3498db; }
+        .quality-4 { background: #9b59b6; }
+        .quality-5 { background: #f39c12; }
+
+        /* Итоговая стоимость */
+        .total-cost {
+            background: rgba(46, 204, 113, 0.1);
+            border: 2px solid #2ecc71;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .total-cost h3 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Поиск */
+        .search-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            padding-left: 40px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+        }
+
+        /* Подвал */
+        .footer {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-info {
+            font-size: 12px;
+            color: #95a5a6;
+            text-align: center;
+            flex: 1;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 16px;
+            left: 16px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .notification.success { background: rgba(46, 204, 113, 0.9); }
+        .notification.error { background: rgba(231, 76, 60, 0.9); }
+        .notification.info { background: rgba(52, 152, 219, 0.9); }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 35, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Прогресс бар для загрузки */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 320px) {
+            .header, .footer {
+                padding: 8px 12px;
+            }
+            
+            .main-container {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 12px;
+            }
+            
+            .btn {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* Поддержка старых Android браузеров */
+        .legacy-support {
+            display: none;
+        }
+
+        /* Хак для Firefox Mobile */
+        @-moz-document url-prefix() {
+            .header, .footer {
+                background: rgba(0, 0, 0, 0.95);
+            }
+        }
+
+        /* Поддержка IE 11 (минимальная) */
+        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            .app-grid {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .card {
+                margin-bottom: 16px;
+            }
+            
+            .filters-container {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .filter-group {
+                flex: 1 0 140px;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Улучшение доступности для скринридеров */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Улучшение для Safari на iOS */
+        input[type="number"] {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Улучшение для старых iOS */
+        input, textarea, select {
+            font-size: 16px; /* Предотвращает масштабирование в iOS */
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-hammer"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Albion Craft Master</h1>
+                <p>Расчет крафта и управление ресурсами</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="btn btn-sm btn-warning" id="importBtn">
+                <i class="fas fa-upload"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Основной контейнер -->
+    <main class="main-container">
+        <div class="app-grid">
+            <!-- Левая панель: Управление ресурсами и крафтом -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cogs"></i>
+                    <h2 class="card-title">Создание крафта</h2>
+                </div>
+                
+                <!-- Вкладки -->
+                <div class="tabs" id="mainTabs">
+                    <div class="tab active" data-tab="resource">Ресурс</div>
+                    <div class="tab" data-tab="composite">Составной</div>
+                    <div class="tab" data-tab="item">Предмет</div>
+                </div>
+
+                <!-- Фильтры для предметов -->
+                <div class="filters-container" id="itemFilters" style="display: none;">
+                    <div class="filter-group">
+                        <div class="filter-label">Тир</div>
+                        <select class="filter-select" id="filterTier">
+                            <option value="">Все</option>
+                            <option value="1">T1</option>
+                            <option value="2">T2</option>
+                            <option value="3">T3</option>
+                            <option value="4">T4</option>
+                            <option value="5">T5</option>
+                            <option value="6">T6</option>
+                            <option value="7">T7</option>
+                            <option value="8">T8</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-label">Чар</div>
+                        <select class="filter-select" id="filterEnchant">
+                            <option value="">Все</option>
+                            <option value="0">Ч0</option>
+                            <option value="1">Ч1</option>
+                            <option value="2">Ч2</option>
+                            <option value="3">Ч3</option>
+                            <option value="4">Ч4</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-label">Качество</div>
+                        <select class="filter-select" id="filterQuality">
+                            <option value="">Все</option>
+                            <option value="1">Обычное</option>
+                            <option value="2">Хорошее</option>
+                            <option value="3">Выдающееся</option>
+                            <option value="4">Отличное</option>
+                            <option value="5">Шедевр</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-label">Тип</div>
+                        <select class="filter-select" id="filterType">
+                            <option value="">Все</option>
+                            <option value="armor">Броня</option>
+                            <option value="helmet">Шлем</option>
+                            <option value="boots">Сапоги</option>
+                            <option value="weapon">Оружие</option>
+                            <option value="offhand">Левая рука</option>
+                            <option value="resource">Ресурс</option>
+                            <option value="composite">Составной</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-label">Вид</div>
+                        <select class="filter-select" id="filterSubtype">
+                            <option value="">Все</option>
+                            <option value="heavy">Тяжелое</option>
+                            <option value="light">Легкое</option>
+                            <option value="magic">Магическое</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Форма создания -->
+                <div id="resourceForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="itemName">Название</label>
+                            <input type="text" id="itemName" placeholder="Введите название">
+                        </div>
+                        <div class="form-group">
+                            <label for="itemBasePrice">Базовая цена</label>
+                            <input type="number" id="itemBasePrice" placeholder="0" min="0" step="100">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="itemTier">Тир</label>
+                            <select id="itemTier">
+                                <option value="1">T1</option>
+                                <option value="2">T2</option>
+                                <option value="3">T3</option>
+                                <option value="4">T4</option>
+                                <option value="5">T5</option>
+                                <option value="6">T6</option>
+                                <option value="7">T7</option>
+                                <option value="8">T8</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemEnchant">Чар</label>
+                            <select id="itemEnchant">
+                                <option value="0">Ч0</option>
+                                <option value="1">Ч1</option>
+                                <option value="2">Ч2</option>
+                                <option value="3">Ч3</option>
+                                <option value="4">Ч4</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="itemType">Тип</label>
+                            <select id="itemType">
+                                <option value="resource">Ресурс</option>
+                                <option value="composite">Составной ресурс</option>
+                                <option value="armor">Броня</option>
+                                <option value="helmet">Шлем</option>
+                                <option value="boots">Сапоги</option>
+                                <option value="weapon">Оружие</option>
+                                <option value="offhand">Левая рука</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemSubtype">Вид</label>
+                            <select id="itemSubtype">
+                                <option value="">Не указано</option>
+                                <option value="heavy">Тяжелое</option>
+                                <option value="light">Легкое</option>
+                                <option value="magic">Магическое</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Для составных ресурсов -->
+                    <div id="compositeSection" style="display: none;">
+                        <div class="form-group">
+                            <label>Компоненты</label>
+                            <div class="list-container" id="componentsList">
+                                <!-- Компоненты будут добавляться сюда -->
+                            </div>
+                            <button class="btn btn-sm btn-success" id="addComponentBtn">
+                                <i class="fas fa-plus"></i> Добавить компонент
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Загрузка изображения -->
+                    <div class="form-group">
+                        <label>Изображение</label>
+                        <div class="image-upload" id="imageUpload">
+                            <i class="fas fa-camera"></i>
+                            <p>Нажмите для загрузки или Ctrl+V для вставки</p>
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+
+                    <!-- Коэффициент -->
+                    <div class="coef-control">
+                        <div>
+                            <label for="coefficient">Коэффициент цены</label>
+                            <input type="range" id="coefficient" min="0.01" max="100" step="0.01" value="1.3">
+                        </div>
+                        <div class="coef-value" id="coefValue">1.30x</div>
+                    </div>
+
+                    <!-- Качества -->
+                    <div class="qualities">
+                        <button class="quality-btn quality-1 active" data-quality="1">Обычное (1.0x)</button>
+                        <button class="quality-btn quality-2" data-quality="2">Хорошее (1.2x)</button>
+                        <button class="quality-btn quality-3" data-quality="3">Выдающееся (1.3x)</button>
+                        <button class="quality-btn quality-4" data-quality="4">Отличное (1.5x)</button>
+                        <button class="quality-btn quality-5" data-quality="5">Шедевр (2.0x)</button>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="form-row">
+                        <button class="btn btn-success" id="saveBtn">
+                            <i class="fas fa-save"></i> Сохранить
+                        </button>
+                        <button class="btn btn-warning" id="clearBtn">
+                            <i class="fas fa-broom"></i> Очистить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая панель: Список ресурсов и предметов -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-boxes"></i>
+                    <h2 class="card-title">Библиотека ресурсов</h2>
+                </div>
+
+                <!-- Поиск -->
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Поиск по названию...">
+                </div>
+
+                <!-- Вкладки библиотеки -->
+                <div class="tabs">
+                    <div class="tab active" data-library="all">Все</div>
+                    <div class="tab" data-library="resources">Ресурсы</div>
+                    <div class="tab" data-library="composites">Составные</div>
+                    <div class="tab" data-library="items">Предметы</div>
+                </div>
+
+                <!-- Список элементов -->
+                <div class="list-container" id="libraryList">
+                    <!-- Элементы будут загружаться сюда -->
+                </div>
+
+                <!-- Итоговая стоимость для выбранного -->
+                <div class="total-cost" id="selectedTotal" style="display: none;">
+                    <h3>Стоимость крафта</h3>
+                    <div class="cost-breakdown" id="totalCostValue">0 серебра</div>
+                    <div class="market-price" id="marketPriceValue">Рыночная цена: 0 серебра</div>
+                    <div class="profit-indicator" id="profitIndicator">Прибыль: 0 серебра (0%)</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <div class="footer-info">
+            <p>Albion Craft Master v3.0 | Данные сохраняются локально</p>
+            <p>Поддержка: iOS 9+, Android 5+, все современные браузеры</p>
+        </div>
+        <div class="footer-stats">
+            <span id="totalItems">0 предметов</span> |
+            <span id="totalResources">0 ресурсов</span> |
+            <span id="storageUsed">0 КБ</span>
+        </div>
+    </footer>
+
+    <!-- Модальное окно добавления компонента -->
+    <div class="modal" id="componentModal">
+        <div class="modal-content">
+            <div class="card-header">
+                <i class="fas fa-plus-circle"></i>
+                <h2 class="card-title">Добавить компонент</h2>
+                <button class="btn btn-sm btn-danger" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="componentSearch" placeholder="Поиск компонента...">
+            </div>
+            
+            <div class="list-container" id="componentList" style="max-height: 300px;">
+                <!-- Список доступных компонентов -->
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="componentQuantity">Количество</label>
+                    <input type="number" id="componentQuantity" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="componentPrice">Цена за единицу</label>
+                    <input type="number" id="componentPrice" min="0" value="0">
+                </div>
+            </div>
+            
+            <button class="btn btn-success" id="addSelectedComponent">
+                <i class="fas fa-check"></i> Добавить
+            </button>
+        </div>
+    </div>
+
+    <!-- Скрипт для улучшения работы на старых браузерах -->
+    <script>
+        // Проверка поддержки современных функций
+        if (!window.Promise) {
+            // Для старых браузеров без поддержки Promise
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.7.2/bluebird.min.js"><\/script>');
+        }
+        
+        if (!window.fetch) {
+            // Для старых браузеров без поддержки fetch
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.2/fetch.min.js"><\/script>');
+        }
+        
+        // Инициализация Hammer.js для мобильных жестов
+        if (typeof Hammer !== 'undefined') {
+            // Настройка жестов для навигации
+            document.addEventListener('DOMContentLoaded', function() {
+                var body = document.body;
+                var mc = new Hammer(body);
+                
+                // Свайп влево/вправо для переключения вкладок
+                mc.on('swipeleft swiperight', function(ev) {
+                    if (ev.type === 'swipeleft') {
+                        // Переключение на следующую вкладку
+                        var tabs = document.querySelectorAll('.tab.active');
+                        if (tabs.length > 0) {
+                            var nextTab = tabs[0].nextElementSibling;
+                            if (nextTab && nextTab.classList.contains('tab')) {
+                                nextTab.click();
+                            }
+                        }
+                    } else if (ev.type === 'swiperight') {
+                        // Переключение на предыдущую вкладку
+                        var tabs = document.querySelectorAll('.tab.active');
+                        if (tabs.length > 0) {
+                            var prevTab = tabs[0].previousElementSibling;
+                            if (prevTab && prevTab.classList.contains('tab')) {
+                                prevTab.click();
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Полифилл для Object.values
+        if (!Object.values) {
+            Object.values = function(obj) {
+                var values = [];
+                for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        values.push(obj[key]);
+                    }
+                }
+                return values;
+            };
+        }
+    </script>
+
+    <!-- Основной код приложения -->
+    <script>
+        class CraftMaster {
+            constructor() {
+                this.items = JSON.parse(localStorage.getItem('albionCraftMaster')) || {
+                    resources: [],
+                    composites: [],
+                    items: []
+                };
+                
+                this.currentItem = {
+                    id: null,
+                    name: '',
+                    type: 'resource',
+                    tier: 1,
+                    enchant: 0,
+                    quality: 1,
+                    subtype: '',
+                    basePrice: 0,
+                    coefficient: 1.3,
+                    icon: null,
+                    components: [],
+                    createdAt: null,
+                    updatedAt: null
+                };
+                
+                this.selectedComponents = [];
+                this.editingId = null;
+                this.currentLibrary = 'all';
+                this.currentTab = 'resource';
+                
+                this.init();
+                this.loadLibrary();
+                this.updateStats();
+            }
+            
+            init() {
+                this.initEventListeners();
+                this.initClipboard();
+                this.updateCoefficientDisplay();
+                this.setupMobileOptimizations();
+            }
+            
+            setupMobileOptimizations() {
+                // Оптимизация для мобильных устройств
+                if ('ontouchstart' in window) {
+                    // Добавляем touch-классы для лучшего UX
+                    document.body.classList.add('touch-device');
+                    
+                    // Улучшаем обработку кликов на мобильных
+                    document.addEventListener('touchstart', function() {}, {passive: true});
+                    
+                    // Предотвращаем зум при двойном тапе
+                    let lastTouchEnd = 0;
+                    document.addEventListener('touchend', function(event) {
+                        const now = Date.now();
+                        if (now - lastTouchEnd <= 300) {
+                            event.preventDefault();
+                        }
+                        lastTouchEnd = now;
+                    }, {passive: false});
+                }
+                
+                // Оптимизация для старых браузеров
+                if (!('flex' in document.documentElement.style)) {
+                    document.body.classList.add('legacy-browser');
+                }
+            }
+            
+            initEventListeners() {
+                // Вкладки главного меню
+                document.querySelectorAll('#mainTabs .tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const tabType = e.target.dataset.tab;
+                        this.switchTab(tabType);
+                    });
+                });
+                
+                // Вкладки библиотеки
+                document.querySelectorAll('.card:last-child .tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.card:last-child .tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentLibrary = e.target.dataset.library;
+                        this.loadLibrary();
+                    });
+                });
+                
+                // Кнопка сохранения
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveItem());
+                
+                // Кнопка очистки
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearForm());
+                
+                // Коэффициент
+                document.getElementById('coefficient').addEventListener('input', (e) => {
+                    this.currentItem.coefficient = parseFloat(e.target.value);
+                    this.updateCoefficientDisplay();
+                });
+                
+                // Качества
+                document.querySelectorAll('.quality-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        const quality = parseInt(e.target.dataset.quality);
+                        const coefMap = {1: 1.0, 2: 1.2, 3: 1.3, 4: 1.5, 5: 2.0};
+                        this.currentItem.coefficient = coefMap[quality];
+                        document.getElementById('coefficient').value = this.currentItem.coefficient;
+                        this.updateCoefficientDisplay();
+                    });
+                });
+                
+                // Тип предмета
+                document.getElementById('itemType').addEventListener('change', (e) => {
+                    const type = e.target.value;
+                    this.currentItem.type = type;
+                    
+                    // Показываем/скрываем секцию компонентов
+                    const compositeSection = document.getElementById('compositeSection');
+                    const itemFilters = document.getElementById('itemFilters');
+                    
+                    if (type === 'composite' || type === 'armor' || type === 'helmet' || 
+                        type === 'boots' || type === 'weapon' || type === 'offhand') {
+                        compositeSection.style.display = 'block';
+                        itemFilters.style.display = 'grid';
+                    } else {
+                        compositeSection.style.display = 'none';
+                        itemFilters.style.display = 'none';
+                    }
+                    
+                    // Скрываем подтип для ресурсов
+                    const subtypeSelect = document.getElementById('itemSubtype');
+                    if (type === 'resource' || type === 'composite') {
+                        subtypeSelect.style.display = 'none';
+                        subtypeSelect.previousElementSibling.style.display = 'none';
+                    } else {
+                        subtypeSelect.style.display = 'block';
+                        subtypeSelect.previousElementSibling.style.display = 'block';
+                    }
+                });
+                
+                // Кнопка добавления компонента
+                document.getElementById('addComponentBtn').addEventListener('click', () => {
+                    this.openComponentModal();
+                });
+                
+                // Поиск
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.filterLibrary(e.target.value);
+                });
+                
+                // Экспорт/импорт
+                document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
+                document.getElementById('importBtn').addEventListener('click', () => this.importData());
+                
+                // Модальное окно
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    document.getElementById('componentModal').classList.remove('active');
+                });
+                
+                document.getElementById('componentSearch').addEventListener('input', (e) => {
+                    this.filterComponentList(e.target.value);
+                });
+                
+                document.getElementById('addSelectedComponent').addEventListener('click', () => {
+                    this.addComponentFromModal();
+                });
+                
+                // Загрузка изображений
+                document.getElementById('imageUpload').addEventListener('click', () => this.triggerImageUpload());
+                
+                // Drag and drop для изображений
+                const imageUpload = document.getElementById('imageUpload');
+                imageUpload.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    imageUpload.style.borderColor = '#2ecc71';
+                    imageUpload.style.background = 'rgba(46, 204, 113, 0.1)';
+                });
+                
+                imageUpload.addEventListener('dragleave', () => {
+                    imageUpload.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                    imageUpload.style.background = '';
+                });
+                
+                imageUpload.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    imageUpload.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                    imageUpload.style.background = '';
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.handleImageFile(files[0]);
+                    }
+                });
+            }
+            
+            initClipboard() {
+                document.addEventListener('paste', (e) => {
+                    const items = e.clipboardData.items;
+                    for (let item of items) {
+                        if (item.type.indexOf('image') !== -1) {
+                            const blob = item.getAsFile();
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                this.setImage(event.target.result);
+                            };
+                            reader.readAsDataURL(blob);
+                            break;
+                        }
+                    }
+                });
+            }
+            
+            switchTab(tabType) {
+                document.querySelectorAll('#mainTabs .tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelector(`[data-tab="${tabType}"]`).classList.add('active');
+                this.currentTab = tabType;
+                
+                // Обновляем форму в зависимости от вкладки
+                const typeSelect = document.getElementById('itemType');
+                switch(tabType) {
+                    case 'resource':
+                        typeSelect.value = 'resource';
+                        typeSelect.dispatchEvent(new Event('change'));
+                        break;
+                    case 'composite':
+                        typeSelect.value = 'composite';
+                        typeSelect.dispatchEvent(new Event('change'));
+                        break;
+                    case 'item':
+                        typeSelect.value = 'armor';
+                        typeSelect.dispatchEvent(new Event('change'));
+                        break;
+                }
+            }
+            
+            updateCoefficientDisplay() {
+                document.getElementById('coefValue').textContent = 
+                    this.currentItem.coefficient.toFixed(2) + 'x';
+            }
+            
+            triggerImageUpload() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    if (e.target.files[0]) {
+                        this.handleImageFile(e.target.files[0]);
+                    }
+                };
+                input.click();
+            }
+            
+            handleImageFile(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.setImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            setImage(imageData) {
+                this.currentItem.icon = imageData;
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = '';
+                
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.style.width = '80px';
+                img.style.height = '80px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '8px';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.style.position = 'absolute';
+                removeBtn.style.top = '5px';
+                removeBtn.style.right = '5px';
+                removeBtn.style.background = 'rgba(231, 76, 60, 0.9)';
+                removeBtn.style.color = 'white';
+                removeBtn.style.border = 'none';
+                removeBtn.style.borderRadius = '50%';
+                removeBtn.style.width = '20px';
+                removeBtn.style.height = '20px';
+                removeBtn.style.fontSize = '10px';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    preview.innerHTML = '';
+                    this.currentItem.icon = null;
+                };
+                
+                const container = document.createElement('div');
+                container.style.position = 'relative';
+                container.style.display = 'inline-block';
+                container.appendChild(img);
+                container.appendChild(removeBtn);
+                preview.appendChild(container);
+                
+                this.showNotification('Изображение загружено', 'success');
+            }
+            
+            openComponentModal() {
+                document.getElementById('componentModal').classList.add('active');
+                this.loadComponentList();
+            }
+            
+            loadComponentList() {
+                const componentList = document.getElementById('componentList');
+                componentList.innerHTML = '';
+                
+                // Показываем все ресурсы и составные ресурсы
+                const allComponents = [...this.items.resources, ...this.items.composites];
+                
+                if (allComponents.length === 0) {
+                    componentList.innerHTML = '<div class="empty-state">Нет доступных компонентов</div>';
+                    return;
+                }
+                
+                allComponents.forEach(component => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.dataset.id = component.id;
+                    div.innerHTML = `
+                        <div class="item-icon">
+                            ${component.icon ? 
+                                `<img src="${component.icon}" style="width:100%;height:100%;border-radius:6px;">` : 
+                                '<i class="fas fa-box"></i>'}
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">${component.name}</div>
+                            <div class="item-details">
+                                T${component.tier} | ${this.formatNumber(component.basePrice)} серебра
+                            </div>
+                        </div>
+                    `;
+                    div.addEventListener('click', () => {
+                        document.querySelectorAll('#componentList .list-item').forEach(item => {
+                            item.style.background = '';
+                        });
+                        div.style.background = 'rgba(52, 152, 219, 0.3)';
+                        this.selectedComponents = [component];
+                        document.getElementById('componentPrice').value = component.basePrice;
+                    });
+                    componentList.appendChild(div);
+                });
+            }
+            
+            filterComponentList(searchTerm) {
+                const items = document.querySelectorAll('#componentList .list-item');
+                const term = searchTerm.toLowerCase();
+                
+                items.forEach(item => {
+                    const name = item.querySelector('.item-name').textContent.toLowerCase();
+                    if (name.includes(term)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            addComponentFromModal() {
+                if (this.selectedComponents.length === 0) {
+                    this.showNotification('Выберите компонент', 'error');
+                    return;
+                }
+                
+                const component = this.selectedComponents[0];
+                const quantity = parseInt(document.getElementById('componentQuantity').value) || 1;
+                const price = parseFloat(document.getElementById('componentPrice').value) || component.basePrice;
+                
+                this.currentItem.components.push({
+                    id: component.id,
+                    name: component.name,
+                    quantity: quantity,
+                    price: price,
+                    total: price * quantity,
+                    icon: component.icon
+                });
+                
+                this.renderComponents();
+                document.getElementById('componentModal').classList.remove('active');
+                this.selectedComponents = [];
+                this.showNotification('Компонент добавлен', 'success');
+            }
+            
+            renderComponents() {
+                const list = document.getElementById('componentsList');
+                list.innerHTML = '';
+                
+                if (this.currentItem.components.length === 0) {
+                    list.innerHTML = '<div class="empty-state">Нет добавленных компонентов</div>';
+                    return;
+                }
+                
+                this.currentItem.components.forEach((component, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <div class="item-icon">
+                            ${component.icon ? 
+                                `<img src="${component.icon}" style="width:100%;height:100%;border-radius:6px;">` : 
+                                '<i class="fas fa-box"></i>'}
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">${component.name}</div>
+                            <div class="item-details">
+                                ${component.quantity} × ${this.formatNumber(component.price)} = ${this.formatNumber(component.total)} серебра
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:5px;">
+                            <button class="btn btn-sm btn-warning edit-component" data-index="${index}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-component" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Обработчики для кнопок редактирования и удаления
+                    div.querySelector('.edit-component').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.editComponent(index);
+                    });
+                    
+                    div.querySelector('.delete-component').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm('Удалить компонент?')) {
+                            this.currentItem.components.splice(index, 1);
+                            this.renderComponents();
+                        }
+                    });
+                    
+                    list.appendChild(div);
+                });
+            }
+            
+            editComponent(index) {
+                const component = this.currentItem.components[index];
+                this.currentItem.components.splice(index, 1);
+                this.renderComponents();
+                
+                document.getElementById('componentQuantity').value = component.quantity;
+                document.getElementById('componentPrice').value = component.price;
+                this.selectedComponents = [{id: component.id, name: component.name, basePrice: component.price, icon: component.icon}];
+                this.openComponentModal();
+            }
+            
+            saveItem() {
+                // Сбор данных из формы
+                this.currentItem.name = document.getElementById('itemName').value.trim();
+                this.currentItem.basePrice = parseFloat(document.getElementById('itemBasePrice').value) || 0;
+                this.currentItem.tier = parseInt(document.getElementById('itemTier').value);
+                this.currentItem.enchant = parseInt(document.getElementById('itemEnchant').value);
+                this.currentItem.type = document.getElementById('itemType').value;
+                this.currentItem.subtype = document.getElementById('itemSubtype').value;
+                
+                if (!this.currentItem.name) {
+                    this.showNotification('Введите название', 'error');
+                    return;
+                }
+                
+                // Определяем категорию
+                let category = 'items';
+                if (this.currentItem.type === 'resource') category = 'resources';
+                if (this.currentItem.type === 'composite') category = 'composites';
+                
+                // Создаем или обновляем элемент
+                const now = new Date().toISOString();
+                
+                if (this.editingId) {
+                    // Обновление существующего
+                    const index = this.items[category].findIndex(item => item.id === this.editingId);
+                    if (index !== -1) {
+                        this.currentItem.updatedAt = now;
+                        this.items[category][index] = {...this.currentItem};
+                    }
+                    this.showNotification('Обновлено успешно', 'success');
+                } else {
+                    // Создание нового
+                    this.currentItem.id = Date.now();
+                    this.currentItem.createdAt = now;
+                    this.currentItem.updatedAt = now;
+                    this.items[category].push({...this.currentItem});
+                    this.showNotification('Сохранено успешно', 'success');
+                }
+                
+                this.saveToStorage();
+                this.loadLibrary();
+                this.clearForm();
+                this.updateStats();
+            }
+            
+            clearForm() {
+                this.currentItem = {
+                    id: null,
+                    name: '',
+                    type: 'resource',
+                    tier: 1,
+                    enchant: 0,
+                    quality: 1,
+                    subtype: '',
+                    basePrice: 0,
+                    coefficient: 1.3,
+                    icon: null,
+                    components: [],
+                    createdAt: null,
+                    updatedAt: null
+                };
+                
+                this.editingId = null;
+                
+                // Сброс формы
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemBasePrice').value = '';
+                document.getElementById('itemTier').value = '1';
+                document.getElementById('itemEnchant').value = '0';
+                document.getElementById('itemType').value = 'resource';
+                document.getElementById('itemSubtype').value = '';
+                document.getElementById('coefficient').value = '1.3';
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('componentsList').innerHTML = '';
+                document.getElementById('compositeSection').style.display = 'none';
+                document.getElementById('itemFilters').style.display = 'none';
+                
+                // Сброс качества
+                document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.quality-btn[data-quality="1"]').classList.add('active');
+                
+                this.updateCoefficientDisplay();
+            }
+            
+            loadLibrary() {
+                const libraryList = document.getElementById('libraryList');
+                libraryList.innerHTML = '';
+                
+                let itemsToShow = [];
+                
+                // Фильтрация по категории
+                switch(this.currentLibrary) {
+                    case 'resources':
+                        itemsToShow = this.items.resources;
+                        break;
+                    case 'composites':
+                        itemsToShow = this.items.composites;
+                        break;
+                    case 'items':
+                        itemsToShow = this.items.items;
+                        break;
+                    default:
+                        itemsToShow = [
+                            ...this.items.resources,
+                            ...this.items.composites,
+                            ...this.items.items
+                        ];
+                }
+                
+                // Применение фильтров
+                itemsToShow = this.applyFilters(itemsToShow);
+                
+                if (itemsToShow.length === 0) {
+                    libraryList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <p>Нет элементов для отображения</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Сортировка по имени
+                itemsToShow.sort((a, b) => a.name.localeCompare(b.name));
+                
+                itemsToShow.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.dataset.id = item.id;
+                    
+                    // Определяем тип для отображения
+                    let typeText = '';
+                    let typeColor = '#3498db';
+                    
+                    switch(item.type) {
+                        case 'resource':
+                            typeText = 'Ресурс';
+                            typeColor = '#2ecc71';
+                            break;
+                        case 'composite':
+                            typeText = 'Составной';
+                            typeColor = '#9b59b6';
+                            break;
+                        default:
+                            typeText = this.capitalize(item.type);
+                            typeColor = '#f39c12';
+                    }
+                    
+                    div.innerHTML = `
+                        <div class="item-icon" style="border-left-color: ${typeColor};">
+                            ${item.icon ? 
+                                `<img src="${item.icon}" style="width:100%;height:100%;border-radius:6px;">` : 
+                                `<i class="fas fa-${item.type === 'resource' ? 'leaf' : item.type === 'composite' ? 'puzzle-piece' : 'shield-alt'}"></i>`}
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-details">
+                                <span style="color:${typeColor}">${typeText}</span> | 
+                                T${item.tier} | ${this.formatNumber(this.calculateTotalCost(item))} серебра
+                                ${item.components && item.components.length > 0 ? `(${item.components.length} комп.)` : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:5px;">
+                            <button class="btn btn-sm btn-warning edit-item" data-id="${item.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary copy-item" data-id="${item.id}">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-item" data-id="${item.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Обработчики событий
+                    div.addEventListener('click', (e) => {
+                        if (!e.target.closest('button')) {
+                            this.showItemDetails(item);
+                        }
+                    });
+                    
+                    div.querySelector('.edit-item').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.editItem(item);
+                    });
+                    
+                    div.querySelector('.copy-item').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.copyItem(item);
+                    });
+                    
+                    div.querySelector('.delete-item').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.deleteItem(item);
+                    });
+                    
+                    libraryList.appendChild(div);
+                });
+            }
+            
+            applyFilters(items) {
+                const tier = document.getElementById('filterTier').value;
+                const enchant = document.getElementById('filterEnchant').value;
+                const quality = document.getElementById('filterQuality').value;
+                const type = document.getElementById('filterType').value;
+                const subtype = document.getElementById('filterSubtype').value;
+                
+                return items.filter(item => {
+                    if (tier && item.tier != tier) return false;
+                    if (enchant && item.enchant != enchant) return false;
+                    if (quality && item.quality != quality) return false;
+                    if (type && item.type != type) return false;
+                    if (subtype && item.subtype != subtype) return false;
+                    return true;
+                });
+            }
+            
+            filterLibrary(searchTerm) {
+                const items = document.querySelectorAll('#libraryList .list-item');
+                const term = searchTerm.toLowerCase();
+                
+                items.forEach(item => {
+                    const name = item.querySelector('.item-name').textContent.toLowerCase();
+                    if (name.includes(term)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            showItemDetails(item) {
+                const totalCost = this.calculateTotalCost(item);
+                const marketPrice = totalCost * item.coefficient;
+                const profit = marketPrice - totalCost;
+                const profitPercent = totalCost > 0 ? (profit / totalCost * 100) : 0;
+                
+                document.getElementById('totalCostValue').textContent = 
+                    this.formatNumber(totalCost) + ' серебра';
+                document.getElementById('marketPriceValue').textContent = 
+                    `Рыночная цена: ${this.formatNumber(marketPrice)} серебра (${item.coefficient.toFixed(2)}x)`;
+                
+                const profitIndicator = document.getElementById('profitIndicator');
+                profitIndicator.textContent = `Прибыль: ${this.formatNumber(profit)} серебра (${profitPercent.toFixed(1)}%)`;
+                profitIndicator.style.color = profit >= 0 ? '#2ecc71' : '#e74c3c';
+                
+                document.getElementById('selectedTotal').style.display = 'block';
+            }
+            
+            editItem(item) {
+                this.currentItem = {...item};
+                this.editingId = item.id;
+                
+                // Заполнение формы
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('itemBasePrice').value = item.basePrice;
+                document.getElementById('itemTier').value = item.tier;
+                document.getElementById('itemEnchant').value = item.enchant;
+                document.getElementById('itemType').value = item.type;
+                document.getElementById('itemSubtype').value = item.subtype;
+                document.getElementById('coefficient').value = item.coefficient;
+                
+                // Установка качества
+                document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`.quality-btn[data-quality="${item.quality}"]`).classList.add('active');
+                
+                // Изображение
+                if (item.icon) {
+                    this.setImage(item.icon);
+                }
+                
+                // Компоненты
+                if (item.components && item.components.length > 0) {
+                    this.currentItem.components = [...item.components];
+                    this.renderComponents();
+                    document.getElementById('compositeSection').style.display = 'block';
+                }
+                
+                // Показ соответствующих фильтров
+                const itemFilters = document.getElementById('itemFilters');
+                if (item.type !== 'resource') {
+                    itemFilters.style.display = 'grid';
+                }
+                
+                this.updateCoefficientDisplay();
+                this.showNotification('Редактирование: ' + item.name, 'info');
+                
+                // Переключение на соответствующую вкладку
+                let targetTab = 'item';
+                if (item.type === 'resource') targetTab = 'resource';
+                if (item.type === 'composite') targetTab = 'composite';
+                
+                this.switchTab(targetTab);
+            }
+            
+            copyItem(item) {
+                const copy = {
+                    ...item,
+                    id: Date.now(),
+                    name: item.name + ' (копия)',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                let category = 'items';
+                if (item.type === 'resource') category = 'resources';
+                if (item.type === 'composite') category = 'composites';
+                
+                this.items[category].push(copy);
+                this.saveToStorage();
+                this.loadLibrary();
+                this.updateStats();
+                this.showNotification('Скопировано успешно', 'success');
+            }
+            
+            deleteItem(item) {
+                if (!confirm(`Удалить "${item.name}"?`)) return;
+                
+                let category = 'items';
+                if (item.type === 'resource') category = 'resources';
+                if (item.type === 'composite') category = 'composites';
+                
+                this.items[category] = this.items[category].filter(i => i.id !== item.id);
+                this.saveToStorage();
+                this.loadLibrary();
+                this.updateStats();
+                this.showNotification('Удалено успешно', 'success');
+            }
+            
+            calculateTotalCost(item) {
+                if (item.components && item.components.length > 0) {
+                    return item.components.reduce((sum, comp) => sum + comp.total, 0);
+                }
+                return item.basePrice;
+            }
+            
+            saveToStorage() {
+                try {
+                    localStorage.setItem('albionCraftMaster', JSON.stringify(this.items));
+                } catch (e) {
+                    // Если localStorage переполнен
+                    this.showNotification('Ошибка сохранения. Данные могут быть слишком большими.', 'error');
+                }
+            }
+            
+            updateStats() {
+                const totalItems = this.items.items.length + this.items.resources.length + this.items.composites.length;
+                document.getElementById('totalItems').textContent = `${totalItems} предметов`;
+                document.getElementById('totalResources').textContent = `${this.items.resources.length} ресурсов`;
+                
+                try {
+                    const used = JSON.stringify(this.items).length / 1024;
+                    document.getElementById('storageUsed').textContent = `${used.toFixed(1)} КБ`;
+                } catch (e) {
+                    document.getElementById('storageUsed').textContent = '? КБ';
+                }
+            }
+            
+            exportData() {
+                const dataStr = JSON.stringify(this.items, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = 'albion-craft-data.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                this.showNotification('Данные экспортированы', 'success');
+            }
+            
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if (data.resources && data.composites && data.items) {
+                                this.items = data;
+                                this.saveToStorage();
+                                this.loadLibrary();
+                                this.updateStats();
+                                this.showNotification('Данные импортированы успешно', 'success');
+                            } else {
+                                this.showNotification('Неверный формат файла', 'error');
+                            }
+                        } catch (err) {
+                            this.showNotification('Ошибка чтения файла', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+            
+            formatNumber(num) {
+                return new Intl.NumberFormat('ru-RU').format(Math.round(num));
+            }
+            
+            capitalize(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+            
+            showNotification(message, type = 'info') {
+                // Удаляем старые уведомления
+                document.querySelectorAll('.notification').forEach(n => n.remove());
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    ${message}
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Автоматическое скрытие
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.style.opacity = '0';
+                        notification.style.transform = 'translateY(-100%)';
+                        setTimeout(() => notification.remove(), 300);
+                    }
+                }, 3000);
+            }
+        }
+
+        // Инициализация приложения при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            window.craftMaster = new CraftMaster();
+            
+            // Показать инструкцию при первом запуске
+            if (!localStorage.getItem('albionCraftMaster')) {
+                setTimeout(() => {
+                    window.craftMaster.showNotification(
+                        'Добро пожаловать! Используйте Ctrl+V для вставки скриншотов', 
+                        'info'
+                    );
+                }, 1000);
+            }
+        });
+
+        // Фолбэк для старых браузеров
+        if (!window.addEventListener) {
+            // Для очень старых браузеров
+            window.attachEvent('onload', function() {
+                window.craftMaster = new CraftMaster();
+            });
+        }
+    </script>
+</body>
+</html>

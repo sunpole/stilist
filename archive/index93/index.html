@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Калькулятор стоимости бумаги</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --border-radius: 8px;
+            --box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark-color);
+            line-height: 1.4;
+            padding: 10px;
+            min-height: 100vh;
+            font-size: 14px;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Мобильное меню */
+        .mobile-menu-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--box-shadow);
+            border: none;
+            font-size: 18px;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: white;
+            z-index: 999;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            padding: 60px 20px 20px;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.open {
+            right: 0;
+        }
+
+        .mobile-menu h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .mobile-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Основной контент */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 13px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .input-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .input-with-unit {
+            position: relative;
+        }
+        
+        .input-with-unit input {
+            padding-right: 60px;
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .format-presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .format-btn {
+            padding: 10px 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .format-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+        }
+        
+        .format-custom-btn {
+            grid-column: span 2;
+        }
+
+        .custom-format-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .custom-format-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .result h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .calculation-text {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            font-size: 12px;
+            max-height: 35vh;
+            overflow: hidden;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .button-row button {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .copy-btn {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        .share-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .history-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--box-shadow);
+            border: none;
+            font-size: 20px;
+        }
+
+        .history-panel {
+            position: fixed;
+            bottom: -300px;
+            left: 0;
+            width: 100%;
+            background: white;
+            z-index: 99;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .history-panel.open {
+            bottom: 0;
+        }
+
+        .history-panel h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-color);
+            text-align: center;
+        }
+
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 3px;
+        }
+
+        .history-details {
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        .history-result {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .history-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 98;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .history-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            padding: 15px;
+            color: #7f8c8d;
+            font-size: 12px;
+            border-top: 1px solid #ddd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        /* Скрытые элементы на мобильных */
+        .mobile-hidden {
+            display: none;
+        }
+
+        /* Адаптация для десктопов */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+                font-size: 16px;
+            }
+            
+            .container {
+                max-width: 1200px;
+            }
+            
+            .mobile-menu-btn, .mobile-menu, .mobile-overlay {
+                display: none;
+            }
+            
+            .mobile-hidden {
+                display: block;
+            }
+            
+            .card-title {
+                display: block;
+            }
+            
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .input-row {
+                display: block;
+            }
+            
+            .input-row .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .format-presets {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .format-custom-btn {
+                grid-column: span 3;
+            }
+            
+            .custom-format-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            #calculateBtn {
+                display: block;
+                width: 100%;
+                padding: 14px;
+                background-color: var(--secondary-color);
+                color: white;
+                border: none;
+                border-radius: var(--border-radius);
+                font-weight: 600;
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+
+            .history-btn, .history-panel, .history-overlay {
+                display: none;
+            }
+        }
+
+        /* Портретная ориентация мобильных */
+        @media (max-width: 767px) and (orientation: portrait) {
+            .calculation-text {
+                max-height: 25vh;
+                font-size: 11px;
+                line-height: 1.3;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <button class="history-btn" id="historyBtn">
+        <i class="fas fa-history"></i>
+    </button>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <h2>Параметры бумаги</h2>
+        <div class="form-group">
+            <label for="paperNameMobile">Название бумаги</label>
+            <input type="text" id="paperNameMobile" placeholder="Например: Офсетная бумага">
+        </div>
+    </div>
+
+    <div class="history-panel" id="historyPanel">
+        <h2>История расчетов</h2>
+        <div id="historyList"></div>
+    </div>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="history-overlay" id="historyOverlay"></div>
+
+    <div class="container">
+        <header class="mobile-hidden">
+            <h1>Калькулятор стоимости бумаги</h1>
+            <p class="subtitle">Конвертер цены за кг в цену за лист</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card mobile-hidden">
+                <h2 class="card-title">Параметры бумаги</h2>
+                <div class="form-group">
+                    <label for="paperName">Название бумаги (необязательно)</label>
+                    <input type="text" id="paperName" placeholder="Например: Офсетная бумага">
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="pricePerKg">Стоимость за кг (руб)</label>
+                        <div class="input-with-unit">
+                            <input type="text" id="pricePerKg" inputmode="decimal" placeholder="150 или 45,50">
+                            <span class="unit-label">руб/кг</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="density">Плотность (г/м²)</label>
+                        <div class="input-with-unit">
+                            <input type="text" id="density" inputmode="decimal" placeholder="80 или 120,5">
+                            <span class="unit-label">г/м²</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Формат листа (см)</label>
+                    <div class="format-presets">
+                        <div class="format-btn active" data-width="72" data-height="104">72×104</div>
+                        <div class="format-btn" data-width="65" data-height="94">65×94</div>
+                        <div class="format-btn" data-width="64" data-height="90">64×90</div>
+                        <div class="format-btn" data-width="62" data-height="94">62×94</div>
+                        <div class="format-btn" data-width="47" data-height="65">47×65</div>
+                        <div class="format-btn format-custom-btn" id="customFormatBtn">Произвольный</div>
+                    </div>
+                </div>
+                
+                <div id="customFormat" class="form-group hidden">
+                    <label>Произвольный размер (см)</label>
+                    <div class="custom-format-row">
+                        <div class="input-with-unit">
+                            <input type="text" id="customWidth" inputmode="decimal" placeholder="Ширина">
+                            <span class="unit-label">см</span>
+                        </div>
+                        <div class="input-with-unit">
+                            <input type="text" id="customHeight" inputmode="decimal" placeholder="Высота">
+                            <span class="unit-label">см</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Рассчитать
+                </button>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title mobile-hidden">Результаты расчета</h2>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="pricePerKgMobile">Стоимость за кг (руб)</label>
+                        <div class="input-with-unit">
+                            <input type="text" id="pricePerKgMobile" inputmode="decimal" placeholder="150 или 45,50">
+                            <span class="unit-label">руб/кг</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="densityMobile">Плотность (г/м²)</label>
+                        <div class="input-with-unit">
+                            <input type="text" id="densityMobile" inputmode="decimal" placeholder="80 или 120,5">
+                            <span class="unit-label">г/м²</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Формат листа (см)</label>
+                    <div class="format-presets">
+                        <div class="format-btn active" data-width="72" data-height="104">72×104</div>
+                        <div class="format-btn" data-width="65" data-height="94">65×94</div>
+                        <div class="format-btn" data-width="64" data-height="90">64×90</div>
+                        <div class="format-btn" data-width="62" data-height="94">62×94</div>
+                        <div class="format-btn" data-width="47" data-height="65">47×65</div>
+                        <div class="format-btn format-custom-btn" id="customFormatBtnMobile">Произвольный</div>
+                    </div>
+                </div>
+                
+                <div id="customFormatMobile" class="form-group hidden">
+                    <label>Произвольный размер (см)</label>
+                    <div class="custom-format-row">
+                        <div class="input-with-unit">
+                            <input type="text" id="customWidthMobile" inputmode="decimal" placeholder="Ширина">
+                            <span class="unit-label">см</span>
+                        </div>
+                        <div class="input-with-unit">
+                            <input type="text" id="customHeightMobile" inputmode="decimal" placeholder="Высота">
+                            <span class="unit-label">см</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result">
+                    <h3>Стоимость за 1 лист:</h3>
+                    <div id="resultValue" class="result-value">—</div>
+                </div>
+                
+                <div id="calculationText" class="calculation-text">Здесь будет отображен подробный расчет...</div>
+                
+                <div class="button-row">
+                    <button id="copyBtn" class="copy-btn">
+                        <i class="fas fa-copy"></i> Копировать
+                    </button>
+                    <button id="shareBtn" class="share-btn">
+                        <i class="fas fa-share-alt"></i> Поделиться
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mobile-hidden">
+            <p>© 2023 Калькулятор стоимости бумаги</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Определяем мобильное устройство
+            const isMobile = window.matchMedia("(max-width: 767px)").matches;
+            
+            // Элементы DOM
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const historyBtn = document.getElementById('historyBtn');
+            const historyPanel = document.getElementById('historyPanel');
+            const historyOverlay = document.getElementById('historyOverlay');
+            const paperNameInput = document.getElementById('paperName');
+            const paperNameMobileInput = document.getElementById('paperNameMobile');
+            const pricePerKgInput = document.getElementById('pricePerKg');
+            const pricePerKgMobileInput = document.getElementById('pricePerKgMobile');
+            const densityInput = document.getElementById('density');
+            const densityMobileInput = document.getElementById('densityMobile');
+            const customFormatDiv = document.getElementById('customFormat');
+            const customFormatMobileDiv = document.getElementById('customFormatMobile');
+            const customFormatBtn = document.getElementById('customFormatBtn');
+            const customFormatBtnMobile = document.getElementById('customFormatBtnMobile');
+            const customWidthInput = document.getElementById('customWidth');
+            const customWidthMobileInput = document.getElementById('customWidthMobile');
+            const customHeightInput = document.getElementById('customHeight');
+            const customHeightMobileInput = document.getElementById('customHeightMobile');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultValueDiv = document.getElementById('resultValue');
+            const calculationTextDiv = document.getElementById('calculationText');
+            const copyBtn = document.getElementById('copyBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const historyListDiv = document.getElementById('historyList');
+            const formatBtns = document.querySelectorAll('.format-btn');
+            const formatMobileBtns = document.querySelectorAll('#customFormatBtnMobile').closest('.card').querySelectorAll('.format-btn');
+            
+            // Текущий выбранный формат
+            let currentFormat = {
+                width: 72,
+                height: 104,
+                isCustom: false
+            };
+            
+            // Управление мобильным меню
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('open');
+                mobileOverlay.classList.toggle('open');
+            });
+            
+            mobileOverlay.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+                mobileOverlay.classList.remove('open');
+            });
+            
+            // Управление историей
+            historyBtn.addEventListener('click', function() {
+                historyPanel.classList.toggle('open');
+                historyOverlay.classList.toggle('open');
+            });
+            
+            historyOverlay.addEventListener('click', function() {
+                historyPanel.classList.remove('open');
+                historyOverlay.classList.remove('open');
+            });
+            
+            // Функция для преобразования строки в число, поддерживающая и точку, и запятую
+            function parseNumber(value) {
+                if (typeof value !== 'string') return Number(value);
+                
+                const cleanedValue = value.replace(/,/g, '.').replace(/[^\d.-]/g, '');
+                
+                if (cleanedValue === '' || cleanedValue === '.') return NaN;
+                
+                return Number(cleanedValue);
+            }
+            
+            // Обработчики ввода для поддержки и точки, и запятой
+            function setupInputValidation(input) {
+                input.addEventListener('input', function() {
+                    let value = this.value;
+                    
+                    value = value.replace(/,/g, '.');
+                    
+                    const parts = value.split('.');
+                    if (parts.length > 2) {
+                        value = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    
+                    this.value = value;
+                    calculatePrice();
+                });
+            }
+            
+            // Настраиваем валидацию для всех числовых полей
+            setupInputValidation(pricePerKgInput);
+            setupInputValidation(pricePerKgMobileInput);
+            setupInputValidation(densityInput);
+            setupInputValidation(densityMobileInput);
+            setupInputValidation(customWidthInput);
+            setupInputValidation(customWidthMobileInput);
+            setupInputValidation(customHeightInput);
+            setupInputValidation(customHeightMobileInput);
+            
+            // Связываем поля ввода для мобильной и десктопной версии
+            function syncInputValues(source, target) {
+                source.addEventListener('input', function() {
+                    target.value = this.value;
+                });
+            }
+            
+            syncInputValues(paperNameInput, paperNameMobileInput);
+            syncInputValues(paperNameMobileInput, paperNameInput);
+            syncInputValues(pricePerKgInput, pricePerKgMobileInput);
+            syncInputValues(pricePerKgMobileInput, pricePerKgInput);
+            syncInputValues(densityInput, densityMobileInput);
+            syncInputValues(densityMobileInput, densityInput);
+            syncInputValues(customWidthInput, customWidthMobileInput);
+            syncInputValues(customWidthMobileInput, customWidthInput);
+            syncInputValues(customHeightInput, customHeightMobileInput);
+            syncInputValues(customHeightMobileInput, customHeightInput);
+            
+            // Обработчики для кнопок форматов
+            function setupFormatButtons(buttons, customBtn, customDiv, widthInput, heightInput) {
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        buttons.forEach(b => b.classList.remove('active'));
+                        
+                        this.classList.add('active');
+                        
+                        if (this === customBtn) {
+                            customDiv.classList.remove('hidden');
+                            currentFormat.isCustom = true;
+                        } else {
+                            customDiv.classList.add('hidden');
+                            currentFormat.isCustom = false;
+                            currentFormat.width = parseNumber(this.dataset.width);
+                            currentFormat.height = parseNumber(this.dataset.height);
+                        }
+                        
+                        calculatePrice();
+                    });
+                });
+            }
+            
+            setupFormatButtons(formatBtns, customFormatBtn, customFormatDiv, customWidthInput, customHeightInput);
+            setupFormatButtons(formatMobileBtns, customFormatBtnMobile, customFormatMobileDiv, customWidthMobileInput, customHeightMobileInput);
+            
+            // Обработчик для полей произвольного формата
+            function setupCustomFormatInputs(widthInput, heightInput) {
+                widthInput.addEventListener('input', function() {
+                    if (currentFormat.isCustom) {
+                        currentFormat.width = parseNumber(this.value) || 0;
+                        calculatePrice();
+                    }
+                });
+                
+                heightInput.addEventListener('input', function() {
+                    if (currentFormat.isCustom) {
+                        currentFormat.height = parseNumber(this.value) || 0;
+                        calculatePrice();
+                    }
+                });
+            }
+            
+            setupCustomFormatInputs(customWidthInput, customHeightInput);
+            setupCustomFormatInputs(customWidthMobileInput, customHeightMobileInput);
+            
+            // Загрузка истории из localStorage
+            let calculationHistory = JSON.parse(localStorage.getItem('paperCalculationHistory')) || [];
+            
+            // Функция для отображения истории
+            function renderHistory() {
+                historyListDiv.innerHTML = '';
+                
+                if (calculationHistory.length === 0) {
+                    historyListDiv.innerHTML = '<div class="history-item"><div class="history-info">История расчетов пуста</div></div>';
+                    return;
+                }
+                
+                // Показываем только последние 5 расчетов
+                const recentHistory = calculationHistory.slice(-5).reverse();
+                
+                recentHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleString('ru-RU');
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div class="history-name">${item.paperName || 'Без названия'}</div>
+                            <div class="history-details">${item.density} г/м², ${item.format}, ${formattedDate}</div>
+                        </div>
+                        <div class="history-result">${item.result} руб</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', function() {
+                        // Заполняем форму данными из истории
+                        paperNameInput.value = item.paperName || '';
+                        paperNameMobileInput.value = item.paperName || '';
+                        pricePerKgInput.value = item.pricePerKg;
+                        pricePerKgMobileInput.value = item.pricePerKg;
+                        densityInput.value = item.density;
+                        densityMobileInput.value = item.density;
+                        
+                        // Устанавливаем формат
+                        const formatParts = item.format.split('x');
+                        if (formatParts.length === 2) {
+                            const width = parseNumber(formatParts[0].trim());
+                            const height = parseNumber(formatParts[1].trim());
+                            
+                            // Проверяем, есть ли такой формат в пресетах
+                            let foundPreset = false;
+                            formatBtns.forEach(btn => {
+                                if (btn.id !== 'customFormatBtn' && 
+                                    parseNumber(btn.dataset.width) === width && 
+                                    parseNumber(btn.dataset.height) === height) {
+                                    btn.click();
+                                    foundPreset = true;
+                                }
+                            });
+                            
+                            formatMobileBtns.forEach(btn => {
+                                if (btn.id !== 'customFormatBtnMobile' && 
+                                    parseNumber(btn.dataset.width) === width && 
+                                    parseNumber(btn.dataset.height) === height) {
+                                    btn.click();
+                                    foundPreset = true;
+                                }
+                            });
+                            
+                            if (!foundPreset) {
+                                customFormatBtn.click();
+                                customFormatBtnMobile.click();
+                                customWidthInput.value = width;
+                                customWidthMobileInput.value = width;
+                                customHeightInput.value = height;
+                                customHeightMobileInput.value = height;
+                                currentFormat.width = width;
+                                currentFormat.height = height;
+                            }
+                        }
+                        
+                        calculatePrice();
+                        mobileMenu.classList.remove('open');
+                        mobileOverlay.classList.remove('open');
+                        historyPanel.classList.remove('open');
+                        historyOverlay.classList.remove('open');
+                    });
+                    
+                    historyListDiv.appendChild(historyItem);
+                });
+            }
+            
+            // Функция расчета стоимости
+            function calculatePrice() {
+                const paperName = paperNameInput.value.trim() || "Бумага без названия";
+                const pricePerKg = parseNumber(pricePerKgInput.value);
+                const density = parseNumber(densityInput.value);
+                
+                if (isNaN(pricePerKg) || isNaN(density) || pricePerKg <= 0 || density <= 0) {
+                    resultValueDiv.textContent = '—';
+                    calculationTextDiv.textContent = 'Заполните все обязательные поля корректными значениями';
+                    return null;
+                }
+                
+                // Получаем размеры листа
+                let width, height, formatName;
+                
+                if (currentFormat.isCustom) {
+                    width = parseNumber(customWidthInput.value);
+                    height = parseNumber(customHeightInput.value);
+                    
+                    if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+                        resultValueDiv.textContent = '—';
+                        calculationTextDiv.textContent = 'Укажите корректные размеры для произвольного формата';
+                        return null;
+                    }
+                    
+                    formatName = `${width} x ${height} см`;
+                } else {
+                    width = currentFormat.width;
+                    height = currentFormat.height;
+                    formatName = `${width} × ${height} см`;
+                }
+                
+                // Переводим размеры из см в метры
+                const widthMeters = width / 100;
+                const heightMeters = height / 100;
+                
+                // Расчет площади листа в м²
+                const area = widthMeters * heightMeters;
+                
+                // Расчет веса листа в граммах
+                const weight = area * density;
+                
+                // Расчет стоимости листа
+                const pricePerGram = pricePerKg / 1000; // цена за грамм
+                const pricePerSheet = weight * pricePerGram;
+                
+                // Форматируем результат
+                const formattedPrice = pricePerSheet.toFixed(2);
+                
+                // Обновляем интерфейс
+                resultValueDiv.textContent = `${formattedPrice} руб`;
+                
+                // Формируем текст расчета
+                const calculationText = `РАСЧЕТ СТОИМОСТИ БУМАГИ
+-----------------------------
+Название: ${paperName}
+Стоимость за кг: ${pricePerKg} руб
+Плотность: ${density} г/м²
+Формат: ${formatName}
+Размер: ${width} × ${height} см
+Площадь листа: ${area.toFixed(4)} м²
+Вес листа: ${weight.toFixed(2)} г
+-----------------------------
+СТОИМОСТЬ ЗА ЛИСТ: ${formattedPrice} руб`;
+                
+                calculationTextDiv.textContent = calculationText;
+                
+                // Сохраняем расчет в историю
+                const calculationData = {
+                    paperName,
+                    pricePerKg,
+                    density,
+                    format: formatName,
+                    result: formattedPrice,
+                    timestamp: new Date().getTime()
+                };
+                
+                calculationHistory.push(calculationData);
+                localStorage.setItem('paperCalculationHistory', JSON.stringify(calculationHistory));
+                
+                // Обновляем историю на экране
+                renderHistory();
+                
+                return {
+                    price: formattedPrice,
+                    text: calculationText
+                };
+            }
+            
+            // Копирование текста расчета
+            copyBtn.addEventListener('click', function() {
+                const text = calculationTextDiv.textContent;
+                if (!text || text === 'Здесь будет отображен подробный расчет...') return;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Текст расчета скопирован в буфер обмена!');
+                }).catch(err => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('Текст скопирован в буфер обмена!');
+                });
+            });
+            
+            // Поделиться результатом
+            shareBtn.addEventListener('click', function() {
+                const result = calculatePrice();
+                if (!result) return;
+                
+                const shareData = {
+                    title: 'Расчет стоимости бумаги',
+                    text: result.text,
+                    url: window.location.href
+                };
+                
+                if (navigator.share) {
+                    navigator.share(shareData)
+                        .then(() => console.log('Успешный обмен'))
+                        .catch(error => console.log('Ошибка обмена:', error));
+                } else {
+                    navigator.clipboard.writeText(result.text).then(() => {
+                        alert('Текст расчета скопирован. Поделитесь им вручную.');
+                    });
+                }
+            });
+            
+            // Скрываем кнопку расчета на мобильных
+            if (isMobile) {
+                calculateBtn.style.display = 'none';
+            }
+            
+            // Инициализация истории при загрузке
+            renderHistory();
+            
+            // Авторасчет при изменении значений
+            const inputs = [
+                paperNameInput, 
+                pricePerKgInput, 
+                densityInput,
+                pricePerKgMobileInput,
+                densityMobileInput
+            ];
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', calculatePrice);
+            });
+            
+            // Первоначальный расчет
+            calculatePrice();
+        });
+    </script>
+</body>
+</html>

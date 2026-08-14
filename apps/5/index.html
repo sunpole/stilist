@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+    <title>Анализатор текста для Telegram</title>
+    <style>
+        /* ===== Сброс стилей и базовые настройки ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.4;
+            color: #333;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* ===== Шапка ===== */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            margin-right: 8px;
+            font-size: 1.6em;
+        }
+        
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-button {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-button:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* ===== Основное содержимое ===== */
+        main {
+            flex: 1;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            overflow-y: auto;
+        }
+        
+        /* ===== Панель ввода текста ===== */
+        .input-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        #textInput {
+            flex: 1;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: none;
+            overflow-y: auto;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        #textInput:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* ===== Панель статистики ===== */
+        .stats-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .stat-item {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        /* ===== Панель управления ===== */
+        .controls-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .primary-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+        }
+        
+        .primary-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .secondary-button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+        }
+        
+        .secondary-button:hover {
+            background-color: #27ae60;
+        }
+        
+        .icon {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+        
+        /* ===== Результаты разбивки ===== */
+        .results-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .results-header {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        
+        .text-part {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            position: relative;
+            background-color: #f9f9f9;
+        }
+        
+        .part-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .part-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .part-stats {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .part-content {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        
+        .copy-button {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        .copy-button:hover {
+            background-color: #8e44ad;
+        }
+        
+        /* ===== Подвал ===== */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            flex-shrink: 0;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .footer-link {
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .footer-link:hover {
+            color: #3498db;
+        }
+        
+        /* ===== Уведомления ===== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* ===== Медиа-запросы для адаптивности ===== */
+        
+        /* Для очень старых браузеров (без поддержки flexbox) */
+        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            body {
+                display: block;
+            }
+            
+            .header-content, .footer-content {
+                display: block;
+            }
+            
+            .stats-grid {
+                display: block;
+            }
+            
+            .stat-item {
+                display: inline-block;
+                width: 48%;
+                margin: 1%;
+                vertical-align: top;
+            }
+            
+            .controls-section {
+                display: block;
+            }
+            
+            .primary-button, .secondary-button {
+                display: inline-block;
+                width: 48%;
+                margin: 1%;
+            }
+        }
+        
+        /* Для старых Macintosh и ПК с низким разрешением */
+        @media screen and (max-width: 1024px) and (min-width: 768px) {
+            main {
+                padding: 15px 20px;
+            }
+            
+            .input-section {
+                height: 35vh;
+            }
+        }
+        
+        /* Для планшетов и небольших ноутбуков */
+        @media screen and (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .input-section {
+                height: 30vh;
+            }
+            
+            .results-container {
+                max-height: 30vh;
+            }
+        }
+        
+        /* Для мобильных телефонов */
+        @media screen and (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+            
+            header {
+                padding: 8px 10px;
+            }
+            
+            .logo {
+                font-size: 1.2em;
+            }
+            
+            .nav-button {
+                padding: 5px 8px;
+                font-size: 0.8em;
+            }
+            
+            main {
+                padding: 10px;
+            }
+            
+            .input-section, .stats-section, .controls-section, .results-section {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-item {
+                padding: 10px;
+            }
+            
+            .stat-value {
+                font-size: 1.6em;
+            }
+            
+            .primary-button, .secondary-button {
+                min-width: 100%;
+                padding: 10px 15px;
+            }
+            
+            .input-section {
+                height: 25vh;
+            }
+            
+            .results-container {
+                max-height: 25vh;
+            }
+            
+            footer {
+                padding: 12px 10px;
+                font-size: 0.85em;
+            }
+            
+            .footer-links {
+                gap: 10px;
+            }
+        }
+        
+        /* Для очень старых телефонов с маленькими экранами (Android 5-7, iPhone 5/SE) */
+        @media screen and (max-width: 320px) {
+            body {
+                font-size: 13px;
+            }
+            
+            .logo {
+                font-size: 1.1em;
+            }
+            
+            .nav-button {
+                padding: 4px 6px;
+                font-size: 0.75em;
+            }
+            
+            .stat-value {
+                font-size: 1.4em;
+            }
+            
+            .input-section {
+                height: 22vh;
+            }
+            
+            .results-container {
+                max-height: 22vh;
+            }
+            
+            .notification {
+                max-width: 280px;
+                right: 10px;
+            }
+        }
+        
+        /* Для ландшафтной ориентации на мобильных устройствах */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .input-section {
+                height: 25vh;
+            }
+            
+            .results-container {
+                max-height: 25vh;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Для старых версий Safari */
+        @media screen and (-webkit-min-device-pixel-ratio:0) and (max-width: 768px) {
+            .stats-grid {
+                display: -webkit-flex;
+                -webkit-flex-wrap: wrap;
+            }
+            
+            .stat-item {
+                -webkit-flex: 1 1 200px;
+            }
+        }
+        
+        /* Для устройств с темной темой */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #e0e0e0;
+            }
+            
+            .input-section, .stats-section, .controls-section, .results-section {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+            }
+            
+            #textInput {
+                background-color: #2a2a2a;
+                color: #e0e0e0;
+                border-color: #444;
+            }
+            
+            .stat-item {
+                background-color: #2a2a2a;
+            }
+            
+            .stat-value {
+                color: #e0e0e0;
+            }
+            
+            .stat-label {
+                color: #aaa;
+            }
+            
+            .text-part {
+                background-color: #2a2a2a;
+                border-color: #444;
+            }
+            
+            .part-content {
+                background-color: #252525;
+                color: #e0e0e0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">📊</span>
+                <span>Анализатор текста</span>
+            </a>
+            <nav>
+                <button class="nav-button" onclick="clearText()">Очистить</button>
+                <button class="nav-button" onclick="loadExample()">Пример</button>
+                <button class="nav-button" onclick="showInstructions()">Справка</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main>
+        <!-- Панель ввода текста -->
+        <section class="input-section">
+            <label for="textInput" class="input-label">Введите или вставьте ваш текст:</label>
+            <textarea id="textInput" placeholder="Вставьте сюда текст для анализа..."></textarea>
+        </section>
+
+        <!-- Панель статистики -->
+        <section class="stats-section">
+            <div class="stats-grid" id="statsContainer">
+                <!-- Статистика будет заполняться JavaScript -->
+            </div>
+        </section>
+
+        <!-- Панель управления -->
+        <section class="controls-section">
+            <button class="primary-button" onclick="analyzeText()">
+                <span class="icon">📈</span>
+                <span>Анализировать текст</span>
+            </button>
+            <button class="secondary-button" onclick="splitForTelegram()">
+                <span class="icon">✂️</span>
+                <span>Разделить для Telegram</span>
+            </button>
+        </section>
+
+        <!-- Результаты разбивки -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <span>Результаты разделения текста:</span>
+                <span id="partsCount">0 частей</span>
+            </div>
+            <div class="results-container" id="resultsContainer">
+                <!-- Части текста будут добавляться сюда -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Подвал сайта -->
+    <footer>
+        <div class="footer-content">
+            <div>© 2023 Анализатор текста для Telegram. Все права защищены.</div>
+            <div class="footer-links">
+                <a href="#" class="footer-link" onclick="showInstructions(); return false;">Инструкция</a>
+                <a href="#" class="footer-link" onclick="showAbout(); return false;">О приложении</a>
+                <a href="#" class="footer-link" onclick="toggleTheme(); return false;">Переключить тему</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ===== Глобальные переменные =====
+        let currentTheme = 'light';
+        
+        // ===== Функции для работы с текстом =====
+        
+        // Анализ текста и отображение статистики
+        function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            const statsContainer = document.getElementById('statsContainer');
+            
+            // Основные метрики
+            const totalChars = text.length;
+            const charsWithoutSpaces = text.replace(/\s/g, '').length;
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const spaces = (text.match(/\s/g) || []).length;
+            
+            // Не-алфавитные символы (все, что не буквы и не пробелы)
+            const nonAlphabetChars = text.replace(/[a-zA-Zа-яА-ЯёЁ\s]/g, '').length;
+            
+            // Создаем HTML для статистики
+            statsContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalChars}</div>
+                    <div class="stat-label">Всего символов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${charsWithoutSpaces}</div>
+                    <div class="stat-label">Символов без пробелов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${words}</div>
+                    <div class="stat-label">Слов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${spaces}</div>
+                    <div class="stat-label">Пробелов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${nonAlphabetChars}</div>
+                    <div class="stat-label">Не-алфавитных символов</div>
+                </div>
+            `;
+            
+            showNotification('Текст проанализирован!');
+        }
+        
+        // Разделение текста для Telegram
+        function splitForTelegram() {
+            const text = document.getElementById('textInput').value;
+            if (!text.trim()) {
+                showNotification('Введите текст для разделения!');
+                return;
+            }
+            
+            const maxLength = 4095;
+            const parts = [];
+            let currentPart = '';
+            
+            // Разбиваем текст на предложения
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            
+            for (const sentence of sentences) {
+                // Если текущая часть пустая, просто добавляем предложение
+                if (currentPart.length === 0) {
+                    currentPart = sentence;
+                } 
+                // Если добавление следующего предложения не превысит лимит, добавляем его
+                else if (currentPart.length + sentence.length + 1 <= maxLength) {
+                    currentPart += ' ' + sentence;
+                } 
+                // Если превысит, сохраняем текущую часть и начинаем новую
+                else {
+                    parts.push(currentPart);
+                    currentPart = sentence;
+                }
+            }
+            
+            // Добавляем последнюю часть, если она не пустая
+            if (currentPart.length > 0) {
+                parts.push(currentPart);
+            }
+            
+            // Если текст слишком длинный и не содержит точек, разбиваем по абзацам
+            if (parts.length === 0 && text.length > maxLength) {
+                const paragraphs = text.split(/\n\s*\n/);
+                currentPart = '';
+                
+                for (const paragraph of paragraphs) {
+                    if (currentPart.length + paragraph.length + 2 <= maxLength) {
+                        currentPart += (currentPart ? '\n\n' : '') + paragraph;
+                    } else {
+                        if (currentPart) parts.push(currentPart);
+                        currentPart = paragraph;
+                    }
+                }
+                
+                if (currentPart) parts.push(currentPart);
+            }
+            
+            // Если все еще не разбито, разбиваем по жесткому лимиту
+            if (parts.length === 0 && text.length > maxLength) {
+                for (let i = 0; i < text.length; i += maxLength) {
+                    const chunk = text.substring(i, Math.min(i + maxLength, text.length));
+                    parts.push(chunk);
+                }
+            }
+            
+            // Отображаем результаты
+            displayResults(parts);
+        }
+        
+        // Отображение результатов разбивки
+        function displayResults(parts) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const partsCount = document.getElementById('partsCount');
+            
+            resultsContainer.innerHTML = '';
+            partsCount.textContent = `${parts.length} частей`;
+            
+            if (parts.length === 0) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Текст не требует разделения.</p>';
+                resultsSection.style.display = 'block';
+                return;
+            }
+            
+            parts.forEach((part, index) => {
+                const partElement = document.createElement('div');
+                partElement.className = 'text-part';
+                partElement.innerHTML = `
+                    <div class="part-header">
+                        <div class="part-title">Часть ${index + 1} из ${parts.length}</div>
+                        <div class="part-stats">${part.length} символов</div>
+                    </div>
+                    <div class="part-content">${escapeHtml(part)}</div>
+                    <button class="copy-button" onclick="copyToClipboard(${index})" data-index="${index}">
+                        <span class="icon">📋</span>
+                        <span>Копировать часть ${index + 1}</span>
+                    </button>
+                `;
+                resultsContainer.appendChild(partElement);
+            });
+            
+            resultsSection.style.display = 'block';
+            showNotification(`Текст разделен на ${parts.length} частей!`);
+        }
+        
+        // Копирование текста в буфер обмена
+        function copyToClipboard(partIndex) {
+            const text = document.getElementById('textInput').value;
+            const maxLength = 4095;
+            const parts = [];
+            let currentPart = '';
+            
+            // Повторяем логику разбивки, чтобы получить тот же результат
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            
+            for (const sentence of sentences) {
+                if (currentPart.length === 0) {
+                    currentPart = sentence;
+                } else if (currentPart.length + sentence.length + 1 <= maxLength) {
+                    currentPart += ' ' + sentence;
+                } else {
+                    parts.push(currentPart);
+                    currentPart = sentence;
+                }
+            }
+            
+            if (currentPart.length > 0) {
+                parts.push(currentPart);
+            }
+            
+            // Если не удалось разбить по предложениям, разбиваем по абзацам
+            if (parts.length === 0 && text.length > maxLength) {
+                const paragraphs = text.split(/\n\s*\n/);
+                currentPart = '';
+                
+                for (const paragraph of paragraphs) {
+                    if (currentPart.length + paragraph.length + 2 <= maxLength) {
+                        currentPart += (currentPart ? '\n\n' : '') + paragraph;
+                    } else {
+                        if (currentPart) parts.push(currentPart);
+                        currentPart = paragraph;
+                    }
+                }
+                
+                if (currentPart) parts.push(currentPart);
+            }
+            
+            // Если все еще не разбито, разбиваем по жесткому лимиту
+            if (parts.length === 0 && text.length > maxLength) {
+                for (let i = 0; i < text.length; i += maxLength) {
+                    const chunk = text.substring(i, Math.min(i + maxLength, text.length));
+                    parts.push(chunk);
+                }
+            }
+            
+            // Если текст короткий и не был разбит
+            if (parts.length === 0) {
+                parts.push(text);
+            }
+            
+            // Копируем нужную часть
+            if (partIndex >= 0 && partIndex < parts.length) {
+                const textToCopy = parts[partIndex];
+                
+                // Используем современный Clipboard API, если доступен
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(() => showNotification(`Часть ${partIndex + 1} скопирована!`))
+                        .catch(err => {
+                            console.error('Ошибка при копировании: ', err);
+                            fallbackCopyText(textToCopy, partIndex);
+                        });
+                } else {
+                    // Fallback для старых браузеров
+                    fallbackCopyText(textToCopy, partIndex);
+                }
+            }
+        }
+        
+        // Fallback метод для копирования в буфер (для старых браузеров)
+        function fallbackCopyText(text, partIndex) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showNotification(`Часть ${partIndex + 1} скопирована!`);
+                } else {
+                    showNotification('Не удалось скопировать текст');
+                }
+            } catch (err) {
+                console.error('Ошибка при копировании: ', err);
+                showNotification('Ошибка при копировании текста');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        // ===== Вспомогательные функции =====
+        
+        // Показ уведомления
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Очистка текста
+        function clearText() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('statsContainer').innerHTML = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            showNotification('Текст очищен!');
+        }
+        
+        // Загрузка примера текста
+        function loadExample() {
+            const exampleText = `Привет! Это пример текста для тестирования анализатора.
+
+Данное приложение позволяет анализировать текст, подсчитывать количество символов, слов, пробелов и не-алфавитных символов.
+
+Также вы можете разделить длинный текст на части для отправки в Telegram. Максимальная длина сообщения в Telegram - 4095 символов. Это приложение автоматически разделит ваш текст на части, стараясь разбивать по концам предложений.
+
+Попробуйте нажать кнопку "Разделить для Telegram" и увидите, как текст будет разбит на части, каждая из которых будет меньше 4095 символов.
+
+Удачи в использовании!`;
+            
+            document.getElementById('textInput').value = exampleText;
+            showNotification('Загружен пример текста!');
+        }
+        
+        // Показ инструкции
+        function showInstructions() {
+            alert(`Инструкция по использованию:
+
+1. Введите или вставьте текст в поле ввода
+2. Нажмите "Анализировать текст" для подсчета статистики
+3. Нажмите "Разделить для Telegram" для разбивки длинного текста на части
+4. Каждую часть можно скопировать отдельно с помощью кнопки "Копировать"
+
+Ограничение Telegram: 4095 символов в одном сообщении.
+
+Приложение старается разбивать текст по концам предложений для сохранения читаемости.`);
+        }
+        
+        // Показ информации о приложении
+        function showAbout() {
+            alert(`Анализатор текста для Telegram
+
+Версия 1.0
+Разработано для работы на всех устройствах:
+- Старые и новые телефоны (Android 5-9, iPhone)
+- Планшеты
+- Ноутбуки и старые Macintosh
+- Старые версии браузеров
+
+Все функции работают без подключения к интернету.`);
+        }
+        
+        // Переключение темы
+        function toggleTheme() {
+            if (currentTheme === 'light') {
+                document.body.style.backgroundColor = '#121212';
+                document.body.style.color = '#e0e0e0';
+                currentTheme = 'dark';
+                showNotification('Темная тема включена');
+            } else {
+                document.body.style.backgroundColor = '#f5f5f5';
+                document.body.style.color = '#333';
+                currentTheme = 'light';
+                showNotification('Светлая тема включена');
+            }
+        }
+        
+        // Экранирование HTML для безопасности
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // ===== Инициализация при загрузке =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Автоматический анализ при вводе текста (с задержкой)
+            let typingTimer;
+            const textInput = document.getElementById('textInput');
+            
+            textInput.addEventListener('input', function() {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    if (textInput.value.trim().length > 0) {
+                        analyzeText();
+                    }
+                }, 800);
+            });
+            
+            // Загрузка примера при первом открытии (если поле пустое)
+            if (!textInput.value.trim()) {
+                setTimeout(() => {
+                    if (!textInput.value.trim()) {
+                        loadExample();
+                        analyzeText();
+                    }
+                }, 500);
+            }
+            
+            // Показать подсказку о возможностях приложения
+            setTimeout(() => {
+                showNotification('Готов к работе! Введите текст для анализа.');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

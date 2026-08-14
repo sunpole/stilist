@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Веб-синтезатор звуков</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .control-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .keyboard {
+            display: flex;
+            margin: 20px 0;
+        }
+        .key {
+            height: 120px;
+            width: 50px;
+            border: 1px solid #000;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            cursor: pointer;
+            background-color: white;
+            user-select: none;
+        }
+        .key:hover {
+            background-color: #f0f0f0;
+        }
+        .key.black {
+            height: 80px;
+            width: 30px;
+            background-color: black;
+            color: white;
+            margin-left: -15px;
+            margin-right: -15px;
+            z-index: 2;
+        }
+        .export-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        #status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Веб-синтезатор звуков</h1>
+        
+        <div class="control-group">
+            <label for="waveType">Тип волны:</label>
+            <select id="waveType">
+                <option value="sine">Синусоида</option>
+                <option value="square">Прямоугольная</option>
+                <option value="sawtooth">Пилообразная</option>
+                <option value="triangle">Треугольная</option>
+            </select>
+            
+            <label for="frequency">Частота (Гц):</label>
+            <input type="number" id="frequency" value="440" min="20" max="20000">
+            
+            <label for="duration">Длительность (сек):</label>
+            <input type="number" id="duration" value="1" min="0.1" max="10" step="0.1">
+            
+            <label for="attack">Атака (сек):</label>
+            <input type="number" id="attack" value="0.1" min="0" max="2" step="0.05">
+            
+            <label for="decay">Спад (сек):</label>
+            <input type="number" id="decay" value="0.2" min="0" max="2" step="0.05">
+            
+            <label for="sustain">Сустейн (уровень):</label>
+            <input type="number" id="sustain" value="0.7" min="0" max="1" step="0.05">
+            
+            <label for="release">Релез (сек):</label>
+            <input type="number" id="release" value="0.3" min="0" max="2" step="0.05">
+            
+            <button id="playBtn">Проиграть звук</button>
+        </div>
+        
+        <div class="control-group">
+            <h3>Виртуальная клавиатура</h3>
+            <div class="keyboard" id="keyboard">
+                <!-- Клавиши будут добавлены через JavaScript -->
+            </div>
+        </div>
+        
+        <div class="control-group export-section">
+            <h3>Экспорт звука в MP3</h3>
+            <label for="exportNote">Выберите ноту:</label>
+            <select id="exportNote">
+                <option value="C">До (C)</option>
+                <option value="C#">До# (C#)</option>
+                <option value="D">Ре (D)</option>
+                <option value="D#">Ре# (D#)</option>
+                <option value="E">Ми (E)</option>
+                <option value="F">Фа (F)</option>
+                <option value="F#">Фа# (F#)</option>
+                <option value="G">Соль (G)</option>
+                <option value="G#">Соль# (G#)</option>
+                <option value="A">Ля (A)</option>
+                <option value="A#">Ля# (A#)</option>
+                <option value="B">Си (B)</option>
+            </select>
+            
+            <label for="exportOctave">Октава:</label>
+            <input type="number" id="exportOctave" value="4" min="1" max="7">
+            
+            <label for="exportDuration">Длительность (сек):</label>
+            <input type="number" id="exportDuration" value="2" min="0.1" max="10" step="0.1">
+            
+            <button id="exportBtn">Экспортировать в MP3</button>
+            <div id="status"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
+    <script>
+        // Инициализация аудиоконтекста
+        let audioContext;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch(e) {
+            document.getElementById('status').textContent = 'Ваш браузер не поддерживает Web Audio API';
+            document.getElementById('status').className = 'error';
+        }
+
+        // Создание виртуальной клавиатуры
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const blackKeys = ['C#', 'D#', '', 'F#', 'G#', 'A#', ''];
+            
+            whiteKeys.forEach((note, i) => {
+                // Белые клавиши
+                const whiteKey = document.createElement('div');
+                whiteKey.className = 'key';
+                whiteKey.textContent = note;
+                whiteKey.dataset.note = note;
+                whiteKey.dataset.octave = 4;
+                whiteKey.addEventListener('mousedown', playKeyboardNote);
+                keyboard.appendChild(whiteKey);
+                
+                // Черные клавиши (если есть)
+                if (blackKeys[i] && blackKeys[i] !== '') {
+                    const blackKey = document.createElement('div');
+                    blackKey.className = 'key black';
+                    blackKey.textContent = blackKeys[i];
+                    blackKey.dataset.note = blackKeys[i];
+                    blackKey.dataset.octave = 4;
+                    blackKey.addEventListener('mousedown', playKeyboardNote);
+                    keyboard.appendChild(blackKey);
+                }
+            });
+        }
+
+        // Проигрывание ноты с клавиатуры
+        function playKeyboardNote(e) {
+            const note = e.target.dataset.note;
+            const octave = parseInt(e.target.dataset.octave);
+            const frequency = getNoteFrequency(note, octave);
+            
+            document.getElementById('frequency').value = Math.round(frequency);
+            playSound();
+        }
+
+        // Получение частоты ноты
+        function getNoteFrequency(note, octave = 4) {
+            const noteFrequencies = {
+                'C': 16.35, 'C#': 17.32, 'D': 18.35, 'D#': 19.45,
+                'E': 20.60, 'F': 21.83, 'F#': 23.12, 'G': 24.50,
+                'G#': 25.96, 'A': 27.50, 'A#': 29.14, 'B': 30.87
+            };
+            
+            return noteFrequencies[note] * Math.pow(2, octave);
+        }
+
+        // Проигрывание звука с текущими настройками
+        function playSound() {
+            if (!audioContext) return;
+            
+            const waveType = document.getElementById('waveType').value;
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            const duration = parseFloat(document.getElementById('duration').value);
+            const attack = parseFloat(document.getElementById('attack').value);
+            const decay = parseFloat(document.getElementById('decay').value);
+            const sustain = parseFloat(document.getElementById('sustain').value);
+            const release = parseFloat(document.getElementById('release').value);
+            
+            const now = audioContext.currentTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = waveType;
+            oscillator.frequency.value = frequency;
+            
+            // Настройка огибающей ADSR
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(1, now + attack);
+            gainNode.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+            gainNode.gain.setValueAtTime(sustain, now + attack + decay + duration);
+            gainNode.gain.linearRampToValueAtTime(0, now + attack + decay + duration + release);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(now);
+            oscillator.stop(now + attack + decay + duration + release);
+        }
+
+        // Экспорт звука в MP3
+        function exportToMP3() {
+            const status = document.getElementById('status');
+            status.textContent = 'Создание MP3...';
+            status.className = '';
+            
+            try {
+                const note = document.getElementById('exportNote').value;
+                const octave = parseInt(document.getElementById('exportOctave').value);
+                const duration = parseFloat(document.getElementById('exportDuration').value);
+                const frequency = getNoteFrequency(note, octave);
+                
+                // Создаем оффлайн аудиоконтекст
+                const offlineCtx = new OfflineAudioContext(1, 44100 * duration, 44100);
+                const oscillator = offlineCtx.createOscillator();
+                const gainNode = offlineCtx.createGain();
+                
+                // Получаем параметры из UI
+                const waveType = document.getElementById('waveType').value;
+                const attack = parseFloat(document.getElementById('attack').value);
+                const decay = parseFloat(document.getElementById('decay').value);
+                const sustain = parseFloat(document.getElementById('sustain').value);
+                const release = parseFloat(document.getElementById('release').value);
+                
+                oscillator.type = waveType;
+                oscillator.frequency.value = frequency;
+                
+                // Настройка огибающей ADSR
+                const now = offlineCtx.currentTime;
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(1, now + attack);
+                gainNode.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+                gainNode.gain.setValueAtTime(sustain, now + attack + decay + duration);
+                gainNode.gain.linearRampToValueAtTime(0, now + attack + decay + duration + release);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(offlineCtx.destination);
+                
+                oscillator.start(0);
+                oscillator.stop(now + attack + decay + duration + release);
+                
+                // Рендерим аудио
+                offlineCtx.startRendering().then(renderedBuffer => {
+                    // Конвертируем в MP3
+                    const samples = renderedBuffer.getChannelData(0);
+                    const mp3encoder = new lamejs.Mp3Encoder(1, 44100, 128);
+                    const sampleBlockSize = 1152;
+                    const mp3Data = [];
+                    
+                    for (let i = 0; i < samples.length; i += sampleBlockSize) {
+                        const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+                        const mp3buf = mp3encoder.encodeBuffer(sampleChunk);
+                        if (mp3buf.length > 0) {
+                            mp3Data.push(mp3buf);
+                        }
+                    }
+                    
+                    const mp3buf = mp3encoder.flush();
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                    
+                    // Создаем Blob и ссылку для скачивания
+                    const blob = new Blob(mp3Data, {type: 'audio/mp3'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `sound_${note}${octave}_${duration}s.mp3`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                    
+                    status.textContent = 'MP3 успешно создан и скачан!';
+                    status.className = 'success';
+                }).catch(err => {
+                    status.textContent = 'Ошибка при создании аудио: ' + err.message;
+                    status.className = 'error';
+                });
+                
+            } catch (err) {
+                status.textContent = 'Ошибка: ' + err.message;
+                status.className = 'error';
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            createKeyboard();
+            
+            document.getElementById('playBtn').addEventListener('click', playSound);
+            document.getElementById('exportBtn').addEventListener('click', exportToMP3);
+        });
+    </script>
+</body>
+</html>

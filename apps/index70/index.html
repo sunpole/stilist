@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RGB Color Picker</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    .color-preview {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      border: 2px solid #333;
+      border-radius: 10px;
+    }
+    .slider-container {
+      margin: 15px auto;
+      width: 80%;
+      max-width: 300px;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    .rgb-value {
+      font-size: 18px;
+      margin: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>RGB Color Picker</h1>
+  <div class="color-preview" id="colorPreview"></div>
+  <div class="slider-container">
+    <label for="red">Red:</label>
+    <input type="range" id="red" min="0" max="255" value="128">
+  </div>
+  <div class="slider-container">
+    <label for="green">Green:</label>
+    <input type="range" id="green" min="0" max="255" value="128">
+  </div>
+  <div class="slider-container">
+    <label for="blue">Blue:</label>
+    <input type="range" id="blue" min="0" max="255" value="128">
+  </div>
+  <div class="rgb-value" id="rgbValue">RGB(128, 128, 128)</div>
+  <button id="copyBtn">Copy RGB</button>
+
+  <script>
+    // Обновление цвета при движении ползунков
+    const redSlider = document.getElementById('red');
+    const greenSlider = document.getElementById('green');
+    const blueSlider = document.getElementById('blue');
+    const colorPreview = document.getElementById('colorPreview');
+    const rgbValue = document.getElementById('rgbValue');
+    const copyBtn = document.getElementById('copyBtn');
+
+    function updateColor() {
+      const red = redSlider.value;
+      const green = greenSlider.value;
+      const blue = blueSlider.value;
+      const color = `rgb(${red}, ${green}, ${blue})`;
+      
+      colorPreview.style.backgroundColor = color;
+      rgbValue.textContent = `RGB(${red}, ${green}, ${blue})`;
+    }
+
+    redSlider.addEventListener('input', updateColor);
+    greenSlider.addEventListener('input', updateColor);
+    blueSlider.addEventListener('input', updateColor);
+
+    // Копирование RGB в буфер обмена
+    copyBtn.addEventListener('click', () => {
+      const text = rgbValue.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`Скопировано: ${text}`);
+      });
+    });
+
+    // Инициализация цвета
+    updateColor();
+
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => console.log('SW registered:', registration))
+          .catch(error => console.log('SW registration failed:', error));
+      });
+    }
+  </script>
+
+  <!-- Встроенный манифест (альтернатива отдельному файлу) -->
+  <script type="application/manifest+json">
+    {
+      "name": "RGB Color Picker",
+      "short_name": "RGB Picker",
+      "start_url": "./",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#000000",
+      "icons": [
+        {
+          "src": "icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "icon-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типографский Магнат</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-color: #ecf0f1;
+            --bg-color: #1a1a1a;
+            --card-bg: #2c3e50;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding: 5px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Шапка с валютами */
+        .header-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .currency-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            padding: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .currency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .currency-value {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .currency-subtext {
+            font-size: 10px;
+            opacity: 0.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        .income { color: var(--success-color); }
+        .expense { color: var(--danger-color); }
+
+        /* Прогресс бар для Zeal */
+        .zeal-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(45deg, var(--warning-color), var(--danger-color));
+            transition: width 1s linear;
+            z-index: 1;
+        }
+
+        /* Панель статистики */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 11px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--secondary-color);
+            border-radius: 3px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success-color);
+            transition: width 0.5s ease;
+        }
+
+        /* Панель команды */
+        .team-row {
+            margin-bottom: 10px;
+        }
+
+        .team-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--warning-color);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Этапы производства */
+        .stages-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-bottom: 10px;
+        }
+
+        .stage-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stage-btn.active {
+            background: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .stage-btn:active {
+            transform: scale(0.95);
+        }
+
+        .stage-info {
+            font-size: 10px;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stage-orders { color: var(--warning-color); }
+        .stage-employees { color: var(--success-color); }
+
+        /* Списки заказов */
+        .orders-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .orders-column {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 10px;
+        }
+
+        .orders-column h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .order-item {
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .order-item.normal {
+            border-left-color: var(--accent-color);
+        }
+
+        .order-item.rare {
+            border-left-color: var(--warning-color);
+        }
+
+        .order-item.legendary {
+            border-left-color: #9b59b6;
+        }
+
+        .order-type {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: var(--primary-color);
+        }
+
+        .order-type.normal {
+            background: var(--accent-color);
+        }
+
+        .order-type.rare {
+            background: var(--warning-color);
+        }
+
+        .order-type.legendary {
+            background: #9b59b6;
+        }
+
+        .order-timer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--success-color);
+            transition: width 1s linear;
+        }
+
+        .order-value {
+            font-weight: bold;
+            color: var(--success-color);
+            font-size: 14px;
+        }
+
+        .order-percentage {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .order-deadline {
+            font-size: 11px;
+            color: var(--warning-color);
+            margin-top: 5px;
+        }
+
+        .order-reputation {
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            max-width: 95%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        th {
+            background: var(--primary-color);
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .zeal-active {
+            color: white;
+            border-color: var(--warning-color) !important;
+        }
+
+        .premium-active {
+            background: linear-gradient(45deg, var(--success-color), var(--accent-color)) !important;
+            color: white;
+            border-color: var(--success-color) !important;
+        }
+
+        /* Кнопки действий */
+        .action-btn {
+            background: var(--accent-color);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .action-btn:disabled {
+            background: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .header-row,
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 3px;
+            }
+            
+            .stages-row {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2px;
+            }
+            
+            .orders-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .currency-btn,
+            .stat-btn {
+                padding: 8px 3px;
+                font-size: 10px;
+            }
+            
+            .stage-btn {
+                font-size: 9px;
+                padding: 8px 2px;
+                min-height: 60px;
+            }
+            
+            .currency-value {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-row,
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stages-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            table {
+                font-size: 10px;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+            }
+        }
+
+        /* Полоска времени */
+        .time-display {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: var(--border-radius);
+        }
+
+        /* Стили для улучшений */
+        .upgrade-item {
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upgrade-item:hover {
+            background: var(--primary-color);
+        }
+
+        .upgrade-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Стили для сотрудников */
+        .employee-item {
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .employee-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .employee-control-btn {
+            background: var(--accent-color);
+            border: none;
+            border-radius: 3px;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .premium-info {
+            font-size: 12px;
+            margin-top: 5px;
+            color: var(--warning-color);
+        }
+
+        .department-table {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .department-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        .department-name {
+            flex: 2;
+        }
+
+        .department-stats {
+            flex: 1;
+            text-align: center;
+        }
+
+        .department-controls {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .finance-display {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Отображение времени -->
+        <div class="time-display">
+            <span id="current-date">1 сентября 2025, Понедельник</span> | 
+            <span id="current-time">08:00</span>
+        </div>
+
+        <!-- Первый ряд - основные валюты -->
+        <div class="header-row">
+            <div class="currency-btn" id="rating-btn">
+                <div class="currency-value" id="rating-value">0</div>
+                <div class="currency-subtext">РЕЙТИНГ</div>
+            </div>
+            <div class="currency-btn" id="byn-btn">
+                <div class="currency-value" id="byn-value">2,000</div>
+                <div class="currency-subtext finance-display">
+                    <span class="income" id="daily-income">+0/день</span>
+                    <span class="expense" id="daily-expense">-0/день</span>
+                </div>
+            </div>
+            <div class="currency-btn" id="drive-btn">
+                <div class="currency-value" id="drive-value">80/80</div>
+                <div class="currency-subtext">DRIVE</div>
+            </div>
+            <div class="currency-btn" id="zeal-btn">
+                <div class="zeal-progress" id="zeal-progress" style="width: 0%"></div>
+                <div class="currency-value" id="zeal-value">0</div>
+                <div class="currency-subtext">ZEAL</div>
+            </div>
+            <div class="currency-btn" id="rest-btn">
+                <div class="currency-value" id="rest-value">100</div>
+                <div class="currency-subtext">REST</div>
+            </div>
+        </div>
+
+        <!-- Второй ряд - статистика -->
+        <div class="stats-row">
+            <div class="stat-btn" id="level-btn">
+                <div>УРОВЕНЬ</div>
+                <div class="currency-value" id="level-value">1</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="level-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat-btn" id="employees-btn">
+                <div>СОТРУДНИКИ</div>
+                <div class="currency-value" id="employees-value">0/1</div>
+            </div>
+            <div class="stat-btn" id="advertising-btn">
+                <div>РЕКЛАМА</div>
+                <div class="currency-value" id="advertising-value">0/10</div>
+                <div class="expense" id="ad-cost">-0/мес</div>
+            </div>
+            <div class="stat-btn" id="upgrades-btn">
+                <div>УЛУЧШЕНИЯ</div>
+                <div class="currency-value" id="upgrades-value">0/∞</div>
+            </div>
+            <div class="stat-btn" id="premium-btn">
+                <div>ПРЕМИЯ</div>
+                <div class="currency-value" id="premium-value">🔒 2500 BYN</div>
+                <div class="premium-info" id="premium-info"></div>
+            </div>
+        </div>
+
+        <!-- Третий ряд - команда -->
+        <div class="team-row">
+            <div class="team-btn" id="team-building-btn">
+                КОМАНДА - ТИМБИЛДИНГ МЕРОПРИЯТИЯ
+            </div>
+        </div>
+
+        <!-- Четвертый ряд - этапы производства -->
+        <div class="stages-row">
+            <div class="stage-btn" data-stage="order">
+                <div>ЗАКАЗ</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-order">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-order-employees">Сотр: 0</div>
+                </div>
+            </div>
+            <div class="stage-btn" data-stage="layout">
+                <div>МАКЕТ</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-layout">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-layout-employees">Сотр: 0</div>
+                </div>
+            </div>
+            <div class="stage-btn" data-stage="prepress">
+                <div>ДОПЕЧАТКА</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-prepress">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-prepress-employees">Сотр: 0</div>
+                </div>
+            </div>
+            <div class="stage-btn" data-stage="press">
+                <div>ПЕЧАТЬ</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-press">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-press-employees">Сотр: 0</div>
+                </div>
+            </div>
+            <div class="stage-btn" data-stage="postpress">
+                <div>ПОСЛЕПЕЧАТКА</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-postpress">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-postpress-employees">Сотр: 0</div>
+                </div>
+            </div>
+            <div class="stage-btn" data-stage="product">
+                <div>ИЗДЕЛИЕ</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-product">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-product-employees">Сотр: 0</div>
+                </div>
+            </div>
+            <div class="stage-btn" data-stage="shipment">
+                <div>ОТГРУЗКА</div>
+                <div class="stage-info">
+                    <div class="stage-orders" id="stage-shipment">Заказы: 0</div>
+                    <div class="stage-employees" id="stage-shipment-employees">Сотр: 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Пятый ряд - активные и доступные заказы -->
+        <div class="orders-container">
+            <div class="orders-column">
+                <h3>АКТИВНЫЕ ЗАКАЗЫ</h3>
+                <div id="active-orders">
+                    <!-- Активные заказы будут здесь -->
+                </div>
+            </div>
+            <div class="orders-column">
+                <h3>ДОСТУПНЫЕ ЗАКАЗЫ</h3>
+                <div id="available-orders">
+                    <!-- Доступные заказы будут здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="rating-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Рейтинг и заказы</h3>
+            <table id="rating-table">
+                <thead>
+                    <tr>
+                        <th>РЕЙТИНГ</th>
+                        <th>МИН ЗАКАЗ</th>
+                        <th>МАКС ЗАКАЗ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Таблица рейтингов будет заполнена JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="byn-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Финансы</h3>
+            <div class="income-section">
+                <h4>Доходы:</h4>
+                <div id="income-list"></div>
+            </div>
+            <div class="expense-section">
+                <h4>Расходы:</h4>
+                <div id="expense-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="drive-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Источники DRIVE</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Источник</th>
+                        <th>DRIVE/день</th>
+                    </tr>
+                </thead>
+                <tbody id="drive-sources">
+                    <!-- Источники DRIVE будут здесь -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="employees-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Сотрудники</h3>
+            <div class="department-table">
+                <div class="department-row">
+                    <div class="department-name"><strong>Отдел</strong></div>
+                    <div class="department-stats"><strong>Заказы</strong></div>
+                    <div class="department-stats"><strong>Сотрудники</strong></div>
+                    <div class="department-controls"><strong>Управление</strong></div>
+                </div>
+                <div id="departments-list">
+                    <!-- Список отделов будет здесь -->
+                </div>
+            </div>
+            <button class="action-btn" id="hire-employee-btn">Нанять сотрудника (1,500 BYN/мес)</button>
+            <button class="action-btn" id="hire-accountant-btn">Нанять бухгалтера (2,500 BYN/мес)</button>
+        </div>
+    </div>
+
+    <div id="advertising-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Рекламные площадки</h3>
+            <div id="advertising-points">
+                <!-- Рекламные точки будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <div id="upgrades-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Улучшения</h3>
+            <div class="tabs">
+                <div class="tab active" data-tab="speed">Скорость сотрудников</div>
+                <div class="tab" data-tab="equipment">Оборудование</div>
+            </div>
+            <div class="tab-content active" id="speed-tab">
+                <div id="speed-upgrades">
+                    <!-- Улучшения скорости будут здесь -->
+                </div>
+            </div>
+            <div class="tab-content" id="equipment-tab">
+                <div id="equipment-upgrades">
+                    <!-- Улучшения оборудования будут здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="team-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Тимбилдинг мероприятия</h3>
+            <div id="team-events">
+                <!-- Мероприятия будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <div id="level-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Уровни типографии</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Уровень</th>
+                        <th>Макс. сотрудников</th>
+                        <th>Бонус рейтинга</th>
+                    </tr>
+                </thead>
+                <tbody id="level-table">
+                    <!-- Таблица уровней будет заполнена JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="premium-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Премиум подписка</h3>
+            <div class="premium-description">
+                <p><strong>Премиум подписка дает следующие преимущества:</strong></p>
+                <ul>
+                    <li>Снижение стоимости DRIVE на 50%</li>
+                    <li>Увеличение скорости обработки заказов на 20%</li>
+                    <li>Увеличение максимального количества заказов на 30%</li>
+                    <li>Дополнительные бонусы к репутации</li>
+                </ul>
+                <p><strong>Стоимость:</strong> 2500 BYN за 14 дней</p>
+                <p><strong>Требования:</strong> Доступна только при наличии запаса денег на 2 месяца расходов</p>
+            </div>
+            <button class="action-btn" id="activate-premium-btn">Активировать премиум за 2500 BYN</button>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация игры
+        const CONFIG = {
+            // Начальные значения
+            initialByn: 2000,
+            initialDrive: 80,
+            maxDrive: 80,
+            initialRest: 100,
+            maxRest: 100,
+            initialZeal: 0,
+            
+            // Время - исправлено: 1 рабочий день = 8 игровых часов, 1 игровой час = 2 реальные минуты
+            startDate: new Date(2025, 8, 1), // 1 сентября 2025
+            workDayStart: 8, // 8:00
+            workDayEnd: 17, // 17:00
+            realSecondsPerGameHour: 120, // 1 игровой час = 2 реальные минуты (120 секунд)
+            realSecondsPerGameMinute: 2, // 1 игровая минута = 2 реальные секунды
+            
+            // Сотрудники
+            employeeSalary: 1500,
+            accountantSalary: 2500,
+            employeeDrive: 80,
+            
+            // Уровни типографии
+            levels: [
+                { level: 1, maxEmployees: 1, ratingBonus: 0 },
+                { level: 2, maxEmployees: 2, ratingBonus: 5 },
+                { level: 3, maxEmployees: 3, ratingBonus: 10 },
+                { level: 4, maxEmployees: 4, ratingBonus: 15 },
+                { level: 5, maxEmployees: 5, ratingBonus: 20 },
+                { level: 6, maxEmployees: 6, ratingBonus: 25 },
+                { level: 7, maxEmployees: 7, ratingBonus: 30 },
+                { level: 8, maxEmployees: 8, ratingBonus: 35 },
+                { level: 9, maxEmployees: 9, ratingBonus: 40 },
+                { level: 10, maxEmployees: 10, ratingBonus: 50 }
+            ],
+            
+            // Рейтинги и заказы
+            ratingRanges: [
+                { rating: 1, min: 50, max: 1000 },
+                { rating: 100, min: 75, max: 1500 },
+                { rating: 250, min: 100, max: 2000 },
+                { rating: 500, min: 125, max: 2500 },
+                { rating: 1000, min: 150, max: 3000 },
+                { rating: 1250, min: 200, max: 4000 },
+                { rating: 1500, min: 250, max: 5000 },
+                { rating: 1750, min: 300, max: 6000 },
+                { rating: 2000, min: 500, max: 10000 },
+                { rating: 2500, min: 750, max: 15000 },
+                { rating: 3000, min: 1000, max: 20000 },
+                { rating: 3500, min: 1500, max: 37500 },
+                { rating: 4000, min: 2000, max: 60000 },
+                { rating: 5000, min: 5000, max: 250000 }
+            ],
+            
+            // Типы заказов
+            orderTypes: {
+                normal: {
+                    chance: 70,
+                    reputation: 15,
+                    penalty: 75,
+                    minPercentage: 0,
+                    maxPercentage: 75,
+                    minDeadline: { min: 10, max: 10 }, // мин сумма -> длительный срок
+                    maxDeadline: { min: 1, max: 1 }    // макс сумма -> короткий срок
+                },
+                rare: {
+                    chance: 25,
+                    reputation: 25,
+                    penalty: 150,
+                    minPercentage: 25,
+                    maxPercentage: 85,
+                    minDeadline: { min: 4, max: 6 },   // мин сумма -> средний срок
+                    maxDeadline: { min: 6, max: 8 }    // макс сумма -> более длительный срок
+                },
+                legendary: {
+                    chance: 5,
+                    reputation: 50,
+                    penalty: 100,
+                    minPercentage: 75,
+                    maxPercentage: 100,
+                    minDeadline: { min: 10, max: 10 }, // мин сумма -> длительный срок
+                    maxDeadline: { min: 1, max: 1 }    // макс сумма -> короткий срок
+                }
+            },
+            
+            // Реклама
+            advertisingPoints: [
+                { id: 1, cost: 40500, shows: 15000, ctr: 7, bonus: 0.50 },
+                { id: 2, cost: 27000, shows: 12000, ctr: 5, bonus: 0.45 },
+                { id: 3, cost: 18000, shows: 10000, ctr: 4.5, bonus: 0.40 },
+                { id: 4, cost: 12000, shows: 8500, ctr: 4, bonus: 0.35 },
+                { id: 5, cost: 8000, shows: 7000, ctr: 3.5, bonus: 0.30 },
+                { id: 6, cost: 5300, shows: 5500, ctr: 3, bonus: 0.25 },
+                { id: 7, cost: 3500, shows: 4000, ctr: 2.5, bonus: 0.20 },
+                { id: 8, cost: 2300, shows: 2800, ctr: 2, bonus: 0.15 },
+                { id: 9, cost: 1500, shows: 1800, ctr: 1.5, bonus: 0.10 },
+                { id: 10, cost: 1000, shows: 1000, ctr: 1, bonus: 0.05 }
+            ],
+            
+            // Улучшения скорости
+            speedUpgrades: [
+                { level: 1, speed: 0.4, cost: 5000 },
+                { level: 2, speed: 0.3, cost: 10000 },
+                { level: 3, speed: 0.2, cost: 25000 }
+            ],
+            
+            // Улучшения оборудования
+            equipmentUpgradeCost: [3000, 6000, 12000, 24000, 48000],
+            
+            // Тимбилдинг мероприятия
+            teamEvents: [
+                { 
+                    name: "Обед все вместе в кафе", 
+                    baseCost: 200, 
+                    costPerEmployee: 100,
+                    rating: 50,
+                    zeal: 1,
+                    rest: 50,
+                    levelProgress: 20
+                },
+                { 
+                    name: "Выезд на пинбол", 
+                    baseCost: 1000, 
+                    costPerEmployee: 250,
+                    rating: 150,
+                    zeal: 1,
+                    rest: 60,
+                    levelProgress: 35
+                },
+                { 
+                    name: "Совместная экскурсия в другой город", 
+                    baseCost: 3000, 
+                    costPerEmployee: 600,
+                    rating: 300,
+                    zeal: 1,
+                    rest: 70,
+                    levelProgress: 50
+                },
+                { 
+                    name: "Корпоратив", 
+                    baseCost: 15000, 
+                    costPerEmployee: 1500,
+                    rating: 400,
+                    zeal: 1,
+                    rest: 80,
+                    levelProgress: 75
+                },
+                { 
+                    name: "День рождения компании", 
+                    baseCost: 35000, 
+                    costPerEmployee: 5000,
+                    rating: 500,
+                    zeal: 2,
+                    rest: 90,
+                    levelProgress: 95
+                }
+            ],
+            
+            // Сезонные модификаторы заказов
+            seasonalModifiers: {
+                8: 1.00,   // Сентябрь
+                9: 1.10,   // Октябрь
+                10: 1.25,  // Ноябрь
+                11: 1.50,  // Декабрь
+                0: 0.90,   // Январь
+                1: 0.85,   // Февраль
+                2: 0.80,   // Март
+                3: 0.75,   // Апрель
+                4: 0.60,   // Май
+                5: 0.50,   // Июнь
+                6: 0.40,   // Июль
+                7: 0.30    // Август
+            }
+        };
+
+        // Состояние игры
+        const gameState = {
+            // Валюты
+            rating: 0,
+            byn: CONFIG.initialByn,
+            drive: CONFIG.initialDrive,
+            maxDrive: CONFIG.maxDrive,
+            zeal: CONFIG.initialZeal,
+            rest: CONFIG.initialRest,
+            
+            // Время
+            currentDate: new Date(CONFIG.startDate),
+            gameTimeMultiplier: 1,
+            lastDriveDeduction: new Date(CONFIG.startDate),
+            lastOrderGeneration: new Date(CONFIG.startDate),
+            
+            // Прогресс
+            level: 1,
+            levelProgress: 0,
+            employees: 0,
+            maxEmployees: 1,
+            hasAccountant: false,
+            completedOrders: 0,
+            completedOrdersWithoutPenalty: 0,
+            
+            // Заказы
+            activeOrders: [],
+            availableOrders: [],
+            ordersInProgress: {
+                order: [],
+                layout: [],
+                prepress: [],
+                press: [],
+                postpress: [],
+                product: [],
+                shipment: []
+            },
+            
+            // Улучшения
+            upgrades: {
+                speed: 0,
+                equipment: [0, 0, 0, 0, 0, 0, 0] // для 7 этапов
+            },
+            
+            // Реклама
+            advertising: [],
+            
+            // Состояния
+            zealActive: false,
+            zealCooldown: 0,
+            zealDuration: 0,
+            premiumActive: false,
+            premiumCooldown: 0,
+            premiumDuration: 0,
+            
+            // Сотрудники
+            employeeAssignments: [],
+            
+            // Время последнего обновления
+            lastUpdateTime: Date.now(),
+            
+            // Финансы
+            dailyIncome: 0,
+            dailyExpense: 0
+        };
+
+        // Инициализация игры
+        function initGame() {
+            // Загрузка состояния из localStorage (если есть)
+            loadGameState();
+            
+            // Инициализация интерфейса
+            updateUI();
+            setupEventListeners();
+            
+            // Запуск игрового цикла
+            startGameLoop();
+            
+            // Генерация начальных заказов
+            generateInitialOrders();
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Кнопки этапов
+            document.querySelectorAll('.stage-btn').forEach(btn => {
+                btn.addEventListener('click', handleStageClick);
+            });
+            
+            // Кнопки валют
+            document.getElementById('rating-btn').addEventListener('click', showRatingModal);
+            document.getElementById('byn-btn').addEventListener('click', showBynModal);
+            document.getElementById('drive-btn').addEventListener('click', showDriveModal);
+            document.getElementById('zeal-btn').addEventListener('click', activateZeal);
+            document.getElementById('rest-btn').addEventListener('click', exchangeRestForZeal);
+            
+            // Кнопки статистики
+            document.getElementById('level-btn').addEventListener('click', showLevelModal);
+            document.getElementById('employees-btn').addEventListener('click', showEmployeesModal);
+            document.getElementById('advertising-btn').addEventListener('click', showAdvertisingModal);
+            document.getElementById('upgrades-btn').addEventListener('click', showUpgradesModal);
+            document.getElementById('premium-btn').addEventListener('click', showPremiumModal);
+            
+            // Кнопка команды
+            document.getElementById('team-building-btn').addEventListener('click', showTeamModal);
+            
+            // Закрытие модальных окон
+            document.querySelectorAll('.close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', closeModals);
+            });
+            
+            // Вкладки
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', handleTabClick);
+            });
+            
+            // Кнопки найма
+            document.getElementById('hire-employee-btn').addEventListener('click', hireEmployee);
+            document.getElementById('hire-accountant-btn').addEventListener('click', hireAccountant);
+            
+            // Кнопка активации премиума
+            document.getElementById('activate-premium-btn').addEventListener('click', activatePremium);
+            
+            // Обработка кликов по заказам
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.order-item')) {
+                    const orderElement = e.target.closest('.order-item');
+                    const orderId = parseInt(orderElement.dataset.orderId);
+                    
+                    if (orderElement.closest('#available-orders')) {
+                        takeOrder(orderId);
+                    }
+                }
+            });
+        }
+
+        // Запуск игрового цикла
+        function startGameLoop() {
+            setInterval(() => {
+                updateGameTime();
+                processAutomaticWork();
+                updateOrders();
+                generateOrdersOverTime();
+                deductDriveHourly();
+                updateFinance();
+                updateUI();
+                checkGameConditions();
+                saveGameState();
+            }, 1000); // Обновление каждую секунду
+        }
+
+        // Обновление игрового времени
+        function updateGameTime() {
+            const now = Date.now();
+            const realTimeDelta = (now - gameState.lastUpdateTime) / 1000; // в реальных секундах
+            gameState.lastUpdateTime = now;
+            
+            // Конвертация реального времени в игровое
+            const gameTimeDelta = realTimeDelta / CONFIG.realSecondsPerGameMinute * gameState.gameTimeMultiplier;
+            
+            // Обновление времени
+            gameState.currentDate.setMinutes(gameState.currentDate.getMinutes() + gameTimeDelta);
+            
+            // Обновление REST (расход в течение дня)
+            if (isWorkTime() && isWorkDay()) {
+                const hoursInWorkDay = CONFIG.workDayEnd - CONFIG.workDayStart;
+                const restLossPerMinute = 24 / (hoursInWorkDay * 60);
+                gameState.rest = Math.max(0, gameState.rest - (restLossPerMinute * gameTimeDelta));
+            }
+            
+            // Обновление длительности ZEAL и PREMIUM
+            if (gameState.zealActive) {
+                gameState.zealDuration -= gameTimeDelta;
+                if (gameState.zealDuration <= 0) {
+                    gameState.zealActive = false;
+                    gameState.zealCooldown = 3; // 3 дня кулдауна
+                    gameState.maxDrive = calculateMaxDrive();
+                    gameState.gameTimeMultiplier = 1;
+                }
+            }
+            
+            if (gameState.premiumActive) {
+                gameState.premiumDuration -= gameTimeDelta;
+                if (gameState.premiumDuration <= 0) {
+                    gameState.premiumActive = false;
+                    gameState.premiumCooldown = 30; // 30 дней кулдауна
+                }
+            }
+            
+            // Проверка смены дня
+            const oldDate = new Date(gameState.currentDate);
+            oldDate.setMinutes(oldDate.getMinutes() - gameTimeDelta);
+            
+            if (gameState.currentDate.getDate() !== oldDate.getDate()) {
+                startNewDay();
+            }
+        }
+
+        // Обновление финансов
+        function updateFinance() {
+            // Расчет доходов
+            let dailyIncome = 0;
+            gameState.activeOrders.forEach(order => {
+                dailyIncome += order.value / order.deadline;
+            });
+            
+            // Расчет расходов
+            let monthlyExpenses = 0;
+            monthlyExpenses += gameState.employees * CONFIG.employeeSalary;
+            if (gameState.hasAccountant) {
+                monthlyExpenses += CONFIG.accountantSalary;
+            }
+            gameState.advertising.forEach(ad => {
+                monthlyExpenses += ad.cost * 30;
+            });
+            
+            const dailyExpense = monthlyExpenses / 30;
+            
+            gameState.dailyIncome = dailyIncome;
+            gameState.dailyExpense = dailyExpense;
+        }
+
+        // Проверка рабочего дня
+        function isWorkDay() {
+            const dayOfWeek = gameState.currentDate.getDay();
+            return dayOfWeek >= 1 && dayOfWeek <= 5; // Понедельник-Пятница
+        }
+
+        // Проверка рабочего времени
+        function isWorkTime() {
+            const hour = gameState.currentDate.getHours();
+            return hour >= CONFIG.workDayStart && hour < CONFIG.workDayEnd;
+        }
+
+        // Получение сезонного модификатора
+        function getSeasonalModifier() {
+            const month = gameState.currentDate.getMonth();
+            return CONFIG.seasonalModifiers[month] || 1;
+        }
+
+        // Получение модификатора дня недели (пятница +20%)
+        function getDayModifier() {
+            const dayOfWeek = gameState.currentDate.getDay();
+            return dayOfWeek === 5 ? 1.2 : 1; // Пятница = +20%
+        }
+
+        // Ежечасное списание DRIVE
+        function deductDriveHourly() {
+            const currentTime = new Date(gameState.currentDate);
+            const timeDiff = currentTime - gameState.lastDriveDeduction;
+            const hoursPassed = timeDiff / (1000 * 60 * 60); // в игровых часах
+            
+            if (hoursPassed >= 1) {
+                const totalWorkers = gameState.employees + 1; // Сотрудники + игрок
+                gameState.drive = Math.max(0, gameState.drive - totalWorkers);
+                gameState.lastDriveDeduction = new Date(gameState.currentDate);
+            }
+        }
+
+        // Начало нового дня
+        function startNewDay() {
+            // Восстановление DRIVE
+            gameState.drive = gameState.maxDrive;
+            
+            // Начисление REST
+            if (gameState.activeOrders.length === 0) {
+                gameState.rest = CONFIG.maxRest;
+            } else {
+                gameState.rest = Math.min(CONFIG.maxRest, gameState.rest + 50);
+            }
+            
+            // Обновление кулдаунов
+            if (gameState.zealCooldown > 0) gameState.zealCooldown--;
+            if (gameState.premiumCooldown > 0) gameState.premiumCooldown--;
+            
+            // Начисление прогресса уровня за день
+            addLevelProgress(2.5);
+            
+            // Генерация новых заказов
+            generateNewOrders();
+        }
+
+        // Генерация заказов в течение дня
+        function generateOrdersOverTime() {
+            const currentTime = new Date(gameState.currentDate);
+            const timeDiff = currentTime - gameState.lastOrderGeneration;
+            const hoursPassed = timeDiff / (1000 * 60 * 60); // в игровых часах
+            
+            // Генерируем новые заказы каждые 2 игровых часа
+            if (hoursPassed >= 2 && isWorkDay() && isWorkTime()) {
+                generateNewOrders();
+                gameState.lastOrderGeneration = new Date(gameState.currentDate);
+            }
+        }
+
+        // Обработка автоматической работы сотрудников
+        function processAutomaticWork() {
+            if (!isWorkTime() || !isWorkDay()) return;
+            
+            // Обработка каждого этапа
+            const stages = ['order', 'layout', 'prepress', 'press', 'postpress', 'product', 'shipment'];
+            
+            stages.forEach(stage => {
+                const employeesInStage = gameState.employeeAssignments.filter(a => a.stage === stage).length;
+                if (employeesInStage > 0 && gameState.ordersInProgress[stage].length > 0) {
+                    // Расчет скорости обработки
+                    let processTime = 0.5; // базовое время в минутах
+                    if (gameState.upgrades.speed > 0) {
+                        processTime = CONFIG.speedUpgrades[gameState.upgrades.speed - 1].speed;
+                    }
+                    if (gameState.zealActive) {
+                        processTime /= 10; // В 10 раз быстрее при ZEAL
+                    }
+                    
+                    // Обработка заказов на этом этапе
+                    const ordersToProcess = Math.min(
+                        employeesInStage, 
+                        gameState.ordersInProgress[stage].length
+                    );
+                    
+                    for (let i = 0; i < ordersToProcess; i++) {
+                        const orderId = gameState.ordersInProgress[stage][0];
+                        const order = gameState.activeOrders.find(o => o.id === orderId);
+                        
+                        if (order) {
+                            order.progress = (order.progress || 0) + (1 / processTime);
+                            
+                            if (order.progress >= 1) {
+                                // Заказ завершен на этом этапе
+                                order.progress = 0;
+                                advanceOrderToNextStage(orderId);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Перемещение заказа на следующий этап
+        function advanceOrderToNextStage(orderId) {
+            const order = gameState.activeOrders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const stages = ['order', 'layout', 'prepress', 'press', 'postpress', 'product', 'shipment'];
+            const currentStageIndex = stages.indexOf(order.currentStage);
+            
+            if (currentStageIndex < stages.length - 1) {
+                // Удаляем заказ из текущего этапа
+                const currentStageArray = gameState.ordersInProgress[order.currentStage];
+                const orderIndex = currentStageArray.indexOf(orderId);
+                if (orderIndex > -1) {
+                    currentStageArray.splice(orderIndex, 1);
+                }
+                
+                // Перемещаем на следующий этап
+                order.currentStage = stages[currentStageIndex + 1];
+                gameState.ordersInProgress[order.currentStage].push(orderId);
+            } else {
+                // Заказ завершен
+                completeOrder(orderId);
+            }
+        }
+
+        // Завершение заказа
+        function completeOrder(orderId) {
+            const orderIndex = gameState.activeOrders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) return;
+            
+            const order = gameState.activeOrders[orderIndex];
+            
+            // Начисление денег
+            gameState.byn += order.value;
+            
+            // Начисление рейтинга
+            gameState.rating += order.ratingReward;
+            
+            // Начисление прогресса уровня
+            const levelProgress = 1 + (order.percentage / 10);
+            addLevelProgress(levelProgress);
+            
+            // Обновление счетчиков заказов
+            gameState.completedOrders++;
+            gameState.completedOrdersWithoutPenalty++;
+            
+            // Проверка бонуса за 10 заказов
+            if (gameState.completedOrdersWithoutPenalty >= 10) {
+                addLevelProgress(20);
+                gameState.completedOrdersWithoutPenalty = 0;
+            }
+            
+            // Расход REST
+            gameState.rest = Math.max(0, gameState.rest - 0.1);
+            
+            // Удаление заказа
+            const stageArray = gameState.ordersInProgress[order.currentStage];
+            const stageIndex = stageArray.indexOf(orderId);
+            if (stageIndex > -1) {
+                stageArray.splice(stageIndex, 1);
+            }
+            gameState.activeOrders.splice(orderIndex, 1);
+        }
+
+        // Добавление прогресса уровня
+        function addLevelProgress(percent) {
+            gameState.levelProgress += percent;
+            
+            // Проверка повышения уровня
+            while (gameState.levelProgress >= 100) {
+                const nextLevel = gameState.level + 1;
+                const nextLevelConfig = CONFIG.levels.find(l => l.level === nextLevel);
+                
+                if (nextLevelConfig) {
+                    // Повышение уровня
+                    gameState.level = nextLevel;
+                    gameState.maxEmployees = nextLevelConfig.maxEmployees;
+                    gameState.rating += nextLevelConfig.ratingBonus;
+                    gameState.levelProgress -= 100;
+                    
+                    // Обновление максимального DRIVE
+                    gameState.maxDrive = calculateMaxDrive();
+                } else {
+                    // Достигнут максимальный уровень
+                    gameState.levelProgress = 100;
+                    break;
+                }
+            }
+        }
+
+        // Расчет максимального DRIVE
+        function calculateMaxDrive() {
+            let baseDrive = CONFIG.initialDrive;
+            let employeeDrive = gameState.employees * CONFIG.employeeDrive;
+            
+            if (gameState.zealActive) {
+                baseDrive += gameState.level * 2;
+            }
+            
+            return baseDrive + employeeDrive;
+        }
+
+        // Обработка клика по этапу
+        function handleStageClick(event) {
+            const stage = event.currentTarget.dataset.stage;
+            const cost = calculateDriveCost();
+            
+            if (gameState.drive >= cost && gameState.ordersInProgress[stage].length > 0) {
+                // Перемещение одного заказа на этом этапе на следующий этап
+                const orderId = gameState.ordersInProgress[stage][0];
+                advanceOrderToNextStage(orderId);
+                
+                // Расход DRIVE
+                gameState.drive -= cost;
+            }
+        }
+
+        // Расчет стоимости DRIVE
+        function calculateDriveCost() {
+            let cost = 1;
+            
+            // Применение улучшений оборудования
+            const equipmentBonus = gameState.upgrades.equipment.reduce((sum, val) => sum + val * 0.0005, 0);
+            cost *= (1 - equipmentBonus);
+            
+            // Бонус премии
+            if (gameState.premiumActive) {
+                cost *= 0.5;
+            }
+            
+            return Math.max(0.1, cost);
+        }
+
+        // Взятие заказа
+        function takeOrder(orderId) {
+            const orderIndex = gameState.availableOrders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) return;
+            
+            const order = gameState.availableOrders[orderIndex];
+            
+            // Перемещение заказа в активные
+            gameState.activeOrders.push({
+                ...order,
+                currentStage: 'order',
+                progress: 0,
+                startTime: new Date(gameState.currentDate)
+            });
+            
+            gameState.ordersInProgress.order.push(order.id);
+            gameState.availableOrders.splice(orderIndex, 1);
+        }
+
+        // Активация ZEAL
+        function activateZeal() {
+            if (gameState.zeal > 0 && !gameState.zealActive && gameState.zealCooldown === 0) {
+                gameState.zeal--;
+                gameState.zealActive = true;
+                gameState.zealDuration = 24 * 60; // 24 часа в игровых минутах
+                
+                // Увеличение максимального DRIVE
+                gameState.maxDrive = calculateMaxDrive();
+                gameState.drive = gameState.maxDrive; // Восстанавливаем DRIVE
+                
+                // Ускорение работы
+                gameState.gameTimeMultiplier = 10;
+                
+                // Обновление интерфейса
+                document.getElementById('zeal-btn').classList.add('zeal-active');
+            }
+        }
+
+        // Обмен REST на ZEAL
+        function exchangeRestForZeal() {
+            if (gameState.rest >= 30) {
+                gameState.rest -= 30;
+                gameState.zeal++;
+            }
+        }
+
+        // Расчет стоимости активации премии
+        function calculatePremiumCost() {
+            // Расчет месячных расходов
+            let monthlyExpenses = 0;
+            
+            // Зарплаты сотрудников
+            monthlyExpenses += gameState.employees * CONFIG.employeeSalary;
+            if (gameState.hasAccountant) {
+                monthlyExpenses += CONFIG.accountantSalary;
+            }
+            
+            // Расходы на рекламу
+            gameState.advertising.forEach(ad => {
+                monthlyExpenses += ad.cost * 30; // Переводим дневную стоимость в месячную
+            });
+            
+            const twoMonthsExpenses = monthlyExpenses * 2;
+            const availableSurplus = gameState.byn - twoMonthsExpenses;
+            
+            if (availableSurplus > 0) {
+                return {
+                    cost: 2500,
+                    monthlyExpenses: monthlyExpenses,
+                    twoMonthsExpenses: twoMonthsExpenses,
+                    availableSurplus: availableSurplus
+                };
+            }
+            
+            return {
+                cost: 2500,
+                monthlyExpenses: monthlyExpenses,
+                twoMonthsExpenses: twoMonthsExpenses,
+                availableSurplus: availableSurplus
+            };
+        }
+
+        // Показать модальное окно премии
+        function showPremiumModal() {
+            const modal = document.getElementById('premium-modal');
+            modal.style.display = 'block';
+        }
+
+        // Активация PREMIUM
+        function activatePremium() {
+            if (gameState.premiumCooldown > 0 || gameState.premiumActive) return;
+            
+            const premiumData = calculatePremiumCost();
+            
+            if (premiumData.cost > 0 && gameState.byn >= premiumData.cost) {
+                gameState.byn -= premiumData.cost;
+                gameState.premiumActive = true;
+                gameState.premiumDuration = 14 * 24 * 60; // 14 дней в игровых минутах
+                
+                // Обновление интерфейса
+                document.getElementById('premium-btn').classList.add('premium-active');
+                closeModals();
+            }
+        }
+
+        // Найм сотрудника
+        function hireEmployee() {
+            if (gameState.employees < gameState.maxEmployees && gameState.byn >= CONFIG.employeeSalary) {
+                gameState.employees++;
+                gameState.byn -= CONFIG.employeeSalary;
+                
+                // Добавление прогресса уровня
+                addLevelProgress(25);
+                
+                // Обновление максимального DRIVE
+                gameState.maxDrive = calculateMaxDrive();
+                
+                // Добавление сотрудника в assignments (по умолчанию в первый отдел)
+                gameState.employeeAssignments.push({
+                    id: Date.now(),
+                    type: 'employee',
+                    stage: 'order'
+                });
+                
+                closeModals();
+            }
+        }
+
+        // Найм бухгалтера
+        function hireAccountant() {
+            if (!gameState.hasAccountant && gameState.byn >= CONFIG.accountantSalary) {
+                gameState.hasAccountant = true;
+                gameState.byn -= CONFIG.accountantSalary;
+                
+                // Добавление прогресса уровня
+                addLevelProgress(25);
+                
+                closeModals();
+            }
+        }
+
+        // Перемещение сотрудника между отделами
+        function moveEmployee(employeeId, newStage) {
+            const employee = gameState.employeeAssignments.find(e => e.id === employeeId);
+            if (employee) {
+                employee.stage = newStage;
+                showEmployeesModal(); // Обновляем отображение
+            }
+        }
+
+        // Генерация начальных заказов
+        function generateInitialOrders() {
+            generateNewOrders();
+        }
+
+        // Генерация новых заказов
+        function generateNewOrders() {
+            const currentRange = getCurrentRatingRange();
+            const seasonalModifier = getSeasonalModifier();
+            const dayModifier = getDayModifier();
+            const totalModifier = seasonalModifier * dayModifier;
+            
+            const baseOrderCount = 3 + Math.floor(Math.random() * 3);
+            const orderCount = Math.max(1, Math.round(baseOrderCount * totalModifier));
+            
+            for (let i = 0; i < orderCount; i++) {
+                // Выбор типа заказа
+                const orderType = getRandomOrderType();
+                const typeConfig = CONFIG.orderTypes[orderType];
+                
+                // Расчет суммы заказа
+                const minValue = currentRange.min;
+                const maxValue = currentRange.max;
+                const percentageRange = typeConfig.maxPercentage - typeConfig.minPercentage;
+                const randomPercentage = typeConfig.minPercentage + Math.random() * percentageRange;
+                const value = minValue + (maxValue - minValue) * (randomPercentage / 100);
+                
+                // Расчет дедлайна
+                const valueRatio = (value - minValue) / (maxValue - minValue);
+                let deadline;
+                
+                if (valueRatio < 0.5) {
+                    // Меньшая сумма -> более длительный срок
+                    deadline = typeConfig.minDeadline.min + 
+                              Math.random() * (typeConfig.minDeadline.max - typeConfig.minDeadline.min);
+                } else {
+                    // Большая сумма -> более короткий срок
+                    deadline = typeConfig.maxDeadline.min + 
+                              Math.random() * (typeConfig.maxDeadline.max - typeConfig.maxDeadline.min);
+                }
+                
+                gameState.availableOrders.push({
+                    id: Date.now() + Math.random(),
+                    value: Math.round(value),
+                    percentage: Math.round(randomPercentage),
+                    deadline: Math.round(deadline),
+                    type: orderType,
+                    timeLeft: 3 * 60, // 3 игровых часа в минутах
+                    ratingReward: typeConfig.reputation,
+                    ratingPenalty: typeConfig.penalty
+                });
+            }
+        }
+
+        // Получение случайного типа заказа
+        function getRandomOrderType() {
+            const random = Math.random() * 100;
+            let cumulative = 0;
+            
+            for (const [type, config] of Object.entries(CONFIG.orderTypes)) {
+                cumulative += config.chance;
+                if (random <= cumulative) {
+                    return type;
+                }
+            }
+            
+            return 'normal';
+        }
+
+        // Обновление заказов
+        function updateOrders() {
+            // Обновление таймеров доступных заказов
+            gameState.availableOrders.forEach(order => {
+                order.timeLeft -= gameState.gameTimeMultiplier;
+            });
+            
+            // Удаление просроченных доступных заказов
+            gameState.availableOrders = gameState.availableOrders.filter(order => order.timeLeft > 0);
+            
+            // Обновление дедлайнов активных заказов
+            gameState.activeOrders.forEach(order => {
+                const timePassed = (new Date(gameState.currentDate) - order.startTime) / (1000 * 60); // в игровых минутах
+                const workDaysPassed = timePassed / (24 * 60); // в игровых днях
+                
+                if (workDaysPassed > order.deadline + 1) {
+                    // Штраф за просрочку
+                    gameState.rating -= order.ratingPenalty;
+                    gameState.completedOrdersWithoutPenalty = 0;
+                    
+                    // Удаление заказа
+                    const activeIndex = gameState.activeOrders.indexOf(order);
+                    if (activeIndex > -1) {
+                        gameState.activeOrders.splice(activeIndex, 1);
+                    }
+                    
+                    const stageArray = gameState.ordersInProgress[order.currentStage];
+                    const stageIndex = stageArray.indexOf(order.id);
+                    if (stageIndex > -1) {
+                        stageArray.splice(stageIndex, 1);
+                    }
+                }
+            });
+        }
+
+        // Получение текущего диапазона рейтинга
+        function getCurrentRatingRange() {
+            for (let i = CONFIG.ratingRanges.length - 1; i >= 0; i--) {
+                if (gameState.rating >= CONFIG.ratingRanges[i].rating) {
+                    return CONFIG.ratingRanges[i];
+                }
+            }
+            return CONFIG.ratingRanges[0];
+        }
+
+        // Проверка условий игры
+        function checkGameConditions() {
+            // Банкротство
+            if (gameState.byn <= 0) {
+                // Конец игры
+                alert('Банкротство! Игра окончена.');
+                resetGame();
+            }
+        }
+
+        // Сброс игры
+        function resetGame() {
+            // Сброс состояния игры
+            Object.assign(gameState, {
+                rating: 0,
+                byn: CONFIG.initialByn,
+                drive: CONFIG.initialDrive,
+                maxDrive: CONFIG.maxDrive,
+                zeal: CONFIG.initialZeal,
+                rest: CONFIG.initialRest,
+                currentDate: new Date(CONFIG.startDate),
+                lastDriveDeduction: new Date(CONFIG.startDate),
+                lastOrderGeneration: new Date(CONFIG.startDate),
+                level: 1,
+                levelProgress: 0,
+                employees: 0,
+                maxEmployees: 1,
+                hasAccountant: false,
+                completedOrders: 0,
+                completedOrdersWithoutPenalty: 0,
+                activeOrders: [],
+                availableOrders: [],
+                ordersInProgress: {
+                    order: [],
+                    layout: [],
+                    prepress: [],
+                    press: [],
+                    postpress: [],
+                    product: [],
+                    shipment: []
+                },
+                upgrades: {
+                    speed: 0,
+                    equipment: [0, 0, 0, 0, 0, 0, 0]
+                },
+                advertising: [],
+                zealActive: false,
+                zealCooldown: 0,
+                zealDuration: 0,
+                premiumActive: false,
+                premiumCooldown: 0,
+                premiumDuration: 0,
+                employeeAssignments: [],
+                lastUpdateTime: Date.now(),
+                dailyIncome: 0,
+                dailyExpense: 0
+            });
+            
+            // Генерация новых заказов
+            generateInitialOrders();
+        }
+
+        // Сохранение состояния игры
+        function saveGameState() {
+            localStorage.setItem('typographyMagnateSave', JSON.stringify(gameState));
+        }
+
+        // Загрузка состояния игры
+        function loadGameState() {
+            const saved = localStorage.getItem('typographyMagnateSave');
+            if (saved) {
+                const savedState = JSON.parse(saved);
+                
+                // Восстановление даты
+                savedState.currentDate = new Date(savedState.currentDate);
+                savedState.lastDriveDeduction = new Date(savedState.lastDriveDeduction);
+                savedState.lastOrderGeneration = new Date(savedState.lastOrderGeneration);
+                
+                // Восстановление начальных времен заказов
+                savedState.activeOrders.forEach(order => {
+                    order.startTime = new Date(order.startTime);
+                });
+                
+                Object.assign(gameState, savedState);
+                gameState.lastUpdateTime = Date.now();
+            }
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            // Обновление времени
+            updateTimeDisplay();
+            
+            // Обновление значений валют
+            document.getElementById('rating-value').textContent = gameState.rating.toLocaleString();
+            document.getElementById('byn-value').textContent = gameState.byn.toLocaleString();
+            document.getElementById('drive-value').textContent = `${Math.floor(gameState.drive)}/${gameState.maxDrive}`;
+            document.getElementById('zeal-value').textContent = gameState.zeal;
+            document.getElementById('rest-value').textContent = Math.floor(gameState.rest);
+            
+            // Обновление финансов
+            document.getElementById('daily-income').textContent = `+${Math.round(gameState.dailyIncome)}/день`;
+            document.getElementById('daily-expense').textContent = `-${Math.round(gameState.dailyExpense)}/день`;
+            
+            // Обновление статистики
+            document.getElementById('level-value').textContent = gameState.level;
+            document.getElementById('level-progress').style.width = `${gameState.levelProgress}%`;
+            
+            document.getElementById('employees-value').textContent = 
+                `${gameState.employees}/${gameState.maxEmployees}`;
+                
+            document.getElementById('advertising-value').textContent = 
+                `${gameState.advertising.length}/10`;
+                
+            // Обновление счетчиков улучшений
+            const totalUpgrades = gameState.upgrades.speed + gameState.upgrades.equipment.reduce((a, b) => a + b, 0);
+            document.getElementById('upgrades-value').textContent = `${totalUpgrades}`;
+            
+            // Обновление этапов
+            updateStagesDisplay();
+            
+            // Обновление списков заказов
+            updateOrdersDisplay();
+            
+            // Обновление состояния кнопок
+            updateButtonsState();
+            
+            // Обновление информации о премии
+            updatePremiumInfo();
+            
+            // Обновление прогресс бара Zeal
+            updateZealProgress();
+        }
+
+        // Обновление прогресс бара Zeal
+        function updateZealProgress() {
+            const zealProgress = document.getElementById('zeal-progress');
+            if (gameState.zealActive) {
+                const progressPercent = (gameState.zealDuration / (24 * 60)) * 100;
+                zealProgress.style.width = `${progressPercent}%`;
+            } else {
+                zealProgress.style.width = '0%';
+            }
+        }
+
+        // Обновление отображения времени
+        function updateTimeDisplay() {
+            const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+            
+            const date = gameState.currentDate;
+            const dayOfWeek = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            document.getElementById('current-date').textContent = 
+                `${day} ${month} ${year}, ${dayOfWeek}`;
+            document.getElementById('current-time').textContent = 
+                `${hours}:${minutes}`;
+        }
+
+        // Обновление отображения этапов
+        function updateStagesDisplay() {
+            const stages = ['order', 'layout', 'prepress', 'press', 'postpress', 'product', 'shipment'];
+            const stageNames = {
+                order: 'Заказ',
+                layout: 'Макет', 
+                prepress: 'Допечатка',
+                press: 'Печать',
+                postpress: 'Послепечатка',
+                product: 'Изделие',
+                shipment: 'Отгрузка'
+            };
+            
+            stages.forEach(stage => {
+                const orderCount = gameState.ordersInProgress[stage].length;
+                const employeeCount = gameState.employeeAssignments.filter(e => e.stage === stage).length;
+                
+                document.getElementById(`stage-${stage}`).textContent = `Заказы: ${orderCount}`;
+                document.getElementById(`stage-${stage}-employees`).textContent = `Сотр: ${employeeCount}`;
+                
+                // Подсветка активных этапов
+                const stageElement = document.querySelector(`[data-stage="${stage}"]`);
+                if (orderCount > 0 && gameState.drive >= calculateDriveCost()) {
+                    stageElement.classList.add('active');
+                } else {
+                    stageElement.classList.remove('active');
+                }
+            });
+        }
+
+        // Обновление отображения заказов
+        function updateOrdersDisplay() {
+            updateActiveOrdersDisplay();
+            updateAvailableOrdersDisplay();
+        }
+
+        // Обновление активных заказов
+        function updateActiveOrdersDisplay() {
+            const container = document.getElementById('active-orders');
+            container.innerHTML = '';
+            
+            gameState.activeOrders.forEach(order => {
+                const timePassed = (new Date(gameState.currentDate) - order.startTime) / (1000 * 60); // в игровых минутах
+                const workDaysPassed = timePassed / (24 * 60); // в игровых днях
+                const timeLeft = Math.max(0, order.deadline - workDaysPassed);
+                const timePercent = Math.max(0, (timeLeft / order.deadline) * 100);
+                
+                const orderElement = document.createElement('div');
+                orderElement.className = `order-item ${order.type}`;
+                orderElement.dataset.orderId = order.id;
+                
+                const typeNames = {
+                    normal: 'Обычный',
+                    rare: 'Редкий',
+                    legendary: 'Легендарный'
+                };
+                
+                orderElement.innerHTML = `
+                    <div class="order-type ${order.type}">${typeNames[order.type]}</div>
+                    <div class="order-value">${order.value.toLocaleString()} BYN</div>
+                    <div class="order-percentage">${order.percentage}% от макс.</div>
+                    <div class="order-deadline">Этап: ${order.currentStage} | Дедлайн: ${timeLeft.toFixed(1)} дн.</div>
+                    <div class="order-reputation">Репутация: +${order.ratingReward} / -${order.ratingPenalty}</div>
+                    <div class="order-timer" style="width: ${timePercent}%"></div>
+                `;
+                
+                container.appendChild(orderElement);
+            });
+        }
+
+        // Обновление доступных заказов
+        function updateAvailableOrdersDisplay() {
+            const container = document.getElementById('available-orders');
+            container.innerHTML = '';
+            
+            gameState.availableOrders.forEach(order => {
+                const timePercent = (order.timeLeft / (3 * 60)) * 100;
+                
+                const orderElement = document.createElement('div');
+                orderElement.className = `order-item ${order.type}`;
+                orderElement.dataset.orderId = order.id;
+                
+                const typeNames = {
+                    normal: 'Обычный',
+                    rare: 'Редкий',
+                    legendary: 'Легендарный'
+                };
+                
+                orderElement.innerHTML = `
+                    <div class="order-type ${order.type}">${typeNames[order.type]}</div>
+                    <div class="order-value">${order.value.toLocaleString()} BYN</div>
+                    <div class="order-percentage">${order.percentage}% от макс.</div>
+                    <div class="order-deadline">Дедлайн: ${order.deadline} дн.</div>
+                    <div class="order-reputation">Репутация: +${order.ratingReward} / -${order.ratingPenalty}</div>
+                    <div class="order-timer" style="width: ${timePercent}%"></div>
+                `;
+                
+                container.appendChild(orderElement);
+            });
+        }
+
+        // Обновление состояния кнопок
+        function updateButtonsState() {
+            // Кнопка ZEAL
+            const zealBtn = document.getElementById('zeal-btn');
+            if (gameState.zealActive) {
+                zealBtn.classList.add('zeal-active');
+                zealBtn.querySelector('.currency-value').textContent = `${gameState.zeal} (активен)`;
+            } else {
+                zealBtn.classList.remove('zeal-active');
+                zealBtn.querySelector('.currency-value').textContent = gameState.zeal;
+                
+                if (gameState.zealCooldown > 0) {
+                    zealBtn.querySelector('.currency-subtext').textContent = `ZEAL (${gameState.zealCooldown}д)`;
+                } else {
+                    zealBtn.querySelector('.currency-subtext').textContent = 'ZEAL';
+                }
+            }
+            
+            // Кнопка PREMIUM
+            const premiumBtn = document.getElementById('premium-btn');
+            if (gameState.premiumActive) {
+                premiumBtn.classList.add('premium-active');
+                premiumBtn.querySelector('.currency-value').textContent = '🔓 2500 BYN';
+            } else if (gameState.premiumCooldown > 0) {
+                premiumBtn.querySelector('.currency-value').textContent = `${gameState.premiumCooldown}д`;
+                premiumBtn.classList.remove('premium-active');
+            } else {
+                premiumBtn.querySelector('.currency-value').textContent = '🔒 2500 BYN';
+                premiumBtn.classList.remove('premium-active');
+            }
+        }
+
+        // Обновление информации о премии
+        function updatePremiumInfo() {
+            const premiumInfo = document.getElementById('premium-info');
+            const premiumData = calculatePremiumCost();
+            
+            if (gameState.premiumActive) {
+                premiumInfo.textContent = `Активна (${Math.ceil(gameState.premiumDuration / (24 * 60))} дн. осталось)`;
+            } else if (gameState.premiumCooldown > 0) {
+                premiumInfo.textContent = `Доступна через ${gameState.premiumCooldown} дн.`;
+            } else if (premiumData.availableSurplus > 0) {
+                premiumInfo.textContent = `Доступна`;
+            } else {
+                premiumInfo.textContent = `Нужно +${Math.round(-premiumData.availableSurplus)} BYN`;
+            }
+        }
+
+        // Модальные окна
+        function showRatingModal() {
+            const modal = document.getElementById('rating-modal');
+            const tbody = modal.querySelector('tbody');
+            
+            tbody.innerHTML = '';
+            CONFIG.ratingRanges.forEach(range => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${range.rating}</td>
+                    <td>${range.min.toLocaleString()}</td>
+                    <td>${range.max.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function showBynModal() {
+            const modal = document.getElementById('byn-modal');
+            const incomeList = document.getElementById('income-list');
+            const expenseList = document.getElementById('expense-list');
+            
+            // Расчет доходов и расходов
+            let dailyIncome = 0;
+            gameState.activeOrders.forEach(order => {
+                dailyIncome += order.value / order.deadline;
+            });
+            
+            let monthlyExpenses = 0;
+            monthlyExpenses += gameState.employees * CONFIG.employeeSalary;
+            if (gameState.hasAccountant) {
+                monthlyExpenses += CONFIG.accountantSalary;
+            }
+            gameState.advertising.forEach(ad => {
+                monthlyExpenses += ad.cost * 30;
+            });
+            
+            // Заполнение доходов и расходов
+            incomeList.innerHTML = `
+                <div>Доходы от заказов: ${Math.round(dailyIncome)} BYN/день</div>
+            `;
+            expenseList.innerHTML = `
+                <div>Зарплаты сотрудников: ${gameState.employees * CONFIG.employeeSalary} BYN/мес</div>
+                ${gameState.hasAccountant ? `<div>Зарплата бухгалтера: ${CONFIG.accountantSalary} BYN/мес</div>` : ''}
+                <div>Реклама: ${gameState.advertising.reduce((sum, ad) => sum + ad.cost * 30, 0)} BYN/мес</div>
+                <div><strong>Всего расходов: ${monthlyExpenses} BYN/мес</strong></div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function showDriveModal() {
+            const modal = document.getElementById('drive-modal');
+            const tbody = document.getElementById('drive-sources');
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td>Игрок</td>
+                    <td>80</td>
+                </tr>
+                <tr>
+                    <td>Сотрудники (${gameState.employees})</td>
+                    <td>${gameState.employees * CONFIG.employeeDrive}</td>
+                </tr>
+                ${gameState.zealActive ? `
+                <tr>
+                    <td>Бонус ZEAL</td>
+                    <td>+${gameState.level * 2}</td>
+                </tr>
+                ` : ''}
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function showEmployeesModal() {
+            const modal = document.getElementById('employees-modal');
+            const container = document.getElementById('departments-list');
+            
+            container.innerHTML = '';
+            
+            const stages = ['order', 'layout', 'prepress', 'press', 'postpress', 'product', 'shipment'];
+            const stageNames = {
+                order: 'Заказ',
+                layout: 'Макет', 
+                prepress: 'Допечатка',
+                press: 'Печать',
+                postpress: 'Послепечатка',
+                product: 'Изделие',
+                shipment: 'Отгрузка'
+            };
+            
+            stages.forEach(stage => {
+                const orderCount = gameState.ordersInProgress[stage].length;
+                const employeeCount = gameState.employeeAssignments.filter(e => e.stage === stage).length;
+                
+                const row = document.createElement('div');
+                row.className = 'department-row';
+                row.innerHTML = `
+                    <div class="department-name">${stageNames[stage]}</div>
+                    <div class="department-stats">${orderCount}</div>
+                    <div class="department-stats">${employeeCount}</div>
+                    <div class="department-controls">
+                        <button class="employee-control-btn" onclick="moveEmployeeToStage('${stage}', 1)">+</button>
+                        <button class="employee-control-btn" onclick="moveEmployeeFromStage('${stage}', 1)">-</button>
+                    </div>
+                `;
+                
+                container.appendChild(row);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        // Функции перемещения сотрудников
+        window.moveEmployeeToStage = function(stage, count) {
+            // Находим сотрудника не в этом отделе
+            const availableEmployee = gameState.employeeAssignments.find(e => e.stage !== stage);
+            if (availableEmployee) {
+                availableEmployee.stage = stage;
+                showEmployeesModal();
+            }
+        };
+
+        window.moveEmployeeFromStage = function(stage, count) {
+            // Находим сотрудника в этом отделе
+            const employeeInStage = gameState.employeeAssignments.find(e => e.stage === stage);
+            if (employeeInStage) {
+                // Перемещаем в первый отдел
+                employeeInStage.stage = 'order';
+                showEmployeesModal();
+            }
+        };
+
+        function showAdvertisingModal() {
+            const modal = document.getElementById('advertising-modal');
+            const container = document.getElementById('advertising-points');
+            
+            container.innerHTML = '';
+            CONFIG.advertisingPoints.forEach(point => {
+                const isActive = gameState.advertising.some(ad => ad.id === point.id);
+                const item = document.createElement('div');
+                item.className = `upgrade-item ${isActive ? 'disabled' : ''}`;
+                item.innerHTML = `
+                    <div><strong>Точка ${point.id}</strong></div>
+                    <div>Стоимость: ${point.cost.toLocaleString()} BYN/день</div>
+                    <div>Показов: ${point.shows.toLocaleString()}/день</div>
+                    <div>CTR: ${point.ctr}%</div>
+                    <div>Бонус: ${point.bonus} BYN/клик</div>
+                    ${!isActive ? 
+                        `<button class="action-btn" onclick="activateAdvertising(${point.id})">Активировать</button>` : 
+                        `<button class="action-btn" onclick="deactivateAdvertising(${point.id})">Деактивировать</button>`
+                    }
+                `;
+                
+                container.appendChild(item);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        // Функции активации/деактивации рекламы
+        window.activateAdvertising = function(pointId) {
+            const point = CONFIG.advertisingPoints.find(p => p.id === pointId);
+            if (point && gameState.byn >= point.cost) {
+                gameState.byn -= point.cost;
+                gameState.advertising.push({...point});
+                
+                // Добавление прогресса уровня
+                addLevelProgress(50);
+                
+                // Закрытие и повторное открытие модального окна для обновления
+                closeModals();
+                setTimeout(() => showAdvertisingModal(), 100);
+            }
+        };
+
+        window.deactivateAdvertising = function(pointId) {
+            gameState.advertising = gameState.advertising.filter(ad => ad.id !== pointId);
+            closeModals();
+            setTimeout(() => showAdvertisingModal(), 100);
+        };
+
+        function showUpgradesModal() {
+            const modal = document.getElementById('upgrades-modal');
+            
+            // Заполнение улучшений скорости
+            const speedContainer = document.getElementById('speed-upgrades');
+            speedContainer.innerHTML = '';
+            
+            CONFIG.speedUpgrades.forEach((upgrade, index) => {
+                const canBuy = gameState.upgrades.speed === index && gameState.byn >= upgrade.cost;
+                const item = document.createElement('div');
+                item.className = `upgrade-item ${!canBuy ? 'disabled' : ''}`;
+                item.innerHTML = `
+                    <div><strong>Скорость уровень ${upgrade.level}</strong></div>
+                    <div>Скорость: ${upgrade.speed} сек</div>
+                    <div>Стоимость: ${upgrade.cost.toLocaleString()} BYN</div>
+                    ${canBuy ? 
+                        `<button class="action-btn" onclick="buySpeedUpgrade(${index})">Купить</button>` : 
+                        gameState.upgrades.speed > index ? 
+                        '<div>Куплено</div>' : 
+                        '<div>Недоступно</div>'
+                    }
+                `;
+                
+                speedContainer.appendChild(item);
+            });
+            
+            // Заполнение улучшений оборудования
+            const equipmentContainer = document.getElementById('equipment-upgrades');
+            equipmentContainer.innerHTML = '';
+            
+            const stageNames = ['Заказ', 'Макет', 'Допечатка', 'Печать', 'Послепечатка', 'Изделие', 'Отгрузка'];
+            
+            gameState.upgrades.equipment.forEach((level, index) => {
+                const nextCost = level < 5 ? CONFIG.equipmentUpgradeCost[level] : null;
+                const canBuy = nextCost && gameState.byn >= nextCost;
+                
+                const item = document.createElement('div');
+                item.className = `upgrade-item ${!canBuy ? 'disabled' : ''}`;
+                item.innerHTML = `
+                    <div><strong>${stageNames[index]} (Ур. ${level}/5)</strong></div>
+                    <div>Снижение DRIVE: ${(level * 0.05).toFixed(2)}%</div>
+                    <div>${nextCost ? `Следующий уровень: ${nextCost.toLocaleString()} BYN` : 'Макс. уровень'}</div>
+                    ${canBuy ? 
+                        `<button class="action-btn" onclick="buyEquipmentUpgrade(${index})">Улучшить</button>` : 
+                        level === 5 ? 
+                        '<div>Макс. уровень</div>' : 
+                        '<div>Недоступно</div>'
+                    }
+                `;
+                
+                equipmentContainer.appendChild(item);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        // Функции покупки улучшений
+        window.buySpeedUpgrade = function(index) {
+            const upgrade = CONFIG.speedUpgrades[index];
+            if (gameState.byn >= upgrade.cost) {
+                gameState.byn -= upgrade.cost;
+                gameState.upgrades.speed = upgrade.level;
+                closeModals();
+                setTimeout(() => showUpgradesModal(), 100);
+            }
+        };
+
+        window.buyEquipmentUpgrade = function(stageIndex) {
+            const currentLevel = gameState.upgrades.equipment[stageIndex];
+            if (currentLevel < 5) {
+                const cost = CONFIG.equipmentUpgradeCost[currentLevel];
+                if (gameState.byn >= cost) {
+                    gameState.byn -= cost;
+                    gameState.upgrades.equipment[stageIndex]++;
+                    closeModals();
+                    setTimeout(() => showUpgradesModal(), 100);
+                }
+            }
+        };
+
+        function showTeamModal() {
+            const modal = document.getElementById('team-modal');
+            const container = document.getElementById('team-events');
+            
+            container.innerHTML = '';
+            CONFIG.teamEvents.forEach((event, index) => {
+                const totalCost = event.baseCost + (gameState.employees * event.costPerEmployee) + 
+                                 (gameState.hasAccountant ? event.costPerEmployee : 0);
+                const canAfford = gameState.byn >= totalCost;
+                
+                const item = document.createElement('div');
+                item.className = `upgrade-item ${!canAfford ? 'disabled' : ''}`;
+                item.innerHTML = `
+                    <div><strong>${event.name}</strong></div>
+                    <div>Стоимость: ${totalCost.toLocaleString()} BYN</div>
+                    <div>Рейтинг: +${event.rating}</div>
+                    <div>ZEAL: +${event.zeal}</div>
+                    <div>REST: +${event.rest}</div>
+                    <div>Уровень: +${event.levelProgress}%</div>
+                    ${canAfford ? 
+                        `<button class="action-btn" onclick="conductTeamEvent(${index})">Провести</button>` : 
+                        '<div>Недостаточно средств</div>'
+                    }
+                `;
+                
+                container.appendChild(item);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        // Функция проведения тимбилдинга
+        window.conductTeamEvent = function(eventIndex) {
+            const event = CONFIG.teamEvents[eventIndex];
+            const totalCost = event.baseCost + (gameState.employees * event.costPerEmployee) + 
+                             (gameState.hasAccountant ? event.costPerEmployee : 0);
+            
+            if (gameState.byn >= totalCost) {
+                gameState.byn -= totalCost;
+                gameState.rating += event.rating;
+                gameState.zeal += event.zeal;
+                gameState.rest = Math.min(CONFIG.maxRest, gameState.rest + event.rest);
+                addLevelProgress(event.levelProgress);
+                
+                closeModals();
+            }
+        };
+
+        function showLevelModal() {
+            const modal = document.getElementById('level-modal');
+            const tbody = document.getElementById('level-table');
+            
+            tbody.innerHTML = '';
+            CONFIG.levels.forEach(level => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${level.level}</td>
+                    <td>${level.maxEmployees}</td>
+                    <td>${level.ratingBonus}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        function handleTabClick(event) {
+            const tab = event.currentTarget;
+            const tabName = tab.dataset.tab;
+            
+            // Удаление активного класса со всех вкладок и контента
+            tab.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.parentElement.parentElement.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Добавление активного класса текущей вкладке и контенту
+            tab.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // Запуск игры при загрузке
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

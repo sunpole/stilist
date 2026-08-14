@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defense Spray Mechanic</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 70vh;
+        }
+        #controls {
+            padding: 20px;
+            background-color: #333;
+            height: 30vh;
+            overflow-y: auto;
+        }
+        .control-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+        label {
+            display: inline-block;
+            width: 250px;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 200px;
+            vertical-align: middle;
+        }
+        .value-display {
+            display: inline-block;
+            width: 50px;
+            text-align: right;
+            margin-left: 10px;
+        }
+        #path {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            width: 80%;
+            height: 20px;
+            background-color: #555;
+            transform: translateY(-50%);
+        }
+        #pointA, #pointB {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        #pointA {
+            left: 5%;
+            top: 50%;
+            background-color: red;
+            transform: translateY(-50%);
+        }
+        #pointB {
+            right: 5%;
+            top: 50%;
+            background-color: blue;
+            transform: translateY(-50%);
+        }
+        #tower {
+            position: absolute;
+            left: 50%;
+            top: calc(50% - 100px);
+            width: 60px;
+            height: 100px;
+            background-color: #888;
+            border-radius: 10px;
+            transform: translateX(-50%);
+        }
+        .enemy {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #f00;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 18px;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="path"></div>
+        <div id="pointA">A</div>
+        <div id="pointB">B</div>
+        <div id="tower"></div>
+        <div id="stats">
+            Уничтожено: <span id="killed">0</span> | 
+            Прошли: <span id="passed">0</span>
+        </div>
+    </div>
+
+    <div id="controls">
+        <div class="control-group">
+            <h3>Параметры врагов</h3>
+            <div>
+                <label for="enemySpeed">Скорость врагов (пикс/сек):</label>
+                <input type="range" id="enemySpeed" min="1" max="10" step="0.1" value="2">
+                <span class="value-display" id="enemySpeedValue">2</span>
+            </div>
+            <div>
+                <label for="enemySpawnInterval">Перезарядка появления (мс):</label>
+                <input type="range" id="enemySpawnInterval" min="500" max="5000" step="100" value="2000">
+                <span class="value-display" id="enemySpawnIntervalValue">2000</span>
+            </div>
+            <div>
+                <label for="enemyHealth">Здоровье врагов:</label>
+                <input type="range" id="enemyHealth" min="10" max="200" step="10" value="100">
+                <span class="value-display" id="enemyHealthValue">100</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Параметры башни</h3>
+            <div>
+                <label for="towerCooldown">Перезарядка башни (мс):</label>
+                <input type="range" id="towerCooldown" min="100" max="5000" step="100" value="2000">
+                <span class="value-display" id="towerCooldownValue">2000</span>
+            </div>
+            <div>
+                <label for="projectileDamage">Урон снаряда:</label>
+                <input type="range" id="projectileDamage" min="1" max="30" step="1" value="10">
+                <span class="value-display" id="projectileDamageValue">10</span>
+            </div>
+            <div>
+                <label for="projectileSpeed">Скорость снаряда (пикс/сек):</label>
+                <input type="range" id="projectileSpeed" min="1" max="50" step="1" value="30">
+                <span class="value-display" id="projectileSpeedValue">30</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Параметры выстрела</h3>
+            <div>
+                <label for="totalProjectiles">Всего снарядов:</label>
+                <input type="range" id="totalProjectiles" min="1" max="50" step="1" value="20">
+                <span class="value-display" id="totalProjectilesValue">20</span>
+            </div>
+            <div>
+                <label for="narrowCount">Снарядов узкого конуса:</label>
+                <input type="range" id="narrowCount" min="0" max="20" step="1" value="5">
+                <span class="value-display" id="narrowCountValue">5</span>
+            </div>
+            <div>
+                <label for="narrowSpread">Угол узкого конуса (град):</label>
+                <input type="range" id="narrowSpread" min="0" max="30" step="1" value="3">
+                <span class="value-display" id="narrowSpreadValue">3</span>
+            </div>
+            <div>
+                <label for="mediumCount">Снарядов среднего конуса:</label>
+                <input type="range" id="mediumCount" min="0" max="20" step="1" value="10">
+                <span class="value-display" id="mediumCountValue">10</span>
+            </div>
+            <div>
+                <label for="mediumSpread">Угол среднего конуса (град):</label>
+                <input type="range" id="mediumSpread" min="0" max="30" step="1" value="15">
+                <span class="value-display" id="mediumSpreadValue">15</span>
+            </div>
+            <div>
+                <label for="wideCount">Снарядов широкого конуса:</label>
+                <input type="range" id="wideCount" min="0" max="20" step="1" value="5">
+                <span class="value-display" id="wideCountValue">5</span>
+            </div>
+            <div>
+                <label for="wideSpread">Угол широкого конуса (град):</label>
+                <input type="range" id="wideSpread" min="0" max="45" step="1" value="25">
+                <span class="value-display" id="wideSpreadValue">25</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const tower = document.getElementById('tower');
+        const killedCounter = document.getElementById('killed');
+        const passedCounter = document.getElementById('passed');
+
+        // Game parameters with default values
+        const params = {
+            // Enemy parameters
+            enemySpeed: 2,
+            enemySpawnInterval: 2000,
+            enemyHealth: 100,
+            
+            // Tower parameters
+            towerCooldown: 2000,
+            projectileDamage: 10,
+            projectileSpeed: 30,
+            
+            // Shot parameters
+            totalProjectiles: 20,
+            narrowCount: 5,
+            narrowSpread: 3,
+            mediumCount: 10,
+            mediumSpread: 15,
+            wideCount: 5,
+            wideSpread: 25
+        };
+
+        // Game state
+        let enemies = [];
+        let projectiles = [];
+        let killed = 0;
+        let passed = 0;
+        let lastSpawnTime = 0;
+        let lastShotTime = 0;
+        const towerCenter = {
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2 - 100
+        };
+
+        // Enemy class
+        class Enemy {
+            constructor() {
+                this.x = document.getElementById('pointA').getBoundingClientRect().left + 15;
+                this.y = document.getElementById('pointA').getBoundingClientRect().top + 15;
+                this.speed = params.enemySpeed;
+                this.health = params.enemyHealth;
+                this.element = document.createElement('div');
+                this.element.className = 'enemy';
+                this.element.style.left = `${this.x}px`;
+                this.element.style.top = `${this.y}px`;
+                container.appendChild(this.element);
+            }
+
+            update() {
+                const pointB = document.getElementById('pointB').getBoundingClientRect();
+                const targetX = pointB.left + 15;
+                const targetY = pointB.top + 15;
+                
+                // Move toward point B
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 5) {
+                    this.x += (dx / distance) * this.speed;
+                    this.y += (dy / distance) * this.speed;
+                    this.element.style.left = `${this.x}px`;
+                    this.element.style.top = `${this.y}px`;
+                    return false; // Not reached
+                } else {
+                    passed++;
+                    passedCounter.textContent = passed;
+                    this.element.remove();
+                    return true; // Reached
+                }
+            }
+
+            takeDamage(damage) {
+                this.health -= damage;
+                if (this.health <= 0) {
+                    killed++;
+                    killedCounter.textContent = killed;
+                    this.element.remove();
+                    return true; // Dead
+                }
+                return false; // Still alive
+            }
+        }
+
+        // Projectile class
+        class Projectile {
+            constructor(x, y, angle, spread) {
+                this.x = x;
+                this.y = y;
+                this.speed = params.projectileSpeed / 60; // Convert to px/frame (assuming 60fps)
+                this.damage = params.projectileDamage;
+                this.angle = angle + (Math.random() * spread * 2 - spread) * Math.PI / 180;
+                this.element = document.createElement('div');
+                this.element.className = 'projectile';
+                this.element.style.left = `${x}px`;
+                this.element.style.top = `${y}px`;
+                container.appendChild(this.element);
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.element.style.left = `${this.x}px`;
+                this.element.style.top = `${this.y}px`;
+
+                // Check if out of screen
+                if (this.x < 0 || this.x > window.innerWidth || 
+                    this.y < 0 || this.y > window.innerHeight) {
+                    this.element.remove();
+                    return true; // Remove
+                }
+
+                // Check collision with enemies
+                for (let i = 0; i < enemies.length; i++) {
+                    const enemy = enemies[i];
+                    const dx = this.x - enemy.x;
+                    const dy = this.y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 20) { // Collision radius
+                        const isDead = enemy.takeDamage(this.damage);
+                        if (isDead) {
+                            enemies.splice(i, 1);
+                        }
+                        this.element.remove();
+                        return true; // Hit
+                    }
+                }
+
+                return false; // Continue flying
+            }
+        }
+
+        // Game loop
+        function gameLoop(timestamp) {
+            // Update parameters from controls
+            updateParamsFromControls();
+
+            // Spawn new enemies
+            if (timestamp - lastSpawnTime > params.enemySpawnInterval) {
+                enemies.push(new Enemy());
+                lastSpawnTime = timestamp;
+            }
+
+            // Update enemies
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                enemies[i].speed = params.enemySpeed;
+                const reached = enemies[i].update();
+                if (reached) {
+                    enemies.splice(i, 1);
+                }
+            }
+
+            // Tower shooting logic
+            if (enemies.length > 0 && timestamp - lastShotTime > params.towerCooldown) {
+                // Find closest enemy
+                let closestEnemy = null;
+                let minDistance = Infinity;
+                
+                for (const enemy of enemies) {
+                    const dx = enemy.x - towerCenter.x;
+                    const dy = enemy.y - towerCenter.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestEnemy = enemy;
+                    }
+                }
+
+                if (closestEnemy) {
+                    // Calculate angle to enemy
+                    const angleToEnemy = Math.atan2(
+                        closestEnemy.y - towerCenter.y,
+                        closestEnemy.x - towerCenter.x
+                    );
+
+                    // Create spray of projectiles
+                    const totalNarrow = Math.min(params.narrowCount, params.totalProjectiles);
+                    const totalMedium = Math.min(params.mediumCount, params.totalProjectiles - totalNarrow);
+                    const totalWide = Math.min(params.wideCount, params.totalProjectiles - totalNarrow - totalMedium);
+                    
+                    for (let i = 0; i < totalNarrow; i++) {
+                        projectiles.push(new Projectile(
+                            towerCenter.x,
+                            towerCenter.y,
+                            angleToEnemy,
+                            params.narrowSpread
+                        ));
+                    }
+                    for (let i = 0; i < totalMedium; i++) {
+                        projectiles.push(new Projectile(
+                            towerCenter.x,
+                            towerCenter.y,
+                            angleToEnemy,
+                            params.mediumSpread
+                        ));
+                    }
+                    for (let i = 0; i < totalWide; i++) {
+                        projectiles.push(new Projectile(
+                            towerCenter.x,
+                            towerCenter.y,
+                            angleToEnemy,
+                            params.wideSpread
+                        ));
+                    }
+                    
+                    lastShotTime = timestamp;
+                }
+            }
+
+            // Update projectiles
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const shouldRemove = projectiles[i].update();
+                if (shouldRemove) {
+                    projectiles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Update parameters from controls
+        function updateParamsFromControls() {
+            params.enemySpeed = parseFloat(document.getElementById('enemySpeed').value);
+            params.enemySpawnInterval = parseInt(document.getElementById('enemySpawnInterval').value);
+            params.enemyHealth = parseInt(document.getElementById('enemyHealth').value);
+            
+            params.towerCooldown = parseInt(document.getElementById('towerCooldown').value);
+            params.projectileDamage = parseInt(document.getElementById('projectileDamage').value);
+            params.projectileSpeed = parseInt(document.getElementById('projectileSpeed').value);
+            
+            params.totalProjectiles = parseInt(document.getElementById('totalProjectiles').value);
+            params.narrowCount = parseInt(document.getElementById('narrowCount').value);
+            params.narrowSpread = parseInt(document.getElementById('narrowSpread').value);
+            params.mediumCount = parseInt(document.getElementById('mediumCount').value);
+            params.mediumSpread = parseInt(document.getElementById('mediumSpread').value);
+            params.wideCount = parseInt(document.getElementById('wideCount').value);
+            params.wideSpread = parseInt(document.getElementById('wideSpread').value);
+            
+            // Update value displays
+            document.getElementById('enemySpeedValue').textContent = params.enemySpeed;
+            document.getElementById('enemySpawnIntervalValue').textContent = params.enemySpawnInterval;
+            document.getElementById('enemyHealthValue').textContent = params.enemyHealth;
+            
+            document.getElementById('towerCooldownValue').textContent = params.towerCooldown;
+            document.getElementById('projectileDamageValue').textContent = params.projectileDamage;
+            document.getElementById('projectileSpeedValue').textContent = params.projectileSpeed;
+            
+            document.getElementById('totalProjectilesValue').textContent = params.totalProjectiles;
+            document.getElementById('narrowCountValue').textContent = params.narrowCount;
+            document.getElementById('narrowSpreadValue').textContent = params.narrowSpread;
+            document.getElementById('mediumCountValue').textContent = params.mediumCount;
+            document.getElementById('mediumSpreadValue').textContent = params.mediumSpread;
+            document.getElementById('wideCountValue').textContent = params.wideCount;
+            document.getElementById('wideSpreadValue').textContent = params.wideSpread;
+        }
+
+        // Initialize controls
+        function initControls() {
+            const sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', updateParamsFromControls);
+            });
+            updateParamsFromControls();
+        }
+
+        // Start game
+        initControls();
+        requestAnimationFrame(gameLoop);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            towerCenter.x = window.innerWidth / 2;
+            towerCenter.y = window.innerHeight / 2 - 100;
+        });
+    </script>
+</body>
+</html>

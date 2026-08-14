@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lетучие клетки</title>
+    <meta name="description" content="Головоломка с переключением клеток 3x3">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1><i class="fas fa-th-large"></i> Lетучие клетки</h1>
+            <p class="subtitle">Головоломка 3×3</p>
+        </header>
+
+        <main class="game-container">
+            <div class="game-info">
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Ход:</span>
+                        <span id="move-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Время:</span>
+                        <span id="timer" class="stat-value">00:00</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Сложность:</span>
+                        <span id="difficulty" class="stat-value">Средняя</span>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="new-game-btn" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Новая игра
+                    </button>
+                    <button id="hint-btn" class="btn btn-secondary">
+                        <i class="fas fa-lightbulb"></i> Подсказка
+                    </button>
+                    <button id="sound-toggle" class="btn btn-icon" aria-label="Звук">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div class="game-board" id="game-board">
+                    <!-- Сетка 3x3 будет сгенерирована через JS -->
+                </div>
+                <div class="game-instructions">
+                    <h3><i class="fas fa-info-circle"></i> Правила:</h3>
+                    <ul>
+                        <li>Цель: включить все клетки (сделать их синими)</li>
+                        <li>Угловые клетки переключают себя и 2 соседних</li>
+                        <li>Боковые клетки переключают всю сторону (3 клетки)</li>
+                        <li>Центральная клетка переключает крест (5 клеток)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="game-status" id="game-status">
+                <p>Начните игру, нажав "Новая игра"</p>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>Создано с использованием Vanilla JS • Адаптировано для мобильных устройств • <span id="version">v1.0</span></p>
+            <div class="debug-info">
+                <button id="debug-toggle" class="btn-debug">
+                    <i class="fas fa-bug"></i> Отладка
+                </button>
+                <div id="debug-console" class="debug-console">
+                    <!-- Консоль отладки будет заполняться через JS -->
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="win-modal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-trophy"></i> Победа!</h2>
+            <p>Вы решили головоломку за <span id="win-moves">0</span> ходов и <span id="win-time">00:00</span>!</p>
+            <div class="modal-buttons">
+                <button id="play-again-btn" class="btn btn-primary">Играть снова</button>
+                <button id="close-modal-btn" class="btn btn-secondary">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hint-modal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-lightbulb"></i> Подсказка</h2>
+            <p id="hint-text">Подсказка загружается...</p>
+            <div class="modal-buttons">
+                <button id="close-hint-btn" class="btn btn-primary">Понятно</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Аудио элементы -->
+    <audio id="click-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="win-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Подключение JavaScript модулей -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>

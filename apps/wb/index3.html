@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор WB (Гарантированная прибыль)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial; background: #f4f4f4; padding: 20px; }
+        .calculator { background: white; padding: 25px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2, h3 { color: #333; text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .button { background: #4CAF50; color: white; padding: 15px; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .button:hover { background: #45a049; }
+        .result { background: #e8f5e9; padding: 20px; border-radius: 5px; margin-top: 25px; border-left: 5px solid #4CAF50; }
+        .result-item { display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .warning { background: #fff3e0; padding: 15px; border-radius: 5px; border-left: 5px solid #ff9800; margin-top: 20px; }
+        .highlight { background: #fff3e0; padding: 15px; border-radius: 5px; font-weight: bold; text-align: center; font-size: 1.2em; border: 2px solid #FF9800; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>Калькулятор WB: Расчет от гарантированной прибыли</h2>
+        <p><strong>Логика:</strong> Рассчитывает, какую цену выставить, чтобы даже при скидке WB 40% вы получили желаемую прибыль.</p>
+
+        <div class="input-group">
+            <label>1. Себестоимость товара (BYN):</label>
+            <input type="number" id="cost" value="10" step="0.01" min="0">
+        </div>
+        <div class="input-group">
+            <label>2. Желаемая чистая прибыль после всех налогов (BYN):</label>
+            <input type="number" id="net_profit" value="10" step="0.01" min="0">
+        </div>
+        <div class="input-group">
+            <label>3. Ваша фиксированная скидка для покупателя (BYN):</label>
+            <input type="number" id="your_discount" value="5" step="0.01" min="0">
+            <small>Скидка, которую вы устанавливаете сами (например, 5 BYN).</small>
+        </div>
+        <div class="input-group">
+            <label>4. Логистика, упаковка (% от себестоимости):</label>
+            <input type="number" id="logistics_percent" value="10" step="0.1" min="0">
+        </div>
+        <div class="input-group">
+            <label>5. Комиссия Wildberries (%):</label>
+            <input type="number" id="wb_fee" value="14" step="0.1" min="0">
+        </div>
+        <div class="input-group">
+            <label>6. Макс. возможная скидка от WB - СПП (%):</label>
+            <input type="number" id="wb_max_discount" value="40" step="0.1" min="0" max="100">
+        </div>
+        <div class="input-group">
+            <label>7. Налог на прибыль (%):</label>
+            <input type="number" id="tax_rate" value="20" step="0.1" min="0">
+        </div>
+
+        <button class="button" onclick="calculateGuaranteed()">РАССЧИТАТЬ ЦЕНУ ДЛЯ WB</button>
+
+        <div class="result" id="resultBlock" style="display:none;">
+            <h3>Результаты расчета</h3>
+            <div class="result-item"><span>Необходимая выручка вам (до комиссии WB):</span><span id="resRevenue">0 BYN</span></div>
+            <div class="result-item"><span>Комиссия Wildberries:</span><span id="resWBFee">0 BYN</span></div>
+            <div class="result-item"><span>Цена на витрине после ВАШЕЙ скидки:</span><span id="resPriceAfterYourDiscount">0 BYN</span></div>
+            <div class="result-item"><span>Ваша фиксированная скидка (<span id="resYourDiscountVal">5</span> BYN):</span><span>-<span id="resYourDiscount">5</span> BYN</span></div>
+
+            <div class="highlight">
+                <div class="result-item">
+                    <span><strong>ЦЕНА НА ВИТРИНЕ (до вашей скидки):</strong></span>
+                    <span id="resPriceBeforeDiscount"><strong>0 BYN</strong></span>
+                </div>
+                <small>Эту цену нужно установить в карточке товара как "Цену продавца до скидки".</small>
+            </div>
+
+            <div class="result-item"><span>Макс. скидка WB (<span id="resWBMaxDisc">40</span>%):</span><span>-<span id="resWBDiscount">0</span> BYN</span></div>
+            <div class="result-item"><span><strong>Минимальная возможная цена для покупателя:</strong></span><span id="resMinCustomerPrice"><strong>0 BYN</strong></span></div>
+            <div class="result-item"><span>Проверка: ваша чистая прибыль в этом случае:</span><span id="resFinalProfit">0 BYN</span></div>
+        </div>
+
+        <div class="warning" id="warningBlock" style="display:none;">
+            <strong>Проверьте:</strong> При такой низкой цене после скидок ваша прибыль будет меньше желаемой. Нужно увеличить желаемую прибыль или стартовую цену.
+        </div>
+    </div>
+
+    <script>
+        function calculateGuaranteed() {
+            // Получение значений
+            const cost = parseFloat(document.getElementById('cost').value);
+            const netProfitDesired = parseFloat(document.getElementById('net_profit').value);
+            const yourDiscountFixed = parseFloat(document.getElementById('your_discount').value);
+            const logisticsPercent = parseFloat(document.getElementById('logistics_percent').value);
+            const wbFeePercent = parseFloat(document.getElementById('wb_fee').value) / 100;
+            const wbMaxDiscountPercent = parseFloat(document.getElementById('wb_max_discount').value) / 100;
+            const taxRatePercent = parseFloat(document.getElementById('tax_rate').value) / 100;
+
+            // 1. Расчет прибыли до налога
+            const profitBeforeTax = netProfitDesired / (1 - taxRatePercent);
+            const taxAmount = profitBeforeTax * taxRatePercent;
+
+            // 2. Расчет логистики
+            const logisticsCost = cost * (logisticsPercent / 100);
+
+            // 3. Необходимая выручка продавцу ДО учета комиссии WB
+            const revenueNeededBeforeWBFee = cost + logisticsCost + profitBeforeTax;
+
+            // 4. Цена, которая должна быть на витрине ПОСЛЕ вычета комиссии WB, чтобы дать нужную выручку
+            // revenueNeededBeforeWBFee = PriceOnShelfAfterWB * (1 - wbFeePercent)
+            const priceOnShelfAfterWB = revenueNeededBeforeWBFee / (1 - wbFeePercent);
+            const wbFeeAmount = priceOnShelfAfterWB * wbFeePercent;
+
+            // 5. Учет вашей фиксированной скидки
+            // PriceOnShelfAfterWB - это цена, которую увидит покупатель после ВАШЕЙ скидки.
+            // Значит, цена ДО вашей скидки (стартовая цена на витрине) должна быть выше.
+            const priceBeforeYourDiscount = priceOnShelfAfterWB + yourDiscountFixed;
+
+            // 6. Учет МАКСИМАЛЬНОЙ скидки WB (СПП)
+            // WB может снизить priceBeforeYourDiscount на wbMaxDiscountPercent
+            const wbDiscountAmount = priceBeforeYourDiscount * wbMaxDiscountPercent;
+            const minPossiblePriceForCustomer = priceBeforeYourDiscount - wbDiscountAmount;
+
+            // 7. ПРОВЕРКА: Какая прибыль получится, если товар продастся по минимальной цене (со скидкой WB)
+            const revenueAtMinPrice = minPossiblePriceForCustomer * (1 - wbFeePercent);
+            const profitBeforeTaxAtMinPrice = revenueAtMinPrice - cost - logisticsCost;
+            const netProfitAtMinPrice = profitBeforeTaxAtMinPrice * (1 - taxRatePercent);
+
+            // Отображение результатов
+            document.getElementById('resRevenue').textContent = revenueNeededBeforeWBFee.toFixed(2) + ' BYN';
+            document.getElementById('resWBFee').textContent = wbFeeAmount.toFixed(2) + ' BYN';
+            document.getElementById('resPriceAfterYourDiscount').textContent = priceOnShelfAfterWB.toFixed(2) + ' BYN';
+            document.getElementById('resYourDiscount').textContent = yourDiscountFixed.toFixed(2);
+            document.getElementById('resYourDiscountVal').textContent = yourDiscountFixed.toFixed(2);
+            document.getElementById('resPriceBeforeDiscount').textContent = priceBeforeYourDiscount.toFixed(2) + ' BYN';
+            document.getElementById('resWBMaxDisc').textContent = (wbMaxDiscountPercent * 100).toFixed(1);
+            document.getElementById('resWBDiscount').textContent = wbDiscountAmount.toFixed(2);
+            document.getElementById('resMinCustomerPrice').textContent = minPossiblePriceForCustomer.toFixed(2) + ' BYN';
+            document.getElementById('resFinalProfit').textContent = netProfitAtMinPrice.toFixed(2) + ' BYN';
+
+            // Показ блока с результатами
+            document.getElementById('resultBlock').style.display = 'block';
+
+            // Показ предупреждения, если прибыль в худшем случае меньше желаемой
+            const warningBlock = document.getElementById('warningBlock');
+            if (netProfitAtMinPrice < netProfitDesired * 0.99) { // Учитываем погрешность округления
+                warningBlock.style.display = 'block';
+            } else {
+                warningBlock.style.display = 'none';
+            }
+        }
+
+        // Авторасчет при загрузке и изменении полей
+        window.onload = calculateGuaranteed;
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => input.addEventListener('input', calculateGuaranteed));
+    </script>
+</body>
+</html>

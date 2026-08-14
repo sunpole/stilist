@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Угадай текст наоборот</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            padding: 10px;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        button:active {
+            background-color: #45a049;
+        }
+        
+        button.record {
+            background-color: #f44336;
+        }
+        
+        button.record:active {
+            background-color: #d32f2f;
+        }
+        
+        button.play {
+            background-color: #2196F3;
+        }
+        
+        button.play:active {
+            background-color: #0b7dda;
+        }
+        
+        .status {
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+            min-height: 20px;
+        }
+        
+        @media (max-height: 600px) {
+            h1 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            button {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (orientation: landscape) {
+            .container {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Угадай текст наоборот</h1>
+        
+        <div class="buttons">
+            <button id="recordBtn" class="record">Записать голос (удерживайте)</button>
+            <button id="playReverseBtn" class="play">Прослушать реверс</button>
+            <button id="playOriginalBtn" class="play">Прослушать оригинал</button>
+        </div>
+        
+        <div class="status" id="statusText">Нажмите и удерживайте кнопку записи</div>
+    </div>
+
+    <script>
+        const recordBtn = document.getElementById('recordBtn');
+        const playReverseBtn = document.getElementById('playReverseBtn');
+        const playOriginalBtn = document.getElementById('playOriginalBtn');
+        const statusText = document.getElementById('statusText');
+        
+        let audioChunks = [];
+        let mediaRecorder;
+        let audioBlob;
+        let audioUrl;
+        
+        // Проверяем поддержку Web Audio API
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioContext;
+        
+        // Запись аудио
+        recordBtn.addEventListener('mousedown', startRecording);
+        recordBtn.addEventListener('touchstart', startRecording);
+        recordBtn.addEventListener('mouseup', stopRecording);
+        recordBtn.addEventListener('touchend', stopRecording);
+        recordBtn.addEventListener('mouseleave', stopRecording);
+        
+        playReverseBtn.addEventListener('click', playReverse);
+        playOriginalBtn.addEventListener('click', playOriginal);
+        
+        async function startRecording(e) {
+            e.preventDefault();
+            audioChunks = [];
+            statusText.textContent = "Запись... Говорите сейчас!";
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioUrl = URL.createObjectURL(audioBlob);
+                    statusText.textContent = "Запись завершена! Нажмите 'Прослушать реверс'";
+                };
+                
+                mediaRecorder.start();
+            } catch (err) {
+                statusText.textContent = "Ошибка: " + err.message;
+            }
+        }
+        
+        function stopRecording(e) {
+            e.preventDefault();
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+        
+        function playOriginal() {
+            if (!audioUrl) {
+                statusText.textContent = "Сначала сделайте запись!";
+                return;
+            }
+            
+            const audio = new Audio(audioUrl);
+            audio.play();
+            statusText.textContent = "Играет оригинальная запись";
+        }
+        
+        function playReverse() {
+            if (!audioUrl) {
+                statusText.textContent = "Сначала сделайте запись!";
+                return;
+            }
+            
+            statusText.textContent = "Играет реверсированная запись...";
+            
+            const audio = new Audio(audioUrl);
+            const reader = new FileReader();
+            
+            reader.onload = function() {
+                audioContext = audioContext || new AudioContext();
+                const buffer = reader.result;
+                
+                fetch(audioUrl)
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                    .then(audioBuffer => {
+                        // Реверсируем аудио
+                        const reverseBuffer = audioContext.createBuffer(
+                            audioBuffer.numberOfChannels,
+                            audioBuffer.length,
+                            audioBuffer.sampleRate
+                        );
+                        
+                        for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+                            const channelData = audioBuffer.getChannelData(i);
+                            const reverseData = reverseBuffer.getChannelData(i);
+                            
+                            for (let j = 0; j < channelData.length; j++) {
+                                reverseData[j] = channelData[channelData.length - 1 - j];
+                            }
+                        }
+                        
+                        // Воспроизводим реверсированное аудио
+                        const source = audioContext.createBufferSource();
+                        source.buffer = reverseBuffer;
+                        source.connect(audioContext.destination);
+                        source.start();
+                    })
+                    .catch(err => {
+                        statusText.textContent = "Ошибка: " + err.message;
+                    });
+            };
+            
+            reader.readAsArrayBuffer(audioBlob);
+        }
+    </script>
+</body>
+</html>

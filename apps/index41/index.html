@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Быстрые заказы - Кафе-симулятор</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset и базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+        }
+        
+        /* Контейнер игры */
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Шапка */
+        .header {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .money-display {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #27ae60;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        /* Основные экраны */
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 10px;
+            overflow: hidden;
+        }
+        
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Экран кухни */
+        #kitchen-screen {
+            background-color: #f9f9f9;
+        }
+        
+        .equipment {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .equipment-item {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .equipment-item.active {
+            border-color: #e74c3c;
+            background-color: #ffeceb;
+        }
+        
+        .equipment-item .name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .equipment-item .progress {
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .equipment-item .progress-bar {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        /* Список заказов */
+        .orders-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-item .dish {
+            font-weight: bold;
+        }
+        
+        .order-item .customer {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .order-item .timer {
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+        
+        .order-item .reward {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        /* Экран магазина */
+        #upgrade-screen {
+            background-color: #ecf0f1;
+        }
+        
+        .upgrades-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .upgrade-item {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .upgrade-item .info {
+            flex: 1;
+        }
+        
+        .upgrade-item .name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-item .description {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-item .price {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .upgrade-item .buy-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .upgrade-item .buy-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        /* Кнопки навигации */
+        .nav-buttons {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: none;
+            background: none;
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        
+        .nav-btn.active {
+            color: #e74c3c;
+            border-bottom: 3px solid #e74c3c;
+        }
+        
+        .nav-btn i {
+            margin-right: 5px;
+        }
+        
+        /* Кнопка следующего дня */
+        .next-day-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        
+        /* Адаптация для разных экранов */
+        @media (max-width: 400px) {
+            .equipment {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-item .timer {
+                margin-top: 5px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .equipment-item {
+                min-height: 60px;
+                padding: 5px;
+            }
+            
+            .nav-btn {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+        
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s infinite;
+        }
+        
+        /* Всплывающие сообщения */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 100;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <h1>Быстрые заказы</h1>
+            <div class="money-display">$<span id="money">0</span></div>
+        </div>
+        
+        <!-- Экран кухни -->
+        <div id="kitchen-screen" class="screen active">
+            <div class="equipment">
+                <div class="equipment-item" id="stove-1" onclick="startCooking('stove-1')">
+                    <div class="name">Плита 1</div>
+                    <div class="status">Готова</div>
+                    <div class="progress"><div class="progress-bar"></div></div>
+                </div>
+                <div class="equipment-item" id="stove-2" onclick="startCooking('stove-2')">
+                    <div class="name">Плита 2</div>
+                    <div class="status">Готова</div>
+                    <div class="progress"><div class="progress-bar"></div></div>
+                </div>
+            </div>
+            
+            <div class="orders-list" id="orders-list">
+                <!-- Заказы будут добавляться сюда -->
+            </div>
+        </div>
+        
+        <!-- Экран улучшений -->
+        <div id="upgrade-screen" class="screen">
+            <div class="upgrades-list" id="upgrades-list">
+                <!-- Улучшения будут добавляться сюда -->
+            </div>
+            <button class="next-day-btn" onclick="startNextDay()">Начать следующий день</button>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showScreen('kitchen-screen')">
+                <i class="fas fa-utensils"></i> Кухня
+            </button>
+            <button class="nav-btn" onclick="showScreen('upgrade-screen')">
+                <i class="fas fa-cog"></i> Улучшения
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // Игровые переменные
+        let gameState = {
+            money: 50,
+            day: 1,
+            reputation: 100,
+            activeOrders: [],
+            completedOrders: 0,
+            equipment: {
+                'stove-1': { busy: false, cookingTime: 0, currentTime: 0, orderId: null },
+                'stove-2': { busy: false, cookingTime: 0, currentTime: 0, orderId: null }
+            },
+            upgrades: {
+                'stove-3': { name: 'Дополнительная плита', description: 'Открывает третью плиту для приготовления', price: 200, purchased: false },
+                'faster-stove': { name: 'Ускоренные плиты', description: 'Плиты работают на 25% быстрее', price: 150, purchased: false },
+                'better-tips': { name: 'Щедрые чаевые', description: 'Посетители оставляют на 20% больше денег', price: 100, purchased: false },
+                'new-dishes': { name: 'Новые блюда', description: 'Добавляет 3 новых блюда в меню', price: 300, purchased: false }
+            },
+            dishes: [
+                { id: 1, name: 'Кофе', baseTime: 10, baseReward: 15, unlocked: true },
+                { id: 2, name: 'Сэндвич', baseTime: 20, baseReward: 25, unlocked: true },
+                { id: 3, name: 'Салат', baseTime: 25, baseReward: 30, unlocked: true },
+                { id: 4, name: 'Суп', baseTime: 30, baseReward: 40, unlocked: false },
+                { id: 5, name: 'Стейк', baseTime: 45, baseReward: 60, unlocked: false },
+                { id: 6, name: 'Десерт', baseTime: 20, baseReward: 35, unlocked: false }
+            ],
+            customers: ['Анна', 'Иван', 'Мария', 'Дмитрий', 'Ольга', 'Сергей', 'Елена', 'Алексей']
+        };
+        
+        // Инициализация игры
+        function initGame() {
+            updateMoneyDisplay();
+            renderUpgrades();
+            startDay();
+        }
+        
+        // Начать день
+        function startDay() {
+            gameState.activeOrders = [];
+            document.getElementById('orders-list').innerHTML = '';
+            
+            // Генерация начальных заказов
+            generateOrder();
+            generateOrder();
+            
+            // Запуск генерации новых заказов
+            gameState.orderInterval = setInterval(generateOrder, 15000);
+            
+            // Запуск проверки ухода клиентов
+            gameState.patienceInterval = setInterval(checkPatience, 1000);
+        }
+        
+        // Завершить день
+        function endDay() {
+            clearInterval(gameState.orderInterval);
+            clearInterval(gameState.patienceInterval);
+            
+            // Освобождаем оборудование
+            for (let eqId in gameState.equipment) {
+                if (gameState.equipment[eqId].busy) {
+                    stopCooking(eqId);
+                }
+            }
+            
+            showToast(`День ${gameState.day} завершен! Заработано: $${gameState.completedOrders * 10}`);
+            gameState.day++;
+            gameState.completedOrders = 0;
+        }
+        
+        // Начать следующий день
+        function startNextDay() {
+            endDay();
+            showScreen('kitchen-screen');
+            startDay();
+        }
+        
+        // Генерация нового заказа
+        function generateOrder() {
+            if (gameState.activeOrders.length >= 5) return;
+            
+            const availableDishes = gameState.dishes.filter(d => d.unlocked);
+            if (availableDishes.length === 0) return;
+            
+            const dish = availableDishes[Math.floor(Math.random() * availableDishes.length)];
+            const customer = gameState.customers[Math.floor(Math.random() * gameState.customers.length)];
+            
+            const order = {
+                id: Date.now(),
+                dish: dish.name,
+                customer: customer,
+                patience: 60 + Math.floor(Math.random() * 30), // секунды
+                currentPatience: 60 + Math.floor(Math.random() * 30),
+                reward: dish.baseReward,
+                dishId: dish.id,
+                baseTime: dish.baseTime
+            };
+            
+            gameState.activeOrders.push(order);
+            renderOrders();
+        }
+        
+        // Проверка терпения клиентов
+        function checkPatience() {
+            let updated = false;
+            
+            for (let i = 0; i < gameState.activeOrders.length; i++) {
+                const order = gameState.activeOrders[i];
+                order.currentPatience--;
+                
+                // Уменьшаем награду каждые 10 секунд ожидания
+                if (order.currentPatience % 10 === 0 && order.currentPatience > 0) {
+                    order.reward = Math.max(5, order.reward - 2);
+                }
+                
+                // Клиент уходит
+                if (order.currentPatience <= 0) {
+                    gameState.activeOrders.splice(i, 1);
+                    i--;
+                    gameState.reputation = Math.max(0, gameState.reputation - 5);
+                    showToast(`${order.customer} ушел без заказа!`);
+                    updated = true;
+                }
+            }
+            
+            if (updated) {
+                renderOrders();
+            } else {
+                updateTimers();
+            }
+        }
+        
+        // Начать приготовление
+        function startCooking(equipmentId) {
+            const equipment = gameState.equipment[equipmentId];
+            if (equipment.busy) return;
+            
+            // Находим первый доступный заказ
+            const orderIndex = gameState.activeOrders.findIndex(o => !o.inProgress);
+            if (orderIndex === -1) return;
+            
+            const order = gameState.activeOrders[orderIndex];
+            order.inProgress = true;
+            
+            // Устанавливаем параметры приготовления
+            equipment.busy = true;
+            equipment.orderId = order.id;
+            
+            // Учитываем улучшения скорости
+            let cookingTime = order.baseTime;
+            if (gameState.upgrades['faster-stove'].purchased) {
+                cookingTime = Math.floor(cookingTime * 0.75);
+            }
+            
+            equipment.cookingTime = cookingTime;
+            equipment.currentTime = 0;
+            
+            // Обновляем UI
+            const eqElement = document.getElementById(equipmentId);
+            eqElement.classList.add('active');
+            eqElement.querySelector('.status').textContent = `Готовит: ${order.dish}`;
+            
+            // Запускаем таймер приготовления
+            equipment.interval = setInterval(() => {
+                equipment.currentTime++;
+                const progress = (equipment.currentTime / equipment.cookingTime) * 100;
+                eqElement.querySelector('.progress-bar').style.width = `${progress}%`;
+                
+                if (equipment.currentTime >= equipment.cookingTime) {
+                    finishCooking(equipmentId);
+                }
+            }, 1000);
+            
+            renderOrders();
+        }
+        
+        // Завершить приготовление
+        function finishCooking(equipmentId) {
+            const equipment = gameState.equipment[equipmentId];
+            if (!equipment.busy) return;
+            
+            // Находим заказ
+            const orderIndex = gameState.activeOrders.findIndex(o => o.id === equipment.orderId);
+            if (orderIndex === -1) {
+                stopCooking(equipmentId);
+                return;
+            }
+            
+            const order = gameState.activeOrders[orderIndex];
+            
+            // Добавляем деньги
+            let reward = order.reward;
+            if (gameState.upgrades['better-tips'].purchased) {
+                reward = Math.floor(reward * 1.2);
+            }
+            
+            gameState.money += reward;
+            gameState.completedOrders++;
+            gameState.reputation = Math.min(100, gameState.reputation + 2);
+            
+            // Удаляем заказ
+            gameState.activeOrders.splice(orderIndex, 1);
+            
+            // Обновляем UI
+            updateMoneyDisplay();
+            showToast(`${order.customer} получил ${order.dish}! +$${reward}`);
+            
+            // Останавливаем приготовление
+            stopCooking(equipmentId);
+            renderOrders();
+        }
+        
+        // Остановить приготовление
+        function stopCooking(equipmentId) {
+            const equipment = gameState.equipment[equipmentId];
+            clearInterval(equipment.interval);
+            
+            equipment.busy = false;
+            equipment.cookingTime = 0;
+            equipment.currentTime = 0;
+            equipment.orderId = null;
+            
+            const eqElement = document.getElementById(equipmentId);
+            eqElement.classList.remove('active');
+            eqElement.querySelector('.status').textContent = 'Готова';
+            eqElement.querySelector('.progress-bar').style.width = '0%';
+        }
+        
+        // Покупка улучшения
+        function buyUpgrade(upgradeId) {
+            const upgrade = gameState.upgrades[upgradeId];
+            if (upgrade.purchased || gameState.money < upgrade.price) return;
+            
+            gameState.money -= upgrade.price;
+            upgrade.purchased = true;
+            
+            // Применяем эффекты улучшений
+            switch (upgradeId) {
+                case 'stove-3':
+                    // Добавляем новую плиту
+                    gameState.equipment['stove-3'] = { 
+                        busy: false, 
+                        cookingTime: 0, 
+                        currentTime: 0, 
+                        orderId: null 
+                    };
+                    
+                    // Добавляем элемент плиты в UI
+                    const equipmentDiv = document.querySelector('.equipment');
+                    const newStove = document.createElement('div');
+                    newStove.className = 'equipment-item';
+                    newStove.id = 'stove-3';
+                    newStove.onclick = function() { startCooking('stove-3'); };
+                    newStove.innerHTML = `
+                        <div class="name">Плита 3</div>
+                        <div class="status">Готова</div>
+                        <div class="progress"><div class="progress-bar"></div></div>
+                    `;
+                    equipmentDiv.appendChild(newStove);
+                    break;
+                    
+                case 'new-dishes':
+                    // Разблокируем новые блюда
+                    gameState.dishes.forEach(dish => {
+                        if (!dish.unlocked) dish.unlocked = true;
+                    });
+                    break;
+            }
+            
+            updateMoneyDisplay();
+            renderUpgrades();
+            showToast(`Приобретено: ${upgrade.name}`);
+        }
+        
+        // Обновление отображения денег
+        function updateMoneyDisplay() {
+            document.getElementById('money').textContent = gameState.money;
+        }
+        
+        // Отображение списка заказов
+        function renderOrders() {
+            const ordersList = document.getElementById('orders-list');
+            ordersList.innerHTML = '';
+            
+            if (gameState.activeOrders.length === 0) {
+                ordersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">Нет активных заказов</div>';
+                return;
+            }
+            
+            gameState.activeOrders.forEach(order => {
+                const orderElement = document.createElement('div');
+                orderElement.className = 'order-item';
+                if (order.inProgress) orderElement.style.opacity = '0.6';
+                
+                orderElement.innerHTML = `
+                    <div>
+                        <div class="dish">${order.dish}</div>
+                        <div class="customer">${order.customer}</div>
+                    </div>
+                    <div class="timer">${formatTime(order.currentPatience)}</div>
+                    <div class="reward">$${order.reward}</div>
+                `;
+                
+                ordersList.appendChild(orderElement);
+            });
+        }
+        
+        // Обновление таймеров
+        function updateTimers() {
+            const orderItems = document.querySelectorAll('.order-item');
+            orderItems.forEach((item, index) => {
+                const order = gameState.activeOrders[index];
+                if (order) {
+                    item.querySelector('.timer').textContent = formatTime(order.currentPatience);
+                    item.querySelector('.reward').textContent = `$${order.reward}`;
+                }
+            });
+        }
+        
+        // Отображение улучшений
+        function renderUpgrades() {
+            const upgradesList = document.getElementById('upgrades-list');
+            upgradesList.innerHTML = '';
+            
+            for (let upgradeId in gameState.upgrades) {
+                const upgrade = gameState.upgrades[upgradeId];
+                
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = 'upgrade-item';
+                
+                const canAfford = gameState.money >= upgrade.price && !upgrade.purchased;
+                
+                upgradeElement.innerHTML = `
+                    <div class="info">
+                        <div class="name">${upgrade.name} ${upgrade.purchased ? '✓' : ''}</div>
+                        <div class="description">${upgrade.description}</div>
+                        <div class="price">Цена: $${upgrade.price}</div>
+                    </div>
+                    <button class="buy-btn" 
+                            onclick="buyUpgrade('${upgradeId}')" 
+                            ${upgrade.purchased || !canAfford ? 'disabled' : ''}>
+                        ${upgrade.purchased ? 'Куплено' : 'Купить'}
+                    </button>
+                `;
+                
+                upgradesList.appendChild(upgradeElement);
+            }
+        }
+        
+        // Показать экран
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(screenId).classList.add('active');
+            document.querySelector(`.nav-btn[onclick="showScreen('${screenId}')"]`).classList.add('active');
+        }
+        
+        // Всплывающее сообщение
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Форматирование времени (секунды в MM:SS)
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Запуск игры при загрузке
+        window.onload = initGame;
+    </script>
+</body>
+</html>

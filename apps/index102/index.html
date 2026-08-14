@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Симулятор приема маммолога</title>
+    <style>
+        /* CSS стили здесь */
+        .screen { display: none; }
+        #screen1 { display: block; }
+        .body-map { cursor: pointer; }
+        .zone { fill: #e0e0e0; stroke: #666; }
+        .zone:hover { fill: #ffeb3b; }
+        .selected { fill: #4caf50; }
+        .problem { fill: #f44336; }
+    </style>
+</head>
+<body>
+    <!-- Экраны приема -->
+    <div id="screen1" class="screen">
+        <h2>Первичный опрос пациента</h2>
+        <div class="questions">
+            <button onclick="addSymptom('боль')">Жалуется на боль</button>
+            <button onclick="addSymptom('уплотнение')">Обнаружено уплотнение</button>
+            <button onclick="addSymptom('выделения')">Выделения из соска</button>
+        </div>
+        <button onclick="showScreen(2)">Перейти к осмотру</button>
+    </div>
+
+    <div id="screen2" class="screen">
+        <h2>Визуальный осмотр</h2>
+        <svg class="body-map" width="300" height="400">
+            <!-- Упрощенная схема молочных желез -->
+            <circle class="zone breast" cx="150" cy="200" r="80" 
+                    onclick="selectZone(this, 'правая грудь')"/>
+            <circle class="zone breast" cx="350" cy="200" r="80"
+                    onclick="selectZone(this, 'левая грудь')"/>
+            <text x="150" y="200">Правая</text>
+            <text x="350" y="200">Левая</text>
+        </svg>
+        <div id="zone-info"></div>
+        <button onclick="showScreen(3)">Начать пальпацию</button>
+    </div>
+
+    <div id="screen3" class="screen">
+        <h2>Пальпация и массаж</h2>
+        <div class="massage-interface">
+            <div class="breast-area" id="massage-area">
+                <!-- Область для массажа с точками -->
+                <div class="massage-point" style="top:100px; left:100px;" 
+                     onclick="checkPoint(this)"></div>
+                <div class="massage-point" style="top:150px; left:150px;" 
+                     onclick="checkPoint(this)"></div>
+            </div>
+            <p>Обследуйте все зоны на предмет уплотнений</p>
+            <progress id="exam-progress" value="0" max="100"></progress>
+        </div>
+        <button onclick="showScreen(4)">Завершить осмотр</button>
+    </div>
+
+    <div id="screen4" class="screen">
+        <h2>Диагностика и лечение</h2>
+        <div class="diagnosis">
+            <h3>Предварительный диагноз:</h3>
+            <div id="diagnosis-result"></div>
+        </div>
+        <div class="treatment">
+            <h3>Назначить лечение:</h3>
+            <select id="medication-select">
+                <option value="">Выберите препарат</option>
+                <option value="мастодинон">Мастодинон - при мастопатии</option>
+                <option value="прожестожель">Прожестожель гель - местно</option>
+                <option value="антибиотик">Антибиотик - при воспалении</option>
+                <option value="направление">Направление на УЗИ</option>
+            </select>
+            <button onclick="prescribeTreatment()">Назначить</button>
+        </div>
+        <div id="treatment-result"></div>
+        <button onclick="showScreen(1)">Новый пациент</button>
+    </div>
+
+    <script>
+        // JavaScript логика здесь
+        let patientData = {
+            symptoms: [],
+            examinedZones: [],
+            foundProblems: [],
+            diagnosis: '',
+            treatment: ''
+        };
+
+        function showScreen(screenNum) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            document.getElementById('screen' + screenNum).style.display = 'block';
+        }
+
+        function addSymptom(symptom) {
+            if (!patientData.symptoms.includes(symptom)) {
+                patientData.symptoms.push(symptom);
+                alert('Симптом "' + symptom + '" добавлен');
+            }
+        }
+
+        function selectZone(element, zoneName) {
+            element.classList.toggle('selected');
+            if (!patientData.examinedZones.includes(zoneName)) {
+                patientData.examinedZones.push(zoneName);
+            }
+            document.getElementById('zone-info').innerHTML = 
+                'Осмотрена зона: ' + zoneName;
+        }
+
+        function checkPoint(point) {
+            point.style.backgroundColor = '#4caf50';
+            // Обновляем прогресс осмотра
+            const progress = document.getElementById('exam-progress');
+            progress.value += 10;
+        }
+
+        function prescribeTreatment() {
+            const medSelect = document.getElementById('medication-select');
+            const treatment = medSelect.value;
+            patientData.treatment = treatment;
+            
+            document.getElementById('treatment-result').innerHTML = 
+                '<h4>Назначено:</h4><p>' + treatment + '</p>' +
+                '<p>Рекомендации: наблюдение через 3 месяца</p>';
+        }
+
+        // Инициализация
+        showScreen(1);
+    </script>
+</body>
+</html>

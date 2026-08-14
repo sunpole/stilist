@@ -1,7 +1,8 @@
 # SUNPOLE HUB Project Structure Plan
 
-This plan is intentionally non-destructive. No files should be deleted, moved,
-or renamed until redirects and canonical project choices are reviewed.
+This plan is intentionally non-destructive. The first physical migration stage
+keeps old public links alive while the HUB catalog starts using `apps/` and
+`archive/`.
 
 ## Current root entry points
 
@@ -20,8 +21,18 @@ or renamed until redirects and canonical project choices are reviewed.
 
 ## Future folders
 
-- `apps/` - future home for reviewed canonical projects after redirects exist.
-- `archive/` - future home for confirmed old versions and exact duplicates.
+- `apps/` - active and reviewable project entries.
+- `archive/` - confirmed old versions, duplicates, and alternate variants.
+
+## Current migration stage
+
+- 194 catalog cards remain in `data/projects-hub.js`.
+- 130 catalog entries now point into `apps/`.
+- 63 catalog entries now point into `archive/`.
+- 143 old root project HTML files are redirect stubs.
+- 37 old project folders are copied into `apps/` or `archive/`.
+- Existing project folders are kept at old URLs for compatibility.
+- The only catalog card still pointing to a root HTML file is the service entry `index.html`.
 
 ## Safe migration rules
 
@@ -29,5 +40,5 @@ or renamed until redirects and canonical project choices are reviewed.
 2. Choose canonical projects before moving any project file.
 3. Add redirect or moved pages before any physical move.
 4. Keep `shop.html` until the HUB has fully replaced its role.
-5. Keep project folders untouched until the next cleanup stage.
-6. Do not run auto screenshots during this final-entry packaging step.
+5. Keep old project folders reachable until folder-level redirects and asset paths are reviewed.
+6. Do not run auto screenshots during this migration step.

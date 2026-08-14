@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memori Chests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .game {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background: #6a4c93;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .card.flipped {
+            background: white;
+            color: black;
+        }
+        .chest {
+            background: #8B4513 !important; /* коричневый сундук */
+        }
+        .chest.flipped {
+            animation: spin 3s;
+        }
+        @keyframes spin {
+            0% { transform: rotateY(0deg); background: #8B4513; }
+            20% { transform: rotateY(720deg); background: #FFFFFF; } /* белый */
+            40% { transform: rotateY(1440deg); background: #808080; } /* серый */
+            60% { transform: rotateY(2160deg); background: #0000FF; } /* синий */
+            80% { transform: rotateY(2880deg); background: #FFFF00; } /* желтый */
+            100% { transform: rotateY(3600deg); }
+        }
+        .chest.purple { background: #800080 !important; } /* фиолетовый */
+        .chest.gold { background: #FFD700 !important; } /* золотой */
+        .stats {
+            margin: 20px;
+            font-size: 18px;
+        }
+        .shop {
+            margin-top: 20px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            background: #6a4c93;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Memori Chests</h1>
+    <div class="stats">
+        Монеты: <span id="coins">0</span> |
+        Открыто сундуков: <span id="chests-opened">0</span>
+    </div>
+    <div class="game" id="game-board"></div>
+    <div class="shop">
+        <h3>Магазин бонусов</h3>
+        <button onclick="buyBonus('peek')">Подсветить пару (50 монет)</button>
+        <button onclick="buyBonus('extra-time')">+5 секунд на сундук (30 монет)</button>
+        <button onclick="buyBonus('double-coins')">x2 монеты за следующий сундук (100 монет)</button>
+    </div>
+
+    <script>
+        let coins = 0;
+        let chestsOpened = 0;
+        let activeBonuses = {};
+        const chestColors = ['white', 'gray', 'blue', 'yellow', 'purple', 'gold'];
+        const chestRewards = {
+            white: { min: 1, max: 5 },
+            gray: { min: 3, max: 10 },
+            blue: { min: 5, max: 15 },
+            yellow: { min: 8, max: 20 },
+            purple: { min: 10, max: 25 },
+            gold: { min: 20, max: 30 }
+        };
+
+        function initGame() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            const cards = Array(8).fill().map((_, i) => String.fromCharCode(65 + i));
+            const allCards = [...cards, ...cards];
+            
+            // Добавляем 2-6 сундуков (случайное количество)
+            const chestCount = Math.floor(Math.random() * 5) + 2;
+            for (let i = 0; i < chestCount; i++) {
+                allCards.push('chest');
+            }
+
+            // Перемешиваем
+            shuffleArray(allCards);
+
+            // Создаем карты
+            allCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card' + (card === 'chest' ? ' chest' : '');
+                cardElement.textContent = '?';
+                cardElement.dataset.value = card;
+                cardElement.dataset.index = index;
+                cardElement.addEventListener('click', flipCard);
+                board.appendChild(cardElement);
+            });
+        }
+
+        function flipCard() {
+            if (this.classList.contains('flipped')) return;
+            
+            this.classList.add('flipped');
+            this.textContent = this.dataset.value;
+
+            if (this.dataset.value === 'chest') {
+                this.textContent = '...';
+                setTimeout(() => {
+                    const color = chestColors[Math.floor(Math.random() * chestColors.length)];
+                    this.classList.add(color);
+                    const reward = getRandomReward(color);
+                    coins += (activeBonuses['double-coins'] ? reward * 2 : reward);
+                    chestsOpened++;
+                    updateStats();
+                    alert(`Сундук ${color} дал ${reward} монет!`);
+                }, 3000);
+            }
+        }
+
+        function getRandomReward(color) {
+            const { min, max } = chestRewards[color];
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function updateStats() {
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('chests-opened').textContent = chestsOpened;
+        }
+
+        function buyBonus(type) {
+            const costs = { 'peek': 50, 'extra-time': 30, 'double-coins': 100 };
+            if (coins >= costs[type]) {
+                coins -= costs[type];
+                activeBonuses[type] = true;
+                updateStats();
+                alert(`Бонус "${getBonusName(type)}" активирован!`);
+            } else {
+                alert('Недостаточно монет!');
+            }
+        }
+
+        function getBonusName(type) {
+            const names = {
+                'peek': 'Подсветить пару',
+                'extra-time': '+5 секунд на сундук',
+                'double-coins': 'x2 монеты за сундук'
+            };
+            return names[type];
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

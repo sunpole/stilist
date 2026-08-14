@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Торговый Терминал 1984</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      font-family: 'Courier New', monospace;
+    }
+    body {
+      background: #000;
+      color: #0f0;
+      height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+      position: relative;
+    }
+    #screen {
+      border: 2px solid #333;
+      height: calc(70vh - 10px);
+      padding: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+    }
+    #controls {
+      border: 2px solid #333;
+      height: calc(30vh - 20px);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px 10px;
+      cursor: pointer;
+      flex-grow: 1;
+      margin: 0 5px;
+      text-align: center;
+    }
+    .btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .slider-cursor {
+      color: #0f0;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    .typed {
+      border-right: 2px solid #0f0;
+      animation: blink 0.5s infinite;
+    }
+    .up { color: #0f0; }
+    .down { color: #f00; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="screen">> Загрузка терминала...</div>
+  <div id="controls" class="hidden"></div>
+
+  <script>
+    // Игровые переменные
+    let money = 1000;
+    let day = 1;
+    let assets = { usd: 0, eur: 0, gold: 0, oil: 0 };
+    let prices = { usd: 60, eur: 70, gold: 4500, oil: 80 };
+    let prevPrices = { ...prices };
+    let trends = { usd: 0, eur: 0, gold: 0, oil: 0 };
+    let inventory = [];
+    let hasRadar = false;
+    let hasBriefcase = false;
+    let gameActive = false;
+    let currentAction = null;
+    let selectedAsset = null;
+    let maxBuyQty = 0;
+
+    // DOM элементы
+    const screen = document.getElementById('screen');
+    const controls = document.getElementById('controls');
+    let currentText = '';
+
+    // Печатаем текст с эффектом машинки
+    function typeText(text, callback = null, speed = 30) {
+      let i = 0;
+      currentText = screen.innerHTML.replace('<span class="typed"></span>', '');
+      screen.innerHTML = currentText;
+      
+      function typing() {
+        if (i < text.length) {
+          currentText += text.charAt(i);
+          screen.innerHTML = currentText + '<span class="typed"></span>';
+          i++;
+          setTimeout(typing, speed);
+        } else if (callback) {
+          callback();
+        }
+      }
+      typing();
+    }
+
+    // Обновляем цены (случайно + тренд)
+    function updatePrices() {
+      Object.keys(prices).forEach(key => {
+        prevPrices[key] = prices[key];
+        const change = (Math.random() - 0.5) * 10 + trends[key];
+        prices[key] = Math.max(1, prices[key] + change);
+        trends[key] = (Math.random() - 0.5) * 2;
+      });
+    }
+
+    // Показать тренды (если куплен радар)
+    function getTrendIndicator(asset) {
+      if (!hasRadar) return '';
+      return prices[asset] > prevPrices[asset] ? 
+        '<span class="up">↑</span>' : 
+        '<span class="down">↓</span>';
+    }
+
+    // Главное меню
+    function showMenu() {
+      controls.innerHTML = '';
+      currentAction = null;
+      selectedAsset = null;
+
+      typeText(
+        '> ТОРГОВЫЙ ТЕРМИНАЛ 1984\n' +
+        '> День: ' + day + '\n' +
+        '> Баланс: $' + money.toFixed(2) + '\n' +
+        (hasRadar ? '> Радар активен (тренды: ↑/↓)\n' : '') +
+        (hasBriefcase ? '> Барсетка: Показывает историю покупок\n' : '') +
+        '\n|_ ТОВАРЫ _|\n' +
+        '1. Доллар ($): ' + prices.usd.toFixed(2) + '₽' + getTrendIndicator('usd') + '\n' +
+        '2. Евро (€): ' + prices.eur.toFixed(2) + '₽' + getTrendIndicator('eur') + '\n' +
+        '3. Золото: ' + prices.gold.toFixed(2) + '₽' + getTrendIndicator('gold') + '\n' +
+        '4. Нефть: ' + prices.oil.toFixed(2) + '₽' + getTrendIndicator('oil') + '\n\n' +
+        '|_ ДЕЙСТВИЯ _|',
+        () => {
+          const btnRow1 = document.createElement('div');
+          btnRow1.className = 'btn-row';
+          btnRow1.innerHTML = `
+            <button class="btn" onclick="startAction('buy')">Купить</button>
+            <button class="btn" onclick="startAction('sell')">Продать</button>
+            <button class="btn" onclick="nextDay()">Следующий день</button>
+          `;
+          controls.appendChild(btnRow1);
+
+          const btnRow2 = document.createElement('div');
+          btnRow2.className = 'btn-row';
+          btnRow2.innerHTML = `
+            <button class="btn" onclick="showStats()">Статистика</button>
+            <button class="btn" ${hasRadar ? 'disabled' : ''} onclick="buyUpgrade('radar')">Купить радар (1500₽)</button>
+            <button class="btn" ${hasBriefcase ? 'disabled' : ''} onclick="buyUpgrade('briefcase')">Купить барсетку (3000₽)</button>
+          `;
+          controls.appendChild(btnRow2);
+        }
+      );
+    }
+
+    // Начало действия (покупка/продажа)
+    function startAction(action) {
+      currentAction = action;
+      typeText('\n> Выберите товар (1-4): ', () => {
+        const btnRow = document.createElement('div');
+        btnRow.className = 'btn-row';
+        btnRow.innerHTML = `
+          <button class="btn" onclick="selectAsset('usd')">Доллар ($)</button>
+          <button class="btn" onclick="selectAsset('eur')">Евро (€)</button>
+          <button class="btn" onclick="selectAsset('gold')">Золото</button>
+          <button class="btn" onclick="selectAsset('oil')">Нефть</button>
+          <button class="btn" onclick="showMenu()">Отмена</button>
+        `;
+        controls.innerHTML = '';
+        controls.appendChild(btnRow);
+      });
+    }
+
+    // Выбор актива
+    function selectAsset(asset) {
+      selectedAsset = asset;
+      if (currentAction === 'buy') {
+        maxBuyQty = Math.floor(money / prices[asset]);
+        typeText(
+          `\n> Максимум можно купить: ${maxBuyQty} ${asset}\n` +
+          '> Введите количество: ',
+          () => showQuantitySlider(maxBuyQty)
+        );
+      } else if (currentAction === 'sell') {
+        const ownedQty = assets[asset];
+        if (ownedQty <= 0) {
+          typeText('\n> У вас нет этого товара!\n\n', showMenu);
+        } else {
+          typeText(
+            `\n> У вас есть: ${ownedQty} ${asset}\n` +
+            '> Введите количество для продажи: ',
+            () => showQuantitySlider(ownedQty)
+          );
+        }
+      }
+    }
+
+    // Ползунок для выбора количества
+    function showQuantitySlider(maxQty) {
+      controls.innerHTML = '';
+      const sliderContainer = document.createElement('div');
+      sliderContainer.className = 'slider-container';
+      
+      let qty = 1;
+      const cursor = document.createElement('span');
+      cursor.className = 'slider-cursor';
+      cursor.textContent = '_';
+      
+      const updateDisplay = () => {
+        sliderContainer.innerHTML = `
+          <span>Количество: ${qty}</span>
+          <input type="range" min="1" max="${maxQty}" value="${qty}" 
+                 style="flex-grow: 1; margin: 0 10px;" 
+                 oninput="qty = this.value; updateDisplay()">
+          ${cursor.outerHTML}
+          <button class="btn" onclick="confirmAction(${qty})">OK</button>
+        `;
+      };
+      
+      updateDisplay();
+      controls.appendChild(sliderContainer);
+    }
+
+    // Подтверждение действия
+    function confirmAction(qty) {
+      if (currentAction === 'buy') {
+        const cost = qty * prices[selectedAsset];
+        if (cost <= money) {
+          money -= cost;
+          assets[selectedAsset] += qty;
+          inventory.push({
+            asset: selectedAsset,
+            qty: qty,
+            price: prices[selectedAsset],
+            day: day
+          });
+          typeText(`\n> Куплено: ${qty} ${selectedAsset} за ${cost.toFixed(2)}₽\n\n`, showMenu);
+        } else {
+          typeText('\n> Недостаточно средств!\n\n', showMenu);
+        }
+      } else if (currentAction === 'sell') {
+        const income = qty * prices[selectedAsset];
+        money += income;
+        assets[selectedAsset] -= qty;
+        typeText(`\n> Продано: ${qty} ${selectedAsset} за ${income.toFixed(2)}₽\n\n`, showMenu);
+      }
+    }
+
+    // Следующий день
+    function nextDay() {
+      day++;
+      updatePrices();
+      
+      // Случайные события
+      if (Math.random() < 0.3) {
+        const events = [
+          "> НОВОСТИ: Война на Ближнем Востоке! Цены на нефть растут.\n",
+          "> НОВОСТИ: Кризис в ЕС! Евро падает.\n",
+          "> НОВОСТИ: Новые санкции! Доллар дорожает.\n"
+        ];
+        const event = events[Math.floor(Math.random() * events.length)];
+        typeText(event + '\n', showMenu);
+      } else {
+        showMenu();
+      }
+    }
+
+    // Покупка улучшений
+    function buyUpgrade(type) {
+      const cost = type === 'radar' ? 1500 : 3000;
+      if (money >= cost) {
+        money -= cost;
+        if (type === 'radar') hasRadar = true;
+        if (type === 'briefcase') hasBriefcase = true;
+        typeText(`\n> Улучшение "${type}" куплено!\n\n`, showMenu);
+      } else {
+        typeText('\n> Недостаточно средств!\n\n', showMenu);
+      }
+    }
+
+    // Статистика и барсетка
+    function showStats() {
+      let total = money;
+      Object.keys(assets).forEach(key => {
+        total += assets[key] * prices[key];
+      });
+      
+      let inventoryText = '';
+      if (hasBriefcase && inventory.length > 0) {
+        inventoryText = '\n> БАРСЕТКА (история покупок):\n';
+        inventory.forEach(item => {
+          const currentValue = item.qty * prices[item.asset];
+          const profit = currentValue - (item.qty * item.price);
+          inventoryText += `- День ${item.day}: ${item.qty} ${item.asset} ` +
+                          `(куплено за ${item.price.toFixed(2)}₽, ` +
+                          `теперь ${prices[item.asset].toFixed(2)}₽ | ` +
+                          `Прибыль: ${profit.toFixed(2)}₽)\n`;
+        });
+      }
+      
+      typeText(
+        `\n> ВАШ КАПИТАЛ: ${total.toFixed(2)}₽\n` +
+        `> Налчиные: ${money.toFixed(2)}₽\n` +
+        `> Активы:\n` +
+        `- Доллар: ${assets.usd} ($${(assets.usd * prices.usd).toFixed(2)})\n` +
+        `- Евро: ${assets.eur} (€${(assets.eur * prices.eur).toFixed(2)})\n` +
+        `- Золото: ${assets.gold} (${(assets.gold * prices.gold).toFixed(2)}₽)\n` +
+        `- Нефть: ${assets.oil} (${(assets.oil * prices.oil).toFixed(2)}₽)\n` +
+        inventoryText + '\n',
+        showMenu
+      );
+    }
+
+    // Запуск игры
+    setTimeout(() => {
+      typeText('> Инициализация системы...\n', () => {
+        setTimeout(() => {
+          typeText('> Подключение к бирже...\n', () => {
+            setTimeout(() => {
+              typeText('> Готово!\n\n', () => {
+                controls.classList.remove('hidden');
+                showMenu();
+                gameActive = true;
+              });
+            }, 800);
+          });
+        }, 800);
+      });
+    }, 500);
+  </script>
+</body>
+</html>

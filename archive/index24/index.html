@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Супер Память: 50 раундов</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Howler.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <style>
+        :root {
+            --cyan: #00FFFF;
+            --magenta: #FF00FF;
+            --yellow: #FFFF00;
+            --black: #000000;
+            --gray: #6c757d;
+        }
+        
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            overflow: hidden;
+            touch-action: manipulation;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 10px;
+        }
+        
+        #info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #343a40;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        #info-panel button {
+            background-color: #6c757d;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 2px;
+        }
+        
+        #info-panel button:hover {
+            background-color: #5a6268;
+        }
+        
+        #rules-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #rules-screen h2 {
+            color: #00FFFF;
+            margin-bottom: 20px;
+        }
+        
+        #rules-screen ul {
+            text-align: left;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+        
+        #rules-screen button {
+            background-color: #FF00FF;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .sequence-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+            min-height: 60px;
+        }
+        
+        .sequence-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sequence-item.cyan {
+            background-color: var(--cyan);
+            color: black;
+        }
+        
+        .sequence-item.magenta {
+            background-color: var(--magenta);
+            color: white;
+        }
+        
+        .sequence-item.yellow {
+            background-color: var(--yellow);
+            color: black;
+        }
+        
+        .sequence-item.black {
+            background-color: var(--black);
+            color: white;
+        }
+        
+        .sequence-item.number {
+            background-color: white;
+            color: black;
+            border: 2px solid #343a40;
+        }
+        
+        .sequence-item.empty {
+            background-color: var(--gray);
+            color: transparent;
+        }
+        
+        #user-sequence {
+            margin-bottom: 15px;
+        }
+        
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .selection-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .selection-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .selection-btn:hover {
+            transform: scale(0.98);
+        }
+        
+        .selection-btn.cyan {
+            background-color: var(--cyan);
+            color: black;
+        }
+        
+        .selection-btn.magenta {
+            background-color: var(--magenta);
+            color: white;
+        }
+        
+        .selection-btn.yellow {
+            background-color: var(--yellow);
+            color: black;
+        }
+        
+        .selection-btn.black {
+            background-color: var(--black);
+            color: white;
+        }
+        
+        .selection-btn.number {
+            background-color: white;
+            color: black;
+            border: 2px solid #343a40;
+        }
+        
+        #confirm-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        #confirm-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-top: 10px;
+            height: 20px;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #17a2b8);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        #result-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #result-screen h2 {
+            color: #FF00FF;
+            margin-bottom: 20px;
+        }
+        
+        #result-screen button {
+            background-color: #00FFFF;
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .animate__animated.animate__flash {
+            --animate-duration: 0.3s;
+        }
+        
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 576px) {
+            .sequence-item {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+            
+            .selection-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            #info-panel {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .sequence-item {
+                width: 25px;
+                height: 25px;
+                font-size: 0.8rem;
+            }
+            
+            .selection-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="info-panel">
+            <button id="new-game-btn"><i class="fas fa-redo"></i> Новая игра</button>
+            <span id="round-info">Раунд: 1/50</span>
+            <span id="items-count">Элементов: 3</span>
+            <button id="sound-btn"><i class="fas fa-volume-up"></i> Звук</button>
+        </div>
+        
+        <h5 class="text-center mt-2">Запомните последовательность:</h5>
+        <div id="target-sequence" class="sequence-container"></div>
+        
+        <h5 class="text-center mt-3">Повторите последовательность:</h5>
+        <div id="user-sequence" class="sequence-container"></div>
+        
+        <div id="controls">
+            <div class="selection-panel" id="color-panel">
+                <button class="selection-btn cyan" data-value="cyan">C</button>
+                <button class="selection-btn magenta" data-value="magenta">M</button>
+                <button class="selection-btn yellow" data-value="yellow">Y</button>
+                <button class="selection-btn black" data-value="black">B</button>
+            </div>
+            
+            <div class="selection-panel" id="number-panel" style="display: none;">
+                <!-- Numbers will be added dynamically -->
+            </div>
+            
+            <button id="confirm-btn" disabled>Подтвердить</button>
+        </div>
+        
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+    
+    <div id="rules-screen">
+        <h2 class="animate__animated animate__bounceIn">Супер Память: 50 раундов</h2>
+        <ul>
+            <li>Вам нужно пройти 50 раундов на запоминание</li>
+            <li>Каждый раунд показывает последовательность цветов или цифр</li>
+            <li>1-3 раунды: 3 цвета, 4 цвета, 4 цифры</li>
+            <li>4-6 раунды: 5 цветов, 6 цветов, 6 цифр</li>
+            <li>И так далее, увеличивая на 1-2 элемента каждые 3 раунда</li>
+            <li>Цвета: Cyan (C), Magenta (M), Yellow (Y), Black (B)</li>
+            <li>Цифры: от 0 до 9</li>
+            <li>Ошибка - конец игры</li>
+        </ul>
+        <button id="start-game-btn" class="animate__animated animate__pulse animate__infinite">Начать игру</button>
+    </div>
+    
+    <div id="result-screen">
+        <h2 id="result-title"></h2>
+        <p id="result-message"></p>
+        <button id="play-again-btn">Играть снова</button>
+    </div>
+
+    <script>
+        // Инициализация звуков с Howler.js
+        const sounds = {
+            click: new Howl({ src: ['https://assets.codepen.io/21542/howler-click-sound.mp3'] }),
+            correct: new Howl({ src: ['https://assets.codepen.io/21542/howler-correct-sound.mp3'] }),
+            wrong: new Howl({ src: ['https://assets.codepen.io/21542/howler-wrong-sound.mp3'] }),
+            win: new Howl({ src: ['https://assets.codepen.io/21542/howler-win-sound.mp3'] }),
+            show: new Howl({ src: ['https://assets.codepen.io/21542/howler-show-sound.mp3'] }),
+            next: new Howl({ src: ['https://assets.codepen.io/21542/howler-next-sound.mp3'] })
+        };
+        
+        // Состояние игры
+        let gameState = {
+            round: 1,
+            maxRound: 50,
+            targetSequence: [],
+            userSequence: [],
+            colors: ['cyan', 'magenta', 'yellow', 'black'],
+            soundEnabled: true,
+            gameStarted: false,
+            showingSequence: false
+        };
+        
+        // DOM элементы
+        const elements = {
+            targetSequence: document.getElementById('target-sequence'),
+            userSequence: document.getElementById('user-sequence'),
+            colorPanel: document.getElementById('color-panel'),
+            numberPanel: document.getElementById('number-panel'),
+            confirmBtn: document.getElementById('confirm-btn'),
+            roundInfo: document.getElementById('round-info'),
+            itemsCount: document.getElementById('items-count'),
+            progressBar: document.getElementById('progress-bar'),
+            newGameBtn: document.getElementById('new-game-btn'),
+            soundBtn: document.getElementById('sound-btn'),
+            startGameBtn: document.getElementById('start-game-btn'),
+            rulesScreen: document.getElementById('rules-screen'),
+            resultScreen: document.getElementById('result-screen'),
+            resultTitle: document.getElementById('result-title'),
+            resultMessage: document.getElementById('result-message'),
+            playAgainBtn: document.getElementById('play-again-btn')
+        };
+        
+        // Инициализация игры
+        function initGame() {
+            createNumberButtons();
+            setupEventListeners();
+            updateUI();
+        }
+        
+        // Создание кнопок с цифрами
+        function createNumberButtons() {
+            elements.numberPanel.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'selection-btn number';
+                btn.textContent = i;
+                btn.dataset.value = i;
+                elements.numberPanel.appendChild(btn);
+            }
+        }
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Кнопки
+            elements.newGameBtn.addEventListener('click', startNewGame);
+            elements.soundBtn.addEventListener('click', toggleSound);
+            elements.startGameBtn.addEventListener('click', startGame);
+            elements.playAgainBtn.addEventListener('click', startNewGame);
+            elements.confirmBtn.addEventListener('click', checkSequence);
+            
+            // Кнопки выбора
+            document.querySelectorAll('.selection-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (gameState.showingSequence || !gameState.gameStarted) return;
+                    
+                    const value = this.dataset.value;
+                    const type = this.classList.contains('number') ? 'number' : 'color';
+                    
+                    addToUserSequence(value, type);
+                    
+                    // Воспроизвести звук
+                    if (gameState.soundEnabled) {
+                        sounds.click.play();
+                    }
+                    
+                    // Анимация
+                    this.classList.add('animate__animated', 'animate__flash');
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__flash');
+                    }, 300);
+                });
+            });
+        }
+        
+        // Начать новую игру
+        function startNewGame() {
+            gameState.round = 1;
+            gameState.gameStarted = false;
+            gameState.showingSequence = false;
+            gameState.targetSequence = [];
+            gameState.userSequence = [];
+            
+            elements.resultScreen.style.display = 'none';
+            elements.rulesScreen.style.display = 'flex';
+            
+            clearSequences();
+            updateUI();
+        }
+        
+        // Начать игру
+        function startGame() {
+            gameState.gameStarted = true;
+            elements.rulesScreen.style.display = 'none';
+            
+            // Начать первый раунд
+            startRound();
+        }
+        
+        // Начать раунд
+        function startRound() {
+            gameState.targetSequence = [];
+            gameState.userSequence = [];
+            gameState.showingSequence = true;
+            
+            // Определить количество элементов для раунда
+            const itemsCount = calculateItemsCount(gameState.round);
+            
+            // Определить тип раунда (цвета или цифры)
+            const isNumberRound = (gameState.round % 3 === 0);
+            
+            // Показать соответствующие кнопки
+            elements.colorPanel.style.display = isNumberRound ? 'none' : 'flex';
+            elements.numberPanel.style.display = isNumberRound ? 'flex' : 'none';
+            
+            // Сгенерировать последовательность
+            for (let i = 0; i < itemsCount; i++) {
+                if (isNumberRound) {
+                    gameState.targetSequence.push({
+                        type: 'number',
+                        value: Math.floor(Math.random() * 10).toString()
+                    });
+                } else {
+                    gameState.targetSequence.push({
+                        type: 'color',
+                        value: gameState.colors[Math.floor(Math.random() * gameState.colors.length)]
+                    });
+                }
+            }
+            
+            clearSequences();
+            updateUI();
+            showSequence();
+        }
+        
+        // Вычислить количество элементов для раунда
+        function calculateItemsCount(round) {
+            // Паттерн: 3,4,4, 5,6,6, 7,8,8, 9,10,10 и т.д.
+            const group = Math.floor((round - 1) / 3);
+            const posInGroup = (round - 1) % 3;
+            
+            if (posInGroup === 0) return 3 + group * 2;
+            if (posInGroup === 1) return 4 + group * 2;
+            return 4 + group * 2;
+        }
+        
+        // Показать последовательность
+        function showSequence() {
+            elements.targetSequence.innerHTML = '';
+            
+            // Показать последовательность
+            gameState.targetSequence.forEach((item, index) => {
+                const seqItem = document.createElement('div');
+                seqItem.className = `sequence-item ${item.type === 'number' ? 'number' : item.value}`;
+                
+                if (item.type === 'number') {
+                    seqItem.textContent = item.value;
+                }
+                
+                elements.targetSequence.appendChild(seqItem);
+                
+                // Анимация появления
+                setTimeout(() => {
+                    seqItem.classList.add('animate__animated', 'animate__flash');
+                    
+                    // Воспроизвести звук
+                    if (gameState.soundEnabled) {
+                        sounds.show.play();
+                    }
+                    
+                    setTimeout(() => {
+                        seqItem.classList.remove('animate__animated', 'animate__flash');
+                    }, 300);
+                }, index * 800);
+            });
+            
+            // После показа всей последовательности разрешить ввод
+            setTimeout(() => {
+                gameState.showingSequence = false;
+                elements.confirmBtn.disabled = true;
+                updateUI();
+            }, gameState.targetSequence.length * 800 + 300);
+        }
+        
+        // Добавить элемент в последовательность пользователя
+        function addToUserSequence(value, type) {
+            if (gameState.userSequence.length >= gameState.targetSequence.length) return;
+            
+            gameState.userSequence.push({ type, value });
+            renderUserSequence();
+            
+            // Активировать кнопку подтверждения, если последовательность заполнена
+            if (gameState.userSequence.length === gameState.targetSequence.length) {
+                elements.confirmBtn.disabled = false;
+            }
+        }
+        
+        // Отобразить последовательность пользователя
+        function renderUserSequence() {
+            elements.userSequence.innerHTML = '';
+            
+            gameState.userSequence.forEach(item => {
+                const seqItem = document.createElement('div');
+                seqItem.className = `sequence-item ${item.type === 'number' ? 'number' : item.value}`;
+                
+                if (item.type === 'number') {
+                    seqItem.textContent = item.value;
+                }
+                
+                elements.userSequence.appendChild(seqItem);
+            });
+            
+            // Добавить пустые места для оставшихся элементов
+            const remaining = gameState.targetSequence.length - gameState.userSequence.length;
+            for (let i = 0; i < remaining; i++) {
+                const emptyItem = document.createElement('div');
+                emptyItem.className = 'sequence-item empty';
+                elements.userSequence.appendChild(emptyItem);
+            }
+        }
+        
+        // Проверить последовательность пользователя
+        function checkSequence() {
+            let isCorrect = true;
+            
+            for (let i = 0; i < gameState.targetSequence.length; i++) {
+                const target = gameState.targetSequence[i];
+                const user = gameState.userSequence[i];
+                
+                if (!user || target.value !== user.value || target.type !== user.type) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+            
+            if (isCorrect) {
+                handleCorrectSequence();
+            } else {
+                handleWrongSequence();
+            }
+        }
+        
+        // Обработка правильной последовательности
+        function handleCorrectSequence() {
+            if (gameState.soundEnabled) {
+                sounds.correct.play();
+            }
+            
+            // Проверить, достигнут ли последний раунд
+            if (gameState.round >= gameState.maxRound) {
+                showResult(true);
+            } else {
+                // Перейти к следующему раунду
+                gameState.round++;
+                
+                if (gameState.soundEnabled) {
+                    sounds.next.play();
+                }
+                
+                startRound();
+            }
+        }
+        
+        // Обработка неправильной последовательности
+        function handleWrongSequence() {
+            if (gameState.soundEnabled) {
+                sounds.wrong.play();
+            }
+            
+            // Подсветить неправильные элементы
+            gameState.userSequence.forEach((userItem, index) => {
+                const targetItem = gameState.targetSequence[index];
+                const isCorrect = targetItem && 
+                                  targetItem.value === userItem.value && 
+                                  targetItem.type === userItem.type;
+                
+                if (!isCorrect) {
+                    const items = elements.userSequence.children;
+                    if (items[index]) {
+                        items[index].style.border = '2px solid red';
+                    }
+                }
+            });
+            
+            setTimeout(() => {
+                showResult(false);
+            }, 1000);
+        }
+        
+        // Показать результат
+        function showResult(isWin) {
+            if (isWin) {
+                elements.resultTitle.textContent = 'Победа!';
+                elements.resultMessage.textContent = `Вы прошли все ${gameState.maxRound} раундов!`;
+                if (gameState.soundEnabled) {
+                    sounds.win.play();
+                }
+            } else {
+                elements.resultTitle.textContent = 'Игра окончена';
+                elements.resultMessage.textContent = `Вы проиграли на раунде ${gameState.round}`;
+                if (gameState.soundEnabled) {
+                    sounds.wrong.play();
+                }
+            }
+            
+            elements.resultScreen.style.display = 'flex';
+        }
+        
+        // Очистить последовательности
+        function clearSequences() {
+            elements.targetSequence.innerHTML = '';
+            elements.userSequence.innerHTML = '';
+            elements.confirmBtn.disabled = true;
+        }
+        
+        // Переключение звука
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            elements.soundBtn.innerHTML = gameState.soundEnabled ? 
+                '<i class="fas fa-volume-up"></i> Звук' : 
+                '<i class="fas fa-volume-mute"></i> Звук';
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            elements.roundInfo.textContent = `Раунд: ${gameState.round}/${gameState.maxRound}`;
+            elements.itemsCount.textContent = `Элементов: ${calculateItemsCount(gameState.round)}`;
+            
+            // Обновить прогресс
+            const progress = (gameState.round / gameState.maxRound) * 100;
+            elements.progressBar.style.width = `${progress}%`;
+        }
+        
+        // Инициализация игры при загрузке
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>

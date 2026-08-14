@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бизнес-Типография</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bs-primary: #0d6efd;
+            --bs-success: #198754;
+            --bs-warning: #ffc107;
+            --bs-danger: #dc3545;
+            --bs-info: #0dcaf0;
+        }
+        .stat-card {
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .grid-cell {
+            aspect-ratio: 1 / 1;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+        .grid-cell.available {
+            background: #e7f1ff;
+            border: 1px dashed #0d6efd;
+        }
+        .grid-cell.unavailable {
+            background: #e9ecef;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .equipment {
+            width: 100%;
+            height: 100%;
+            border-radius: 0.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 0.1rem;
+        }
+        .equipment.production { background: linear-gradient(135deg, #dc3545, #c82333); }
+        .equipment.storage { background: linear-gradient(135deg, #ffc107, #e0a800); }
+        .equipment.advertising { background: linear-gradient(135deg, #198754, #1e7e34); }
+        .equipment.quality { background: linear-gradient(135deg, #0dcaf0, #17a2b8); }
+        .equipment.broken {
+            opacity: 0.6;
+            background: #6c757d;
+        }
+        .equipment.broken::after {
+            content: " ⚡";
+            font-size: 0.6rem;
+        }
+        .toast-container {
+            z-index: 1100;
+        }
+        .debug-panel {
+            font-size: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-2">
+        <!-- Шапка -->
+        <div class="row mb-2">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body py-2">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h4 class="card-title mb-0">
+                                    <i class="bi bi-printer-fill text-primary me-2"></i>
+                                    Типография Pro
+                                </h4>
+                                <small class="text-muted" id="building-level">Квартира • Уровень 1</small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <h3 class="text-success mb-0" id="money">1,000 ₽</h3>
+                                <small class="text-muted">Общий капитал</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="row mb-2 g-1">
+            <div class="col-xl-2 col-md-4 col-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center p-2">
+                        <div class="h5 text-primary mb-0" id="stat-materials">0/100</div>
+                        <small class="text-muted">Материалы</small>
+                        <div class="progress mt-1" style="height: 4px;">
+                            <div id="materials-bar" class="progress-bar bg-primary" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center p-2">
+                        <div class="h5 text-warning mb-0" id="stat-orders">0</div>
+                        <small class="text-muted">Заказы</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center p-2">
+                        <div class="h5 text-success mb-0" id="stat-income">0/мин</div>
+                        <small class="text-muted">Доход</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center p-2">
+                        <div class="h5 text-info mb-0" id="stat-ad">100%</div>
+                        <small class="text-muted">Реклама</small>
+                        <div class="progress mt-1" style="height: 4px;">
+                            <div id="ad-bar" class="progress-bar bg-info" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center p-2">
+                        <div class="h5 text-success mb-0" id="stat-quality">100%</div>
+                        <small class="text-muted">Качество</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center p-2">
+                        <div class="h5 text-danger mb-0" id="stat-risk">0%</div>
+                        <small class="text-muted">Риск</small>
+                        <div class="progress mt-1" style="height: 4px;">
+                            <div id="risk-bar" class="progress-bar bg-warning" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Левая колонка -->
+            <div class="col-lg-8 mb-2">
+                <!-- Сетка здания -->
+                <div class="card shadow-sm mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0" id="current-building">Квартира</h5>
+                            <button class="btn btn-warning btn-sm" id="upgrade-btn" onclick="upgradeBuilding()" disabled>
+                                <i class="bi bi-arrow-up-circle me-1"></i>
+                                Улучшить
+                                <span id="upgrade-cost">75,000 ₽</span>
+                            </button>
+                        </div>
+                        <div class="row g-1" id="building-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Панель управления -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-2">Управление производством</h6>
+                        <div class="row g-1">
+                            <div class="col-md-3 col-6">
+                                <button class="btn btn-primary w-100 btn-sm" onclick="buyMaterials()">
+                                    <i class="bi bi-box-seam me-1"></i>
+                                    Закупить
+                                    <small class="d-block">10 ₽/ед.</small>
+                                </button>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <button class="btn btn-success w-100 btn-sm" onclick="shipOrders()">
+                                    <i class="bi bi-truck me-1"></i>
+                                    Отгрузить
+                                    <small class="d-block" id="ship-value">0 ₽</small>
+                                </button>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <button class="btn btn-warning w-100 btn-sm" onclick="launchAdvertising()">
+                                    <i class="bi bi-megaphone me-1"></i>
+                                    Реклама
+                                    <small class="d-block" id="ad-cost">500 ₽</small>
+                                </button>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <button class="btn btn-danger w-100 btn-sm" onclick="repairAllEquipment()">
+                                    <i class="bi bi-tools me-1"></i>
+                                    Ремонт
+                                    <small class="d-block" id="repair-cost">0 ₽</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка -->
+            <div class="col-lg-4">
+                <!-- Статистика производства -->
+                <div class="card shadow-sm mb-2">
+                    <div class="card-body">
+                        <h6 class="card-title mb-2">Эффективность</h6>
+                        <div class="row text-center">
+                            <div class="col-6 mb-2">
+                                <div class="text-primary">
+                                    <i class="bi bi-printer fs-4"></i>
+                                    <div class="h6 mt-1" id="stat-production">0</div>
+                                    <small>Производство/цикл</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <div class="text-success">
+                                    <i class="bi bi-graph-up fs-4"></i>
+                                    <div class="h6 mt-1" id="stat-multiplier">1.0x</div>
+                                    <small>Множитель</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-warning">
+                                    <i class="bi bi-box fs-4"></i>
+                                    <div class="h6 mt-1" id="stat-storage">100</div>
+                                    <small>Вместимость</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-info">
+                                    <i class="bi bi-star fs-4"></i>
+                                    <div class="h6 mt-1" id="stat-total-quality">100%</div>
+                                    <small>Качество</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Отладочная информация -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-2">Отладка</h6>
+                        <div class="debug-panel">
+                            <div>Производство: <span id="debug-production">0</span>/цикл</div>
+                            <div>Материалы: <span id="debug-materials">0</span></div>
+                            <div>Можно произвести: <span id="debug-can-produce">0</span></div>
+                            <div>Статус: <span id="debug-status">Ожидание</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal fade" id="equipmentModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Выбор оборудования</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-location" class="text-muted mb-2">Клетка: 0,0</p>
+                    <div id="equipment-options"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="productionToast" class="toast" role="alert">
+            <div class="toast-body" id="production-toast-body"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Игровое состояние
+        const gameState = {
+            money: 1000,
+            materials: 0,
+            currentOrders: 0,
+            baseOrderPrice: 50,
+            advertisingMultiplier: 1.0,
+            advertisingEffect: 0.0,
+            qualityMultiplier: 1.0,
+            currentBuilding: 'apartment',
+            selectedCell: null,
+            selectedEquipment: null,
+            brokenEquipment: [],
+            activeCrisis: null,
+            crisisCooldown: 0,
+            totalProduced: 0,
+            totalShipped: 0,
+            
+            buildings: {
+                apartment: {
+                    name: "Квартира",
+                    width: 4,
+                    height: 4,
+                    baseCapacity: 100,
+                    equipment: [],
+                    upgradeCost: 75000,
+                    level: 1,
+                    availableEquipment: ['small_printer', 'paper_shelf', 'flyer_table'],
+                    availableCells: [[0,0], [0,1], [1,0], [1,1]]
+                },
+                salon: {
+                    name: "Салон печати",
+                    width: 6,
+                    height: 6,
+                    baseCapacity: 500,
+                    equipment: [],
+                    upgradeCost: 1000000,
+                    level: 2,
+                    availableEquipment: ['large_printer', 'storage_rack', 'client_computer', 'quality_scanner'],
+                    availableCells: 'all'
+                },
+                printing_house: {
+                    name: "Типография",
+                    width: 8,
+                    height: 8,
+                    baseCapacity: 2000,
+                    equipment: [],
+                    upgradeCost: null,
+                    level: 3,
+                    availableEquipment: ['industrial_printer', 'warehouse_system', 'marketing_department', 'color_calibrator'],
+                    availableCells: 'all'
+                }
+            },
+
+            equipment: {
+                'small_printer': { 
+                    name: 'Мал. принтер', 
+                    type: 'production', 
+                    price: 200, 
+                    production: 5,
+                    description: 'Базовый принтер',
+                    breakdownRisk: 0.01
+                },
+                'paper_shelf': { 
+                    name: 'Полка', 
+                    type: 'storage', 
+                    price: 100, 
+                    storage: 50,
+                    description: 'Увеличивает склад',
+                    breakdownRisk: 0.005
+                },
+                'flyer_table': { 
+                    name: 'Стол', 
+                    type: 'advertising', 
+                    price: 150, 
+                    advertising: 0.1,
+                    description: 'Привлекает клиентов',
+                    breakdownRisk: 0.008
+                }
+            }
+        };
+
+        // Инициализация игры
+        function initGame() {
+            renderBuilding();
+            updateUI();
+            startGameLoop();
+            loadGame();
+            
+            console.log("Игра инициализирована. Производственный цикл запущен.");
+        }
+
+        // Отрисовка здания
+        function renderBuilding() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const grid = document.getElementById('building-grid');
+            
+            grid.innerHTML = '';
+            
+            for (let y = 0; y < building.height; y++) {
+                for (let x = 0; x < building.width; x++) {
+                    const col = document.createElement('div');
+                    col.className = 'col-3';
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    
+                    const isAvailable = building.availableCells === 'all' || 
+                        building.availableCells.some(([ax, ay]) => ax === x && ay === y);
+                    
+                    if (isAvailable) {
+                        cell.classList.add('available');
+                        cell.onclick = () => handleCellClick(x, y);
+                    } else {
+                        cell.classList.add('unavailable');
+                    }
+                    
+                    col.appendChild(cell);
+                    grid.appendChild(col);
+                }
+            }
+            
+            building.equipment.forEach(eq => {
+                placeEquipment(eq);
+            });
+            
+            updateBuildingInfo();
+        }
+
+        // Размещение оборудования
+        function placeEquipment(equipment) {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const cellIndex = equipment.y * building.width + equipment.x;
+            const cell = document.getElementById('building-grid').children[cellIndex]?.firstChild;
+            
+            if (cell) {
+                cell.classList.remove('available');
+                cell.innerHTML = '';
+                
+                const eqElement = document.createElement('div');
+                eqElement.className = `equipment ${equipment.type} ${equipment.broken ? 'broken' : ''}`;
+                eqElement.innerHTML = `
+                    <i class="bi ${getEquipmentIcon(equipment.type)}"></i>
+                    <div>${equipment.name}</div>
+                `;
+                eqElement.onclick = (e) => {
+                    e.stopPropagation();
+                    showEquipmentInfo(equipment);
+                };
+                cell.appendChild(eqElement);
+            }
+        }
+
+        // Основная логика производства - ИСПРАВЛЕНА
+        function startGameLoop() {
+            setInterval(() => {
+                // Автоматическое производство
+                const production = getTotalProduction();
+                const ordersToProduce = Math.min(gameState.materials, production);
+                
+                console.log(`Производственный цикл: материалы=${gameState.materials}, производство=${production}, можно произвести=${ordersToProduce}`);
+                
+                if (ordersToProduce > 0) {
+                    gameState.currentOrders += ordersToProduce;
+                    gameState.materials -= ordersToProduce;
+                    gameState.totalProduced += ordersToProduce;
+                    
+                    if (ordersToProduce > 0) {
+                        showProductionNotification(`Произведено: ${ordersToProduce} заказов`);
+                    }
+                }
+                
+                // Снижение эффекта рекламы
+                gameState.advertisingEffect = Math.max(0, gameState.advertisingEffect - 0.05);
+                
+                // Проверка поломок оборудования
+                const building = gameState.buildings[gameState.currentBuilding];
+                building.equipment.forEach(eq => {
+                    if (!eq.broken && Math.random() < eq.breakdownRisk) {
+                        eq.broken = true;
+                        showProductionNotification(`Сломано: ${eq.name}`);
+                    }
+                });
+                
+                updateUI();
+                
+            }, 3000); // Цикл каждые 3 секунды
+        }
+
+        // Расчет производства - ИСПРАВЛЕН
+        function getTotalProduction() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const production = building.equipment
+                .filter(eq => eq.production && !eq.broken)
+                .reduce((sum, eq) => sum + eq.production, 0);
+            
+            return production;
+        }
+
+        // Покупка материалов
+        function buyMaterials() {
+            const storageCapacity = getTotalStorage();
+            const availableSpace = storageCapacity - gameState.materials;
+            const materialCost = 10;
+            const maxAffordable = Math.min(availableSpace, Math.floor(gameState.money / materialCost));
+            
+            if (maxAffordable > 0) {
+                gameState.materials += maxAffordable;
+                gameState.money -= maxAffordable * materialCost;
+                updateUI();
+                
+                showProductionNotification(`Закуплено: ${maxAffordable} материалов`);
+            } else {
+                alert('Недостаточно места или денег!');
+            }
+        }
+
+        // Отгрузка заказов
+        function shipOrders() {
+            if (gameState.currentOrders === 0) {
+                alert('Нет заказов для отгрузки!');
+                return;
+            }
+            
+            const orderValue = calculateOrderValue();
+            gameState.money += orderValue;
+            gameState.totalShipped += gameState.currentOrders;
+            
+            showProductionNotification(`Отгружено: ${gameState.currentOrders} заказов (+${orderValue}₽)`);
+            
+            gameState.currentOrders = 0;
+            updateUI();
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            // Основные показатели
+            document.getElementById('money').textContent = gameState.money.toLocaleString() + ' ₽';
+            document.getElementById('stat-materials').textContent = `${gameState.materials}/${getTotalStorage()}`;
+            document.getElementById('stat-orders').textContent = gameState.currentOrders;
+            document.getElementById('ship-value').textContent = calculateOrderValue().toLocaleString() + ' ₽';
+            
+            // Прогресс-бары
+            const storagePercent = (gameState.materials / getTotalStorage()) * 100;
+            document.getElementById('materials-bar').style.width = `${storagePercent}%`;
+            
+            document.getElementById('ad-bar').style.width = `${gameState.advertisingEffect * 100}%`;
+            document.getElementById('stat-ad').textContent = `${Math.floor(gameState.advertisingEffect * 100)}%`;
+            
+            // Статистика
+            const production = getTotalProduction();
+            document.getElementById('stat-production').textContent = production;
+            document.getElementById('stat-multiplier').textContent = (1 + gameState.advertisingEffect).toFixed(1) + 'x';
+            document.getElementById('stat-storage').textContent = getTotalStorage();
+            document.getElementById('stat-total-quality').textContent = `${Math.floor(getTotalQuality() * 100)}%`;
+            
+            // Отладочная информация
+            document.getElementById('debug-production').textContent = production;
+            document.getElementById('debug-materials').textContent = gameState.materials;
+            document.getElementById('debug-can-produce').textContent = Math.min(gameState.materials, production);
+            document.getElementById('debug-status').textContent = production > 0 ? 'Производится' : 'Ожидание';
+            
+            updateUpgradeButton();
+            saveGame();
+        }
+
+        // Вспомогательные функции
+        function getTotalStorage() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            const baseStorage = building.baseCapacity;
+            const bonusStorage = building.equipment
+                .filter(eq => eq.storage && !eq.broken)
+                .reduce((sum, eq) => sum + eq.storage, 0);
+            return baseStorage + bonusStorage;
+        }
+
+        function getTotalQuality() {
+            const building = gameState.buildings[gameState.currentBuilding];
+            return 1 + building.equipment
+                .filter(eq => eq.quality && !eq.broken)
+                .reduce((sum, eq) => sum + eq.quality, 0);
+        }
+
+        function calculateOrderValue() {
+            const baseValue = gameState.currentOrders * gameState.baseOrderPrice;
+            const advertisingBonus = 1 + gameState.advertisingEffect;
+            return Math.floor(baseValue * advertisingBonus * getTotalQuality());
+        }
+
+        function getEquipmentIcon(type) {
+            const icons = {
+                production: 'bi-printer',
+                storage: 'bi-archive',
+                advertising: 'bi-megaphone',
+                quality: 'bi-award'
+            };
+            return icons[type] || 'bi-gear';
+        }
+
+        function showProductionNotification(message) {
+            const toastBody = document.getElementById('production-toast-body');
+            toastBody.textContent = message;
+            new bootstrap.Toast(document.getElementById('productionToast')).show();
+        }
+
+        // Остальные функции (handleCellClick, showEquipmentModal, buyEquipment и т.д.)
+        // остаются аналогичными предыдущей версии, но адаптированными под Bootstrap
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>

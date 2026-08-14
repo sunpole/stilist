@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типография - Бизнес симулятор</title>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isoWeek.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isBetween.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ru.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .resource-panel {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .resource-item {
+            text-align: center;
+        }
+
+        .resource-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .departments {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .department-btn {
+            flex: 1;
+            min-width: calc(12.5% - 5px);
+            height: 60px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .department-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .department-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .panels-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .panel h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .order, .employee-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .order:hover {
+            border-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .accept-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .hire-section {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .hire-btn {
+            background: #f1c40f;
+            color: #2c3e50;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .hire-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .hire-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .time-display {
+            text-align: center;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* Мобильная оптимизация */
+        @media (max-width: 768px) {
+            .panels-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .department-btn {
+                min-width: calc(25% - 5px);
+                height: 50px;
+                font-size: 0.9em;
+            }
+            
+            .resource-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .department-btn {
+                min-width: calc(33.333% - 5px);
+            }
+            
+            .resource-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .drive-warning {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="time-display" id="timeDisplay">
+            1 сентября 2025, 09:00 (Понедельник)
+        </div>
+        
+        <div class="resource-panel">
+            <div class="resource-item">
+                <div>Драйв</div>
+                <div class="resource-value" id="driveValue">80/80</div>
+            </div>
+            <div class="resource-item">
+                <div>Деньги</div>
+                <div class="resource-value" id="moneyValue">1 000 ₽</div>
+            </div>
+            <div class="resource-item">
+                <div>Опыт</div>
+                <div class="resource-value" id="expValue">0</div>
+            </div>
+            <div class="resource-item">
+                <div>Репутация</div>
+                <div class="resource-value" id="reputationValue">0</div>
+            </div>
+        </div>
+
+        <div class="departments">
+            <button class="department-btn" data-dept="1">Дизайн</button>
+            <button class="department-btn" data-dept="2">Печать</button>
+            <button class="department-btn" data-dept="3">Резка</button>
+            <button class="department-btn" data-dept="4">Фальцовка</button>
+            <button class="department-btn" data-dept="5">Брошюровка</button>
+            <button class="department-btn" data-dept="6">Ламинация</button>
+            <button class="department-btn" data-dept="7">Упаковка</button>
+        </div>
+
+        <div class="panels-container">
+            <div class="panel">
+                <h3>📋 Доступные заказы</h3>
+                <div id="availableOrders">
+                    <!-- Заказы будут добавляться здесь -->
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3>👥 Сотрудники</h3>
+                <div id="employeesList">
+                    <!-- Сотрудники будут добавляться здесь -->
+                </div>
+            </div>
+        </div>
+
+        <div class="hire-section">
+            <h3>💼 Найм сотрудников</h3>
+            <p>Каждый сотрудник: +80 к максимуму драйва, работает автоматически</p>
+            <button class="hire-btn" id="hireButton">Нанять сотрудника (500 ₽)</button>
+        </div>
+
+        <div class="panel">
+            <h3>🔄 Активные заказы</h3>
+            <div id="activeOrders">
+                <!-- Активные заказы будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

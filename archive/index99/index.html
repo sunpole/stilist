@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор стоимости бумаги</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button.secondary {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        button.secondary:hover {
+            background-color: #bdc3c7;
+        }
+
+        button.accent {
+            background-color: var(--accent-color);
+        }
+
+        button.accent:hover {
+            background-color: #c0392b;
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        button.success:hover {
+            background-color: #27ae60;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .result h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .calculation-text {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .history {
+            margin-top: 30px;
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-name {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .history-details {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .history-result {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .custom-format {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 767px) {
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .custom-format {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Калькулятор стоимости бумаги</h1>
+        <p>Конвертер цены за кг в цену за лист</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Параметры бумаги</h2>
+            <div class="form-group">
+                <label for="paperName">Название бумаги</label>
+                <input type="text" id="paperName" placeholder="Например: Офсетная бумага">
+            </div>
+            
+            <div class="form-group">
+                <label for="pricePerKg">Стоимость за кг (руб)</label>
+                <input type="number" id="pricePerKg" min="0" step="0.01" placeholder="Например: 150">
+            </div>
+            
+            <div class="form-group">
+                <label for="density">Плотность (г/м²)</label>
+                <input type="number" id="density" min="0" step="1" placeholder="Например: 80">
+            </div>
+            
+            <div class="form-group">
+                <label for="format">Формат листа</label>
+                <select id="format">
+                    <option value="A0">A0 (841 × 1189 мм)</option>
+                    <option value="A1">A1 (594 × 841 мм)</option>
+                    <option value="A2">A2 (420 × 594 мм)</option>
+                    <option value="A3">A3 (297 × 420 мм)</option>
+                    <option value="A4" selected>A4 (210 × 297 мм)</option>
+                    <option value="A5">A5 (148 × 210 мм)</option>
+                    <option value="A6">A6 (105 × 148 мм)</option>
+                    <option value="custom">Произвольный формат</option>
+                </select>
+            </div>
+            
+            <div id="customFormat" class="form-group hidden">
+                <label>Произвольный размер (мм)</label>
+                <div class="custom-format">
+                    <input type="number" id="customWidth" min="1" placeholder="Ширина">
+                    <input type="number" id="customHeight" min="1" placeholder="Высота">
+                </div>
+            </div>
+            
+            <button id="calculateBtn">Рассчитать стоимость</button>
+        </div>
+        
+        <div class="card">
+            <h2>Результаты расчета</h2>
+            <div class="result">
+                <h3>Стоимость за 1 лист:</h3>
+                <div id="resultValue" class="result-value">—</div>
+            </div>
+            
+            <h3>Текст расчета:</h3>
+            <div id="calculationText" class="calculation-text"></div>
+            
+            <div class="button-group">
+                <button id="copyBtn" class="secondary">Копировать текст</button>
+                <button id="shareBtn" class="success">Поделиться</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card history">
+        <h2>История расчетов</h2>
+        <div id="historyList"></div>
+        <button id="clearHistoryBtn" class="accent">Очистить историю</button>
+    </div>
+    
+    <footer>
+        <p>© 2023 Калькулятор стоимости бумаги</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const paperNameInput = document.getElementById('paperName');
+            const pricePerKgInput = document.getElementById('pricePerKg');
+            const densityInput = document.getElementById('density');
+            const formatSelect = document.getElementById('format');
+            const customFormatDiv = document.getElementById('customFormat');
+            const customWidthInput = document.getElementById('customWidth');
+            const customHeightInput = document.getElementById('customHeight');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultValueDiv = document.getElementById('resultValue');
+            const calculationTextDiv = document.getElementById('calculationText');
+            const copyBtn = document.getElementById('copyBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const historyListDiv = document.getElementById('historyList');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            
+            // Форматы бумаги (ширина x высота в мм)
+            const paperFormats = {
+                'A0': { width: 841, height: 1189 },
+                'A1': { width: 594, height: 841 },
+                'A2': { width: 420, height: 594 },
+                'A3': { width: 297, height: 420 },
+                'A4': { width: 210, height: 297 },
+                'A5': { width: 148, height: 210 },
+                'A6': { width: 105, height: 148 }
+            };
+            
+            // Показать/скрыть поля для произвольного формата
+            formatSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customFormatDiv.classList.remove('hidden');
+                } else {
+                    customFormatDiv.classList.add('hidden');
+                }
+            });
+            
+            // Загрузка истории из localStorage
+            let calculationHistory = JSON.parse(localStorage.getItem('paperCalculationHistory')) || [];
+            
+            // Функция для отображения истории
+            function renderHistory() {
+                historyListDiv.innerHTML = '';
+                
+                if (calculationHistory.length === 0) {
+                    historyListDiv.innerHTML = '<p>История расчетов пуста</p>';
+                    return;
+                }
+                
+                // Показываем только последние 10 расчетов
+                const recentHistory = calculationHistory.slice(-10).reverse();
+                
+                recentHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleString('ru-RU');
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-name">${item.paperName}</div>
+                        <div class="history-details">${item.density} г/м², ${item.format}, ${formattedDate}</div>
+                        <div class="history-result">${item.result} руб/лист</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', function() {
+                        // Заполняем форму данными из истории
+                        paperNameInput.value = item.paperName;
+                        pricePerKgInput.value = item.pricePerKg;
+                        densityInput.value = item.density;
+                        
+                        if (paperFormats[item.format]) {
+                            formatSelect.value = item.format;
+                            customFormatDiv.classList.add('hidden');
+                        } else {
+                            formatSelect.value = 'custom';
+                            customFormatDiv.classList.remove('hidden');
+                            const [width, height] = item.format.split('x').map(val => val.trim());
+                            customWidthInput.value = width;
+                            customHeightInput.value = height;
+                        }
+                        
+                        calculatePrice();
+                    });
+                    
+                    historyListDiv.appendChild(historyItem);
+                });
+            }
+            
+            // Функция расчета стоимости
+            function calculatePrice() {
+                const paperName = paperNameInput.value.trim();
+                const pricePerKg = parseFloat(pricePerKgInput.value);
+                const density = parseFloat(densityInput.value);
+                
+                if (!paperName || isNaN(pricePerKg) || isNaN(density) || pricePerKg <= 0 || density <= 0) {
+                    resultValueDiv.textContent = '—';
+                    calculationTextDiv.textContent = 'Заполните все поля корректными значениями';
+                    return null;
+                }
+                
+                // Получаем размеры листа
+                let width, height, formatName;
+                
+                if (formatSelect.value === 'custom') {
+                    width = parseFloat(customWidthInput.value);
+                    height = parseFloat(customHeightInput.value);
+                    
+                    if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+                        resultValueDiv.textContent = '—';
+                        calculationTextDiv.textContent = 'Укажите корректные размеры для произвольного формата';
+                        return null;
+                    }
+                    
+                    formatName = `${width} x ${height} мм`;
+                } else {
+                    const format = paperFormats[formatSelect.value];
+                    width = format.width;
+                    height = format.height;
+                    formatName = `${formatSelect.value} (${width} × ${height} мм)`;
+                }
+                
+                // Расчет площади листа в м²
+                const area = (width / 1000) * (height / 1000); // переводим мм в метры
+                
+                // Расчет веса листа в граммах
+                const weight = area * density;
+                
+                // Расчет стоимости листа
+                const pricePerGram = pricePerKg / 1000; // цена за грамм
+                const pricePerSheet = weight * pricePerGram;
+                
+                // Форматируем результат
+                const formattedPrice = pricePerSheet.toFixed(2);
+                
+                // Обновляем интерфейс
+                resultValueDiv.textContent = `${formattedPrice} руб`;
+                
+                // Формируем текст расчета
+                const calculationText = `
+РАСЧЕТ СТОИМОСТИ БУМАГИ
+-----------------------------
+Название: ${paperName}
+Стоимость за кг: ${pricePerKg} руб
+Плотность: ${density} г/м²
+Формат: ${formatName}
+Размер: ${width} × ${height} мм
+Площадь листа: ${area.toFixed(4)} м²
+Вес листа: ${weight.toFixed(2)} г
+-----------------------------
+СТОИМОСТЬ ЗА ЛИСТ: ${formattedPrice} руб
+                `;
+                
+                calculationTextDiv.textContent = calculationText;
+                
+                // Сохраняем расчет в историю
+                const calculationData = {
+                    paperName,
+                    pricePerKg,
+                    density,
+                    format: formatSelect.value === 'custom' ? `${width} x ${height} мм` : formatSelect.value,
+                    result: formattedPrice,
+                    timestamp: new Date().getTime()
+                };
+                
+                calculationHistory.push(calculationData);
+                localStorage.setItem('paperCalculationHistory', JSON.stringify(calculationHistory));
+                
+                // Обновляем историю на экране
+                renderHistory();
+                
+                return {
+                    price: formattedPrice,
+                    text: calculationText
+                };
+            }
+            
+            // Обработчик кнопки расчета
+            calculateBtn.addEventListener('click', calculatePrice);
+            
+            // Копирование текста расчета
+            copyBtn.addEventListener('click', function() {
+                const text = calculationTextDiv.textContent;
+                if (!text) return;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Скопировано!';
+                    copyBtn.classList.add('success');
+                    
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                        copyBtn.classList.remove('success');
+                    }, 2000);
+                });
+            });
+            
+            // Поделиться результатом
+            shareBtn.addEventListener('click', function() {
+                const result = calculatePrice();
+                if (!result) return;
+                
+                const shareData = {
+                    title: 'Расчет стоимости бумаги',
+                    text: result.text,
+                    url: window.location.href
+                };
+                
+                if (navigator.share) {
+                    navigator.share(shareData)
+                        .then(() => console.log('Успешный обмен'))
+                        .catch(error => console.log('Ошибка обмена:', error));
+                } else {
+                    // Fallback для браузеров без поддержки Web Share API
+                    navigator.clipboard.writeText(result.text).then(() => {
+                        alert('Текст расчета скопирован в буфер обмена. Поделитесь им вручную.');
+                    });
+                }
+            });
+            
+            // Очистка истории
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('Вы уверены, что хотите очистить историю расчетов?')) {
+                    calculationHistory = [];
+                    localStorage.removeItem('paperCalculationHistory');
+                    renderHistory();
+                }
+            });
+            
+            // Инициализация истории при загрузке
+            renderHistory();
+            
+            // Авторасчет при изменении значений
+            const inputs = [
+                paperNameInput, 
+                pricePerKgInput, 
+                densityInput, 
+                formatSelect, 
+                customWidthInput, 
+                customHeightInput
+            ];
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', calculatePrice);
+            });
+        });
+    </script>
+</body>
+</html>

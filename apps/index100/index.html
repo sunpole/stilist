@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дерево навыков - Запоминалка</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .skill-tree-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: auto;
+            margin-bottom: 20px;
+        }
+        
+        .skill-tree {
+            position: relative;
+            width: 1500px;
+            height: 1500px;
+            transform-origin: 0 0;
+        }
+        
+        .lines-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .nodes-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        .skill-node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .skill-node:hover {
+            transform: scale(1.1);
+        }
+        
+        .skill-node.small {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+        
+        .skill-node.medium {
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+        }
+        
+        .skill-node.large {
+            width: 60px;
+            height: 60px;
+            font-size: 16px;
+        }
+        
+        .skill-node.memory {
+            background: radial-gradient(circle at 30% 30%, #3498db, #1a5276);
+        }
+        
+        .skill-node.speed {
+            background: radial-gradient(circle at 30% 30%, #2ecc71, #1e8449);
+        }
+        
+        .skill-node.accuracy {
+            background: radial-gradient(circle at 30% 30%, #e74c3c, #922b21);
+        }
+        
+        .skill-node.luck {
+            background: radial-gradient(circle at 30% 30%, #f1c40f, #b7950b);
+        }
+        
+        .skill-node.available {
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+        
+        .skill-node.owned {
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+        }
+        
+        .skill-node.unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .node-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 250px;
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+        
+        .node-tooltip h3 {
+            margin: 0 0 5px 0;
+            color: #fff;
+        }
+        
+        .node-tooltip p {
+            margin: 5px 0;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #ff577f;
+        }
+        
+        .game-info {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .difficulty {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .difficulty-level {
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: #333;
+        }
+        
+        .difficulty-level.active {
+            background: #e94560;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Дерево навыков - Запоминалка</h1>
+            <div class="game-info">
+                <p>Запоминайте последовательности цветов и развивайте свои навыки!</p>
+                <div class="difficulty">
+                    <div class="difficulty-level active">Уровень 1: 4 цвета</div>
+                    <div class="difficulty-level">Уровень 2: 6 цветов</div>
+                    <div class="difficulty-level">Уровень 3: 12 цветов</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div>Очки навыков: <span id="skill-points">5</span></div>
+            </div>
+            <div class="stat-item">
+                <div>Память: <span id="memory-stat">0</span></div>
+            </div>
+            <div class="stat-item">
+                <div>Скорость: <span id="speed-stat">0</span></div>
+            </div>
+            <div class="stat-item">
+                <div>Точность: <span id="accuracy-stat">0</span></div>
+            </div>
+            <div class="stat-item">
+                <div>Удача: <span id="luck-stat">0</span></div>
+            </div>
+        </div>
+        
+        <div class="skill-tree-container">
+            <div class="skill-tree">
+                <div class="lines-container" id="lines-container"></div>
+                <div class="nodes-container" id="nodes-container"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="reset-btn">Сбросить дерево</button>
+            <button id="add-points-btn">Добавить 5 очков (для теста)</button>
+        </div>
+    </div>
+
+    <div class="node-tooltip" id="node-tooltip"></div>
+
+    <script>
+        // Данные дерева навыков
+        const skillTreeData = {
+            startNode: { id: "start", x: 750, y: 750, connections: ["node1", "node2", "node3", "node4"] },
+            nodes: {
+                // Маленькие ноды
+                "node1": { id: "node1", x: 650, y: 650, size: "small", type: "memory", cost: 1, 
+                          effect: { memory: 1 }, title: "Улучшенная память", 
+                          description: "+1 к навыку памяти", connections: ["node5", "node9"] },
+                "node2": { id: "node2", x: 850, y: 650, size: "small", type: "speed", cost: 1, 
+                          effect: { speed: 1 }, title: "Быстрая реакция", 
+                          description: "+1 к навыку скорости", connections: ["node6", "node10"] },
+                "node3": { id: "node3", x: 650, y: 850, size: "small", type: "accuracy", cost: 1, 
+                          effect: { accuracy: 1 }, title: "Точность", 
+                          description: "+1 к навыку точности", connections: ["node7", "node11"] },
+                "node4": { id: "node4", x: 850, y: 850, size: "small", type: "luck", cost: 1, 
+                          effect: { luck: 1 }, title: "Удача", 
+                          description: "+1 к навыку удачи", connections: ["node8", "node12"] },
+                
+                // Средние ноды
+                "node5": { id: "node5", x: 550, y: 550, size: "medium", type: "memory", cost: 2, 
+                          effect: { memory: 2 }, title: "Тренировка памяти", 
+                          description: "+2 к навыку памяти", connections: ["node13"] },
+                "node6": { id: "node6", x: 950, y: 550, size: "medium", type: "speed", cost: 2, 
+                          effect: { speed: 2 }, title: "Ускорение", 
+                          description: "+2 к навыку скорости", connections: ["node14"] },
+                "node7": { id: "node7", x: 550, y: 950, size: "medium", type: "accuracy", cost: 2, 
+                          effect: { accuracy: 2 }, title: "Меткость", 
+                          description: "+2 к навыку точности", connections: ["node15"] },
+                "node8": { id: "node8", x: 950, y: 950, size: "medium", type: "luck", cost: 2, 
+                          effect: { luck: 2 }, title: "Везучий", 
+                          description: "+2 к навыку удачи", connections: ["node16"] },
+                
+                // Комбинированные ноды
+                "node9": { id: "node9", x: 600, y: 500, size: "medium", type: "memory", cost: 2, 
+                          effect: { memory: 1, speed: 1 }, title: "Быстрая память", 
+                          description: "+1 к памяти и скорости", connections: ["node13"] },
+                "node10": { id: "node10", x: 900, y: 500, size: "medium", type: "speed", cost: 2, 
+                           effect: { speed: 1, accuracy: 1 }, title: "Точное ускорение", 
+                           description: "+1 к скорости и точности", connections: ["node14"] },
+                "node11": { id: "node11", x: 600, y: 1000, size: "medium", type: "accuracy", cost: 2, 
+                           effect: { accuracy: 1, luck: 1 }, title: "Точная удача", 
+                           description: "+1 к точности и удаче", connections: ["node15"] },
+                "node12": { id: "node12", x: 900, y: 1000, size: "medium", type: "luck", cost: 2, 
+                           effect: { luck: 1, memory: 1 }, title: "Запоминающая удача", 
+                           description: "+1 к удаче и памяти", connections: ["node16"] },
+                
+                // Большие ноды
+                "node13": { id: "node13", x: 450, y: 450, size: "large", type: "memory", cost: 3, 
+                           effect: { memory: 5 }, title: "Фотографическая память", 
+                           description: "Показывает всю последовательность на 1 секунду", connections: [] },
+                "node14": { id: "node14", x: 1050, y: 450, size: "large", type: "speed", cost: 3, 
+                           effect: { speed: 5 }, title: "Замедление времени", 
+                           description: "Замедляет воспроизведение последовательности на 30%", connections: [] },
+                "node15": { id: "node15", x: 450, y: 1050, size: "large", type: "accuracy", cost: 3, 
+                           effect: { accuracy: 5 }, title: "Неуязвимость", 
+                           description: "10% шанс избежать ошибки", connections: [] },
+                "node16": { id: "node16", x: 1050, y: 1050, size: "large", type: "luck", cost: 3, 
+                           effect: { luck: 5 }, title: "Цепная реакция", 
+                           description: "После 4 правильных ответов следующий цвет угадывается автоматически", connections: [] }
+            }
+        };
+
+        // Состояние игры
+        const gameState = {
+            skillPoints: 5,
+            memory: 0,
+            speed: 0,
+            accuracy: 0,
+            luck: 0,
+            ownedNodes: ["start"],
+            difficulty: 1
+        };
+
+        // Загрузка состояния из localStorage
+        function loadGameState() {
+            const savedState = localStorage.getItem('memoryGameState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                Object.assign(gameState, state);
+                updateStats();
+            }
+        }
+
+        // Сохранение состояния в localStorage
+        function saveGameState() {
+            localStorage.setItem('memoryGameState', JSON.stringify(gameState));
+        }
+
+        // Обновление отображения статистики
+        function updateStats() {
+            document.getElementById('skill-points').textContent = gameState.skillPoints;
+            document.getElementById('memory-stat').textContent = gameState.memory;
+            document.getElementById('speed-stat').textContent = gameState.speed;
+            document.getElementById('accuracy-stat').textContent = gameState.accuracy;
+            document.getElementById('luck-stat').textContent = gameState.luck;
+        }
+
+        // Рисование линий между нодами
+        function drawLines() {
+            const linesContainer = document.getElementById('lines-container');
+            linesContainer.innerHTML = '';
+            
+            // Линии от стартовой ноды
+            skillTreeData.startNode.connections.forEach(nodeId => {
+                const node = skillTreeData.nodes[nodeId];
+                drawLine(skillTreeData.startNode.x, skillTreeData.startNode.y, node.x, node.y);
+            });
+            
+            // Линии между другими нодами
+            Object.values(skillTreeData.nodes).forEach(node => {
+                if (node.connections) {
+                    node.connections.forEach(connectedNodeId => {
+                        const connectedNode = skillTreeData.nodes[connectedNodeId];
+                        drawLine(node.x, node.y, connectedNode.x, connectedNode.y);
+                    });
+                }
+            });
+        }
+
+        // Рисование одной линии
+        function drawLine(x1, y1, x2, y2) {
+            const line = document.createElement('div');
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            line.style.position = 'absolute';
+            line.style.left = `${x1}px`;
+            line.style.top = `${y1}px`;
+            line.style.width = `${length}px`;
+            line.style.height = '2px';
+            line.style.backgroundColor = '#555';
+            line.style.transformOrigin = '0 0';
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.zIndex = '1';
+            
+            document.getElementById('lines-container').appendChild(line);
+        }
+
+        // Создание нодов
+        function createNodes() {
+            const nodesContainer = document.getElementById('nodes-container');
+            nodesContainer.innerHTML = '';
+            
+            // Стартовая нода
+            createNodeElement(skillTreeData.startNode);
+            
+            // Все остальные ноды
+            Object.values(skillTreeData.nodes).forEach(node => {
+                createNodeElement(node);
+            });
+        }
+
+        // Создание элемента нода
+        function createNodeElement(node) {
+            const nodeElement = document.createElement('div');
+            nodeElement.className = `skill-node ${node.size} ${node.type}`;
+            nodeElement.id = `node-${node.id}`;
+            nodeElement.style.left = `${node.x - nodeElement.offsetWidth / 2}px`;
+            nodeElement.style.top = `${node.y - nodeElement.offsetHeight / 2}px`;
+            
+            // Добавляем символ в зависимости от типа
+            let symbol = '';
+            switch(node.type) {
+                case 'memory': symbol = 'M'; break;
+                case 'speed': symbol = 'S'; break;
+                case 'accuracy': symbol = 'A'; break;
+                case 'luck': symbol = 'L'; break;
+            }
+            
+            // Для комбинированных нодов используем иконку
+            if (node.effect && Object.keys(node.effect).length > 1) {
+                nodeElement.innerHTML = '⚡';
+            } else {
+                nodeElement.innerHTML = symbol;
+            }
+            
+            // Проверяем доступность нода
+            if (gameState.ownedNodes.includes(node.id)) {
+                nodeElement.classList.add('owned');
+            } else if (isNodeAvailable(node)) {
+                nodeElement.classList.add('available');
+            } else {
+                nodeElement.classList.add('unavailable');
+            }
+            
+            // Добавляем обработчики событий
+            nodeElement.addEventListener('click', () => handleNodeClick(node));
+            nodeElement.addEventListener('mouseenter', (e) => showTooltip(e, node));
+            nodeElement.addEventListener('mouseleave', hideTooltip);
+            
+            document.getElementById('nodes-container').appendChild(nodeElement);
+        }
+
+        // Проверка доступности нода для покупки
+        function isNodeAvailable(node) {
+            // Если нод уже куплен, он не доступен для покупки
+            if (gameState.ownedNodes.includes(node.id)) {
+                return false;
+            }
+            
+            // Проверяем связи для всех нодов, кроме стартового
+            if (node.id !== "start") {
+                const hasConnection = Object.values(skillTreeData.nodes).some(n => 
+                    n.connections && n.connections.includes(node.id) && gameState.ownedNodes.includes(n.id)
+                );
+                
+                if (!hasConnection && (!skillTreeData.startNode.connections.includes(node.id) || node.id === "start")) {
+                    return false;
+                }
+            }
+            
+            // Проверяем достаточно ли очков
+            return gameState.skillPoints >= node.cost;
+        }
+
+        // Обработка клика по ноду
+        function handleNodeClick(node) {
+            if (gameState.ownedNodes.includes(node.id)) {
+                return; // Нод уже куплен
+            }
+            
+            if (!isNodeAvailable(node)) {
+                return; // Нод не доступен
+            }
+            
+            if (gameState.skillPoints >= node.cost) {
+                // Покупка нода
+                gameState.skillPoints -= node.cost;
+                gameState.ownedNodes.push(node.id);
+                
+                // Применяем эффекты нода
+                if (node.effect) {
+                    Object.keys(node.effect).forEach(stat => {
+                        gameState[stat] += node.effect[stat];
+                    });
+                }
+                
+                // Обновляем интерфейс
+                updateStats();
+                createNodes();
+                saveGameState();
+            }
+        }
+
+        // Показать подсказку для нода
+        function showTooltip(event, node) {
+            const tooltip = document.getElementById('node-tooltip');
+            let html = `<h3>${node.title}</h3>`;
+            html += `<p>${node.description}</p>`;
+            html += `<p>Стоимость: ${node.cost} очков</p>`;
+            
+            if (node.effect) {
+                html += `<p>Эффект: `;
+                const effects = [];
+                if (node.effect.memory) effects.push(`Память +${node.effect.memory}`);
+                if (node.effect.speed) effects.push(`Скорость +${node.effect.speed}`);
+                if (node.effect.accuracy) effects.push(`Точность +${node.effect.accuracy}`);
+                if (node.effect.luck) effects.push(`Удача +${node.effect.luck}`);
+                html += effects.join(', ') + `</p>`;
+            }
+            
+            tooltip.innerHTML = html;
+            tooltip.style.display = 'block';
+            tooltip.style.left = `${event.pageX + 10}px`;
+            tooltip.style.top = `${event.pageY + 10}px`;
+        }
+
+        // Скрыть подсказку
+        function hideTooltip() {
+            const tooltip = document.getElementById('node-tooltip');
+            tooltip.style.display = 'none';
+        }
+
+        // Сброс дерева навыков
+        function resetTree() {
+            if (confirm("Вы уверены, что хотите сбросить все прогресс? Все купленные навыки будут потеряны.")) {
+                gameState.skillPoints = 5;
+                gameState.memory = 0;
+                gameState.speed = 0;
+                gameState.accuracy = 0;
+                gameState.luck = 0;
+                gameState.ownedNodes = ["start"];
+                
+                updateStats();
+                createNodes();
+                saveGameState();
+            }
+        }
+
+        // Добавление очков для тестирования
+        function addTestPoints() {
+            gameState.skillPoints += 5;
+            updateStats();
+            createNodes();
+            saveGameState();
+        }
+
+        // Инициализация игры
+        function initGame() {
+            loadGameState();
+            drawLines();
+            createNodes();
+            updateStats();
+            
+            // Добавляем обработчики событий для кнопок
+            document.getElementById('reset-btn').addEventListener('click', resetTree);
+            document.getElementById('add-points-btn').addEventListener('click', addTestPoints);
+            
+            // Масштабирование дерева для лучшего обзора
+            document.querySelector('.skill-tree').style.transform = 'scale(0.6)';
+        }
+
+        // Запуск игры при загрузке страницы
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

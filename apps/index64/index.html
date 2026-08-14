@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Подключение (4 игрока)</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    #menu, #lobby, #game { max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+    button { padding: 10px 15px; margin: 5px; background: #4CAF50; color: white; border: none; border-radius: 5px; }
+    input { padding: 8px; width: 200px; }
+    #players { margin: 20px 0; }
+    .player { padding: 10px; background: #f0f0f0; margin: 5px; border-radius: 5px; }
+    #status { font-weight: bold; color: #2196F3; }
+  </style>
+</head>
+<body>
+  <!-- Меню -->
+  <div id="menu">
+    <h1>🎮 P2P Игра (4 игрока)</h1>
+    <button id="createBtn">Создать игру</button>
+    <p>или</p>
+    <input id="hostIdInput" placeholder="ID хоста">
+    <button id="connectBtn">Подключиться</button>
+  </div>
+
+  <!-- Лобби -->
+  <div id="lobby" style="display: none;">
+    <h2>Ожидание игроков...</h2>
+    <p>ID комнаты: <span id="roomId"></span></p>
+    <div id="players"></div>
+    <p id="status">Статус: <span id="statusText">Подключение...</span></p>
+  </div>
+
+  <!-- Игра -->
+  <div id="game" style="display: none;">
+    <h2>Игра началась!</h2>
+    <p id="gameStatus">Ход: <span id="currentPlayer"></span></p>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    // Настройка
+    const peer = new Peer();
+    const players = {};
+    let isHost = false;
+    let gameConnections = [];
+    let currentPlayerId = null;
+
+    // DOM элементы
+    const menu = document.getElementById('menu');
+    const lobby = document.getElementById('lobby');
+    const gameDiv = document.getElementById('game');
+    const roomIdSpan = document.getElementById('roomId');
+    const playersDiv = document.getElementById('players');
+    const statusText = document.getElementById('statusText');
+    const currentPlayerSpan = document.getElementById('currentPlayer');
+
+    // Создание игры (Хост)
+    document.getElementById('createBtn').addEventListener('click', () => {
+      isHost = true;
+      menu.style.display = 'none';
+      lobby.style.display = 'block';
+      roomIdSpan.textContent = peer.id;
+      
+      // Хост — первый игрок
+      players[peer.id] = { id: peer.id, name: 'Игрок 1' };
+      updatePlayersList();
+      statusText.textContent = 'Ожидание игроков...';
+
+      // Ожидание подключений
+      peer.on('connection', (conn) => {
+        if (Object.keys(players).length >= 4) {
+          conn.send({ type: 'error', message: 'Лобби заполнено' });
+          return;
+        }
+
+        gameConnections.push(conn);
+        conn.on('data', (data) => handleData(conn, data));
+        
+        conn.on('open', () => {
+          const playerId = conn.peer;
+          players[playerId] = { id: playerId, name: `Игрок ${Object.keys(players).length + 1}` };
+          broadcast({ type: 'players', players });
+          statusText.textContent = `Игроков: ${Object.keys(players).length}/4`;
+          
+          // Автостарт при 2+ игроках
+          if (isHost && Object.keys(players).length >= 2) {
+            startGame();
+          }
+        });
+      });
+    });
+
+    // Подключение к игре (Клиент)
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      const hostId = document.getElementById('hostIdInput').value.trim();
+      if (!hostId) return;
+
+      const conn = peer.connect(hostId);
+      menu.style.display = 'none';
+      lobby.style.display = 'block';
+      roomIdSpan.textContent = hostId;
+      statusText.textContent = 'Подключение...';
+
+      conn.on('data', (data) => handleData(conn, data));
+      
+      conn.on('open', () => {
+        gameConnections.push(conn);
+        statusText.textContent = 'Ожидание начала игры...';
+      });
+    });
+
+    // Обработка данных
+    function handleData(conn, data) {
+      switch (data.type) {
+        case 'players':
+          Object.assign(players, data.players);
+          updatePlayersList();
+          statusText.textContent = `Игроков: ${Object.keys(players).length}/4`;
+          break;
+          
+        case 'game_start':
+          lobby.style.display = 'none';
+          gameDiv.style.display = 'block';
+          currentPlayerId = data.currentPlayerId;
+          currentPlayerSpan.textContent = players[currentPlayerId]?.name || '?';
+          break;
+          
+        case 'error':
+          alert(data.message);
+          break;
+      }
+    }
+
+    // Рассылка сообщений
+    function broadcast(message) {
+      gameConnections.forEach(conn => conn.send(message));
+    }
+
+    // Обновление списка игроков
+    function updatePlayersList() {
+      playersDiv.innerHTML = Object.values(players).map(player => `
+        <div class="player">${player.name}</div>
+      `).join('');
+    }
+
+    // Начало игры
+    function startGame() {
+      lobby.style.display = 'none';
+      gameDiv.style.display = 'block';
+      currentPlayerId = Object.keys(players)[0];
+      currentPlayerSpan.textContent = players[currentPlayerId].name;
+      
+      broadcast({ 
+        type: 'game_start',
+        currentPlayerId 
+      });
+    }
+
+    // Инициализация Peer
+    peer.on('open', (id) => {
+      console.log('Ваш ID:', id);
+    });
+  </script>
+</body>
+</html>

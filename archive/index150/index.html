@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типографский Магнат</title>
+    <style>
+        /* === ОСНОВНЫЕ СТИЛИ === */
+        :root {
+            --color-primary: #2c3e50;
+            --color-secondary: #34495e;
+            --color-accent: #e67e22;
+            --color-success: #27ae60;
+            --color-warning: #f39c12;
+            --color-danger: #e74c3c;
+            --color-text: #2c3e50;
+            --color-light: #ecf0f1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* === ШАПКА И СТАТУС-БАР === */
+        .game-header {
+            background: var(--color-primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 15px;
+            background: var(--color-secondary);
+            color: white;
+        }
+
+        .resource {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        /* === ПАНЕЛЬ УПРАВЛЕНИЯ === */
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            background: var(--color-light);
+        }
+
+        .game-btn {
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .game-btn:hover {
+            background: #d35400;
+            transform: translateY(-2px);
+        }
+
+        .game-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* === ПРОИЗВОДСТВЕННЫЙ ЦЕХ === */
+        .production-line {
+            padding: 20px;
+        }
+
+        .production-stage {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .production-stage.active {
+            border-color: var(--color-accent);
+            background: #fff3e0;
+        }
+
+        .stage-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .employee-slot {
+            width: 40px;
+            height: 40px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .employee-slot.filled {
+            border-color: var(--color-success);
+            background: #d5f4e6;
+        }
+
+        /* === МОДАЛЬНЫЕ ОКНА === */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-text);
+        }
+
+        /* === АДАПТИВНОСТЬ === */
+        @media (max-width: 768px) {
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .production-stage {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        /* === АНИМАЦИИ === */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-success);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- ШАПКА ИГРЫ -->
+        <header class="game-header">
+            <h1>🏢 Типографский Магнат</h1>
+            <p>Начните свой путь к полиграфической империи!</p>
+        </header>
+
+        <!-- СТАТУС-БАР -->
+        <div class="status-bar">
+            <div class="resource">
+                <span>💰 BYN:</span>
+                <span id="money">2,000</span>
+            </div>
+            <div class="resource">
+                <span>⭐ RATING:</span>
+                <span id="rating">1</span>
+            </div>
+            <div class="resource">
+                <span>🏃 DRIVE:</span>
+                <span id="drive">80/80</span>
+            </div>
+            <div class="resource">
+                <span>🔥 ZEAL:</span>
+                <span id="zeal">0</span>
+            </div>
+            <div class="resource">
+                <span>💤 REST:</span>
+                <span id="rest">100</span>
+            </div>
+            <div class="resource">
+                <span>👥 СОТРУДНИКИ:</span>
+                <span id="employees">0/1</span>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+        <div class="control-panel">
+            <button class="game-btn" onclick="game.nextDay()">📅 СЛЕДУЮЩИЙ ДЕНЬ</button>
+            <button class="game-btn" onclick="game.toggleAutoDay()">⚡ АВТО-ДЕНЬ: ВЫКЛ</button>
+            <button class="game-btn" onclick="game.activateZeal()">🚀 АКТИВИРОВАТЬ ZEAL</button>
+            <button class="game-btn" onclick="game.corporateEvent()">🎉 КОРПОРАТИВ</button>
+            <button class="game-btn" onclick="game.showScreen('employees')">👥 ПЕРСОНАЛ</button>
+            <button class="game-btn" onclick="game.showScreen('upgrades')">🛠️ УЛУЧШЕНИЯ</button>
+            <button class="game-btn" onclick="game.showScreen('advertising')">📢 РЕКЛАМА</button>
+            <button class="game-btn" onclick="game.showScreen('orders')">📦 ЗАКАЗЫ</button>
+        </div>
+
+        <!-- ПРОИЗВОДСТВЕННЫЙ ЦЕХ -->
+        <section class="production-line">
+            <h2>🏭 Производственный цех</h2>
+            <div id="production-stages">
+                <!-- Этапы производства будут сгенерированы JavaScript -->
+            </div>
+        </section>
+
+        <!-- ИНФОРМАЦИЯ О ТЕКУЩЕМ ЗАКАЗЕ -->
+        <section style="padding: 20px; background: #f8f9fa; margin: 20px; border-radius: 10px;">
+            <h3>📊 Текущий заказ</h3>
+            <div id="current-order">Нет активных заказов</div>
+            <div class="progress-bar">
+                <div id="order-progress" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПЕРСОНАЛА -->
+    <div id="employees-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👥 Управление персоналом</h2>
+                <button class="close-btn" onclick="game.hideModal('employees-modal')">×</button>
+            </div>
+            <div id="employees-list">
+                <!-- Список сотрудников будет сгенерирован JavaScript -->
+            </div>
+            <button class="game-btn" onclick="game.hireEmployee()" style="margin-top: 15px; width: 100%;">
+                👷 Нанять сотрудника (1,500 BYN/мес)
+            </button>
+            <button class="game-btn" onclick="game.hireAccountant()" style="margin-top: 10px; width: 100%; background: #9b59b6;">
+                🧮 Нанять бухгалтера (2,000 BYN/мес)
+            </button>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО УЛУЧШЕНИЙ -->
+    <div id="upgrades-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🛠️ Улучшения оборудования</h2>
+                <button class="close-btn" onclick="game.hideModal('upgrades-modal')">×</button>
+            </div>
+            <div id="upgrades-list">
+                <!-- Список улучшений будет сгенерирован JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === ОСНОВНОЙ ОБЪЕКТ ИГРЫ ===
+        const game = {
+            // ИГРОВЫЕ ДАННЫЕ
+            state: {
+                money: 2000,
+                rating: 1,
+                drive: 80,
+                maxDrive: 80,
+                zeal: 0,
+                rest: 100,
+                currentDay: 1,
+                startDate: new Date('2025-09-01'),
+                employees: [],
+                accountant: null,
+                currentOrder: null,
+                orderProgress: 0,
+                orderDaysLeft: 0,
+                upgrades: {
+                    printEfficiency: 1,
+                    driveEfficiency: 0.25
+                },
+                autoDay: false,
+                autoDayInterval: null
+            },
+
+            // ПРОИЗВОДСТВЕННЫЕ ЭТАПЫ
+            productionStages: [
+                'ORDER', 'LAYOUT', 'PREPRESS', 'PRESS', 'POST_PRESS', 'PRODUCT', 'SHIPMENT'
+            ],
+
+            // ИНИЦИАЛИЗАЦИЯ ИГРЫ
+            init() {
+                console.log('🎮 Инициализация Типографского Магната...');
+                this.loadGame();
+                this.createProductionStages();
+                this.updateUI();
+                this.generateNewOrder();
+                
+                // Запускаем авто-день, если он был включен
+                if (this.state.autoDay) {
+                    this.toggleAutoDay();
+                }
+                
+                console.log('✅ Игра запущена!');
+            },
+
+            // СОЗДАНИЕ ИНТЕРФЕЙСА ПРОИЗВОДСТВЕННОЙ ЛИНИИ
+            createProductionStages() {
+                const container = document.getElementById('production-stages');
+                container.innerHTML = '';
+
+                this.productionStages.forEach((stage, index) => {
+                    const stageElement = document.createElement('div');
+                    stageElement.className = 'production-stage';
+                    stageElement.innerHTML = `
+                        <div class="stage-info">
+                            <strong>${stage}</strong>
+                            <div class="employee-slot" data-stage="${index}" onclick="game.assignEmployee(${index})">
+                                ${this.getStageEmployee(index) ? '👤' : '+'}
+                            </div>
+                        </div>
+                        <button class="game-btn" onclick="game.processStage(${index})" ${this.state.drive < 1 ? 'disabled' : ''}>
+                            Выполнить (1 DRIVE)
+                        </button>
+                    `;
+                    container.appendChild(stageElement);
+                });
+            },
+
+            // ПОЛУЧЕНИЕ СОТРУДНИКА ДЛЯ ЭТАПА
+            getStageEmployee(stageIndex) {
+                return this.state.employees[stageIndex] || null;
+            },
+
+            // НАЗНАЧЕНИЕ СОТРУДНИКА НА ЭТАП
+            assignEmployee(stageIndex) {
+                if (this.state.employees.length <= stageIndex) {
+                    this.showModal('employees-modal');
+                    return;
+                }
+
+                // Логика перераспределения сотрудников
+                this.updateProductionStages();
+            },
+
+            // ОБРАБОТКА ЭТАПА ВРУЧНУЮ
+            processStage(stageIndex) {
+                if (this.state.drive < 1) {
+                    alert('Недостаточно DRIVE! Дождитесь следующего дня.');
+                    return;
+                }
+
+                this.state.drive -= 1;
+                this.updateUI();
+                
+                // Анимация выполнения
+                const stages = document.querySelectorAll('.production-stage');
+                stages[stageIndex].classList.add('pulse');
+                setTimeout(() => stages[stageIndex].classList.remove('pulse'), 500);
+
+                // Проверка завершения заказа
+                this.checkOrderCompletion();
+            },
+
+            // СЛЕДУЮЩИЙ ДЕНЬ
+            nextDay() {
+                // Автоматическое выполнение этапов сотрудниками
+                this.autoProcessStages();
+                
+                // Восстановление DRIVE
+                this.state.drive = this.state.maxDrive;
+                
+                // Выплата зарплат
+                this.paySalaries();
+                
+                // Обновление заказа
+                this.updateOrderProgress();
+                
+                this.state.currentDay++;
+                this.updateUI();
+                
+                console.log(`📅 Наступил день ${this.state.currentDay}`);
+            },
+
+            // АВТОМАТИЧЕСКАЯ ОБРАБОТКА ЭТАПОВ СОТРУДНИКАМИ
+            autoProcessStages() {
+                this.state.employees.forEach((employee, index) => {
+                    if (index < this.productionStages.length) {
+                        // Сотрудник автоматически выполняет свой этап
+                        this.checkOrderCompletion();
+                    }
+                });
+            },
+
+            // ВЫПЛАТА ЗАРПЛАТ
+            paySalaries() {
+                const totalSalary = this.state.employees.length * 1500 + (this.state.accountant ? 2000 : 0);
+                this.state.money -= totalSalary;
+                
+                if (this.state.money < 0) {
+                    this.gameOver();
+                }
+            },
+
+            // ОБНОВЛЕНИЕ ПРОГРЕССА ЗАКАЗА
+            updateOrderProgress() {
+                if (!this.state.currentOrder) return;
+
+                this.state.orderDaysLeft--;
+                
+                if (this.state.orderDaysLeft <= 0) {
+                    this.completeOrder();
+                } else {
+                    const progress = ((this.state.currentOrder.duration - this.state.orderDaysLeft) / this.state.currentOrder.duration) * 100;
+                    this.state.orderProgress = progress;
+                    this.updateOrderUI();
+                }
+            },
+
+            // ПРОВЕРКА ЗАВЕРШЕНИЯ ЗАКАЗА
+            checkOrderCompletion() {
+                // Упрощенная логика для демонстрации
+                if (this.state.orderProgress >= 100) {
+                    this.completeOrder();
+                }
+            },
+
+            // ЗАВЕРШЕНИЕ ЗАКАЗА
+            completeOrder() {
+                if (!this.state.currentOrder) return;
+
+                const reward = this.state.currentOrder.reward;
+                this.state.money += reward;
+                this.state.rating += this.calculateRatingReward();
+                
+                alert(`✅ Заказ выполнен! Получено: ${reward} BYN`);
+                this.generateNewOrder();
+            },
+
+            // РАСЧЕТ НАГРАДЫ ЗА РЕЙТИНГ
+            calculateRatingReward() {
+                const baseRating = 1;
+                const bonus = this.state.currentOrder.reward > 1000 ? 1 : 0;
+                const restMultiplier = this.state.rest / 10;
+                return (baseRating + bonus) * restMultiplier;
+            },
+
+            // ГЕНЕРАЦИЯ НОВОГО ЗАКАЗА
+            generateNewOrder() {
+                const minOrder = this.getMinOrderAmount();
+                const maxOrder = this.getMaxOrderAmount();
+                const reward = Math.floor(Math.random() * (maxOrder - minOrder + 1)) + minOrder;
+                const duration = Math.max(1, Math.ceil(this.productionStages.length / Math.max(1, this.state.employees.length)));
+
+                this.state.currentOrder = {
+                    reward: reward,
+                    duration: duration
+                };
+                this.state.orderDaysLeft = duration;
+                this.state.orderProgress = 0;
+                
+                this.updateOrderUI();
+            },
+
+            // ПОЛУЧЕНИЕ МИНИМАЛЬНОЙ СУММЫ ЗАКАЗА
+            getMinOrderAmount() {
+                if (this.state.rating >= 5000) return 5000;
+                if (this.state.rating >= 4000) return 2000;
+                if (this.state.rating >= 3500) return 1500;
+                if (this.state.rating >= 3000) return 1000;
+                if (this.state.rating >= 2500) return 750;
+                if (this.state.rating >= 2000) return 500;
+                if (this.state.rating >= 1750) return 300;
+                if (this.state.rating >= 1500) return 250;
+                if (this.state.rating >= 1250) return 200;
+                if (this.state.rating >= 1000) return 150;
+                if (this.state.rating >= 500) return 125;
+                if (this.state.rating >= 250) return 100;
+                if (this.state.rating >= 100) return 75;
+                return 50;
+            },
+
+            // ПОЛУЧЕНИЕ МАКСИМАЛЬНОЙ СУММЫ ЗАКАЗА
+            getMaxOrderAmount() {
+                if (this.state.rating >= 5000) return 250000;
+                if (this.state.rating >= 4000) return 60000;
+                if (this.state.rating >= 3500) return 37500;
+                if (this.state.rating >= 3000) return 20000;
+                if (this.state.rating >= 2500) return 15000;
+                if (this.state.rating >= 2000) return 10000;
+                if (this.state.rating >= 1750) return 6000;
+                if (this.state.rating >= 1500) return 5000;
+                if (this.state.rating >= 1250) return 4000;
+                if (this.state.rating >= 1000) return 3000;
+                if (this.state.rating >= 500) return 2500;
+                if (this.state.rating >= 250) return 2000;
+                if (this.state.rating >= 100) return 1500;
+                return 1000;
+            },
+
+            // НАЙМ СОТРУДНИКА
+            hireEmployee() {
+                if (this.state.money < 1500) {
+                    alert('Недостаточно средств для найма сотрудника!');
+                    return;
+                }
+
+                this.state.employees.push({
+                    type: 'basic',
+                    salary: 1500,
+                    position: this.state.employees.length
+                });
+
+                this.state.money -= 1500;
+                this.updateUI();
+                this.createProductionStages();
+                alert('👷 Новый сотрудник нанят!');
+            },
+
+            // НАЙМ БУХГАЛТЕРА
+            hireAccountant() {
+                if (this.state.accountant) {
+                    alert('Бухгалтер уже нанят!');
+                    return;
+                }
+
+                if (this.state.money < 2000) {
+                    alert('Недостаточно средств для найма бухгалтера!');
+                    return;
+                }
+
+                this.state.accountant = {
+                    type: 'accountant',
+                    salary: 2000
+                };
+
+                this.state.money -= 2000;
+                this.updateUI();
+                alert('🧮 Бухгалтер нанят! Теперь вы видите индикатор выполнения заказов.');
+            },
+
+            // АКТИВАЦИЯ ZEAL
+            activateZeal() {
+                if (this.state.zeal < 1) {
+                    alert('Недостаточно ZEAL! Обменяйте REST у Сновидца.');
+                    return;
+                }
+
+                this.state.zeal--;
+                const bonus = this.getPlayerLevel() * 2;
+                this.state.drive += bonus;
+                this.updateUI();
+                alert(`🚀 Активирован ZEAL! Получено +${bonus} DRIVE`);
+            },
+
+            // КОРПОРАТИВ
+            corporateEvent() {
+                const cost = 1000;
+                if (this.state.money < cost) {
+                    alert(`Недостаточно средств! Корпоратив стоит ${cost} BYN.`);
+                    return;
+                }
+
+                this.state.money -= cost;
+                this.state.rest = Math.min(100, this.state.rest + 30);
+                this.updateUI();
+                alert('🎉 Корпоратив прошел успешно! REST команды +30');
+            },
+
+            // АВТО-РЕЖИМ
+            toggleAutoDay() {
+                this.state.autoDay = !this.state.autoDay;
+                
+                if (this.state.autoDay) {
+                    this.state.autoDayInterval = setInterval(() => {
+                        this.nextDay();
+                    }, 10000); // 10 секунд
+                    document.querySelector('[onclick="game.toggleAutoDay()"]').textContent = '⚡ АВТО-ДЕНЬ: ВКЛ';
+                } else {
+                    clearInterval(this.state.autoDayInterval);
+                    document.querySelector('[onclick="game.toggleAutoDay()"]').textContent = '⚡ АВТО-ДЕНЬ: ВЫКЛ';
+                }
+            },
+
+            // ПОКАЗ МОДАЛЬНОГО ОКНА
+            showModal(modalId) {
+                document.getElementById(modalId).style.display = 'flex';
+            },
+
+            // СКРЫТИЕ МОДАЛЬНОГО ОКНА
+            hideModal(modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            },
+
+            // ПОКАЗ ЭКРАНА
+            showScreen(screen) {
+                const screens = ['employees', 'upgrades', 'advertising', 'orders'];
+                screens.forEach(s => {
+                    if (s === screen) {
+                        this.showModal(s + '-modal');
+                    }
+                });
+            },
+
+            // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+            updateUI() {
+                document.getElementById('money').textContent = this.state.money.toLocaleString();
+                document.getElementById('rating').textContent = Math.floor(this.state.rating);
+                document.getElementById('drive').textContent = `${this.state.drive}/${this.state.maxDrive}`;
+                document.getElementById('zeal').textContent = this.state.zeal;
+                document.getElementById('rest').textContent = this.state.rest;
+                document.getElementById('employees').textContent = `${this.state.employees.length}/${this.getMaxEmployees()}`;
+                
+                this.updateProductionStages();
+            },
+
+            // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ЗАКАЗА
+            updateOrderUI() {
+                const orderElement = document.getElementById('current-order');
+                const progressElement = document.getElementById('order-progress');
+                
+                if (this.state.currentOrder) {
+                    orderElement.innerHTML = `
+                        Доход: ${this.state.currentOrder.reward.toLocaleString()} BYN | 
+                        Осталось дней: ${this.state.orderDaysLeft}
+                    `;
+                    progressElement.style.width = `${this.state.orderProgress}%`;
+                } else {
+                    orderElement.textContent = 'Нет активных заказов';
+                    progressElement.style.width = '0%';
+                }
+            },
+
+            // ОБНОВЛЕНИЕ ПРОИЗВОДСТВЕННЫХ ЭТАПОВ
+            updateProductionStages() {
+                const stages = document.querySelectorAll('.production-stage');
+                stages.forEach((stage, index) => {
+                    const employeeSlot = stage.querySelector('.employee-slot');
+                    const hasEmployee = this.state.employees.length > index;
+                    
+                    employeeSlot.innerHTML = hasEmployee ? '👤' : '+';
+                    employeeSlot.className = `employee-slot ${hasEmployee ? 'filled' : ''}`;
+                    
+                    const button = stage.querySelector('button');
+                    button.disabled = this.state.drive < 1;
+                });
+            },
+
+            // ПОЛУЧЕНИЕ МАКСИМАЛЬНОГО КОЛИЧЕСТВА СОТРУДНИКОВ
+            getMaxEmployees() {
+                const level = this.getPlayerLevel();
+                if (level >= 80) return 400;
+                if (level >= 75) return 300;
+                if (level >= 60) return 180;
+                if (level >= 55) return 110;
+                if (level >= 50) return 100;
+                if (level >= 40) return 80;
+                if (level >= 30) return 30;
+                if (level >= 20) return 20;
+                if (level >= 15) return 15;
+                if (level >= 10) return 10;
+                return 1;
+            },
+
+            // ПОЛУЧЕНИЕ УРОВНЯ ИГРОКА
+            getPlayerLevel() {
+                return Math.floor(this.state.rating / 100) + 1;
+            },
+
+            // КОНЕЦ ИГРЫ
+            gameOver() {
+                alert('💀 БАНКРОТСТВО! Игра окончена.');
+                this.resetGame();
+            },
+
+            // СБРОС ИГРЫ
+            resetGame() {
+                this.state = {
+                    money: 2000,
+                    rating: 1,
+                    drive: 80,
+                    maxDrive: 80,
+                    zeal: 0,
+                    rest: 100,
+                    currentDay: 1,
+                    startDate: new Date('2025-09-01'),
+                    employees: [],
+                    accountant: null,
+                    currentOrder: null,
+                    orderProgress: 0,
+                    orderDaysLeft: 0,
+                    upgrades: {
+                        printEfficiency: 1,
+                        driveEfficiency: 0.25
+                    },
+                    autoDay: false
+                };
+                this.init();
+            },
+
+            // СОХРАНЕНИЕ ИГРЫ
+            saveGame() {
+                localStorage.setItem('typographyMagnateSave', JSON.stringify(this.state));
+            },
+
+            // ЗАГРУЗКА ИГРЫ
+            loadGame() {
+                const saved = localStorage.getItem('typographyMagnateSave');
+                if (saved) {
+                    this.state = JSON.parse(saved);
+                    // Восстанавливаем объект Date
+                    this.state.startDate = new Date(this.state.startDate);
+                }
+            }
+        };
+
+        // АВТОСОХРАНЕНИЕ ПРИ ЗАКРЫТИИ СТРАНИЦЫ
+        window.addEventListener('beforeunload', () => {
+            game.saveGame();
+        });
+
+        // ЗАПУСК ИГРЫ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+        window.addEventListener('load', () => {
+            game.init();
+        });
+    </script>
+</body>
+</html>

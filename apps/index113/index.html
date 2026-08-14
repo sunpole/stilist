@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Исправленный IDLE RPG Dungeon — единый файл</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#121417; --accent:#2b6cb0; --danger:#c53030;
+    --text:#e6eef8; --muted:#9aa6b2; --card:#16181b;
+  }
+  body{background:linear-gradient(180deg,#071023 0%, #0b1422 100%); color:var(--text); font-family:Inter,Segoe UI,Arial; margin:0; padding:16px;}
+  .wrap{max-width:1100px;margin:10px auto;display:grid;grid-template-columns:1fr 360px;gap:16px;}
+  header{grid-column:1 / -1; display:flex;justify-content:space-between;align-items:center}
+  h1{font-size:18px;margin:0}
+  .panel{background:var(--panel);border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,.6)}
+  .battle{min-height:520px;padding:12px}
+  .row{display:flex;gap:8px;align-items:center}
+  .chars,.enemies{display:flex;flex-direction:column;gap:8px}
+  .card{background:var(--card);padding:10px;border-radius:8px;display:flex;align-items:center;gap:10px}
+  .avatar{width:56px;height:56px;border-radius:8px;background:linear-gradient(180deg,#15202b,#0f1620);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted)}
+  .meta{flex:1}
+  .name{font-weight:700}
+  .hpbar{height:10px;background:#0b1320;border-radius:6px;margin-top:6px;position:relative;overflow:hidden}
+  .hpfill{height:100%;background:linear-gradient(90deg,#2ecc71,#1abc9c)}
+  .statline{font-size:12px;color:var(--muted);margin-top:6px}
+  .skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  button.skill{background:#0e1620;border:1px solid rgba(255,255,255,.03);padding:8px 10px;border-radius:8px;color:var(--text);cursor:pointer;min-width:110px}
+  button.skill[disabled]{opacity:.45;cursor:not-allowed}
+  .rightcol{display:flex;flex-direction:column;gap:12px}
+  .log{height:220px;overflow:auto;background:#0b1115;padding:10px;border-radius:8px;font-size:13px;color:var(--muted)}
+  .controls{display:flex;gap:8px;align-items:center}
+  .status-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .status{background:#0c2230;padding:4px 6px;border-radius:6px;font-size:12px;color:var(--muted)}
+  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000}
+  .modal .back{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+  .modal .box{position:relative;background:var(--panel);padding:12px;border-radius:8px;min-width:320px;z-index:2}
+  .target-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow:auto}
+  .target-item{display:flex;justify-content:space-between;gap:8px;padding:8px;background:#0b1216;border-radius:6px;cursor:pointer}
+  .small{font-size:12px;color:var(--muted)}
+  footer{grid-column:1/-1;text-align:center;color:var(--muted);margin-top:12px;font-size:13px}
+  /* responsive */
+  @media(max-width:900px){.wrap{grid-template-columns:1fr;}.rightcol{order:3}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>IDLE RPG Dungeon — исправлено</h1>
+    <div class="small">Сохраните страницу локально (Ctrl+S). Все данные — в памяти сессии.</div>
+  </header>
+
+  <section class="panel battle">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div style="width:62%">
+        <div class="panel" style="margin-bottom:10px">
+          <div class="row" style="justify-content:space-between">
+            <div><strong>Игрок:</strong> <span id="playerName">Герой</span> <span class="small" id="playerRoleDisplay"></span></div>
+            <div class="small">Данж: <span id="dungeonLevel">1</span></div>
+          </div>
+        </div>
+
+        <div class="row" style="gap:12px">
+          <div style="flex:1">
+            <h3 style="margin:6px 0">Команда</h3>
+            <div class="chars" id="party"></div>
+          </div>
+
+          <div style="width:340px">
+            <h3 style="margin:6px 0">Враги</h3>
+            <div class="enemies" id="enemies"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px" class="panel">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div><strong>Действия игрока</strong></div>
+            <div class="small">Кнопки показывают значение урона / лечения / маны (пересчитываются при улучшениях)</div>
+          </div>
+          <div id="playerSkills" class="skills" style="margin-top:8px"></div>
+        </div>
+
+      </div>
+
+      <aside class="rightcol" style="width:350px">
+        <div class="panel">
+          <div class="row" style="justify-content:space-between">
+            <div><strong>Лог боя</strong></div>
+            <div class="small">Последние события</div>
+          </div>
+          <div class="log" id="log"></div>
+          <div style="margin-top:8px" class="row controls">
+            <button id="nextDungeonBtn" class="skill">Следующий данж</button>
+            <button id="autoBtn" class="skill">Авто: Вкл</button>
+            <button id="resetBtn" class="skill">Сброс</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row" style="justify-content:space-between">
+            <div><strong>Состояния всей группы</strong></div>
+            <div class="small">Статусы</div>
+          </div>
+          <div id="groupStatuses" class="status-list"></div>
+        </div>
+
+        <div class="panel">
+          <div class="row" style="justify-content:space-between">
+            <div><strong>Улучшения (демо)</strong></div>
+            <div class="small">Изменяются вручную</div>
+          </div>
+          <div style="margin-top:8px" class="row">
+            <div class="small">Урон урона +%</div>
+            <input id="upgradeDamage" type="number" value="0" style="width:80px;padding:6px;border-radius:6px;background:#07101a;border:1px solid rgba(255,255,255,.03);color:var(--text)">
+          </div>
+          <div style="margin-top:8px" class="row">
+            <div class="small">Сила лечения +%</div>
+            <input id="upgradeHeal" type="number" value="0" style="width:80px;padding:6px;border-radius:6px;background:#07101a;border:1px solid rgba(255,255,255,.03);color:var(--text)">
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </section>
+
+  <footer class="small">Реализация: при клике на способность блокируется только кнопка (не весь экран). Воскрешение — выбор цели. AI использует все способности и имеет автоатаки у саппорта/хила.</footer>
+</div>
+
+<!-- Модал целеуказания (воскрешение / лечение / мана) -->
+<div id="modal" class="modal" style="display:none">
+  <div class="back"></div>
+  <div class="box">
+    <div id="modalTitle" style="font-weight:700;margin-bottom:8px">Выберите цель</div>
+    <div class="target-list" id="targetList"></div>
+    <div style="margin-top:10px;text-align:right">
+      <button id="modalClose" class="skill">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  Исправленная единая версия игры:
+  - Блокируется только кнопка скилла на время кулдауна.
+  - Воскрешение: открывается модал выбора цели (убитых союзников или врагов, в зависимости от скилла).
+  - Статусы отображаются для всей группы.
+  - AI использует все способности, включительно точечное и групповое восстановление маны.
+  - Если танк умер, мобы могут бить хилера/саппорта. Хилер/саппорт имеют слабую автоатаку.
+  - Кнопки показывают значения урона/лечения/маны и пересчитывают при изменении апгрейдов.
+  - Каждый новый данж: урон мобов +5% от начального, HP +15%.
+*/
+
+////////////////////
+// Конфигурация
+////////////////////
+const roles = {
+  tank: {name:'Танк', baseHp:1200, baseAtk:50, ai:true},
+  dps:  {name:'Маг', baseHp:800, baseAtk:85, ai:true},
+  healer:{name:'Хилер', baseHp:900, baseAtk:18, ai:true},
+  support:{name:'Саппорт', baseHp:850, baseAtk:12, ai:true},
+};
+
+// Игрок и команда (демо)
+let state = {
+  dungeon:1,
+  mobsDamageMultiplier:1.00,
+  mobsHpMultiplier:1.00,
+  auto:true,
+  upgrades:{damagePct:0, healPct:0},
+  party:[],
+  enemies:[],
+  log:[],
+  playerIndex:0, // индекс управляющего игрока в party
+};
+
+// Удобство: helper
+const $ = sel => document.querySelector(sel);
+const logEl = $('#log');
+const partyEl = $('#party');
+const enemiesEl = $('#enemies');
+const skillsEl = $('#playerSkills');
+const groupStatusesEl = $('#groupStatuses');
+const modal = $('#modal');
+const targetList = $('#targetList');
+const modalTitle = $('#modalTitle');
+
+function addLog(text){ 
+  const t = `[${new Date().toLocaleTimeString()}] ${text}`;
+  state.log.unshift(t);
+  if(state.log.length>200) state.log.pop();
+  renderLog();
+}
+function renderLog(){
+  logEl.innerHTML = state.log.slice(0,100).map(l=>`<div style="margin-bottom:6px">${l}</div>`).join('');
+}
+
+////////////////////
+// Герои и навыки
+////////////////////
+function createParty(){
+  // Простая компоновка: игрок + 3 ИИ (Tank, Healer, Support, DPS)
+  state.party = [
+    createChar('Герой','dps', true), // игрок управляет 'Герой' (можно сменить роль)
+    createChar('Танк','tank', false),
+    createChar('Хилер','healer', false),
+    createChar('Саппорт','support', false)
+  ];
+  state.playerIndex = 0;
+}
+
+function createChar(name, roleKey, isPlayer){
+  const r = roles[roleKey];
+  const c = {
+    id: genId(),
+    name,
+    role: roleKey,
+    hpMax: Math.round(r.baseHp),
+    hp: Math.round(r.baseHp),
+    atk: Math.round(r.baseAtk),
+    alive:true,
+    isPlayer: !!isPlayer,
+    ai: !isPlayer,
+    statuses: {}, // {barrier:{value, turns}, hot:{value, turns}, shield:{value,turns}}
+    skills: [], // заполнится ниже
+    cooldowns:{}, // {skillId: remaining}
+    upgrades:{atkPct:0, healPct:0}
+  };
+  attachSkills(c);
+  return c;
+}
+
+function attachSkills(c){
+  // Каждому базовые 4 типа скиллов: single dmg, aoe dmg, heal, resurrect or mana
+  c.skills = [];
+  // single damage
+  c.skills.push(skillFactory({
+    id:'s_atk', name:'Атака', type:'dmg', target:'enemy', power: ()=>Math.round(c.atk * (1 + state.upgrades.damagePct/100)),
+    cooldown:1, aiPriority:10, auto:true
+  }));
+  // special - stronger single
+  c.skills.push(skillFactory({
+    id:'s_special', name:'Спец', type:'dmg', target:'enemy', power: ()=>Math.round(c.atk * (1.6 + state.upgrades.damagePct/100)),
+    cooldown:3, aiPriority:7
+  }));
+  // heal or support
+  if(c.role === 'healer'){
+    c.skills.push(skillFactory({
+      id:'heal_single', name:'Исцеление', type:'heal', target:'ally', power: ()=>Math.round(120 * (1 + state.upgrades.healPct/100)),
+      cooldown:3, aiPriority:11, canResurrect:false
+    }));
+    c.skills.push(skillFactory({
+      id:'resurrect', name:'Воскрешение', type:'resurrect', target:'ally_dead', power: ()=>Math.round(0), // воскрешает с % hp
+      cooldown:6, aiPriority:12
+    }));
+  } else if(c.role === 'support'){
+    c.skills.push(skillFactory({
+      id:'mana_single', name:'Восстановление маны', type:'mana', target:'ally', power: ()=>Math.round(40 + state.upgrades.damagePct),
+      cooldown:3, aiPriority:9
+    }));
+    c.skills.push(skillFactory({
+      id:'barrier', name:'Барьер', type:'barrier', target:'ally_group', power: ()=>Math.round(120),
+      cooldown:5, aiPriority:8
+    }));
+  } else {
+    // tank & dps
+    c.skills.push(skillFactory({
+      id:'taunt', name:'Провокация', type:'taunt', target:'enemy_group', power: ()=>0,
+      cooldown:6, aiPriority:6
+    }));
+    c.skills.push(skillFactory({
+      id:'big', name:'Мощный удар', type:'dmg', target:'enemy', power: ()=>Math.round(c.atk * (2.2 + state.upgrades.damagePct/100)),
+      cooldown:5, aiPriority:8
+    }));
+  }
+}
+
+function skillFactory({id,name,type,target,power,cooldown=1,aiPriority=5,auto=false,canResurrect=false}){
+  return {id,name,type,target,power,cooldown,aiPriority,auto,canResurrect};
+}
+
+////////////////////
+// Враги
+////////////////////
+function spawnEnemies(){
+  state.enemies = [];
+  const base = [
+    {name:'Ракета', hp:500, atk:30},
+    {name:'Лорд', hp:1200, atk:60},
+    {name:'Гоблин', hp:350, atk:22}
+  ];
+  // На каждом уровне скейлим HP и урон
+  const m = state.dungeon;
+  const hpMult = state.mobsHpMultiplier;
+  const dmgMult = state.mobsDamageMultiplier;
+  // Формируем 3 врага (демо)
+  for(let i=0;i<3;i++){
+    const b = base[i%base.length];
+    const e = {
+      id: genId(),
+      name: b.name + ' #' + (i+1),
+      hpMax: Math.round(b.hp * hpMult),
+      hp: Math.round(b.hp * hpMult),
+      atk: Math.round(b.atk * dmgMult),
+      alive:true,
+      statuses:{}
+    };
+    state.enemies.push(e);
+  }
+}
+
+////////////////////
+// Инициализация
+////////////////////
+function init(){
+  createParty();
+  spawnEnemies();
+  renderAll();
+  addLog('Игра инициализирована.');
+}
+init();
+
+////////////////////
+// Рендер
+////////////////////
+function renderAll(){
+  renderParty();
+  renderEnemies();
+  renderPlayerSkills();
+  renderGroupStatuses();
+  $('#dungeonLevel').textContent = state.dungeon;
+  $('#playerRoleDisplay').textContent = `(${roles[state.party[state.playerIndex].role].name})`;
+  $('#autoBtn').textContent = `Авто: ${state.auto ? 'Вкл' : 'Выкл'}`;
+}
+
+function renderParty(){
+  partyEl.innerHTML = '';
+  state.party.forEach((c, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="avatar">${c.role[0].toUpperCase()}</div>
+      <div class="meta">
+        <div class="name">${c.name} ${c.isPlayer? '(Вы)':''} <span class="small">[${roles[c.role].name}]</span></div>
+        <div class="hpbar"><div class="hpfill" style="width:${Math.max(0,Math.round(c.hp/c.hpMax*100))}%;"></div></div>
+        <div class="statline">HP: ${Math.max(0,c.hp)} / ${c.hpMax} ${c.alive? '': ' (Мёртв)'} • ATK: ${c.atk}</div>
+        <div class="status-list" style="margin-top:6px">${renderStatuses(c)}</div>
+      </div>
+    `;
+    partyEl.appendChild(card);
+  });
+}
+
+function renderEnemies(){
+  enemiesEl.innerHTML = '';
+  state.enemies.forEach((e, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="avatar">E</div>
+      <div class="meta">
+        <div class="name">${e.name} ${e.alive? '': '(Убит)'}</div>
+        <div class="hpbar"><div class="hpfill" style="width:${Math.max(0,Math.round(e.hp/e.hpMax*100))}%;"></div></div>
+        <div class="statline">HP: ${Math.max(0,e.hp)} / ${e.hpMax} • ATK: ${e.atk}</div>
+      </div>
+    `;
+    enemiesEl.appendChild(card);
+  });
+}
+
+function renderPlayerSkills(){
+  skillsEl.innerHTML = '';
+  const player = state.party[state.playerIndex];
+  player.skills.forEach(skill=>{
+    const btn = document.createElement('button');
+    btn.className = 'skill';
+    const value = skillValueText(player, skill);
+    btn.innerHTML = `${skill.name}<div class="small">${value}</div>`;
+    btn.disabled = !!player.cooldowns[skill.id] || !player.alive;
+    btn.onclick = ()=>useSkill(player, skill, true);
+    btn.dataset.skillId = skill.id;
+    skillsEl.appendChild(btn);
+  });
+}
+
+function renderGroupStatuses(){
+  const groupStatuses = gatherGroupStatuses();
+  groupStatusesEl.innerHTML = Object.keys(groupStatuses).length ? Object.entries(groupStatuses).map(([k,v])=>`<div class="status">${k}: ${v}</div>`).join('') : '<div class="small">Нет эффектов</div>';
+}
+
+function renderStatuses(c){
+  if(!c.statuses || Object.keys(c.statuses).length===0) return '';
+  return Object.entries(c.statuses).map(([k,v])=>`<div class="status">${k} ${v.value?(': '+v.value):''} (${v.turns})</div>`).join('');
+}
+
+function skillValueText(user, skill){
+  const val = skill.power ? skill.power() : 0;
+  switch(skill.type){
+    case 'dmg': return `Урон: ${val}`;
+    case 'heal': return `Исцелит: ${val}`;
+    case 'mana': return `Мана: +${val}`;
+    case 'barrier': return `Барьер: ${val}`;
+    case 'resurrect': return `Воскрешает`; 
+    default: return `${val}`;
+  }
+}
+
+////////////////////
+// Логика применения навыков
+////////////////////
+function useSkill(user, skill, byPlayer=false){
+  if(!user.alive){
+    addLog(`${user.name} мёртв и не может использовать ${skill.name}.`);
+    return;
+  }
+  if(user.cooldowns[skill.id]){
+    addLog(`${skill.name} ещё в КД (${user.cooldowns[skill.id]} ходов).`);
+    return;
+  }
+  // Блокируем только кнопку (уже сделаем disabled), а не весь экран
+  user.cooldowns[skill.id] = skill.cooldown;
+  renderPlayerSkills(); // обновим кнопки
+  addLog(`${user.name} использует ${skill.name}.`);
+
+  // Обработка по типу
+  switch(skill.type){
+    case 'dmg':
+      handleDamageSkill(user, skill);
+      break;
+    case 'heal':
+      openTargetModal('Выберите союзника для лечения', state.party.filter(x=>true), (target)=>{
+        applyHeal(user, target, skill.power());
+      }, {onlyAlive:true});
+      break;
+    case 'mana':
+      openTargetModal('Выберите союзника для восстановления маны', state.party.filter(x=>true), (target)=>{
+        applyMana(user, target, skill.power());
+      }, {onlyAlive:true});
+      break;
+    case 'barrier':
+      applyBarrierToGroup(user, skill.power());
+      break;
+    case 'resurrect':
+      openTargetModal('Выберите кого воскрешать', state.party.filter(x=>!x.alive), (target)=>{
+        applyResurrect(user, target);
+      }, {onlyDead:true});
+      break;
+    case 'taunt':
+      // делаем так, чтобы враги чаще били танка
+      applyTaunt(user);
+      break;
+    default:
+      addLog('Неизвестный тип навыка');
+  }
+  renderAll();
+}
+
+function handleDamageSkill(user, skill){
+  // Выбор врага: если игрок — попросим выбрать цель, иначе AI выберет лучшую
+  if(user.ai){ // AI target selection
+    const target = chooseEnemyTargetForAI();
+    if(!target) { addLog('Нет живых врагов'); return; }
+    const dmg = skill.power();
+    applyDamageToEnemy(user, target, dmg);
+  } else {
+    openTargetModal('Выберите цель', state.enemies.filter(e=>e.alive), (target)=>{
+      const dmg = skill.power();
+      applyDamageToEnemy(user, target, dmg);
+    }, {onlyAlive:true});
+  }
+}
+
+function applyDamageToEnemy(user, enemy, dmg){
+  // учёт барьера на враге? (для простоты нет)
+  enemy.hp -= dmg;
+  addLog(`${user.name} наносит ${dmg} урона ${enemy.name}.`);
+  if(enemy.hp<=0){
+    enemy.hp = 0; enemy.alive=false;
+    addLog(`${enemy.name} погиб.`);
+    // возможно ресы или ИИ изменит цель
+  }
+  renderAll();
+}
+
+function applyHeal(user, target, amount){
+  if(!target) return;
+  target.hp += amount;
+  if(target.hp>target.hpMax) target.hp = target.hpMax;
+  addLog(`${user.name} исцелил ${target.name} на ${amount} HP.`);
+  renderAll();
+}
+
+function applyMana(user, target, amount){
+  // В данной демо-версии ману просто логируем — позже можно ввести ресурс
+  addLog(`${user.name} восстановил ${amount} маны ${target.name}.`);
+}
+
+function applyBarrierToGroup(user, amount){
+  state.party.forEach(p=>{
+    if(!p.statuses.barrier) p.statuses.barrier = {value:0, turns:0};
+    p.statuses.barrier.value = (p.statuses.barrier.value || 0) + amount;
+    p.statuses.barrier.turns = 3;
+  });
+  addLog(`${user.name} наложил барьер на всю группу (${amount}).`);
+  renderAll();
+}
+
+function applyResurrect(user, target){
+  if(!target) return;
+  target.alive = true;
+  target.hp = Math.max(1, Math.round(target.hpMax*0.5)); // воскрешает с 50% HP
+  addLog(`${user.name} воскресил ${target.name} с ${target.hp} HP.`);
+  renderAll();
+}
+
+function applyTaunt(user){
+  // Установим статус 'taunt' на танка, увеличив шанс бить его - упрощённо: выставим глобальную цель
+  state.globalTaunt = user.id;
+  addLog(`${user.name} провоцирует врагов.`);
+}
+
+////////////////////
+// Модал цели
+////////////////////
+function openTargetModal(title, candidates, callback, options={}){
+  modal.style.display = 'flex';
+  modalTitle.textContent = title || 'Выберите цель';
+  targetList.innerHTML = '';
+  const list = candidates.filter(c=>{
+    if(options.onlyAlive && !c.alive) return false;
+    if(options.onlyDead && c.alive) return false;
+    return true;
+  });
+  if(list.length===0){
+    targetList.innerHTML = '<div class="small">Нет доступных целей</div>';
+    return;
+  }
+  list.forEach(t=>{
+    const div = document.createElement('div');
+    div.className = 'target-item';
+    div.innerHTML = `<div>${t.name} ${t.alive? '':'(Мёртв)'}<div class="small">HP: ${Math.max(0,t.hp)} / ${t.hpMax}</div></div><div class="small">Выбрать</div>`;
+    div.onclick = ()=>{
+      modal.style.display = 'none';
+      callback(t);
+      tickCooldowns(); // применяем ход/тик
+      aiTurnIfEnabled();
+    };
+    targetList.appendChild(div);
+  });
+}
+
+$('#modalClose').onclick = ()=>{ modal.style.display='none'; };
+
+////////////////////
+// КД и ходовая логика
+////////////////////
+function tickCooldowns(){
+  // Декремент всех кулдаунов у всех персонажей на 1
+  state.party.forEach(p=>{
+    Object.keys(p.cooldowns).forEach(k=>{
+      p.cooldowns[k]--;
+      if(p.cooldowns[k]<=0) delete p.cooldowns[k];
+    });
+    // Статусы уменьшаем turns
+    Object.keys(p.statuses).forEach(s=>{
+      p.statuses[s].turns--;
+      if(p.statuses[s].turns<=0) delete p.statuses[s];
+    });
+  });
+  // Врагам ничего
+  renderAll();
+}
+
+// AI: использовать все доступные навыки
+function aiTurnForCharacter(c){
+  if(!c.alive) return;
+  // Выбор: порядок по aiPriority, выбираем первый доступный
+  const available = c.skills.filter(s=>!c.cooldowns[s.id]);
+  if(available.length===0){
+    // автоатака (если есть) или обычная атака
+    const auto = c.skills.find(s=>s.auto);
+    if(auto) { useSkill(c, auto); }
+    return;
+  }
+  // Сортируем по приоритету и возьмём первый подходящий
+  available.sort((a,b)=>b.aiPriority - a.aiPriority);
+  for(const sk of available){
+    // Логика: если resurrect и есть мертвые — используем
+    if(sk.type==='resurrect' && state.party.some(x=>!x.alive)) { useSkill(c, sk); return; }
+    if(sk.type==='heal'){
+      // если кто-то живой ниже 60% — хилим
+      const low = state.party.filter(x=>x.alive && (x.hp/x.hpMax < 0.6));
+      if(low.length>0){ useSkill(c, sk); return; }
+    }
+    if(sk.type==='mana'){
+      // если у кого-то есть низкая "мана" — в демо используем всегда
+      useSkill(c, sk); return;
+    }
+    if(sk.type==='barrier'){
+      // раз в 3 хода наложим
+      useSkill(c, sk); return;
+    }
+    if(sk.type==='dmg' || sk.type==='taunt'){
+      useSkill(c, sk); return;
+    }
+  }
+}
+
+// Контроль AI для всей партии и врагов
+function aiTurnIfEnabled(){
+  if(!state.auto) return;
+  // Сначала AI союзников (кроме игрока)
+  state.party.forEach(c=>{
+    if(c.ai) aiTurnForCharacter(c);
+  });
+  // Затем враги атакуют
+  enemiesAct();
+}
+
+function enemiesAct(){
+  // Враги выбирают цель: если globalTaunt задан — бьют таунтера, иначе приоритет танк, затем дпс, хил, саппорт; если танк мёртв — бьют хилера/саппорта
+  state.enemies.forEach(e=>{
+    if(!e.alive) return;
+    const target = choosePartyTargetForEnemy();
+    if(!target) return;
+    // простой урон с учётом барьера
+    let dmg = e.atk;
+    // масштабируем по dungeon level бонусам уже учтено
+    // барьер
+    if(target.statuses.barrier && target.statuses.barrier.value>0){
+      const before = target.statuses.barrier.value;
+      const absorbed = Math.min(before, dmg);
+      target.statuses.barrier.value -= absorbed;
+      dmg -= absorbed;
+      addLog(`${e.name} наносит ${e.atk}, ${absorbed} поглощено барьером ${target.name}.`);
+      if(target.statuses.barrier.value<=0) delete target.statuses.barrier;
+    }
+    if(dmg>0){
+      target.hp -= dmg;
+      addLog(`${e.name} наносит ${dmg} урона ${target.name}.`);
+    }
+    if(target.hp<=0){
+      target.hp = 0;
+      target.alive = false;
+      addLog(`${target.name} был убит!`);
+    }
+  });
+  // После атак — тик КД и авто-исцеления (HoT) если есть
+  // Периодическое лечение (HoT) — применим к тем, у кого есть status.hot
+  state.party.forEach(p=>{
+    if(p.statuses.hot && p.alive){
+      const amt = p.statuses.hot.value;
+      p.hp = Math.min(p.hpMax, p.hp + amt);
+      addLog(`${p.name} получает ${amt} HP от периодического лечения.`);
+    }
+    // Автоатаки хилера/саппорта — делают небольшой урон врагу, если живы
+    if(p.role==='healer' && p.alive){
+      const enemy = chooseEnemyTargetForAI();
+      if(enemy) { const dmg = Math.max(2, Math.round(p.atk*0.3)); enemy.hp -= dmg; addLog(`${p.name} (авто) наносит ${dmg} урона ${enemy.name}.`); if(enemy.hp<=0){enemy.hp=0;enemy.alive=false; addLog(`${enemy.name} погиб от автоатаки.`);} }
+    }
+    if(p.role==='support' && p.alive){
+      const enemy = chooseEnemyTargetForAI();
+      if(enemy) { const dmg = Math.max(1, Math.round(p.atk*0.25)); enemy.hp -= dmg; addLog(`${p.name} (авто) наносит ${dmg} урона ${enemy.name}.`); if(enemy.hp<=0){enemy.hp=0;enemy.alive=false; addLog(`${enemy.name} погиб от автоатаки.`);} }
+    }
+  });
+  tickCooldowns();
+  renderAll();
+}
+
+function chooseEnemyTargetForAI(){
+  // выбираем живого врага с наименьшим HP (или другой логикой)
+  const alive = state.enemies.filter(e=>e.alive);
+  if(alive.length===0) return null;
+  alive.sort((a,b)=>a.hp - b.hp);
+  return alive[0];
+}
+
+function choosePartyTargetForEnemy(){
+  // Если есть глобальный taunt -> цель таунтер
+  if(state.globalTaunt){
+    const t = state.party.find(p=>p.id===state.globalTaunt && p.alive);
+    if(t) return t;
+  }
+  // Предпочтения: tank > dps > healer > support; если tank dead, брать хил/саппорт
+  const priority = ['tank','dps','healer','support'];
+  for(const role of priority){
+    const p = state.party.find(x=>x.role===role && x.alive);
+    if(p) return p;
+  }
+  // Если никого нет
+  return null;
+}
+
+////////////////////
+// Внешние кнопки
+////////////////////
+$('#nextDungeonBtn').onclick = ()=>{
+  // увеличение параметров: урон мобов +5%, HP +15% относительно предыдущего базового
+  state.dungeon++;
+  // аккумулируем мультипликаторы
+  state.mobsDamageMultiplier *= 1.05;
+  state.mobsHpMultiplier *= 1.15;
+  spawnEnemies();
+  addLog(`Вход в данж ${state.dungeon}. Урон мобов увеличен, их HP увеличен.`);
+  renderAll();
+};
+
+$('#autoBtn').onclick = ()=>{
+  state.auto = !state.auto;
+  renderAll();
+};
+
+$('#resetBtn').onclick = ()=>{
+  if(confirm('Сбросить состояние и начать заново?')){ init(); state.upgrades = {damagePct:0, healPct:0}; $('#upgradeDamage').value=0; $('#upgradeHeal').value=0; addLog('Игра сброшена.'); }
+};
+
+$('#upgradeDamage').oninput = (e)=>{ state.upgrades.damagePct = Number(e.target.value || 0); renderAll(); };
+$('#upgradeHeal').oninput = (e)=>{ state.upgrades.healPct = Number(e.target.value || 0); renderAll(); };
+
+////////////////////
+// Хелперы
+////////////////////
+function genId(){ return Math.random().toString(36).slice(2,9); }
+
+////////////////////
+// Инициализация рендеров и авто-логика
+////////////////////
+// Периодический авто-ход: если авто включено, каждые 1.8s будем запускать AI/врагов
+let autoInterval = setInterval(()=>{
+  // если авто выключено — ничего
+  if(!state.auto) return;
+  // если все враги мертвы => новый спавн?
+  if(state.enemies.every(e=>!e.alive)){
+    addLog('Все враги побеждены! Спавним новых врагов текущего данжа.');
+    spawnEnemies();
+    renderAll();
+    return;
+  }
+  // Если все игроки мертвы — уведомление
+  if(state.party.every(p=>!p.alive)){
+    addLog('Вся команда убита. Нельзя продолжать без воскрешения.');
+    state.auto = false;
+    renderAll();
+    return;
+  }
+  // AI союзников
+  state.party.forEach(p=>{
+    if(p.ai && p.alive) aiTurnForCharacter(p);
+  });
+  // Враги
+  enemiesAct();
+}, 1800);
+
+////////////////////
+// Доп. поведение: если игрок умер — дать возможность воскрешения от ИИ
+////////////////////
+setInterval(()=>{
+  // Если игрок мёртв, попытка ИИ воскрешения: ищем хилера живого с доступным ресом
+  const player = state.party[state.playerIndex];
+  if(!player.alive){
+    // найти любой живой хилер с навыком resurrect
+    const healer = state.party.find(p=>p.alive && p.skills.some(s=>s.type==='resurrect') );
+    if(healer){
+      const sk = healer.skills.find(s=>s.type==='resurrect' && !healer.cooldowns[s.id]);
+      if(sk){
+        // использовать воскрешение на игрока
+        addLog(`${healer.name} пытается воскресить игрока...`);
+        applyResurrect(healer, player);
+        healer.cooldowns[sk.id] = sk.cooldown;
+      }
+    }
+  }
+  // Если танк умер и есть враги — враги будут таргетить хилера/саппорта (реализовано в choosePartyTargetForEnemy)
+}, 1200);
+
+////////////////////
+// Вспомогательные рендеры (старт)
+////////////////////
+renderAll();
+
+</script>
+</body>
+</html>

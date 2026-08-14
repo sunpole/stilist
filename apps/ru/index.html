@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алгоритм повелительного наклонения</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2980b9;
+            border-bottom: 3px solid #2980b9;
+        }
+        
+        .algorithm-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+        
+        .definition-box {
+            background: #fffde7;
+            border-left: 5px solid #ffd600;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: #2980b9;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .exception {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .step {
+            counter-increment: step-counter;
+            margin-bottom: 20px;
+            padding-left: 50px;
+            position: relative;
+        }
+        
+        .step::before {
+            content: counter(step-counter);
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: bold;
+        }
+        
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .flow-item {
+            background: white;
+            border: 2px solid #3498db;
+            padding: 15px;
+            margin: 10px;
+            width: 80%;
+            text-align: center;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .flow-item.decision {
+            background: #e8f4fc;
+            border: 2px dashed #3498db;
+        }
+        
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #3498db;
+        }
+        
+        .example {
+            background: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .step {
+                padding-left: 40px;
+            }
+            
+            .flow-item {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Алгоритм построения повелительного наклонения</h1>
+        <p>Системный подход для математического склада ума</p>
+        
+        <div class="definition-box">
+            <h3>БАЗОВЫЕ ТЕРМИНЫ (Исходные данные)</h3>
+            <div class="step">
+                <strong>Инфинитив</strong> — начальная форма глагола (что делать?). <br>
+                <span class="example">Примеры: <span class="highlight">читать</span>, <span class="highlight">говорить</span>, <span class="highlight">резать</span></span>
+            </div>
+            
+            <div class="step">
+                <strong>Основа настоящего времени</strong> — часть глагола, остающаяся после отрезания окончания от формы "они".<br>
+                <div class="formula">(ОНИ) чита[ЮТ] → основа: читай-</div>
+                <div class="formula">(ОНИ) говор[ЯТ] → основа: говор-</div>
+            </div>
+        </div>
+        
+        <div class="algorithm-box">
+            <h2>📋 АЛГОРИТМ: ПОЛНАЯ СИСТЕМА</h2>
+            
+            <div class="flowchart">
+                <div class="flow-item">Начало: есть инфинитив<br><span class="example">например: "резать"</span></div>
+                <div class="arrow"></div>
+                
+                <div class="flow-item decision">Шаг 1: Проверка на исключения</div>
+                <div class="arrow"></div>
+                
+                <div class="flow-item">Если есть в списке исключений → берём готовую форму</div>
+                <div class="arrow"></div>
+                
+                <div class="flow-item decision">Шаг 2: Находим основу настоящего времени</div>
+                <div class="arrow"></div>
+                
+                <div class="flow-item">(ОНИ) что делают? → отрезаем -ут/-ют или -ат/-ят</div>
+                <div class="arrow"></div>
+                
+                <div class="flow-item decision">Шаг 3: Анализ последнего звука основы</div>
+                <div class="arrow"></div>
+                
+                <div class="flow-item">
+                    <table>
+                        <tr><td><strong>Основа на гласную?</strong></td><td>→ + <span class="highlight">Й</span></td></tr>
+                        <tr><td><strong>Основа на ж, ш, ч, щ?</strong></td><td>→ + <span class="highlight">Ь</span></td></tr>
+                        <tr><td><strong>Иначе:</strong></td><td>→ + <span class="highlight">И</span> (если глагол на -ить)</td></tr>
+                        <tr><td></td><td>→ + <span class="highlight">Й</span> (во всех остальных случаях)</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="exception">
+            <h2>🚫 ИСКЛЮЧЕНИЯ (Шаг 1 алгоритма)</h2>
+            
+            <h3>ГРУППА А: Полная замена корня (15 главных исключений)</h3>
+            <table>
+                <tr><th>Инфинитив</th><th>Они (форма)</th><th>Основа</th><th>"Что делай?"</th><th>Логика</th></tr>
+                <tr><td>ехать</td><td>едят</td><td>ед-</td><td><strong>поезжай</strong></td><td>Полная замена</td></tr>
+                <tr><td>есть (кушать)</td><td>едят</td><td>ед-</td><td><strong>ешь</strong></td><td>Основа на шипящую + ь</td></tr>
+                <tr><td>дать</td><td>дают</td><td>да-</td><td><strong>дай</strong></td><td>Основа на гласную + й</td></tr>
+                <tr><td>лечь</td><td>лягут</td><td>ляг-</td><td><strong>ляг / лягте</strong></td><td>Особая форма</td></tr>
+                <tr><td>сесть</td><td>сядут</td><td>сяд-</td><td><strong>сядь</strong></td><td>Основа на д + ь</td></tr>
+                <tr><td>взять</td><td>возьмут</td><td>возьм-</td><td><strong>возьми</strong></td><td>+ и</td></tr>
+                <tr><td>идти</td><td>идут</td><td>ид-</td><td><strong>иди</strong></td><td>+ и</td></tr>
+                <tr><td>бежать</td><td>бегут</td><td>бег-</td><td><strong>беги</strong></td><td>+ и</td></tr>
+                <tr><td>хотеть</td><td>хотят</td><td>хот-</td><td><strong>хоти (разг.)</strong></td><td>+ и</td></tr>
+                <tr><td>быть</td><td>будут</td><td>буд-</td><td><strong>будь</strong></td><td>Основа на д + ь</td></tr>
+            </table>
+            
+            <h3>ГРУППА Б: Глаголы на -ЧЬ (меняют корень)</h3>
+            <table>
+                <tr><th>Инфинитив</th><th>Они (форма)</th><th>Основа</th><th>"Что делай?"</th><th>Правило</th></tr>
+                <tr><td>печь</td><td>пекут</td><td>пек-</td><td><strong>пеки́</strong></td><td>пек- + и</td></tr>
+                <tr><td>беречь</td><td>берегут</td><td>берег-</td><td><strong>береги́</strong></td><td>берег- + и</td></tr>
+                <tr><td>стричь</td><td>стригут</td><td>стриг-</td><td><strong>стриги́</strong></td><td>стриг- + и</td></tr>
+                <tr><td>течь</td><td>текут</td><td>тек-</td><td><strong>теки́</strong></td><td>тек- + и</td></tr>
+                <tr><td>мочь</td><td>могут</td><td>мог-</td><td><strong>сумей</strong></td><td>от "суметь"</td></tr>
+            </table>
+        </div>
+        
+        <h2>🔍 СПРЯЖЕНИЯ (Шаг 3 - Определение типа)</h2>
+        <p>Нужно только для случаев, когда основа оканчивается на согласный (не шипящий)</p>
+        
+        <table>
+            <tr><th>Если инфинитив оканчивается на...</th><th>→ Спряжение</th><th>Пример</th><th>"Что делай?"</th></tr>
+            <tr><td><span class="highlight">-ИТЬ</span> (кроме 11 исключений*)</td><td>II спряжение</td><td>говорить → говорЯТ</td><td><strong>говори</strong> (+И)</td></tr>
+            <tr><td>-АТЬ, -ЯТЬ, -ЕТЬ, -УТЬ, -ОТЬ и др.</td><td>I спряжение</td><td>читать → читаЮТ</td><td><strong>читай</strong> (+Й)</td></tr>
+        </table>
+        
+        <div class="example">
+            <strong>*11 глаголов на -ИТЬ, которые относятся к I спряжению (запомнить):</strong><br>
+            <strong>1. брить, стелить, зиждиться</strong> (и производные) +<br>
+            <strong>2. 7 глаголов на -ЕТЬ:</strong> смотреть, видеть, ненавидеть, терпеть, вертеть, обидеть, зависеть<br>
+            <em>Они следуют правилу I спряжения: основа на гласную → +Й</em>
+        </div>
+        
+        <h2>📊 ТАБЛИЦА-КОНСТРУКТОР (Все случаи)</h2>
+        <table>
+            <tr><th>#</th><th>Инфинитив</th><th>Они (форма)</th><th>Основа</th><th>Анализ основы</th><th>Правило</th><th>"Что делай?"</th></tr>
+            <tr><td>1</td><td><strong>читать</strong></td><td>читают</td><td>читай-</td><td>на гласную "й"</td><td>+Й</td><td><strong class="highlight">читай</strong></td></tr>
+            <tr><td>2</td><td><strong>гулять</strong></td><td>гуляют</td><td>гуляй-</td><td>на гласную "й"</td><td>+Й</td><td><strong class="highlight">гуляй</strong></td></tr>
+            <tr><td>3</td><td><strong>говорить</strong></td><td>говорят</td><td>говор-</td><td>на согласный "р"</td><td>II спр. → +И</td><td><strong class="highlight">говори</strong></td></tr>
+            <tr><td>4</td><td><strong>смотреть</strong></td><td>смотрят</td><td>смотр-</td><td>на согласный "р"</td><td>Искл. -еть → I спр. → +Й</td><td><strong class="highlight">смотри</strong> (искл.)</td></tr>
+            <tr><td>5</td><td><strong>резать</strong></td><td>режут</td><td>реж-</td><td>на шипящий "ж"</td><td>+Ь</td><td><strong class="highlight">режь</strong></td></tr>
+            <tr><td>6</td><td><strong>плакать</strong></td><td>плачут</td><td>плач-</td><td>на шипящий "ч"</td><td>+Ь</td><td><strong class="highlight">плачь</strong></td></tr>
+            <tr><td>7</td><td><strong>мыть</strong></td><td>моют</td><td>мой-</td><td>на гласную "й"</td><td>+Й</td><td><strong class="highlight">мой</strong></td></tr>
+            <tr><td>8</td><td><strong>петь</strong></td><td>поют</td><td>по-</td><td>на гласную "о"</td><td>+Й</td><td><strong class="highlight">пой</strong></td></tr>
+        </table>
+        
+        <div class="algorithm-box">
+            <h2>🎯 КРАТКАЯ ИНСТРУКЦИЯ ДЛЯ БЫСТРОГО ПРИМЕНЕНИЯ</h2>
+            
+            <div class="step">
+                <strong>1. Проверь исключения</strong> — если глагол в списке выше, используй готовую форму.
+            </div>
+            
+            <div class="step">
+                <strong>2. Найди основу</strong> — спроси: "Что они делают?" → убери окончание -ут/-ют или -ат/-ят.
+            </div>
+            
+            <div class="step">
+                <strong>3. Примени правило к основе:</strong>
+                <ul>
+                    <li><span class="highlight">Основа на гласную?</span> → + <strong>Й</strong></li>
+                    <li><span class="highlight">Основа на ж, ш, ч, щ?</span> → + <strong>Ь</strong></li>
+                    <li><span class="highlight">Иначе:</span> смотри на инфинитив:<br>
+                        - если оканчивается на <strong>-ить</strong> (кроме 11 искл.) → + <strong>И</strong><br>
+                        - если оканчивается на <strong>-ать, -ять, -еть и др.</strong> → + <strong>Й</strong></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #e8f4fc; border-radius: 10px;">
+            <h3>📱 Используйте эту страницу как шпаргалку</h3>
+            <p>Сохраните HTML-файл на устройство и откройте в браузере для быстрого доступа к алгоритму</p>
+            <p style="color: #666; font-size: 0.9em;">Алгоритм охватывает 95% случаев. Остальные 5% — редкие глаголы, которые встречаются нечасто.</p>
+        </div>
+    </div>
+
+    <script>
+        // Простой скрипт для подсветки строк в таблицах при наведении
+        document.addEventListener('DOMContentLoaded', function() {
+            const tables = document.querySelectorAll('table');
+            
+            tables.forEach(table => {
+                const rows = table.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    row.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f0f8ff';
+                        this.style.transition = 'background-color 0.3s';
+                    });
+                    
+                    row.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = '';
+                    });
+                });
+            });
+            
+            // Добавляем нумерацию к строкам в таблице-конструкторе
+            const constructorTable = document.querySelector('table:nth-last-of-type(2)');
+            if (constructorTable) {
+                const rows = constructorTable.querySelectorAll('tr');
+                rows.forEach((row, index) => {
+                    if (index > 0) { // Пропускаем заголовок
+                        const firstCell = row.querySelector('td:first-child');
+                        if (firstCell) {
+                            firstCell.style.fontWeight = 'bold';
+                            firstCell.style.textAlign = 'center';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

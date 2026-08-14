@@ -15,8 +15,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "3502",
     "title": "Калькулятор полиграфических операций",
-    "path": "3502/index.html",
-    "launchUrl": "3502/index.html",
+    "path": "apps/3502/index.html",
+    "launchUrl": "apps/3502/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "main",
     "maturity": "ready",
@@ -40,7 +40,7 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Расчет 6 операций УФ-лакирования и фольгирования. Экспорт в PDF и TXT.",
     "note": "Источник: 3502/index.html; есть изображение; есть manifest; есть Open Graph; готовность 94/100",
-    "imageUrl": "https://sunpole.github.io/stilist/3502/preview.jpg",
+    "imageUrl": "https://sunpole.github.io/stilist/apps/3502/preview.jpg",
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
@@ -55,9 +55,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "3502/index.html",
+      "launch": "apps/3502/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/3502/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/3502/index.html"
     },
     "metrics": {
       "readiness": 94,
@@ -88,12 +88,12 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "3502/index.html",
+      "file": "apps/3502/index.html",
       "sizeBytes": 35558,
       "screenshots": [
-        "https://sunpole.github.io/stilist/3502/preview.jpg",
-        "3502/preview-poly.jpg",
-        "3502/preview.jpg"
+        "https://sunpole.github.io/stilist/apps/3502/preview.jpg",
+        "apps/3502/preview-poly.jpg",
+        "apps/3502/preview.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [
@@ -225,8 +225,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "350",
     "title": "Конвертер мм ↔ пиксели",
-    "path": "350/index.html",
-    "launchUrl": "350/index.html",
+    "path": "apps/350/index.html",
+    "launchUrl": "apps/350/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "main",
     "maturity": "ready",
@@ -250,7 +250,7 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Конвертер миллиметров в пиксели и обратно",
     "note": "Источник: 350/index.html; есть изображение; есть manifest; есть Open Graph; готовность 88/100",
-    "imageUrl": "https://sunpole.github.io/stilist/350/preview.jpg",
+    "imageUrl": "https://sunpole.github.io/stilist/apps/350/preview.jpg",
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "hub-builder",
@@ -265,9 +265,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "350/index.html",
+      "launch": "apps/350/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/350/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/350/index.html"
     },
     "metrics": {
       "readiness": 88,
@@ -298,11 +298,11 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "350/index.html",
+      "file": "apps/350/index.html",
       "sizeBytes": 14303,
       "screenshots": [
-        "https://sunpole.github.io/stilist/350/preview.jpg",
-        "350/preview.jpg"
+        "https://sunpole.github.io/stilist/apps/350/preview.jpg",
+        "apps/350/preview.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -423,8 +423,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "pass",
     "title": "⚡ NEON PASS 2026 — генератор безопасных паролей",
-    "path": "pass/index.html",
-    "launchUrl": "pass/index.html",
+    "path": "apps/pass/index.html",
+    "launchUrl": "apps/pass/index.html",
     "category": "Дизайн / UI",
     "status": "main",
     "maturity": "ready",
@@ -447,7 +447,7 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Современный неоновый генератор с уникальными алгоритмами и военным стилем",
     "note": "Источник: pass/index.html; есть изображение; есть Open Graph; готовность 86/100",
-    "imageUrl": "https://github.com/sunpole/stilist/raw/main/pass/Screenshot.jpg",
+    "imageUrl": "https://github.com/sunpole/stilist/raw/main/apps/pass/Screenshot.jpg",
     "fallbackImageUrl": "",
     "icon": "🎨",
     "source": "hub-builder",
@@ -462,9 +462,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "pass/index.html",
+      "launch": "apps/pass/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/pass/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/pass/index.html"
     },
     "metrics": {
       "readiness": 86,
@@ -495,11 +495,11 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "pass/index.html",
+      "file": "apps/pass/index.html",
       "sizeBytes": 29532,
       "screenshots": [
-        "https://github.com/sunpole/stilist/raw/main/pass/Screenshot.jpg",
-        "pass/Screenshot.jpg"
+        "https://github.com/sunpole/stilist/raw/main/apps/pass/Screenshot.jpg",
+        "apps/pass/Screenshot.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -618,8 +618,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index90",
     "title": "File Analyzer Pro",
-    "path": "index90.html",
-    "launchUrl": "index90.html",
+    "path": "apps/index90/index.html",
+    "launchUrl": "apps/index90/index.html",
     "category": "Файлы / Данные",
     "status": "main",
     "maturity": "ready",
@@ -657,9 +657,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index90.html",
+      "launch": "apps/index90/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index90.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index90/index.html"
     },
     "metrics": {
       "readiness": 78,
@@ -690,7 +690,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index90.html",
+      "file": "apps/index90/index.html",
       "sizeBytes": 15544,
       "screenshots": [
         "350/preview.jpg",
@@ -845,8 +845,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "2025",
     "title": "Lетучие клетки",
-    "path": "2025/index.html",
-    "launchUrl": "2025/index.html",
+    "path": "apps/2025/index.html",
+    "launchUrl": "apps/2025/index.html",
     "category": "Игры",
     "status": "main",
     "maturity": "beta",
@@ -867,8 +867,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Головоломка с переключением клеток 3x3",
     "note": "Источник: 2025/index.html; есть изображение; готовность 70/100",
-    "imageUrl": "2025/stilist_2025.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/2025/stilist_2025.jpg",
+    "imageUrl": "apps/2025/stilist_2025.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/2025/stilist_2025.jpg",
     "icon": "🎮",
     "source": "hub-builder",
     "versionOf": null,
@@ -882,9 +882,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "2025/index.html",
+      "launch": "apps/2025/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/2025/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/2025/index.html"
     },
     "metrics": {
       "readiness": 70,
@@ -915,10 +915,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "2025/index.html",
+      "file": "apps/2025/index.html",
       "sizeBytes": 5745,
       "screenshots": [
-        "2025/stilist_2025.jpg"
+        "apps/2025/stilist_2025.jpg"
       ],
       "cssLinks": [
         "styles.css",
@@ -1027,8 +1027,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index10",
     "title": "Демо — элемент \"1\" (a) — варианты и live CSS",
-    "path": "index10.html",
-    "launchUrl": "index10.html",
+    "path": "apps/index10/index.html",
+    "launchUrl": "apps/index10/index.html",
     "category": "Файлы / Данные",
     "status": "main",
     "maturity": "beta",
@@ -1065,9 +1065,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index10.html",
+      "launch": "apps/index10/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index10.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index10/index.html"
     },
     "metrics": {
       "readiness": 68,
@@ -1098,7 +1098,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index10.html",
+      "file": "apps/index10/index.html",
       "sizeBytes": 20777,
       "screenshots": [
         "350/preview.jpg",
@@ -1243,8 +1243,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index70",
     "title": "RGB Color Picker",
-    "path": "index70.html",
-    "launchUrl": "index70.html",
+    "path": "apps/index70/index.html",
+    "launchUrl": "apps/index70/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -1282,9 +1282,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index70.html",
+      "launch": "apps/index70/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index70.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index70/index.html"
     },
     "metrics": {
       "readiness": 64,
@@ -1315,7 +1315,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index70.html",
+      "file": "apps/index70/index.html",
       "sizeBytes": 4124,
       "screenshots": [
         "350/preview.jpg",
@@ -1455,8 +1455,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "5",
     "title": "Анализатор текста для Telegram",
-    "path": "5/index.html",
-    "launchUrl": "5/index.html",
+    "path": "apps/5/index.html",
+    "launchUrl": "apps/5/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -1478,8 +1478,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 5/index.html; есть изображение; готовность 62/100",
-    "imageUrl": "5/stilist_5.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/5/stilist_5.jpg",
+    "imageUrl": "apps/5/stilist_5.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/5/stilist_5.jpg",
     "icon": "✍️",
     "source": "hub-builder",
     "versionOf": null,
@@ -1493,9 +1493,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "5/index.html",
+      "launch": "apps/5/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/5/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/5/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -1526,10 +1526,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "5/index.html",
+      "file": "apps/5/index.html",
       "sizeBytes": 37749,
       "screenshots": [
-        "5/stilist_5.jpg"
+        "apps/5/stilist_5.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -1638,8 +1638,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "320",
     "title": "Расчет раскладки изделий на печатном листе",
-    "path": "320/index.html",
-    "launchUrl": "320/index.html",
+    "path": "apps/320/index.html",
+    "launchUrl": "apps/320/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -1660,17 +1660,17 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 320/index.html; есть изображение; готовность 62/100",
-    "imageUrl": "320/stilist_320.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/320/stilist_320.jpg",
+    "imageUrl": "apps/320/stilist_320.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/320/stilist_320.jpg",
     "icon": "📦",
     "source": "hub-builder",
     "versionOf": null,
     "related": [],
     "isVisible": true,
     "links": {
-      "launch": "320/index.html",
+      "launch": "apps/320/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/320/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/320/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -1701,10 +1701,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "320/index.html",
+      "file": "apps/320/index.html",
       "sizeBytes": 45518,
       "screenshots": [
-        "320/stilist_320.jpg"
+        "apps/320/stilist_320.jpg"
       ],
       "cssLinks": [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -1766,8 +1766,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370",
     "title": "Математический Спринт",
-    "path": "370/index.html",
-    "launchUrl": "370/index.html",
+    "path": "apps/370/index.html",
+    "launchUrl": "apps/370/index.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -1788,8 +1788,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -1803,9 +1803,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index.html",
+      "launch": "apps/370/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -1836,19 +1836,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index.html",
+      "file": "apps/370/index.html",
       "sizeBytes": 34620,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -1969,8 +1969,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index2",
     "title": "Математический Спринт",
-    "path": "370/index2.html",
-    "launchUrl": "370/index2.html",
+    "path": "apps/370/index2.html",
+    "launchUrl": "apps/370/index2.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -1991,8 +1991,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index2.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -2006,9 +2006,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index2.html",
+      "launch": "apps/370/index2.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index2.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index2.html"
     },
     "metrics": {
       "readiness": 62,
@@ -2039,19 +2039,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index2.html",
+      "file": "apps/370/index2.html",
       "sizeBytes": 37423,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -2178,8 +2178,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index3",
     "title": "Математический Спринт",
-    "path": "370/index3.html",
-    "launchUrl": "370/index3.html",
+    "path": "apps/370/index3.html",
+    "launchUrl": "apps/370/index3.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -2200,8 +2200,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index3.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -2215,9 +2215,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index3.html",
+      "launch": "apps/370/index3.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index3.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index3.html"
     },
     "metrics": {
       "readiness": 62,
@@ -2248,19 +2248,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index3.html",
+      "file": "apps/370/index3.html",
       "sizeBytes": 38168,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -2387,8 +2387,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index4",
     "title": "Математический Спринт",
-    "path": "370/index4.html",
-    "launchUrl": "370/index4.html",
+    "path": "apps/370/index4.html",
+    "launchUrl": "apps/370/index4.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -2409,8 +2409,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index4.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -2424,9 +2424,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index4.html",
+      "launch": "apps/370/index4.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index4.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index4.html"
     },
     "metrics": {
       "readiness": 62,
@@ -2457,19 +2457,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index4.html",
+      "file": "apps/370/index4.html",
       "sizeBytes": 56421,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -2596,8 +2596,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index5",
     "title": "Математический Спринт",
-    "path": "370/index5.html",
-    "launchUrl": "370/index5.html",
+    "path": "apps/370/index5.html",
+    "launchUrl": "apps/370/index5.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -2618,8 +2618,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index5.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -2633,9 +2633,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index5.html",
+      "launch": "apps/370/index5.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index5.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index5.html"
     },
     "metrics": {
       "readiness": 62,
@@ -2666,19 +2666,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index5.html",
+      "file": "apps/370/index5.html",
       "sizeBytes": 69484,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -2805,8 +2805,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index6",
     "title": "Математический Спринт",
-    "path": "370/index6.html",
-    "launchUrl": "370/index6.html",
+    "path": "apps/370/index6.html",
+    "launchUrl": "apps/370/index6.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -2827,8 +2827,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index6.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -2842,9 +2842,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index6.html",
+      "launch": "apps/370/index6.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index6.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index6.html"
     },
     "metrics": {
       "readiness": 62,
@@ -2875,19 +2875,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index6.html",
+      "file": "apps/370/index6.html",
       "sizeBytes": 69484,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -3014,8 +3014,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index7",
     "title": "Математический Спринт",
-    "path": "370/index7.html",
-    "launchUrl": "370/index7.html",
+    "path": "apps/370/index7.html",
+    "launchUrl": "apps/370/index7.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -3036,8 +3036,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index7.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -3051,9 +3051,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index7.html",
+      "launch": "apps/370/index7.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index7.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index7.html"
     },
     "metrics": {
       "readiness": 62,
@@ -3084,19 +3084,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index7.html",
+      "file": "apps/370/index7.html",
       "sizeBytes": 73947,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -3223,8 +3223,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index8",
     "title": "Математический Спринт — Улучшенная версия",
-    "path": "370/index8.html",
-    "launchUrl": "370/index8.html",
+    "path": "apps/370/index8.html",
+    "launchUrl": "apps/370/index8.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -3245,8 +3245,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index8.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -3260,9 +3260,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index8.html",
+      "launch": "apps/370/index8.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index8.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index8.html"
     },
     "metrics": {
       "readiness": 62,
@@ -3293,19 +3293,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index8.html",
+      "file": "apps/370/index8.html",
       "sizeBytes": 82197,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -3437,8 +3437,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index9",
     "title": "Математический Спринт — Исправленная версия",
-    "path": "370/index9.html",
-    "launchUrl": "370/index9.html",
+    "path": "apps/370/index9.html",
+    "launchUrl": "apps/370/index9.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -3459,8 +3459,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index9.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": "370-index10",
@@ -3474,9 +3474,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index9.html",
+      "launch": "apps/370/index9.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index9.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index9.html"
     },
     "metrics": {
       "readiness": 62,
@@ -3507,19 +3507,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index9.html",
+      "file": "apps/370/index9.html",
       "sizeBytes": 66496,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -3646,8 +3646,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "370-index10",
     "title": "Математический Спринт — Улучшенная версия",
-    "path": "370/index10.html",
-    "launchUrl": "370/index10.html",
+    "path": "apps/370/index10.html",
+    "launchUrl": "apps/370/index10.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -3668,8 +3668,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 370/index10.html; есть изображение; готовность 62/100",
-    "imageUrl": "370/stilist_370_1.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/370/stilist_370_1.jpg",
+    "imageUrl": "apps/370/stilist_370_1.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/370/stilist_370_1.jpg",
     "icon": "🧠",
     "source": "hub-builder",
     "versionOf": null,
@@ -3683,9 +3683,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "370/index10.html",
+      "launch": "apps/370/index10.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/370/index10.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/370/index10.html"
     },
     "metrics": {
       "readiness": 62,
@@ -3716,19 +3716,19 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "370/index10.html",
+      "file": "apps/370/index10.html",
       "sizeBytes": 82197,
       "screenshots": [
-        "370/stilist_370_1.jpg",
-        "370/stilist_370_10.jpg",
-        "370/stilist_370_2.jpg",
-        "370/stilist_370_3.jpg",
-        "370/stilist_370_4.jpg",
-        "370/stilist_370_5.jpg",
-        "370/stilist_370_6.jpg",
-        "370/stilist_370_7.jpg",
-        "370/stilist_370_8.jpg",
-        "370/stilist_370_9.jpg"
+        "apps/370/stilist_370_1.jpg",
+        "apps/370/stilist_370_10.jpg",
+        "apps/370/stilist_370_2.jpg",
+        "apps/370/stilist_370_3.jpg",
+        "apps/370/stilist_370_4.jpg",
+        "apps/370/stilist_370_5.jpg",
+        "apps/370/stilist_370_6.jpg",
+        "apps/370/stilist_370_7.jpg",
+        "apps/370/stilist_370_8.jpg",
+        "apps/370/stilist_370_9.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -3860,8 +3860,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "400",
     "title": "Церковный симулятор — полный",
-    "path": "400/index.html",
-    "launchUrl": "400/index.html",
+    "path": "apps/400/index.html",
+    "launchUrl": "apps/400/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -3882,8 +3882,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 400/index.html; есть изображение; готовность 62/100",
-    "imageUrl": "400/stilist_400.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/400/stilist_400.jpg",
+    "imageUrl": "apps/400/stilist_400.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/400/stilist_400.jpg",
     "icon": "⛪",
     "source": "hub-builder",
     "versionOf": null,
@@ -3897,9 +3897,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "400/index.html",
+      "launch": "apps/400/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/400/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/400/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -3930,10 +3930,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "400/index.html",
+      "file": "apps/400/index.html",
       "sizeBytes": 38931,
       "screenshots": [
-        "400/stilist_400.jpg"
+        "apps/400/stilist_400.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -4049,8 +4049,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "400-index2",
     "title": "Церковный симулятор — полный",
-    "path": "400/index2.html",
-    "launchUrl": "400/index2.html",
+    "path": "apps/400/index2.html",
+    "launchUrl": "apps/400/index2.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -4071,8 +4071,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 400/index2.html; есть изображение; готовность 62/100",
-    "imageUrl": "400/stilist_400.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/400/stilist_400.jpg",
+    "imageUrl": "apps/400/stilist_400.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/400/stilist_400.jpg",
     "icon": "⛪",
     "source": "hub-builder",
     "versionOf": "400",
@@ -4086,9 +4086,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "400/index2.html",
+      "launch": "apps/400/index2.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/400/index2.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/400/index2.html"
     },
     "metrics": {
       "readiness": 62,
@@ -4119,10 +4119,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "400/index2.html",
+      "file": "apps/400/index2.html",
       "sizeBytes": 38935,
       "screenshots": [
-        "400/stilist_400.jpg"
+        "apps/400/stilist_400.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -4238,8 +4238,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "3501",
     "title": "Калькулятор 6 полиграфических операций",
-    "path": "3501/index.html",
-    "launchUrl": "3501/index.html",
+    "path": "archive/3501/index.html",
+    "launchUrl": "archive/3501/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -4261,8 +4261,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 3501/index.html; есть изображение; готовность 62/100",
-    "imageUrl": "3501/stilist_3501.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/3501/stilist_3501.jpg",
+    "imageUrl": "archive/3501/stilist_3501.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/archive/3501/stilist_3501.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
     "versionOf": "3502",
@@ -4276,9 +4276,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "3501/index.html",
+      "launch": "archive/3501/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/3501/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/3501/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -4309,10 +4309,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "3501/index.html",
+      "file": "archive/3501/index.html",
       "sizeBytes": 29482,
       "screenshots": [
-        "3501/stilist_3501.jpg"
+        "archive/3501/stilist_3501.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [
@@ -4424,8 +4424,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index5",
     "title": "Текст-Трансформер",
-    "path": "index5.html",
-    "launchUrl": "index5.html",
+    "path": "apps/index5/index.html",
+    "launchUrl": "apps/index5/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -4462,9 +4462,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index5.html",
+      "launch": "apps/index5/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index5.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index5/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -4495,7 +4495,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index5.html",
+      "file": "apps/index5/index.html",
       "sizeBytes": 23170,
       "screenshots": [
         "350/preview.jpg",
@@ -4635,8 +4635,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index6",
     "title": "Торговый Терминал 1984",
-    "path": "index6.html",
-    "launchUrl": "index6.html",
+    "path": "archive/index6/index.html",
+    "launchUrl": "archive/index6/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -4672,9 +4672,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index6.html",
+      "launch": "archive/index6/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index6.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index6/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -4705,7 +4705,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index6.html",
+      "file": "archive/index6/index.html",
       "sizeBytes": 21995,
       "screenshots": [
         "350/preview.jpg",
@@ -4843,8 +4843,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index11",
     "title": "Торговый Терминал 1984",
-    "path": "index11.html",
-    "launchUrl": "index11.html",
+    "path": "apps/index11/index.html",
+    "launchUrl": "apps/index11/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -4880,9 +4880,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index11.html",
+      "launch": "apps/index11/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index11.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index11/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -4913,7 +4913,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index11.html",
+      "file": "apps/index11/index.html",
       "sizeBytes": 23186,
       "screenshots": [
         "350/preview.jpg",
@@ -5051,8 +5051,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index14",
     "title": "Retro Platformer",
-    "path": "index14.html",
-    "launchUrl": "index14.html",
+    "path": "apps/index14/index.html",
+    "launchUrl": "apps/index14/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -5088,9 +5088,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index14.html",
+      "launch": "apps/index14/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index14.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index14/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -5121,7 +5121,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index14.html",
+      "file": "apps/index14/index.html",
       "sizeBytes": 21077,
       "screenshots": [
         "350/preview.jpg",
@@ -5261,8 +5261,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index18",
     "title": "Станок крафта - POE Style",
-    "path": "index18.html",
-    "launchUrl": "index18.html",
+    "path": "apps/index18/index.html",
+    "launchUrl": "apps/index18/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -5298,9 +5298,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index18.html",
+      "launch": "apps/index18/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index18.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index18/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -5331,7 +5331,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index18.html",
+      "file": "apps/index18/index.html",
       "sizeBytes": 40476,
       "screenshots": [
         "350/preview.jpg",
@@ -5467,8 +5467,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index19",
     "title": "Геймбой Эмулятор",
-    "path": "index19.html",
-    "launchUrl": "index19.html",
+    "path": "archive/index19/index.html",
+    "launchUrl": "archive/index19/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -5504,9 +5504,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index19.html",
+      "launch": "archive/index19/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index19.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index19/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -5537,7 +5537,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index19.html",
+      "file": "archive/index19/index.html",
       "sizeBytes": 23327,
       "screenshots": [
         "350/preview.jpg",
@@ -5678,8 +5678,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index21",
     "title": "Геймбой Эмулятор",
-    "path": "index21.html",
-    "launchUrl": "index21.html",
+    "path": "archive/index21/index.html",
+    "launchUrl": "archive/index21/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -5715,9 +5715,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index21.html",
+      "launch": "archive/index21/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index21.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index21/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -5748,7 +5748,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index21.html",
+      "file": "archive/index21/index.html",
       "sizeBytes": 26937,
       "screenshots": [
         "350/preview.jpg",
@@ -5889,8 +5889,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index22",
     "title": "Геймбой Эмулятор PRO",
-    "path": "index22.html",
-    "launchUrl": "index22.html",
+    "path": "apps/index22/index.html",
+    "launchUrl": "apps/index22/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -5926,9 +5926,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index22.html",
+      "launch": "apps/index22/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index22.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index22/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -5959,7 +5959,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index22.html",
+      "file": "apps/index22/index.html",
       "sizeBytes": 32329,
       "screenshots": [
         "350/preview.jpg",
@@ -6095,8 +6095,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index23",
     "title": "Память: Цвет и Число",
-    "path": "index23.html",
-    "launchUrl": "index23.html",
+    "path": "apps/index23/index.html",
+    "launchUrl": "apps/index23/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -6133,9 +6133,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index23.html",
+      "launch": "apps/index23/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index23.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index23/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -6166,7 +6166,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index23.html",
+      "file": "apps/index23/index.html",
       "sizeBytes": 21779,
       "screenshots": [
         "350/preview.jpg",
@@ -6312,8 +6312,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index24",
     "title": "Супер Память: 50 раундов",
-    "path": "index24.html",
-    "launchUrl": "index24.html",
+    "path": "archive/index24/index.html",
+    "launchUrl": "archive/index24/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -6350,9 +6350,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index24.html",
+      "launch": "archive/index24/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index24.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index24/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -6383,7 +6383,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index24.html",
+      "file": "archive/index24/index.html",
       "sizeBytes": 27796,
       "screenshots": [
         "350/preview.jpg",
@@ -6530,8 +6530,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index25",
     "title": "Супер Память: 50 раундов",
-    "path": "index25.html",
-    "launchUrl": "index25.html",
+    "path": "apps/index25/index.html",
+    "launchUrl": "apps/index25/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -6568,9 +6568,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index25.html",
+      "launch": "apps/index25/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index25.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index25/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -6601,7 +6601,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index25.html",
+      "file": "apps/index25/index.html",
       "sizeBytes": 29479,
       "screenshots": [
         "350/preview.jpg",
@@ -6746,8 +6746,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index27",
     "title": "Музыкальные аккорды - Игра и обучение",
-    "path": "index27.html",
-    "launchUrl": "index27.html",
+    "path": "apps/index27/index.html",
+    "launchUrl": "apps/index27/index.html",
     "category": "Обучение",
     "status": "review",
     "maturity": "beta",
@@ -6783,9 +6783,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index27.html",
+      "launch": "apps/index27/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index27.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index27/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -6816,7 +6816,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index27.html",
+      "file": "apps/index27/index.html",
       "sizeBytes": 30062,
       "screenshots": [
         "350/preview.jpg",
@@ -6950,8 +6950,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index28",
     "title": "Музыкальная Война",
-    "path": "index28.html",
-    "launchUrl": "index28.html",
+    "path": "apps/index28/index.html",
+    "launchUrl": "apps/index28/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -6987,9 +6987,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index28.html",
+      "launch": "apps/index28/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index28.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index28/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -7020,7 +7020,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index28.html",
+      "file": "apps/index28/index.html",
       "sizeBytes": 38105,
       "screenshots": [
         "350/preview.jpg",
@@ -7155,8 +7155,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index29",
     "title": "Музыкальная Война (Упрощенная)",
-    "path": "index29.html",
-    "launchUrl": "index29.html",
+    "path": "archive/index29/index.html",
+    "launchUrl": "archive/index29/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -7192,9 +7192,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index29.html",
+      "launch": "archive/index29/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index29.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index29/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -7225,7 +7225,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index29.html",
+      "file": "archive/index29/index.html",
       "sizeBytes": 24433,
       "screenshots": [
         "350/preview.jpg",
@@ -7365,8 +7365,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index34",
     "title": "Догонялки",
-    "path": "index34.html",
-    "launchUrl": "index34.html",
+    "path": "apps/index34/index.html",
+    "launchUrl": "apps/index34/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -7402,9 +7402,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index34.html",
+      "launch": "apps/index34/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index34.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index34/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -7435,7 +7435,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index34.html",
+      "file": "apps/index34/index.html",
       "sizeBytes": 46000,
       "screenshots": [
         "350/preview.jpg",
@@ -7576,8 +7576,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index35",
     "title": "Догонялки PRO",
-    "path": "index35.html",
-    "launchUrl": "index35.html",
+    "path": "apps/index35/index.html",
+    "launchUrl": "apps/index35/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -7613,9 +7613,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index35.html",
+      "launch": "apps/index35/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index35.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index35/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -7646,7 +7646,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index35.html",
+      "file": "apps/index35/index.html",
       "sizeBytes": 55566,
       "screenshots": [
         "350/preview.jpg",
@@ -7787,8 +7787,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index36",
     "title": "Космический самолётик",
-    "path": "index36.html",
-    "launchUrl": "index36.html",
+    "path": "archive/index36/index.html",
+    "launchUrl": "archive/index36/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -7824,9 +7824,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index36.html",
+      "launch": "archive/index36/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index36.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index36/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -7857,7 +7857,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index36.html",
+      "file": "archive/index36/index.html",
       "sizeBytes": 23258,
       "screenshots": [
         "350/preview.jpg",
@@ -7999,8 +7999,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index37",
     "title": "Космический самолётик",
-    "path": "index37.html",
-    "launchUrl": "index37.html",
+    "path": "apps/index37/index.html",
+    "launchUrl": "apps/index37/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -8036,9 +8036,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index37.html",
+      "launch": "apps/index37/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index37.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index37/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -8069,7 +8069,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index37.html",
+      "file": "apps/index37/index.html",
       "sizeBytes": 23546,
       "screenshots": [
         "350/preview.jpg",
@@ -8211,8 +8211,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index40",
     "title": "Космический выживальщик",
-    "path": "index40.html",
-    "launchUrl": "index40.html",
+    "path": "apps/index40/index.html",
+    "launchUrl": "apps/index40/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -8248,9 +8248,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index40.html",
+      "launch": "apps/index40/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index40.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index40/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -8281,7 +8281,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index40.html",
+      "file": "apps/index40/index.html",
       "sizeBytes": 48434,
       "screenshots": [
         "350/preview.jpg",
@@ -8423,8 +8423,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index41",
     "title": "Быстрые заказы - Кафе-симулятор",
-    "path": "index41.html",
-    "launchUrl": "index41.html",
+    "path": "apps/index41/index.html",
+    "launchUrl": "apps/index41/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -8460,9 +8460,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index41.html",
+      "launch": "apps/index41/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index41.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index41/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -8493,7 +8493,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index41.html",
+      "file": "apps/index41/index.html",
       "sizeBytes": 27708,
       "screenshots": [
         "350/preview.jpg",
@@ -8637,8 +8637,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index43",
     "title": "Городское Кафе - Кухонный симулятор",
-    "path": "index43.html",
-    "launchUrl": "index43.html",
+    "path": "apps/index43/index.html",
+    "launchUrl": "apps/index43/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -8674,9 +8674,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index43.html",
+      "launch": "apps/index43/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index43.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index43/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -8707,7 +8707,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index43.html",
+      "file": "apps/index43/index.html",
       "sizeBytes": 58584,
       "screenshots": [
         "350/preview.jpg",
@@ -8851,8 +8851,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index47",
     "title": "Торговая Империя",
-    "path": "index47.html",
-    "launchUrl": "index47.html",
+    "path": "apps/index47/index.html",
+    "launchUrl": "apps/index47/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -8888,9 +8888,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index47.html",
+      "launch": "apps/index47/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index47.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index47/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -8921,7 +8921,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index47.html",
+      "file": "apps/index47/index.html",
       "sizeBytes": 22626,
       "screenshots": [
         "350/preview.jpg",
@@ -9056,8 +9056,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index52",
     "title": "Tower Defense Spray Mechanic",
-    "path": "index52.html",
-    "launchUrl": "index52.html",
+    "path": "apps/index52/index.html",
+    "launchUrl": "apps/index52/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -9093,9 +9093,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index52.html",
+      "launch": "apps/index52/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index52.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index52/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -9126,7 +9126,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index52.html",
+      "file": "apps/index52/index.html",
       "sizeBytes": 20120,
       "screenshots": [
         "350/preview.jpg",
@@ -9266,8 +9266,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index60",
     "title": "Castle Wars",
-    "path": "index60.html",
-    "launchUrl": "index60.html",
+    "path": "apps/index60/index.html",
+    "launchUrl": "apps/index60/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -9303,9 +9303,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index60.html",
+      "launch": "apps/index60/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index60.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index60/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -9336,7 +9336,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index60.html",
+      "file": "apps/index60/index.html",
       "sizeBytes": 34357,
       "screenshots": [
         "350/preview.jpg",
@@ -9476,8 +9476,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index65",
     "title": "Custom Tower Defense",
-    "path": "index65.html",
-    "launchUrl": "index65.html",
+    "path": "apps/index65/index.html",
+    "launchUrl": "apps/index65/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -9513,9 +9513,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index65.html",
+      "launch": "apps/index65/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index65.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index65/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -9546,7 +9546,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index65.html",
+      "file": "apps/index65/index.html",
       "sizeBytes": 39516,
       "screenshots": [
         "350/preview.jpg",
@@ -9686,8 +9686,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index66",
     "title": "TD — Кастомные башни из расходников",
-    "path": "index66.html",
-    "launchUrl": "index66.html",
+    "path": "archive/index66/index.html",
+    "launchUrl": "archive/index66/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -9723,9 +9723,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index66.html",
+      "launch": "archive/index66/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index66.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index66/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -9756,7 +9756,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index66.html",
+      "file": "archive/index66/index.html",
       "sizeBytes": 29116,
       "screenshots": [
         "350/preview.jpg",
@@ -9899,8 +9899,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index67",
     "title": "TD — Кастомные башни из расходников",
-    "path": "index67.html",
-    "launchUrl": "index67.html",
+    "path": "archive/index67/index.html",
+    "launchUrl": "archive/index67/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -9936,9 +9936,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index67.html",
+      "launch": "archive/index67/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index67.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index67/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -9969,7 +9969,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index67.html",
+      "file": "archive/index67/index.html",
       "sizeBytes": 29747,
       "screenshots": [
         "350/preview.jpg",
@@ -10112,8 +10112,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index68",
     "title": "TD — Кастомные башни из расходников (Pro)",
-    "path": "index68.html",
-    "launchUrl": "index68.html",
+    "path": "apps/index68/index.html",
+    "launchUrl": "apps/index68/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -10149,9 +10149,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index68.html",
+      "launch": "apps/index68/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index68.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index68/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -10182,7 +10182,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index68.html",
+      "file": "apps/index68/index.html",
       "sizeBytes": 38844,
       "screenshots": [
         "350/preview.jpg",
@@ -10325,8 +10325,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index69",
     "title": "TD — Кастомные башни из расходников (Pro) — Исправлено",
-    "path": "index69.html",
-    "launchUrl": "index69.html",
+    "path": "apps/index69/index.html",
+    "launchUrl": "apps/index69/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -10362,9 +10362,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index69.html",
+      "launch": "apps/index69/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index69.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index69/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -10395,7 +10395,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index69.html",
+      "file": "apps/index69/index.html",
       "sizeBytes": 45630,
       "screenshots": [
         "350/preview.jpg",
@@ -10538,8 +10538,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index71",
     "title": "RPG Adventure",
-    "path": "index71.html",
-    "launchUrl": "index71.html",
+    "path": "apps/index71/index.html",
+    "launchUrl": "apps/index71/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -10575,9 +10575,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index71.html",
+      "launch": "apps/index71/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index71.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index71/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -10608,7 +10608,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index71.html",
+      "file": "apps/index71/index.html",
       "sizeBytes": 40456,
       "screenshots": [
         "350/preview.jpg",
@@ -10748,8 +10748,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index86",
     "title": "File Analyzer Pro",
-    "path": "index86.html",
-    "launchUrl": "index86.html",
+    "path": "archive/index86/index.html",
+    "launchUrl": "archive/index86/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -10786,9 +10786,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index86.html",
+      "launch": "archive/index86/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index86.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index86/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -10819,7 +10819,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index86.html",
+      "file": "archive/index86/index.html",
       "sizeBytes": 31508,
       "screenshots": [
         "350/preview.jpg",
@@ -10965,8 +10965,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index87",
     "title": "File Analyzer Pro",
-    "path": "index87.html",
-    "launchUrl": "index87.html",
+    "path": "archive/index87/index.html",
+    "launchUrl": "archive/index87/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -11003,9 +11003,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index87.html",
+      "launch": "archive/index87/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index87.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index87/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -11036,7 +11036,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index87.html",
+      "file": "archive/index87/index.html",
       "sizeBytes": 20945,
       "screenshots": [
         "350/preview.jpg",
@@ -11179,8 +11179,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index89",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index89.html",
-    "launchUrl": "index89.html",
+    "path": "archive/index89/index.html",
+    "launchUrl": "archive/index89/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -11216,9 +11216,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index89.html",
+      "launch": "archive/index89/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index89.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index89/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -11249,7 +11249,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index89.html",
+      "file": "archive/index89/index.html",
       "sizeBytes": 42252,
       "screenshots": [
         "350/preview.jpg",
@@ -11391,8 +11391,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index91",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index91.html",
-    "launchUrl": "index91.html",
+    "path": "archive/index91/index.html",
+    "launchUrl": "archive/index91/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -11428,9 +11428,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index91.html",
+      "launch": "archive/index91/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index91.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index91/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -11461,7 +11461,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index91.html",
+      "file": "archive/index91/index.html",
       "sizeBytes": 42045,
       "screenshots": [
         "350/preview.jpg",
@@ -11603,8 +11603,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index92",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index92.html",
-    "launchUrl": "index92.html",
+    "path": "archive/index92/index.html",
+    "launchUrl": "archive/index92/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -11640,9 +11640,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index92.html",
+      "launch": "archive/index92/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index92.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index92/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -11673,7 +11673,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index92.html",
+      "file": "archive/index92/index.html",
       "sizeBytes": 44058,
       "screenshots": [
         "350/preview.jpg",
@@ -11815,8 +11815,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index93",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index93.html",
-    "launchUrl": "index93.html",
+    "path": "archive/index93/index.html",
+    "launchUrl": "archive/index93/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -11852,9 +11852,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index93.html",
+      "launch": "archive/index93/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index93.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index93/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -11885,7 +11885,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index93.html",
+      "file": "archive/index93/index.html",
       "sizeBytes": 42948,
       "screenshots": [
         "350/preview.jpg",
@@ -12027,8 +12027,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index94",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index94.html",
-    "launchUrl": "index94.html",
+    "path": "archive/index94/index.html",
+    "launchUrl": "archive/index94/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -12064,9 +12064,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index94.html",
+      "launch": "archive/index94/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index94.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index94/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -12097,7 +12097,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index94.html",
+      "file": "archive/index94/index.html",
       "sizeBytes": 42948,
       "screenshots": [
         "350/preview.jpg",
@@ -12239,8 +12239,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index95",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index95.html",
-    "launchUrl": "index95.html",
+    "path": "archive/index95/index.html",
+    "launchUrl": "archive/index95/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -12276,9 +12276,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index95.html",
+      "launch": "archive/index95/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index95.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index95/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -12309,7 +12309,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index95.html",
+      "file": "archive/index95/index.html",
       "sizeBytes": 39576,
       "screenshots": [
         "350/preview.jpg",
@@ -12451,8 +12451,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index96",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index96.html",
-    "launchUrl": "index96.html",
+    "path": "archive/index96/index.html",
+    "launchUrl": "archive/index96/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -12489,9 +12489,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index96.html",
+      "launch": "archive/index96/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index96.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index96/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -12522,7 +12522,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index96.html",
+      "file": "archive/index96/index.html",
       "sizeBytes": 41790,
       "screenshots": [
         "350/preview.jpg",
@@ -12665,8 +12665,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index97",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index97.html",
-    "launchUrl": "index97.html",
+    "path": "archive/index97/index.html",
+    "launchUrl": "archive/index97/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -12703,9 +12703,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index97.html",
+      "launch": "archive/index97/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index97.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index97/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -12736,7 +12736,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index97.html",
+      "file": "archive/index97/index.html",
       "sizeBytes": 35158,
       "screenshots": [
         "350/preview.jpg",
@@ -12879,8 +12879,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index98",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index98.html",
-    "launchUrl": "index98.html",
+    "path": "apps/index98/index.html",
+    "launchUrl": "apps/index98/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -12917,9 +12917,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index98.html",
+      "launch": "apps/index98/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index98.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index98/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -12950,7 +12950,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index98.html",
+      "file": "apps/index98/index.html",
       "sizeBytes": 34131,
       "screenshots": [
         "350/preview.jpg",
@@ -13093,8 +13093,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index99",
     "title": "Калькулятор стоимости бумаги",
-    "path": "index99.html",
-    "launchUrl": "index99.html",
+    "path": "archive/index99/index.html",
+    "launchUrl": "archive/index99/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -13131,9 +13131,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index99.html",
+      "launch": "archive/index99/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index99.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index99/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -13164,7 +13164,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index99.html",
+      "file": "archive/index99/index.html",
       "sizeBytes": 21920,
       "screenshots": [
         "350/preview.jpg",
@@ -13305,8 +13305,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index100",
     "title": "Дерево навыков - Запоминалка",
-    "path": "index100.html",
-    "launchUrl": "index100.html",
+    "path": "apps/index100/index.html",
+    "launchUrl": "apps/index100/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -13343,9 +13343,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index100.html",
+      "launch": "apps/index100/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index100.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index100/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -13376,7 +13376,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index100.html",
+      "file": "apps/index100/index.html",
       "sizeBytes": 24241,
       "screenshots": [
         "350/preview.jpg",
@@ -13516,8 +13516,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index104",
     "title": "RPG Dungeon Simulator deepseek",
-    "path": "index104.html",
-    "launchUrl": "index104.html",
+    "path": "apps/index104/index.html",
+    "launchUrl": "apps/index104/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -13553,9 +13553,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index104.html",
+      "launch": "apps/index104/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index104.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index104/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -13586,7 +13586,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index104.html",
+      "file": "apps/index104/index.html",
       "sizeBytes": 103230,
       "screenshots": [
         "350/preview.jpg",
@@ -13737,8 +13737,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index105",
     "title": "GPT - IDLE RPG Dungeon — Переработанная версия - GPT",
-    "path": "index105.html",
-    "launchUrl": "index105.html",
+    "path": "apps/index105/index.html",
+    "launchUrl": "apps/index105/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -13774,9 +13774,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index105.html",
+      "launch": "apps/index105/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index105.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index105/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -13807,7 +13807,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index105.html",
+      "file": "apps/index105/index.html",
       "sizeBytes": 53637,
       "screenshots": [
         "350/preview.jpg",
@@ -13953,8 +13953,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index106",
     "title": "IDLE RPG Dungeon - DEEPSEEK",
-    "path": "index106.html",
-    "launchUrl": "index106.html",
+    "path": "apps/index106/index.html",
+    "launchUrl": "apps/index106/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -13990,9 +13990,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index106.html",
+      "launch": "apps/index106/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index106.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index106/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -14023,7 +14023,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index106.html",
+      "file": "apps/index106/index.html",
       "sizeBytes": 99515,
       "screenshots": [
         "350/preview.jpg",
@@ -14174,8 +14174,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index107",
     "title": "GPT IDLE RPG Dungeon",
-    "path": "index107.html",
-    "launchUrl": "index107.html",
+    "path": "apps/index107/index.html",
+    "launchUrl": "apps/index107/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -14211,9 +14211,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index107.html",
+      "launch": "apps/index107/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index107.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index107/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -14244,7 +14244,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index107.html",
+      "file": "apps/index107/index.html",
       "sizeBytes": 99504,
       "screenshots": [
         "350/preview.jpg",
@@ -14395,8 +14395,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index108",
     "title": "IDLE RPG Dungeon - deep",
-    "path": "index108.html",
-    "launchUrl": "index108.html",
+    "path": "apps/index108/index.html",
+    "launchUrl": "apps/index108/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -14432,9 +14432,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index108.html",
+      "launch": "apps/index108/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index108.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index108/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -14465,7 +14465,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index108.html",
+      "file": "apps/index108/index.html",
       "sizeBytes": 99500,
       "screenshots": [
         "350/preview.jpg",
@@ -14616,8 +14616,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index109",
     "title": "GPT IDLE RPG Dungeon — Обновлённая версия (маг: % урон, бафы, без лимита уровней HP/MP/DMG)",
-    "path": "index109.html",
-    "launchUrl": "index109.html",
+    "path": "apps/index109/index.html",
+    "launchUrl": "apps/index109/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -14653,9 +14653,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index109.html",
+      "launch": "apps/index109/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index109.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index109/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -14686,7 +14686,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index109.html",
+      "file": "apps/index109/index.html",
       "sizeBytes": 61739,
       "screenshots": [
         "350/preview.jpg",
@@ -14827,8 +14827,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index110",
     "title": "IDLE RPG Dungeon — Исправленная версия",
-    "path": "index110.html",
-    "launchUrl": "index110.html",
+    "path": "apps/index110/index.html",
+    "launchUrl": "apps/index110/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -14864,9 +14864,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index110.html",
+      "launch": "apps/index110/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index110.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index110/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -14897,7 +14897,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index110.html",
+      "file": "apps/index110/index.html",
       "sizeBytes": 61148,
       "screenshots": [
         "350/preview.jpg",
@@ -15043,8 +15043,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index111",
     "title": "IDLE RPG Dungeon — Исправленная версия",
-    "path": "index111.html",
-    "launchUrl": "index111.html",
+    "path": "archive/index111/index.html",
+    "launchUrl": "archive/index111/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -15080,9 +15080,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index111.html",
+      "launch": "archive/index111/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index111.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index111/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -15113,7 +15113,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index111.html",
+      "file": "archive/index111/index.html",
       "sizeBytes": 61148,
       "screenshots": [
         "350/preview.jpg",
@@ -15259,8 +15259,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index112",
     "title": "IDLE RPG Dungeon",
-    "path": "index112.html",
-    "launchUrl": "index112.html",
+    "path": "apps/index112/index.html",
+    "launchUrl": "apps/index112/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -15296,9 +15296,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index112.html",
+      "launch": "apps/index112/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index112.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index112/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -15329,7 +15329,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index112.html",
+      "file": "apps/index112/index.html",
       "sizeBytes": 66679,
       "screenshots": [
         "350/preview.jpg",
@@ -15475,8 +15475,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index113",
     "title": "Исправленный IDLE RPG Dungeon — единый файл",
-    "path": "index113.html",
-    "launchUrl": "index113.html",
+    "path": "apps/index113/index.html",
+    "launchUrl": "apps/index113/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -15513,9 +15513,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index113.html",
+      "launch": "apps/index113/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index113.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index113/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -15546,7 +15546,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index113.html",
+      "file": "apps/index113/index.html",
       "sizeBytes": 32858,
       "screenshots": [
         "350/preview.jpg",
@@ -15686,8 +15686,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index114",
     "title": "RPG Dungeon Simulator",
-    "path": "index114.html",
-    "launchUrl": "index114.html",
+    "path": "archive/index114/index.html",
+    "launchUrl": "archive/index114/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -15723,9 +15723,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index114.html",
+      "launch": "archive/index114/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index114.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index114/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -15756,7 +15756,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index114.html",
+      "file": "archive/index114/index.html",
       "sizeBytes": 64372,
       "screenshots": [
         "350/preview.jpg",
@@ -15902,8 +15902,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index115",
     "title": "RPG Dungeon Simulator",
-    "path": "index115.html",
-    "launchUrl": "index115.html",
+    "path": "apps/index115/index.html",
+    "launchUrl": "apps/index115/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -15939,9 +15939,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index115.html",
+      "launch": "apps/index115/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index115.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index115/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -15972,7 +15972,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index115.html",
+      "file": "apps/index115/index.html",
       "sizeBytes": 59834,
       "screenshots": [
         "350/preview.jpg",
@@ -16118,8 +16118,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index116",
     "title": "Церковный симулятор — полный",
-    "path": "index116.html",
-    "launchUrl": "index116.html",
+    "path": "archive/index116/index.html",
+    "launchUrl": "archive/index116/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -16155,9 +16155,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index116.html",
+      "launch": "archive/index116/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index116.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index116/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -16188,7 +16188,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index116.html",
+      "file": "archive/index116/index.html",
       "sizeBytes": 38931,
       "screenshots": [
         "350/preview.jpg",
@@ -16334,8 +16334,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index117",
     "title": "Церковный симулятор — профессиональная версия",
-    "path": "index117.html",
-    "launchUrl": "index117.html",
+    "path": "apps/index117/index.html",
+    "launchUrl": "apps/index117/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -16371,9 +16371,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index117.html",
+      "launch": "apps/index117/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index117.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index117/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -16404,7 +16404,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index117.html",
+      "file": "apps/index117/index.html",
       "sizeBytes": 58889,
       "screenshots": [
         "350/preview.jpg",
@@ -16550,8 +16550,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index118",
     "title": "Церковный симулятор — переработка (полный файл)",
-    "path": "index118.html",
-    "launchUrl": "index118.html",
+    "path": "apps/index118/index.html",
+    "launchUrl": "apps/index118/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -16587,9 +16587,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index118.html",
+      "launch": "apps/index118/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index118.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index118/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -16620,7 +16620,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index118.html",
+      "file": "apps/index118/index.html",
       "sizeBytes": 40405,
       "screenshots": [
         "350/preview.jpg",
@@ -16766,8 +16766,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index119",
     "title": "Церковный симулятор",
-    "path": "index119.html",
-    "launchUrl": "index119.html",
+    "path": "archive/index119/index.html",
+    "launchUrl": "archive/index119/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -16803,9 +16803,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index119.html",
+      "launch": "archive/index119/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index119.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index119/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -16836,7 +16836,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index119.html",
+      "file": "archive/index119/index.html",
       "sizeBytes": 37145,
       "screenshots": [
         "350/preview.jpg",
@@ -16982,8 +16982,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index120",
     "title": "Церковный симулятор",
-    "path": "index120.html",
-    "launchUrl": "index120.html",
+    "path": "archive/index120/index.html",
+    "launchUrl": "archive/index120/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -17019,9 +17019,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index120.html",
+      "launch": "archive/index120/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index120.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index120/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -17052,7 +17052,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index120.html",
+      "file": "archive/index120/index.html",
       "sizeBytes": 39427,
       "screenshots": [
         "350/preview.jpg",
@@ -17198,8 +17198,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index121",
     "title": "Церковный симулятор",
-    "path": "index121.html",
-    "launchUrl": "index121.html",
+    "path": "archive/index121/index.html",
+    "launchUrl": "archive/index121/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -17235,9 +17235,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index121.html",
+      "launch": "archive/index121/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index121.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index121/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -17268,7 +17268,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index121.html",
+      "file": "archive/index121/index.html",
       "sizeBytes": 31494,
       "screenshots": [
         "350/preview.jpg",
@@ -17414,8 +17414,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index122",
     "title": "Церковный симулятор",
-    "path": "index122.html",
-    "launchUrl": "index122.html",
+    "path": "archive/index122/index.html",
+    "launchUrl": "archive/index122/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -17451,9 +17451,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index122.html",
+      "launch": "archive/index122/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index122.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index122/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -17484,7 +17484,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index122.html",
+      "file": "archive/index122/index.html",
       "sizeBytes": 33091,
       "screenshots": [
         "350/preview.jpg",
@@ -17630,8 +17630,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index123",
     "title": "Воскресное служение",
-    "path": "index123.html",
-    "launchUrl": "index123.html",
+    "path": "apps/index123/index.html",
+    "launchUrl": "apps/index123/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -17667,9 +17667,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index123.html",
+      "launch": "apps/index123/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index123.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index123/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -17700,7 +17700,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index123.html",
+      "file": "apps/index123/index.html",
       "sizeBytes": 22555,
       "screenshots": [
         "350/preview.jpg",
@@ -17840,8 +17840,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index124",
     "title": "Церковный Tower Defense",
-    "path": "index124.html",
-    "launchUrl": "index124.html",
+    "path": "apps/index124/index.html",
+    "launchUrl": "apps/index124/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -17877,9 +17877,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index124.html",
+      "launch": "apps/index124/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index124.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index124/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -17910,7 +17910,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index124.html",
+      "file": "apps/index124/index.html",
       "sizeBytes": 35039,
       "screenshots": [
         "350/preview.jpg",
@@ -18050,8 +18050,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index125",
     "title": "Церковный Симулятор",
-    "path": "index125.html",
-    "launchUrl": "index125.html",
+    "path": "archive/index125/index.html",
+    "launchUrl": "archive/index125/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -18087,9 +18087,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index125.html",
+      "launch": "archive/index125/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index125.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index125/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -18120,7 +18120,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index125.html",
+      "file": "archive/index125/index.html",
       "sizeBytes": 28105,
       "screenshots": [
         "350/preview.jpg",
@@ -18266,8 +18266,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index126",
     "title": "Церковный Симулятор 2025",
-    "path": "index126.html",
-    "launchUrl": "index126.html",
+    "path": "apps/index126/index.html",
+    "launchUrl": "apps/index126/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -18303,9 +18303,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index126.html",
+      "launch": "apps/index126/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index126.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index126/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -18336,7 +18336,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index126.html",
+      "file": "apps/index126/index.html",
       "sizeBytes": 38580,
       "screenshots": [
         "350/preview.jpg",
@@ -18482,8 +18482,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index127",
     "title": "Церковный Симулятор",
-    "path": "index127.html",
-    "launchUrl": "index127.html",
+    "path": "apps/index127/index.html",
+    "launchUrl": "apps/index127/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "beta",
@@ -18519,9 +18519,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index127.html",
+      "launch": "apps/index127/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index127.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index127/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -18552,7 +18552,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index127.html",
+      "file": "apps/index127/index.html",
       "sizeBytes": 44807,
       "screenshots": [
         "350/preview.jpg",
@@ -18698,8 +18698,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index128",
     "title": "Вселенная Правил",
-    "path": "index128.html",
-    "launchUrl": "index128.html",
+    "path": "apps/index128/index.html",
+    "launchUrl": "apps/index128/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -18735,9 +18735,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index128.html",
+      "launch": "apps/index128/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index128.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index128/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -18768,7 +18768,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index128.html",
+      "file": "apps/index128/index.html",
       "sizeBytes": 46663,
       "screenshots": [
         "350/preview.jpg",
@@ -18908,8 +18908,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index129",
     "title": "Модульная Арена",
-    "path": "index129.html",
-    "launchUrl": "index129.html",
+    "path": "apps/index129/index.html",
+    "launchUrl": "apps/index129/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -18945,9 +18945,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index129.html",
+      "launch": "apps/index129/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index129.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index129/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -18978,7 +18978,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index129.html",
+      "file": "apps/index129/index.html",
       "sizeBytes": 36015,
       "screenshots": [
         "350/preview.jpg",
@@ -19112,8 +19112,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index130",
     "title": "Мухобойка",
-    "path": "index130.html",
-    "launchUrl": "index130.html",
+    "path": "apps/index130/index.html",
+    "launchUrl": "apps/index130/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -19149,9 +19149,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index130.html",
+      "launch": "apps/index130/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index130.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index130/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -19182,7 +19182,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index130.html",
+      "file": "apps/index130/index.html",
       "sizeBytes": 28530,
       "screenshots": [
         "350/preview.jpg",
@@ -19322,8 +19322,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index131",
     "title": "Идл-Типография",
-    "path": "index131.html",
-    "launchUrl": "index131.html",
+    "path": "apps/index131/index.html",
+    "launchUrl": "apps/index131/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -19360,9 +19360,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index131.html",
+      "launch": "apps/index131/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index131.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index131/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -19393,7 +19393,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index131.html",
+      "file": "apps/index131/index.html",
       "sizeBytes": 29265,
       "screenshots": [
         "350/preview.jpg",
@@ -19539,8 +19539,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index132",
     "title": "Бизнес-Типография",
-    "path": "index132.html",
-    "launchUrl": "index132.html",
+    "path": "archive/index132/index.html",
+    "launchUrl": "archive/index132/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -19577,9 +19577,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index132.html",
+      "launch": "archive/index132/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index132.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index132/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -19610,7 +19610,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index132.html",
+      "file": "archive/index132/index.html",
       "sizeBytes": 45417,
       "screenshots": [
         "350/preview.jpg",
@@ -19756,8 +19756,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index133",
     "title": "Бизнес-Типография",
-    "path": "index133.html",
-    "launchUrl": "index133.html",
+    "path": "archive/index133/index.html",
+    "launchUrl": "archive/index133/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -19794,9 +19794,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index133.html",
+      "launch": "archive/index133/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index133.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index133/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -19827,7 +19827,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index133.html",
+      "file": "archive/index133/index.html",
       "sizeBytes": 45417,
       "screenshots": [
         "350/preview.jpg",
@@ -19973,8 +19973,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index134",
     "title": "Типография Бизнес",
-    "path": "index134.html",
-    "launchUrl": "index134.html",
+    "path": "archive/index134/index.html",
+    "launchUrl": "archive/index134/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -20011,9 +20011,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index134.html",
+      "launch": "archive/index134/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index134.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index134/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -20044,7 +20044,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index134.html",
+      "file": "archive/index134/index.html",
       "sizeBytes": 34067,
       "screenshots": [
         "350/preview.jpg",
@@ -20190,8 +20190,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index135",
     "title": "Типография Pro",
-    "path": "index135.html",
-    "launchUrl": "index135.html",
+    "path": "archive/index135/index.html",
+    "launchUrl": "archive/index135/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -20228,9 +20228,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index135.html",
+      "launch": "archive/index135/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index135.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index135/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -20261,7 +20261,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index135.html",
+      "file": "archive/index135/index.html",
       "sizeBytes": 53026,
       "screenshots": [
         "350/preview.jpg",
@@ -20413,8 +20413,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index136",
     "title": "Типография Pro",
-    "path": "index136.html",
-    "launchUrl": "index136.html",
+    "path": "archive/index136/index.html",
+    "launchUrl": "archive/index136/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -20451,9 +20451,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index136.html",
+      "launch": "archive/index136/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index136.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index136/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -20484,7 +20484,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index136.html",
+      "file": "archive/index136/index.html",
       "sizeBytes": 56158,
       "screenshots": [
         "350/preview.jpg",
@@ -20636,8 +20636,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index137",
     "title": "Бизнес-Типография",
-    "path": "index137.html",
-    "launchUrl": "index137.html",
+    "path": "archive/index137/index.html",
+    "launchUrl": "archive/index137/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -20674,9 +20674,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index137.html",
+      "launch": "archive/index137/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index137.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index137/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -20707,7 +20707,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index137.html",
+      "file": "archive/index137/index.html",
       "sizeBytes": 28289,
       "screenshots": [
         "350/preview.jpg",
@@ -20859,8 +20859,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index138",
     "title": "Бизнес-Типография",
-    "path": "index138.html",
-    "launchUrl": "index138.html",
+    "path": "archive/index138/index.html",
+    "launchUrl": "archive/index138/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -20897,9 +20897,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index138.html",
+      "launch": "archive/index138/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index138.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index138/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -20930,7 +20930,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index138.html",
+      "file": "archive/index138/index.html",
       "sizeBytes": 28289,
       "screenshots": [
         "350/preview.jpg",
@@ -21082,8 +21082,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index139",
     "title": "Типография Бизнес",
-    "path": "index139.html",
-    "launchUrl": "index139.html",
+    "path": "apps/index139/index.html",
+    "launchUrl": "apps/index139/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -21120,9 +21120,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index139.html",
+      "launch": "apps/index139/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index139.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index139/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -21153,7 +21153,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index139.html",
+      "file": "apps/index139/index.html",
       "sizeBytes": 60938,
       "screenshots": [
         "350/preview.jpg",
@@ -21304,8 +21304,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index140",
     "title": "Типография Бизнес — Игра",
-    "path": "index140.html",
-    "launchUrl": "index140.html",
+    "path": "apps/index140/index.html",
+    "launchUrl": "apps/index140/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -21342,9 +21342,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index140.html",
+      "launch": "apps/index140/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index140.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index140/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -21375,7 +21375,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index140.html",
+      "file": "apps/index140/index.html",
       "sizeBytes": 73642,
       "screenshots": [
         "350/preview.jpg",
@@ -21526,8 +21526,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index142",
     "title": "Типография: Бизнес-симулятор 142-DEEP",
-    "path": "index142.html",
-    "launchUrl": "index142.html",
+    "path": "apps/index142/index.html",
+    "launchUrl": "apps/index142/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -21564,9 +21564,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index142.html",
+      "launch": "apps/index142/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index142.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index142/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -21597,7 +21597,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index142.html",
+      "file": "apps/index142/index.html",
       "sizeBytes": 35696,
       "screenshots": [
         "350/preview.jpg",
@@ -21748,8 +21748,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index143",
     "title": "Типография — Бизнес-симулятор",
-    "path": "index143.html",
-    "launchUrl": "index143.html",
+    "path": "archive/index143/index.html",
+    "launchUrl": "archive/index143/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -21786,9 +21786,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index143.html",
+      "launch": "archive/index143/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index143.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index143/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -21819,7 +21819,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index143.html",
+      "file": "archive/index143/index.html",
       "sizeBytes": 50737,
       "screenshots": [
         "350/preview.jpg",
@@ -21970,8 +21970,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index145",
     "title": "Типография — Бизнес-симулятор",
-    "path": "index145.html",
-    "launchUrl": "index145.html",
+    "path": "archive/index145/index.html",
+    "launchUrl": "archive/index145/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -22008,9 +22008,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index145.html",
+      "launch": "archive/index145/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index145.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index145/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -22041,7 +22041,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index145.html",
+      "file": "archive/index145/index.html",
       "sizeBytes": 46437,
       "screenshots": [
         "350/preview.jpg",
@@ -22192,8 +22192,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index146",
     "title": "Типография — Бизнес-симулятор",
-    "path": "index146.html",
-    "launchUrl": "index146.html",
+    "path": "archive/index146/index.html",
+    "launchUrl": "archive/index146/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -22230,9 +22230,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index146.html",
+      "launch": "archive/index146/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index146.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index146/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -22263,7 +22263,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index146.html",
+      "file": "archive/index146/index.html",
       "sizeBytes": 46437,
       "screenshots": [
         "350/preview.jpg",
@@ -22414,8 +22414,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index147",
     "title": "Типография — Бизнес-симулятор",
-    "path": "index147.html",
-    "launchUrl": "index147.html",
+    "path": "apps/index147/index.html",
+    "launchUrl": "apps/index147/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -22452,9 +22452,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index147.html",
+      "launch": "apps/index147/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index147.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index147/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -22485,7 +22485,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index147.html",
+      "file": "apps/index147/index.html",
       "sizeBytes": 44913,
       "screenshots": [
         "350/preview.jpg",
@@ -22636,8 +22636,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index148",
     "title": "КОСМИЧЕСКИЕ РЕЙНДЖЕРЫ",
-    "path": "index148.html",
-    "launchUrl": "index148.html",
+    "path": "apps/index148/index.html",
+    "launchUrl": "apps/index148/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -22674,9 +22674,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index148.html",
+      "launch": "apps/index148/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index148.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index148/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -22707,7 +22707,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index148.html",
+      "file": "apps/index148/index.html",
       "sizeBytes": 30060,
       "screenshots": [
         "350/preview.jpg",
@@ -22847,8 +22847,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index150",
     "title": "Типографский Магнат",
-    "path": "index150.html",
-    "launchUrl": "index150.html",
+    "path": "archive/index150/index.html",
+    "launchUrl": "archive/index150/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -22885,9 +22885,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index150.html",
+      "launch": "archive/index150/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index150.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index150/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -22918,7 +22918,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index150.html",
+      "file": "archive/index150/index.html",
       "sizeBytes": 30809,
       "screenshots": [
         "350/preview.jpg",
@@ -23064,8 +23064,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index151",
     "title": "Типографский Магнат",
-    "path": "index151.html",
-    "launchUrl": "index151.html",
+    "path": "archive/index151/index.html",
+    "launchUrl": "archive/index151/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -23102,9 +23102,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index151.html",
+      "launch": "archive/index151/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index151.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index151/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -23135,7 +23135,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index151.html",
+      "file": "archive/index151/index.html",
       "sizeBytes": 40977,
       "screenshots": [
         "350/preview.jpg",
@@ -23281,8 +23281,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index152",
     "title": "Типографский Магнат",
-    "path": "index152.html",
-    "launchUrl": "index152.html",
+    "path": "apps/index152/index.html",
+    "launchUrl": "apps/index152/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -23319,9 +23319,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index152.html",
+      "launch": "apps/index152/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index152.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index152/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -23352,7 +23352,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index152.html",
+      "file": "apps/index152/index.html",
       "sizeBytes": 44523,
       "screenshots": [
         "350/preview.jpg",
@@ -23503,8 +23503,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index154",
     "title": "Tower Defense Game",
-    "path": "index154.html",
-    "launchUrl": "index154.html",
+    "path": "apps/index154/index.html",
+    "launchUrl": "apps/index154/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -23541,9 +23541,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index154.html",
+      "launch": "apps/index154/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index154.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index154/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -23574,7 +23574,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index154.html",
+      "file": "apps/index154/index.html",
       "sizeBytes": 58687,
       "screenshots": [
         "350/preview.jpg",
@@ -23716,8 +23716,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index200",
     "title": "Типографский Магнат",
-    "path": "index200.html",
-    "launchUrl": "index200.html",
+    "path": "archive/index200/index.html",
+    "launchUrl": "archive/index200/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -23754,9 +23754,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index200.html",
+      "launch": "archive/index200/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index200.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index200/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -23787,7 +23787,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index200.html",
+      "file": "archive/index200/index.html",
       "sizeBytes": 100518,
       "screenshots": [
         "350/preview.jpg",
@@ -23938,8 +23938,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index500",
     "title": "Типографский Магнат",
-    "path": "index500.html",
-    "launchUrl": "index500.html",
+    "path": "archive/index500/index.html",
+    "launchUrl": "archive/index500/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -23976,9 +23976,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index500.html",
+      "launch": "archive/index500/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index500.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index500/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -24009,7 +24009,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index500.html",
+      "file": "archive/index500/index.html",
       "sizeBytes": 100518,
       "screenshots": [
         "350/preview.jpg",
@@ -24160,8 +24160,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index501",
     "title": "Типографский Магнат",
-    "path": "index501.html",
-    "launchUrl": "index501.html",
+    "path": "archive/index501/index.html",
+    "launchUrl": "archive/index501/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -24198,9 +24198,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index501.html",
+      "launch": "archive/index501/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index501.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index501/index.html"
     },
     "metrics": {
       "readiness": 62,
@@ -24231,7 +24231,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index501.html",
+      "file": "archive/index501/index.html",
       "sizeBytes": 100518,
       "screenshots": [
         "350/preview.jpg",
@@ -24382,8 +24382,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "80",
     "title": "Типография - Бизнес симулятор",
-    "path": "80/index.html",
-    "launchUrl": "80/index.html",
+    "path": "archive/80/index.html",
+    "launchUrl": "archive/80/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -24405,8 +24405,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 80/index.html; есть изображение; готовность 56/100",
-    "imageUrl": "80/stilist_80.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/80/stilist_80.jpg",
+    "imageUrl": "archive/80/stilist_80.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/archive/80/stilist_80.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
     "versionOf": "81",
@@ -24420,9 +24420,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "80/index.html",
+      "launch": "archive/80/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/80/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/80/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -24453,10 +24453,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "80/index.html",
+      "file": "archive/80/index.html",
       "sizeBytes": 8528,
       "screenshots": [
-        "80/stilist_80.jpg"
+        "archive/80/stilist_80.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [
@@ -24567,8 +24567,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "81",
     "title": "Типография - Бизнес симулятор",
-    "path": "81/index.html",
-    "launchUrl": "81/index.html",
+    "path": "apps/81/index.html",
+    "launchUrl": "apps/81/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -24590,8 +24590,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 81/index.html; есть изображение; готовность 56/100",
-    "imageUrl": "81/stilist_81.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/81/stilist_81.jpg",
+    "imageUrl": "apps/81/stilist_81.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/81/stilist_81.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
     "versionOf": null,
@@ -24605,9 +24605,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "81/index.html",
+      "launch": "apps/81/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/81/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/81/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -24638,10 +24638,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "81/index.html",
+      "file": "apps/81/index.html",
       "sizeBytes": 11243,
       "screenshots": [
-        "81/stilist_81.jpg"
+        "apps/81/stilist_81.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [
@@ -24752,8 +24752,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "101",
     "title": "Simple Clicker RPG",
-    "path": "101/index.html",
-    "launchUrl": "101/index.html",
+    "path": "apps/101/index.html",
+    "launchUrl": "apps/101/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -24775,8 +24775,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 101/index.html; есть изображение; готовность 56/100",
-    "imageUrl": "101/stilist_101.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/101/stilist_101.jpg",
+    "imageUrl": "apps/101/stilist_101.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/101/stilist_101.jpg",
     "icon": "🎨",
     "source": "hub-builder",
     "versionOf": null,
@@ -24790,9 +24790,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "101/index.html",
+      "launch": "apps/101/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/101/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/101/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -24823,10 +24823,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "101/index.html",
+      "file": "apps/101/index.html",
       "sizeBytes": 5372,
       "screenshots": [
-        "101/stilist_101.jpg"
+        "apps/101/stilist_101.jpg"
       ],
       "cssLinks": [
         "https://cdn.simplecss.org/simple.min.css"
@@ -24936,8 +24936,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "102",
     "title": "Idle Miner - Шахтёрский симулятор",
-    "path": "102/index.html",
-    "launchUrl": "102/index.html",
+    "path": "apps/102/index.html",
+    "launchUrl": "apps/102/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -24958,8 +24958,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 102/index.html; есть изображение; готовность 56/100",
-    "imageUrl": "102/stilist_102.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/102/stilist_102.jpg",
+    "imageUrl": "apps/102/stilist_102.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/102/stilist_102.jpg",
     "icon": "🎮",
     "source": "hub-builder",
     "versionOf": null,
@@ -24973,9 +24973,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "102/index.html",
+      "launch": "apps/102/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/102/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/102/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -25006,10 +25006,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "102/index.html",
+      "file": "apps/102/index.html",
       "sizeBytes": 13935,
       "screenshots": [
-        "102/stilist_102.jpg"
+        "apps/102/stilist_102.jpg"
       ],
       "cssLinks": [
         "https://cdn.simplecss.org/simple.min.css"
@@ -25118,8 +25118,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "350-index1",
     "title": "Конвертер мм ↔ пиксели",
-    "path": "350/index1.html",
-    "launchUrl": "350/index1.html",
+    "path": "apps/350/index1.html",
+    "launchUrl": "apps/350/index1.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -25141,8 +25141,8 @@ window.SUNPOLE_PROJECTS = [
     ],
     "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
     "note": "Источник: 350/index1.html; есть изображение; готовность 56/100",
-    "imageUrl": "350/preview.jpg",
-    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/350/preview.jpg",
+    "imageUrl": "apps/350/preview.jpg",
+    "fallbackImageUrl": "https://raw.githubusercontent.com/sunpole/stilist/refs/heads/main/apps/350/preview.jpg",
     "icon": "🖨️",
     "source": "hub-builder",
     "versionOf": "350",
@@ -25156,9 +25156,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "350/index1.html",
+      "launch": "apps/350/index1.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/350/index1.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/350/index1.html"
     },
     "metrics": {
       "readiness": 56,
@@ -25189,10 +25189,10 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "350/index1.html",
+      "file": "apps/350/index1.html",
       "sizeBytes": 11394,
       "screenshots": [
-        "350/preview.jpg"
+        "apps/350/preview.jpg"
       ],
       "cssLinks": [],
       "jsLinks": [],
@@ -25487,8 +25487,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index2",
     "title": "STYLIST | Демо стилей",
-    "path": "index2.html",
-    "launchUrl": "index2.html",
+    "path": "apps/index2/index.html",
+    "launchUrl": "apps/index2/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -25525,9 +25525,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index2.html",
+      "launch": "apps/index2/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index2.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index2/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -25558,7 +25558,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index2.html",
+      "file": "apps/index2/index.html",
       "sizeBytes": 3560,
       "screenshots": [
         "350/preview.jpg",
@@ -25689,8 +25689,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index3",
     "title": "STYLIST | Демо выпадающих списков",
-    "path": "index3.html",
-    "launchUrl": "index3.html",
+    "path": "apps/index3/index.html",
+    "launchUrl": "apps/index3/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -25727,9 +25727,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index3.html",
+      "launch": "apps/index3/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index3.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index3/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -25760,7 +25760,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index3.html",
+      "file": "apps/index3/index.html",
       "sizeBytes": 7752,
       "screenshots": [
         "350/preview.jpg",
@@ -25891,8 +25891,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index4",
     "title": "Конструктор стилей | Выпадающий список",
-    "path": "index4.html",
-    "launchUrl": "index4.html",
+    "path": "apps/index4/index.html",
+    "launchUrl": "apps/index4/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -25929,9 +25929,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index4.html",
+      "launch": "apps/index4/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index4.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index4/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -25962,7 +25962,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index4.html",
+      "file": "apps/index4/index.html",
       "sizeBytes": 9797,
       "screenshots": [
         "350/preview.jpg",
@@ -26092,8 +26092,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index7",
     "title": "Торговый Терминал 1984",
-    "path": "index7.html",
-    "launchUrl": "index7.html",
+    "path": "archive/index7/index.html",
+    "launchUrl": "archive/index7/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -26129,9 +26129,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index7.html",
+      "launch": "archive/index7/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index7.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index7/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -26162,7 +26162,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index7.html",
+      "file": "archive/index7/index.html",
       "sizeBytes": 15495,
       "screenshots": [
         "350/preview.jpg",
@@ -26290,8 +26290,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index8",
     "title": "Торговый Терминал 1984",
-    "path": "index8.html",
-    "launchUrl": "index8.html",
+    "path": "archive/index8/index.html",
+    "launchUrl": "archive/index8/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -26327,9 +26327,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index8.html",
+      "launch": "archive/index8/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index8.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index8/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -26360,7 +26360,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index8.html",
+      "file": "archive/index8/index.html",
       "sizeBytes": 12886,
       "screenshots": [
         "350/preview.jpg",
@@ -26488,8 +26488,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index9",
     "title": "Торговый Терминал 1984",
-    "path": "index9.html",
-    "launchUrl": "index9.html",
+    "path": "archive/index9/index.html",
+    "launchUrl": "archive/index9/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -26525,9 +26525,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index9.html",
+      "launch": "archive/index9/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index9.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index9/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -26558,7 +26558,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index9.html",
+      "file": "archive/index9/index.html",
       "sizeBytes": 8105,
       "screenshots": [
         "350/preview.jpg",
@@ -26686,8 +26686,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index12",
     "title": "Буквомёт",
-    "path": "index12.html",
-    "launchUrl": "index12.html",
+    "path": "apps/index12/index.html",
+    "launchUrl": "apps/index12/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -26723,9 +26723,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index12.html",
+      "launch": "apps/index12/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index12.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index12/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -26756,7 +26756,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index12.html",
+      "file": "apps/index12/index.html",
       "sizeBytes": 7233,
       "screenshots": [
         "350/preview.jpg",
@@ -26881,8 +26881,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index13",
     "title": "Аудио-нарезчик",
-    "path": "index13.html",
-    "launchUrl": "index13.html",
+    "path": "apps/index13/index.html",
+    "launchUrl": "apps/index13/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -26919,9 +26919,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index13.html",
+      "launch": "apps/index13/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index13.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index13/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -26952,7 +26952,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index13.html",
+      "file": "apps/index13/index.html",
       "sizeBytes": 11761,
       "screenshots": [
         "350/preview.jpg",
@@ -27084,8 +27084,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index15",
     "title": "Обменник валют - POE Style",
-    "path": "index15.html",
-    "launchUrl": "index15.html",
+    "path": "apps/index15/index.html",
+    "launchUrl": "apps/index15/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -27121,9 +27121,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index15.html",
+      "launch": "apps/index15/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index15.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index15/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -27154,7 +27154,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index15.html",
+      "file": "apps/index15/index.html",
       "sizeBytes": 15042,
       "screenshots": [
         "350/preview.jpg",
@@ -27280,8 +27280,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index16",
     "title": "Генератор наград - POE Style",
-    "path": "index16.html",
-    "launchUrl": "index16.html",
+    "path": "apps/index16/index.html",
+    "launchUrl": "apps/index16/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -27317,9 +27317,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index16.html",
+      "launch": "apps/index16/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index16.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index16/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -27350,7 +27350,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index16.html",
+      "file": "apps/index16/index.html",
       "sizeBytes": 18452,
       "screenshots": [
         "350/preview.jpg",
@@ -27476,8 +27476,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index17",
     "title": "Буквомёт",
-    "path": "index17.html",
-    "launchUrl": "index17.html",
+    "path": "apps/index17/index.html",
+    "launchUrl": "apps/index17/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -27513,9 +27513,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index17.html",
+      "launch": "apps/index17/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index17.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index17/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -27546,7 +27546,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index17.html",
+      "file": "apps/index17/index.html",
       "sizeBytes": 6666,
       "screenshots": [
         "350/preview.jpg",
@@ -27671,8 +27671,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index20",
     "title": "PDF Info Viewer Pro",
-    "path": "index20.html",
-    "launchUrl": "index20.html",
+    "path": "apps/index20/index.html",
+    "launchUrl": "apps/index20/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -27709,9 +27709,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index20.html",
+      "launch": "apps/index20/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index20.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index20/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -27742,7 +27742,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index20.html",
+      "file": "apps/index20/index.html",
       "sizeBytes": 13029,
       "screenshots": [
         "350/preview.jpg",
@@ -27872,8 +27872,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index26",
     "title": "Логическая игра \"Запомни последовательность\"",
-    "path": "index26.html",
-    "launchUrl": "index26.html",
+    "path": "apps/index26/index.html",
+    "launchUrl": "apps/index26/index.html",
     "category": "Дизайн / UI",
     "status": "review",
     "maturity": "beta",
@@ -27910,9 +27910,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index26.html",
+      "launch": "apps/index26/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index26.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index26/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -27943,7 +27943,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index26.html",
+      "file": "apps/index26/index.html",
       "sizeBytes": 10560,
       "screenshots": [
         "350/preview.jpg",
@@ -28073,8 +28073,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index30",
     "title": "Семейная игра: 5 элементов",
-    "path": "index30.html",
-    "launchUrl": "index30.html",
+    "path": "apps/index30/index.html",
+    "launchUrl": "apps/index30/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -28110,9 +28110,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index30.html",
+      "launch": "apps/index30/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index30.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index30/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -28143,7 +28143,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index30.html",
+      "file": "apps/index30/index.html",
       "sizeBytes": 7742,
       "screenshots": [
         "350/preview.jpg",
@@ -28278,8 +28278,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index31",
     "title": "5 Элементов: Семейная версия",
-    "path": "index31.html",
-    "launchUrl": "index31.html",
+    "path": "apps/index31/index.html",
+    "launchUrl": "apps/index31/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -28315,9 +28315,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index31.html",
+      "launch": "apps/index31/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index31.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index31/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -28348,7 +28348,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index31.html",
+      "file": "apps/index31/index.html",
       "sizeBytes": 14984,
       "screenshots": [
         "350/preview.jpg",
@@ -28483,8 +28483,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index32",
     "title": "Угадай ноту",
-    "path": "index32.html",
-    "launchUrl": "index32.html",
+    "path": "apps/index32/index.html",
+    "launchUrl": "apps/index32/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -28520,9 +28520,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index32.html",
+      "launch": "apps/index32/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index32.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index32/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -28553,7 +28553,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index32.html",
+      "file": "apps/index32/index.html",
       "sizeBytes": 7283,
       "screenshots": [
         "350/preview.jpg",
@@ -28683,8 +28683,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index33",
     "title": "Веб-синтезатор звуков",
-    "path": "index33.html",
-    "launchUrl": "index33.html",
+    "path": "apps/index33/index.html",
+    "launchUrl": "apps/index33/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -28720,9 +28720,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index33.html",
+      "launch": "apps/index33/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index33.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index33/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -28753,7 +28753,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index33.html",
+      "file": "apps/index33/index.html",
       "sizeBytes": 15675,
       "screenshots": [
         "350/preview.jpg",
@@ -28885,8 +28885,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index38",
     "title": "Tower Defense Spray Mechanic",
-    "path": "index38.html",
-    "launchUrl": "index38.html",
+    "path": "archive/index38/index.html",
+    "launchUrl": "archive/index38/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -28922,9 +28922,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index38.html",
+      "launch": "archive/index38/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index38.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index38/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -28955,7 +28955,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index38.html",
+      "file": "archive/index38/index.html",
       "sizeBytes": 10534,
       "screenshots": [
         "350/preview.jpg",
@@ -29085,8 +29085,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index39",
     "title": "Угадай текст наоборот",
-    "path": "index39.html",
-    "launchUrl": "index39.html",
+    "path": "apps/index39/index.html",
+    "launchUrl": "apps/index39/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -29123,9 +29123,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index39.html",
+      "launch": "apps/index39/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index39.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index39/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -29156,7 +29156,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index39.html",
+      "file": "apps/index39/index.html",
       "sizeBytes": 8790,
       "screenshots": [
         "350/preview.jpg",
@@ -29286,8 +29286,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index42",
     "title": "Кухня Хаоса - Кафе-симулятор",
-    "path": "index42.html",
-    "launchUrl": "index42.html",
+    "path": "apps/index42/index.html",
+    "launchUrl": "apps/index42/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -29323,9 +29323,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index42.html",
+      "launch": "apps/index42/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index42.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index42/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -29356,7 +29356,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index42.html",
+      "file": "apps/index42/index.html",
       "sizeBytes": 17430,
       "screenshots": [
         "350/preview.jpg",
@@ -29490,8 +29490,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index44",
     "title": "Memori Chests",
-    "path": "index44.html",
-    "launchUrl": "index44.html",
+    "path": "apps/index44/index.html",
+    "launchUrl": "apps/index44/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -29527,9 +29527,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index44.html",
+      "launch": "apps/index44/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index44.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index44/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -29560,7 +29560,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index44.html",
+      "file": "apps/index44/index.html",
       "sizeBytes": 6919,
       "screenshots": [
         "350/preview.jpg",
@@ -29684,8 +29684,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index45",
     "title": "Сундучный Магнат",
-    "path": "index45.html",
-    "launchUrl": "index45.html",
+    "path": "apps/index45/index.html",
+    "launchUrl": "apps/index45/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -29721,9 +29721,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index45.html",
+      "launch": "apps/index45/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index45.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index45/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -29754,7 +29754,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index45.html",
+      "file": "apps/index45/index.html",
       "sizeBytes": 9407,
       "screenshots": [
         "350/preview.jpg",
@@ -29884,8 +29884,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index46",
     "title": "Торговая Империя",
-    "path": "index46.html",
-    "launchUrl": "index46.html",
+    "path": "archive/index46/index.html",
+    "launchUrl": "archive/index46/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -29921,9 +29921,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index46.html",
+      "launch": "archive/index46/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index46.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index46/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -29954,7 +29954,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index46.html",
+      "file": "archive/index46/index.html",
       "sizeBytes": 10909,
       "screenshots": [
         "350/preview.jpg",
@@ -30079,8 +30079,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index48",
     "title": "Админка TD Game",
-    "path": "index48.html",
-    "launchUrl": "index48.html",
+    "path": "apps/index48/index.html",
+    "launchUrl": "apps/index48/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -30117,9 +30117,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index48.html",
+      "launch": "apps/index48/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index48.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index48/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -30150,7 +30150,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index48.html",
+      "file": "apps/index48/index.html",
       "sizeBytes": 6506,
       "screenshots": [
         "350/preview.jpg",
@@ -30286,8 +30286,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index49",
     "title": "JSON Table Editor",
-    "path": "index49.html",
-    "launchUrl": "index49.html",
+    "path": "apps/index49/index.html",
+    "launchUrl": "apps/index49/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -30324,9 +30324,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index49.html",
+      "launch": "apps/index49/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index49.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index49/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -30357,7 +30357,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index49.html",
+      "file": "apps/index49/index.html",
       "sizeBytes": 14583,
       "screenshots": [
         "350/preview.jpg",
@@ -30487,8 +30487,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index50",
     "title": "JSON Admin Panel",
-    "path": "index50.html",
-    "launchUrl": "index50.html",
+    "path": "apps/index50/index.html",
+    "launchUrl": "apps/index50/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -30525,9 +30525,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index50.html",
+      "launch": "apps/index50/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index50.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index50/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -30558,7 +30558,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index50.html",
+      "file": "apps/index50/index.html",
       "sizeBytes": 4648,
       "screenshots": [
         "350/preview.jpg",
@@ -30695,8 +30695,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index51",
     "title": "JSON Admin Panel",
-    "path": "index51.html",
-    "launchUrl": "index51.html",
+    "path": "apps/index51/index.html",
+    "launchUrl": "apps/index51/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -30733,9 +30733,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index51.html",
+      "launch": "apps/index51/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index51.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index51/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -30766,7 +30766,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index51.html",
+      "file": "apps/index51/index.html",
       "sizeBytes": 10274,
       "screenshots": [
         "350/preview.jpg",
@@ -30903,8 +30903,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index53",
     "title": "Огненный снаряд",
-    "path": "index53.html",
-    "launchUrl": "index53.html",
+    "path": "apps/index53/index.html",
+    "launchUrl": "apps/index53/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -30940,9 +30940,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index53.html",
+      "launch": "apps/index53/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index53.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index53/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -30973,7 +30973,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index53.html",
+      "file": "apps/index53/index.html",
       "sizeBytes": 7866,
       "screenshots": [
         "350/preview.jpg",
@@ -31098,8 +31098,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index54",
     "title": "Реалистичный огненный снаряд",
-    "path": "index54.html",
-    "launchUrl": "index54.html",
+    "path": "apps/index54/index.html",
+    "launchUrl": "apps/index54/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -31135,9 +31135,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index54.html",
+      "launch": "apps/index54/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index54.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index54/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -31168,7 +31168,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index54.html",
+      "file": "apps/index54/index.html",
       "sizeBytes": 10561,
       "screenshots": [
         "350/preview.jpg",
@@ -31293,8 +31293,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index55",
     "title": "Язык пламени",
-    "path": "index55.html",
-    "launchUrl": "index55.html",
+    "path": "apps/index55/index.html",
+    "launchUrl": "apps/index55/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -31330,9 +31330,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index55.html",
+      "launch": "apps/index55/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index55.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index55/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -31363,7 +31363,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index55.html",
+      "file": "apps/index55/index.html",
       "sizeBytes": 7053,
       "screenshots": [
         "350/preview.jpg",
@@ -31487,8 +31487,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index56",
     "title": "Огненная пушка",
-    "path": "index56.html",
-    "launchUrl": "index56.html",
+    "path": "apps/index56/index.html",
+    "launchUrl": "apps/index56/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -31524,9 +31524,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index56.html",
+      "launch": "apps/index56/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index56.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index56/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -31557,7 +31557,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index56.html",
+      "file": "apps/index56/index.html",
       "sizeBytes": 11339,
       "screenshots": [
         "350/preview.jpg",
@@ -31682,8 +31682,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index57",
     "title": "Огненная пушка с эффектами",
-    "path": "index57.html",
-    "launchUrl": "index57.html",
+    "path": "apps/index57/index.html",
+    "launchUrl": "apps/index57/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -31719,9 +31719,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index57.html",
+      "launch": "apps/index57/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index57.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index57/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -31752,7 +31752,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index57.html",
+      "file": "apps/index57/index.html",
       "sizeBytes": 15134,
       "screenshots": [
         "350/preview.jpg",
@@ -31877,8 +31877,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index58",
     "title": "Tower Defense Water Map",
-    "path": "index58.html",
-    "launchUrl": "index58.html",
+    "path": "apps/index58/index.html",
+    "launchUrl": "apps/index58/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -31914,9 +31914,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index58.html",
+      "launch": "apps/index58/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index58.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index58/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -31947,7 +31947,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index58.html",
+      "file": "apps/index58/index.html",
       "sizeBytes": 16952,
       "screenshots": [
         "350/preview.jpg",
@@ -32077,8 +32077,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index59",
     "title": "Tower Defense (PixiJS)",
-    "path": "index59.html",
-    "launchUrl": "index59.html",
+    "path": "apps/index59/index.html",
+    "launchUrl": "apps/index59/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -32114,9 +32114,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index59.html",
+      "launch": "apps/index59/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index59.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index59/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -32147,7 +32147,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index59.html",
+      "file": "apps/index59/index.html",
       "sizeBytes": 19503,
       "screenshots": [
         "350/preview.jpg",
@@ -32279,8 +32279,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index61",
     "title": "Крестики-нолики (P2P)",
-    "path": "index61.html",
-    "launchUrl": "index61.html",
+    "path": "apps/index61/index.html",
+    "launchUrl": "apps/index61/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -32316,9 +32316,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index61.html",
+      "launch": "apps/index61/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index61.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index61/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -32349,7 +32349,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index61.html",
+      "file": "apps/index61/index.html",
       "sizeBytes": 6147,
       "screenshots": [
         "350/preview.jpg",
@@ -32475,8 +32475,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index62",
     "title": "P2P Викторина (4 игрока)",
-    "path": "index62.html",
-    "launchUrl": "index62.html",
+    "path": "apps/index62/index.html",
+    "launchUrl": "apps/index62/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -32512,9 +32512,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index62.html",
+      "launch": "apps/index62/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index62.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index62/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -32545,7 +32545,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index62.html",
+      "file": "apps/index62/index.html",
       "sizeBytes": 6028,
       "screenshots": [
         "350/preview.jpg",
@@ -32673,8 +32673,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index63",
     "title": "P2P Монополия (4 игрока)",
-    "path": "index63.html",
-    "launchUrl": "index63.html",
+    "path": "apps/index63/index.html",
+    "launchUrl": "apps/index63/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -32710,9 +32710,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index63.html",
+      "launch": "apps/index63/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index63.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index63/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -32743,7 +32743,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index63.html",
+      "file": "apps/index63/index.html",
       "sizeBytes": 11978,
       "screenshots": [
         "350/preview.jpg",
@@ -32871,8 +32871,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index64",
     "title": "P2P Подключение (4 игрока)",
-    "path": "index64.html",
-    "launchUrl": "index64.html",
+    "path": "apps/index64/index.html",
+    "launchUrl": "apps/index64/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -32908,9 +32908,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index64.html",
+      "launch": "apps/index64/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index64.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index64/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -32941,7 +32941,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index64.html",
+      "file": "apps/index64/index.html",
       "sizeBytes": 5921,
       "screenshots": [
         "350/preview.jpg",
@@ -33073,8 +33073,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index88",
     "title": "File Analyzer Pro",
-    "path": "index88.html",
-    "launchUrl": "index88.html",
+    "path": "archive/index88/index.html",
+    "launchUrl": "archive/index88/index.html",
     "category": "Файлы / Данные",
     "status": "review",
     "maturity": "beta",
@@ -33111,9 +33111,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index88.html",
+      "launch": "archive/index88/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index88.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index88/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -33144,7 +33144,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index88.html",
+      "file": "archive/index88/index.html",
       "sizeBytes": 15463,
       "screenshots": [
         "350/preview.jpg",
@@ -33277,8 +33277,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index101",
     "title": "Типография Idle",
-    "path": "index101.html",
-    "launchUrl": "index101.html",
+    "path": "apps/index101/index.html",
+    "launchUrl": "apps/index101/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -33315,9 +33315,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index101.html",
+      "launch": "apps/index101/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index101.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index101/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -33348,7 +33348,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index101.html",
+      "file": "apps/index101/index.html",
       "sizeBytes": 18035,
       "screenshots": [
         "350/preview.jpg",
@@ -33484,8 +33484,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index102",
     "title": "Симулятор приема маммолога",
-    "path": "index102.html",
-    "launchUrl": "index102.html",
+    "path": "apps/index102/index.html",
+    "launchUrl": "apps/index102/index.html",
     "category": "Игры",
     "status": "review",
     "maturity": "beta",
@@ -33521,9 +33521,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index102.html",
+      "launch": "apps/index102/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index102.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index102/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -33554,7 +33554,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index102.html",
+      "file": "apps/index102/index.html",
       "sizeBytes": 5876,
       "screenshots": [
         "350/preview.jpg",
@@ -33684,8 +33684,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index103",
     "title": "Шапочный Бизнес",
-    "path": "index103.html",
-    "launchUrl": "index103.html",
+    "path": "apps/index103/index.html",
+    "launchUrl": "apps/index103/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -33721,9 +33721,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index103.html",
+      "launch": "apps/index103/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index103.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index103/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -33754,7 +33754,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index103.html",
+      "file": "apps/index103/index.html",
       "sizeBytes": 10117,
       "screenshots": [
         "350/preview.jpg",
@@ -33884,8 +33884,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index141",
     "title": "Игра: Типография",
-    "path": "index141.html",
-    "launchUrl": "index141.html",
+    "path": "apps/index141/index.html",
+    "launchUrl": "apps/index141/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -33922,9 +33922,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index141.html",
+      "launch": "apps/index141/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index141.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index141/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -33955,7 +33955,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index141.html",
+      "file": "apps/index141/index.html",
       "sizeBytes": 8753,
       "screenshots": [
         "350/preview.jpg",
@@ -34095,8 +34095,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index144",
     "title": "Типография: Бизнес-симулятор",
-    "path": "index144.html",
-    "launchUrl": "index144.html",
+    "path": "apps/index144/index.html",
+    "launchUrl": "apps/index144/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -34133,9 +34133,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index144.html",
+      "launch": "apps/index144/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index144.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index144/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -34166,7 +34166,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index144.html",
+      "file": "apps/index144/index.html",
       "sizeBytes": 15246,
       "screenshots": [
         "350/preview.jpg",
@@ -34307,8 +34307,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index149",
     "title": "TD Интерфейс",
-    "path": "index149.html",
-    "launchUrl": "index149.html",
+    "path": "apps/index149/index.html",
+    "launchUrl": "apps/index149/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "beta",
@@ -34345,9 +34345,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index149.html",
+      "launch": "apps/index149/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index149.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index149/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -34378,7 +34378,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index149.html",
+      "file": "apps/index149/index.html",
       "sizeBytes": 12621,
       "screenshots": [
         "350/preview.jpg",
@@ -34508,8 +34508,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index153",
     "title": "Гео-Фонарик",
-    "path": "index153.html",
-    "launchUrl": "index153.html",
+    "path": "apps/index153/index.html",
+    "launchUrl": "apps/index153/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "beta",
@@ -34545,9 +34545,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index153.html",
+      "launch": "apps/index153/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index153.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/index153/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -34578,7 +34578,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index153.html",
+      "file": "apps/index153/index.html",
       "sizeBytes": 16888,
       "screenshots": [
         "350/preview.jpg",
@@ -34702,8 +34702,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "index502",
     "title": "Типографский Магнат",
-    "path": "index502.html",
-    "launchUrl": "index502.html",
+    "path": "archive/index502/index.html",
+    "launchUrl": "archive/index502/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "review",
     "maturity": "beta",
@@ -34740,9 +34740,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "index502.html",
+      "launch": "archive/index502/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/index502.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/index502/index.html"
     },
     "metrics": {
       "readiness": 56,
@@ -34773,7 +34773,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "index502.html",
+      "file": "archive/index502/index.html",
       "sizeBytes": 10112,
       "screenshots": [
         "350/preview.jpg",
@@ -34909,8 +34909,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "m100",
     "title": "Миссия: Община - Интерфейс",
-    "path": "m100/index.html",
-    "launchUrl": "m100/index.html",
+    "path": "apps/m100/index.html",
+    "launchUrl": "apps/m100/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "draft",
@@ -34945,9 +34945,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "m100/index.html",
+      "launch": "apps/m100/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/m100/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/m100/index.html"
     },
     "metrics": {
       "readiness": 50,
@@ -34978,7 +34978,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "m100/index.html",
+      "file": "apps/m100/index.html",
       "sizeBytes": 48544,
       "screenshots": [],
       "cssLinks": [
@@ -35090,8 +35090,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "925",
     "title": "Расчет параметров рулона",
-    "path": "925/index.html",
-    "launchUrl": "925/index.html",
+    "path": "archive/925/index.html",
+    "launchUrl": "archive/925/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "draft",
@@ -35124,9 +35124,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "925/index.html",
+      "launch": "archive/925/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/925/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/925/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -35157,7 +35157,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "925/index.html",
+      "file": "archive/925/index.html",
       "sizeBytes": 20511,
       "screenshots": [],
       "cssLinks": [
@@ -35248,8 +35248,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "926",
     "title": "Расчет параметров рулона",
-    "path": "926/index.html",
-    "launchUrl": "926/index.html",
+    "path": "archive/926/index.html",
+    "launchUrl": "archive/926/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "draft",
@@ -35282,9 +35282,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "926/index.html",
+      "launch": "archive/926/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/926/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/926/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -35315,7 +35315,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "926/index.html",
+      "file": "archive/926/index.html",
       "sizeBytes": 21642,
       "screenshots": [],
       "cssLinks": [
@@ -35406,8 +35406,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "albion",
     "title": "Albion Craft Master",
-    "path": "albion/index.html",
-    "launchUrl": "albion/index.html",
+    "path": "archive/albion/index.html",
+    "launchUrl": "archive/albion/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "draft",
@@ -35442,9 +35442,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "albion/index.html",
+      "launch": "archive/albion/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/albion/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/albion/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -35475,7 +35475,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "albion/index.html",
+      "file": "archive/albion/index.html",
       "sizeBytes": 82616,
       "screenshots": [],
       "cssLinks": [
@@ -35596,8 +35596,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "albion2",
     "title": "Albion Craft Master",
-    "path": "albion2/index.html",
-    "launchUrl": "albion2/index.html",
+    "path": "archive/albion2/index.html",
+    "launchUrl": "archive/albion2/index.html",
     "category": "Церковь",
     "status": "review",
     "maturity": "draft",
@@ -35632,9 +35632,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "albion2/index.html",
+      "launch": "archive/albion2/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/albion2/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/albion2/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -35665,7 +35665,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "albion2/index.html",
+      "file": "archive/albion2/index.html",
       "sizeBytes": 92660,
       "screenshots": [],
       "cssLinks": [
@@ -35785,8 +35785,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "albion3",
     "title": "Albion Craft Calculator",
-    "path": "albion3/index.html",
-    "launchUrl": "albion3/index.html",
+    "path": "apps/albion3/index.html",
+    "launchUrl": "apps/albion3/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "draft",
@@ -35817,9 +35817,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "albion3/index.html",
+      "launch": "apps/albion3/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/albion3/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/albion3/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -35850,7 +35850,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "albion3/index.html",
+      "file": "apps/albion3/index.html",
       "sizeBytes": 25437,
       "screenshots": [],
       "cssLinks": [],
@@ -35927,8 +35927,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "ru",
     "title": "Алгоритм повелительного наклонения",
-    "path": "ru/index.html",
-    "launchUrl": "ru/index.html",
+    "path": "apps/ru/index.html",
+    "launchUrl": "apps/ru/index.html",
     "category": "Текст / Контент",
     "status": "review",
     "maturity": "draft",
@@ -35964,9 +35964,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "ru/index.html",
+      "launch": "apps/ru/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/ru/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/ru/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -35997,7 +35997,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "ru/index.html",
+      "file": "apps/ru/index.html",
       "sizeBytes": 18638,
       "screenshots": [],
       "cssLinks": [],
@@ -36097,8 +36097,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "win",
     "title": "WebOS - Веб-эмуляция операционной системы",
-    "path": "win/index.html",
-    "launchUrl": "win/index.html",
+    "path": "apps/win/index.html",
+    "launchUrl": "apps/win/index.html",
     "category": "Нужно разобрать",
     "status": "review",
     "maturity": "draft",
@@ -36126,9 +36126,9 @@ window.SUNPOLE_PROJECTS = [
     "related": [],
     "isVisible": true,
     "links": {
-      "launch": "win/index.html",
+      "launch": "apps/win/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/win/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/win/index.html"
     },
     "metrics": {
       "readiness": 44,
@@ -36159,7 +36159,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "win/index.html",
+      "file": "apps/win/index.html",
       "sizeBytes": 100568,
       "screenshots": [],
       "cssLinks": [],
@@ -36220,8 +36220,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "82",
     "title": "Типография - Бизнес симулятор",
-    "path": "82/index.html",
-    "launchUrl": "82/index.html",
+    "path": "archive/82/index.html",
+    "launchUrl": "archive/82/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -36257,9 +36257,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "82/index.html",
+      "launch": "archive/82/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/82/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/82/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -36290,7 +36290,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "82/index.html",
+      "file": "archive/82/index.html",
       "sizeBytes": 13291,
       "screenshots": [],
       "cssLinks": [],
@@ -36397,8 +36397,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "83",
     "title": "Типография - Бизнес симулятор",
-    "path": "83/index.html",
-    "launchUrl": "83/index.html",
+    "path": "archive/83/index.html",
+    "launchUrl": "archive/83/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -36434,9 +36434,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "83/index.html",
+      "launch": "archive/83/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/83/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/83/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -36467,7 +36467,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "83/index.html",
+      "file": "archive/83/index.html",
       "sizeBytes": 13873,
       "screenshots": [],
       "cssLinks": [],
@@ -36574,8 +36574,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "84",
     "title": "Типография - Бизнес симулятор",
-    "path": "84/index.html",
-    "launchUrl": "84/index.html",
+    "path": "archive/84/index.html",
+    "launchUrl": "archive/84/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -36611,9 +36611,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "84/index.html",
+      "launch": "archive/84/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/84/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/84/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -36644,7 +36644,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "84/index.html",
+      "file": "archive/84/index.html",
       "sizeBytes": 13873,
       "screenshots": [],
       "cssLinks": [],
@@ -36751,8 +36751,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "85",
     "title": "Типография - Бизнес симулятор",
-    "path": "85/index.html",
-    "launchUrl": "85/index.html",
+    "path": "archive/85/index.html",
+    "launchUrl": "archive/85/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -36788,9 +36788,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "85/index.html",
+      "launch": "archive/85/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/85/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/85/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -36821,7 +36821,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "85/index.html",
+      "file": "archive/85/index.html",
       "sizeBytes": 13873,
       "screenshots": [],
       "cssLinks": [],
@@ -36928,8 +36928,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "86",
     "title": "Типография - Бизнес симулятор",
-    "path": "86/index.html",
-    "launchUrl": "86/index.html",
+    "path": "archive/86/index.html",
+    "launchUrl": "archive/86/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -36965,9 +36965,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "86/index.html",
+      "launch": "archive/86/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/86/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/86/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -36998,7 +36998,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "86/index.html",
+      "file": "archive/86/index.html",
       "sizeBytes": 19613,
       "screenshots": [],
       "cssLinks": [],
@@ -37105,8 +37105,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "87",
     "title": "Типография - Бизнес симулятор",
-    "path": "87/index.html",
-    "launchUrl": "87/index.html",
+    "path": "archive/87/index.html",
+    "launchUrl": "archive/87/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -37142,9 +37142,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "87/index.html",
+      "launch": "archive/87/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/87/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/87/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -37175,7 +37175,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "87/index.html",
+      "file": "archive/87/index.html",
       "sizeBytes": 17275,
       "screenshots": [],
       "cssLinks": [],
@@ -37282,8 +37282,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "920",
     "title": "Simple Mobile Spreadsheet",
-    "path": "920/index.html",
-    "launchUrl": "920/index.html",
+    "path": "apps/920/index.html",
+    "launchUrl": "apps/920/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -37311,9 +37311,9 @@ window.SUNPOLE_PROJECTS = [
     "related": [],
     "isVisible": true,
     "links": {
-      "launch": "920/index.html",
+      "launch": "apps/920/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/920/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/920/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -37344,7 +37344,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "920/index.html",
+      "file": "apps/920/index.html",
       "sizeBytes": 7876,
       "screenshots": [],
       "cssLinks": [],
@@ -37390,8 +37390,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "921",
     "title": "Калькулятор параметров рулона фольги",
-    "path": "921/index.html",
-    "launchUrl": "921/index.html",
+    "path": "apps/921/index.html",
+    "launchUrl": "apps/921/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -37427,9 +37427,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "921/index.html",
+      "launch": "apps/921/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/921/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/921/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -37460,7 +37460,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "921/index.html",
+      "file": "apps/921/index.html",
       "sizeBytes": 13695,
       "screenshots": [],
       "cssLinks": [],
@@ -37556,8 +37556,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "922",
     "title": "Калькулятор рулона фольги",
-    "path": "922/index.html",
-    "launchUrl": "922/index.html",
+    "path": "apps/922/index.html",
+    "launchUrl": "apps/922/index.html",
     "category": "Полиграфия / Дизайн",
     "status": "experiment",
     "maturity": "draft",
@@ -37593,9 +37593,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "922/index.html",
+      "launch": "apps/922/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/922/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/922/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -37626,7 +37626,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "922/index.html",
+      "file": "apps/922/index.html",
       "sizeBytes": 15700,
       "screenshots": [],
       "cssLinks": [
@@ -37724,8 +37724,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "924",
     "title": "Расчет параметров рулона",
-    "path": "924/index.html",
-    "launchUrl": "924/index.html",
+    "path": "archive/924/index.html",
+    "launchUrl": "archive/924/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -37758,9 +37758,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "924/index.html",
+      "launch": "archive/924/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/924/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/924/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -37791,7 +37791,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "924/index.html",
+      "file": "archive/924/index.html",
       "sizeBytes": 19429,
       "screenshots": [],
       "cssLinks": [
@@ -37872,8 +37872,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "927",
     "title": "Расчет параметров рулона",
-    "path": "927/index.html",
-    "launchUrl": "927/index.html",
+    "path": "apps/927/index.html",
+    "launchUrl": "apps/927/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -37906,9 +37906,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "927/index.html",
+      "launch": "apps/927/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/927/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/927/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -37939,7 +37939,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "927/index.html",
+      "file": "apps/927/index.html",
       "sizeBytes": 19916,
       "screenshots": [],
       "cssLinks": [
@@ -38020,8 +38020,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "muz",
     "title": "Полная таблица гамм с пентатоникой",
-    "path": "muz/index.html",
-    "launchUrl": "muz/index.html",
+    "path": "apps/muz/index.html",
+    "launchUrl": "apps/muz/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -38051,9 +38051,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "muz/index.html",
+      "launch": "apps/muz/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/muz/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/muz/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -38084,7 +38084,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "muz/index.html",
+      "file": "apps/muz/index.html",
       "sizeBytes": 14948,
       "screenshots": [],
       "cssLinks": [],
@@ -38140,8 +38140,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "muz2",
     "title": "Полная таблица гамм с пентатоникой",
-    "path": "muz2/index.html",
-    "launchUrl": "muz2/index.html",
+    "path": "archive/muz2/index.html",
+    "launchUrl": "archive/muz2/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -38171,9 +38171,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "muz2/index.html",
+      "launch": "archive/muz2/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/muz2/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/archive/muz2/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -38204,7 +38204,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "muz2/index.html",
+      "file": "archive/muz2/index.html",
       "sizeBytes": 15611,
       "screenshots": [],
       "cssLinks": [],
@@ -38260,8 +38260,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "root1",
     "title": "Каскадная клавиатура",
-    "path": "root1/index.html",
-    "launchUrl": "root1/index.html",
+    "path": "apps/root1/index.html",
+    "launchUrl": "apps/root1/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -38289,9 +38289,9 @@ window.SUNPOLE_PROJECTS = [
     "related": [],
     "isVisible": true,
     "links": {
-      "launch": "root1/index.html",
+      "launch": "apps/root1/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/root1/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/root1/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -38322,7 +38322,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "root1/index.html",
+      "file": "apps/root1/index.html",
       "sizeBytes": 15186,
       "screenshots": [],
       "cssLinks": [],
@@ -38368,8 +38368,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "wb",
     "title": "Калькулятор цен для Wildberries (с НДС)",
-    "path": "wb/index.html",
-    "launchUrl": "wb/index.html",
+    "path": "apps/wb/index.html",
+    "launchUrl": "apps/wb/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -38400,9 +38400,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "wb/index.html",
+      "launch": "apps/wb/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/wb/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/wb/index.html"
     },
     "metrics": {
       "readiness": 38,
@@ -38433,7 +38433,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "wb/index.html",
+      "file": "apps/wb/index.html",
       "sizeBytes": 11805,
       "screenshots": [],
       "cssLinks": [],
@@ -38496,8 +38496,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "wb-index2",
     "title": "Калькулятор WB",
-    "path": "wb/index2.html",
-    "launchUrl": "wb/index2.html",
+    "path": "apps/wb/index2.html",
+    "launchUrl": "apps/wb/index2.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -38528,9 +38528,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "wb/index2.html",
+      "launch": "apps/wb/index2.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/wb/index2.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/wb/index2.html"
     },
     "metrics": {
       "readiness": 38,
@@ -38561,7 +38561,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "wb/index2.html",
+      "file": "apps/wb/index2.html",
       "sizeBytes": 15945,
       "screenshots": [],
       "cssLinks": [],
@@ -38625,8 +38625,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "wb-index3",
     "title": "Калькулятор WB (Гарантированная прибыль)",
-    "path": "wb/index3.html",
-    "launchUrl": "wb/index3.html",
+    "path": "apps/wb/index3.html",
+    "launchUrl": "apps/wb/index3.html",
     "category": "Обучение",
     "status": "experiment",
     "maturity": "draft",
@@ -38661,9 +38661,9 @@ window.SUNPOLE_PROJECTS = [
     ],
     "isVisible": true,
     "links": {
-      "launch": "wb/index3.html",
+      "launch": "apps/wb/index3.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/wb/index3.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/wb/index3.html"
     },
     "metrics": {
       "readiness": 38,
@@ -38694,7 +38694,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "wb/index3.html",
+      "file": "apps/wb/index3.html",
       "sizeBytes": 11170,
       "screenshots": [],
       "cssLinks": [],
@@ -38790,8 +38790,8 @@ window.SUNPOLE_PROJECTS = [
   {
     "id": "923",
     "title": "923",
-    "path": "923/index.html",
-    "launchUrl": "923/index.html",
+    "path": "apps/923/index.html",
+    "launchUrl": "apps/923/index.html",
     "category": "Нужно разобрать",
     "status": "experiment",
     "maturity": "draft",
@@ -38816,9 +38816,9 @@ window.SUNPOLE_PROJECTS = [
     "related": [],
     "isVisible": true,
     "links": {
-      "launch": "923/index.html",
+      "launch": "apps/923/index.html",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/923/index.html"
+      "source": "https://github.com/sunpole/stilist/blob/main/apps/923/index.html"
     },
     "metrics": {
       "readiness": 20,
@@ -38841,7 +38841,7 @@ window.SUNPOLE_PROJECTS = [
       ]
     },
     "builder": {
-      "file": "923/index.html",
+      "file": "apps/923/index.html",
       "sizeBytes": 2,
       "screenshots": [],
       "cssLinks": [],

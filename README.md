@@ -20,8 +20,9 @@ hub-current.html
 194 discovered project cards and includes service metadata for cleanup work:
 `canonicalOf`, `versionOf`, `hasRealScreenshot`, and `needsReviewReason`.
 
-Physical cleanup is intentionally postponed. Files are not deleted, moved, or
-renamed yet so old links keep working while the catalog is reviewed safely.
+Physical migration is now handled as a safe staged process. Catalog project
+entries point to `apps/` and `archive/`, while old root project URLs remain as
+redirect stubs and old project folders remain available for compatibility.
 
 Useful entry points:
 
@@ -31,3 +32,12 @@ Useful entry points:
 - `hub-versions.html` - version switcher.
 - `project-view-v2.html` - project passport view.
 - `shop.html` - old storefront kept for compatibility.
+
+Structure folders:
+
+- `apps/` - active and reviewable project entries used by the HUB catalog.
+- `archive/` - old versions, duplicates, and alternate variants.
+- `data/` - generated HUB catalog data.
+- `docs/` - roadmap, migration notes, and cleanup reports.
+- `tools/` - HUB builder and local utilities.
+- `assets/` - shared HUB assets.

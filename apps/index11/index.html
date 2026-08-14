@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Торговый Терминал 1984</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      font-family: 'Courier New', monospace;
+    }
+    body {
+      background: #000;
+      color: #0f0;
+      height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+      position: relative;
+    }
+    #screen {
+      border: 2px solid #333;
+      height: calc(70vh - 10px);
+      padding: 10px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+    }
+    #controls {
+      border: 2px solid #333;
+      height: calc(30vh - 20px);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px 10px;
+      cursor: pointer;
+      flex-grow: 1;
+      margin: 0 5px;
+      text-align: center;
+    }
+    .btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .slider-cursor {
+      color: #0f0;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    .typed {
+      border-right: 2px solid #0f0;
+      animation: blink 0.5s infinite;
+    }
+    .up { color: #0f0; }
+    .down { color: #f00; }
+    .hidden { display: none; }
+    .scrollable {
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .scrollable::-webkit-scrollbar {
+      display: none;
+    }
+    #audio-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="screen" class="scrollable">> Загрузка терминала...</div>
+  <div id="controls" class="hidden"></div>
+  <div id="audio-controls">
+    <button class="btn" onclick="toggleAudio()">🔈 Звук</button>
+  </div>
+
+  <!-- Аудио элементы -->
+  <audio id="bg1" loop></audio>
+  <audio id="bg2" loop></audio>
+  <audio id="typing-sound"></audio>
+  <audio id="day-start-sound"></audio>
+  <audio id="news-sound"></audio>
+  <audio id="click-sound"></audio>
+  <audio id="buy-sound"></audio>
+  <audio id="sell-sound"></audio>
+
+  <script>
+    // Игровые переменные
+    const gameState = {
+      money: 1000,
+      day: 1,
+      assets: { usd: 0, eur: 0, gold: 0, oil: 0 },
+      prices: { usd: 60, eur: 70, gold: 4500, oil: 80 },
+      prevPrices: { usd: 60, eur: 70, gold: 4500, oil: 80 },
+      trends: { usd: 0, eur: 0, gold: 0, oil: 0 },
+      inventory: [],
+      upgrades: { radar: false, briefcase: false },
+      currentAction: null,
+      selectedAsset: null,
+      gameActive: false,
+      audioEnabled: true,
+      currentBgTrack: 1,
+      currentQty: 1 // Добавлено для хранения текущего количества
+    };
+
+    // Аудио элементы
+    const audio = {
+      bg1: document.getElementById('bg1'),
+      bg2: document.getElementById('bg2'),
+      typing: document.getElementById('typing-sound'),
+      dayStart: document.getElementById('day-start-sound'),
+      news: document.getElementById('news-sound'),
+      click: document.getElementById('click-sound'),
+      buy: document.getElementById('buy-sound'),
+      sell: document.getElementById('sell-sound')
+    };
+
+    // Инициализация аудио
+    function initAudio() {
+      // Установка источников звуков (файлы должны быть в корне проекта)
+      audio.bg1.src = 'bg1.mp3';
+      audio.bg2.src = 'bg2.mp3';
+      audio.typing.src = 'typing.mp3';
+      audio.dayStart.src = 'day-start.mp3';
+      audio.news.src = 'news.mp3';
+      audio.click.src = 'click.mp3';
+      audio.buy.src = 'buy.mp3';
+      audio.sell.src = 'sell.mp3';
+
+      // Начальные настройки громкости
+      setVolume(audio.bg1, 0.13); // Фон 1 - 13%
+      setVolume(audio.bg2, 0.09); // Фон 2 - 9%
+      setVolume(audio.typing, 0.8); // Печать - 80%
+      setVolume(audio.dayStart, 0.5);
+      setVolume(audio.news, 0.5);
+      setVolume(audio.click, 0.8); // Клики - 80%
+      setVolume(audio.buy, 0.5);
+      setVolume(audio.sell, 0.5);
+
+      // Восстановление состояния звука из localStorage
+      const savedAudioState = localStorage.getItem('audioEnabled');
+      if (savedAudioState !== null) {
+        gameState.audioEnabled = savedAudioState === 'true';
+        updateAudioButton();
+      }
+
+      // Запуск фоновой музыки
+      if (gameState.audioEnabled) {
+        audio.bg1.play().catch(e => console.log("Автовоспроизведение запрещено"));
+        audio.bg2.play().catch(e => console.log("Автовоспроизведение запрещено"));
+      }
+      
+      // Переключение фоновых треков каждые 2 минуты
+      setInterval(switchBackgroundTrack, 120000);
+    }
+
+    // Обновление кнопки звука
+    function updateAudioButton() {
+      document.querySelector('#audio-controls .btn').textContent = 
+        gameState.audioEnabled ? '🔈 Звук' : '🔇 Звук';
+    }
+
+    // Установка громкости с проверкой поддержки
+    function setVolume(audioElem, volume) {
+      if (audioElem) audioElem.volume = volume;
+    }
+
+    // Переключение фоновых треков
+    function switchBackgroundTrack() {
+      if (!gameState.audioEnabled) return;
+      
+      if (gameState.currentBgTrack === 1) {
+        fadeAudio(audio.bg1, audio.bg2, 0.09); // Фон 2 громче (9%)
+        gameState.currentBgTrack = 2;
+      } else {
+        fadeAudio(audio.bg2, audio.bg1, 0.13); // Фон 1 тише (13%)
+        gameState.currentBgTrack = 1;
+      }
+    }
+
+    // Плавное переключение аудио
+    function fadeAudio(outAudio, inAudio, targetVolume) {
+      if (!gameState.audioEnabled) return;
+      
+      const fadeTime = 3000; // 3 секунды на переход
+      const steps = 30;
+      const stepTime = fadeTime / steps;
+      const volumeStep = outAudio.volume / steps;
+      
+      let step = 0;
+      const fadeInterval = setInterval(() => {
+        step++;
+        
+        // Уменьшаем громкость уходящего трека
+        if (outAudio.volume > 0) {
+          outAudio.volume = Math.max(0, outAudio.volume - volumeStep);
+        }
+        
+        // Увеличиваем громкость входящего трека
+        if (inAudio.volume < targetVolume) {
+          inAudio.volume = Math.min(targetVolume, inAudio.volume + (targetVolume / steps));
+        }
+        
+        if (step >= steps) {
+          clearInterval(fadeInterval);
+          outAudio.volume = 0;
+          inAudio.volume = targetVolume;
+        }
+      }, stepTime);
+    }
+
+    // Временное уменьшение громкости фона
+    function lowerBackgroundVolume() {
+      if (!gameState.audioEnabled) return;
+      
+      const currentBg = gameState.currentBgTrack === 1 ? audio.bg1 : audio.bg2;
+      currentBg.volume = currentBg.volume * 0.4; // Уменьшаем текущую громкость на 60%
+    }
+
+    // Восстановление громкости фона
+    function restoreBackgroundVolume() {
+      if (!gameState.audioEnabled) return;
+      
+      const currentBg = gameState.currentBgTrack === 1 ? audio.bg1 : audio.bg2;
+      currentBg.volume = gameState.currentBgTrack === 1 ? 0.13 : 0.09;
+    }
+
+    // Включение/выключение звука
+    function toggleAudio() {
+      gameState.audioEnabled = !gameState.audioEnabled;
+      localStorage.setItem('audioEnabled', gameState.audioEnabled);
+      updateAudioButton();
+      
+      if (gameState.audioEnabled) {
+        const currentBg = gameState.currentBgTrack === 1 ? audio.bg1 : audio.bg2;
+        currentBg.volume = gameState.currentBgTrack === 1 ? 0.13 : 0.09;
+        currentBg.play().catch(e => console.log("Ошибка воспроизведения"));
+      } else {
+        audio.bg1.volume = 0;
+        audio.bg2.volume = 0;
+      }
+    }
+
+    // Воспроизведение звука с понижением фона
+    function playSound(sound, delay = 0) {
+      if (!gameState.audioEnabled) return;
+      
+      setTimeout(() => {
+        lowerBackgroundVolume();
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("Ошибка воспроизведения звука"));
+        
+        sound.onended = () => {
+          restoreBackgroundVolume();
+        };
+      }, delay);
+    }
+
+    // DOM элементы
+    const screen = document.getElementById('screen');
+    const controls = document.getElementById('controls');
+    let typingInterval;
+    let currentText = '';
+    let isTyping = false;
+
+    // Очистка экрана с анимацией
+    function clearScreen(callback) {
+      if (isTyping) {
+        clearTimeout(typingInterval);
+        isTyping = false;
+      }
+      
+      let lines = screen.innerHTML.split('<br>');
+      let i = lines.length;
+      
+      function deleteLine() {
+        if (i > 0) {
+          i--;
+          screen.innerHTML = lines.slice(0, i).join('<br>');
+          setTimeout(deleteLine, 50);
+        } else {
+          screen.innerHTML = '';
+          if (callback) callback();
+        }
+      }
+      
+      deleteLine();
+    }
+
+    // Печатаем текст с эффектом машинки
+    function typeText(text, callback = null, speed = 30) {
+      if (isTyping) {
+        clearTimeout(typingInterval);
+        isTyping = false;
+      }
+      
+      // Воспроизводим звук печати только для длинного текста
+      if (text.length > 10) {
+        playSound(audio.typing);
+      }
+      
+      let i = 0;
+      currentText = screen.innerHTML;
+      screen.innerHTML = currentText;
+      isTyping = true;
+      
+      function typing() {
+        if (i < text.length) {
+          currentText += text.charAt(i);
+          screen.innerHTML = currentText + '<span class="typed"></span>';
+          i++;
+          typingInterval = setTimeout(typing, speed);
+        } else {
+          isTyping = false;
+          screen.innerHTML = currentText;
+          if (audio.typing) audio.typing.pause();
+          if (callback) callback();
+        }
+      }
+      typing();
+    }
+
+    // Обновляем цены (случайно + тренд)
+    function updatePrices() {
+      Object.keys(gameState.prices).forEach(key => {
+        gameState.prevPrices[key] = gameState.prices[key];
+        const change = (Math.random() - 0.5) * 10 + gameState.trends[key];
+        gameState.prices[key] = Math.max(1, gameState.prices[key] + change);
+        gameState.trends[key] = (Math.random() - 0.5) * 2;
+      });
+    }
+
+    // Показать тренды (если куплен радар)
+    function getTrendIndicator(asset) {
+      if (!gameState.upgrades.radar) return '';
+      return gameState.prices[asset] > gameState.prevPrices[asset] ? 
+        '<span class="up">↑</span>' : 
+        '<span class="down">↓</span>';
+    }
+
+    // Главное меню
+    function showMenu() {
+      controls.innerHTML = '';
+      gameState.currentAction = null;
+      gameState.selectedAsset = null;
+
+      clearScreen(() => {
+        typeText(
+          '> ТОРГОВЫЙ ТЕРМИНАЛ 1984\n' +
+          '> День: ' + gameState.day + '\n' +
+          '> Баланс: $' + gameState.money.toFixed(2) + '\n' +
+          (gameState.upgrades.radar ? '> Радар активен (тренды: ↑/↓)\n' : '') +
+          (gameState.upgrades.briefcase ? '> Барсетка: Показывает историю покупок\n' : '') +
+          '\n|_ ТОВАРЫ _|\n' +
+          '1. Доллар ($): ' + gameState.prices.usd.toFixed(2) + '₽' + getTrendIndicator('usd') + '\n' +
+          '2. Евро (€): ' + gameState.prices.eur.toFixed(2) + '₽' + getTrendIndicator('eur') + '\n' +
+          '3. Золото: ' + gameState.prices.gold.toFixed(2) + '₽' + getTrendIndicator('gold') + '\n' +
+          '4. Нефть: ' + gameState.prices.oil.toFixed(2) + '₽' + getTrendIndicator('oil') + '\n\n' +
+          '|_ ДЕЙСТВИЯ _|',
+          () => {
+            const btnRow1 = document.createElement('div');
+            btnRow1.className = 'btn-row';
+            btnRow1.innerHTML = `
+              <button class="btn" onclick="playSound(audio.click); startAction('buy')">Купить</button>
+              <button class="btn" onclick="playSound(audio.click); startAction('sell')">Продать</button>
+              <button class="btn" onclick="playSound(audio.click); nextDay()">Следующий день</button>
+            `;
+            controls.appendChild(btnRow1);
+
+            const btnRow2 = document.createElement('div');
+            btnRow2.className = 'btn-row';
+            btnRow2.innerHTML = `
+              <button class="btn" onclick="playSound(audio.click); showStats()">Статистика</button>
+              <button class="btn" ${gameState.upgrades.radar ? 'disabled' : ''} 
+                onclick="playSound(audio.click); buyUpgrade('radar')">Купить радар (1500₽)</button>
+              <button class="btn" ${gameState.upgrades.briefcase ? 'disabled' : ''} 
+                onclick="playSound(audio.click); buyUpgrade('briefcase')">Купить барсетку (3000₽)</button>
+            `;
+            controls.appendChild(btnRow2);
+          }
+        );
+      });
+    }
+
+    // Начало действия (покупка/продажа)
+    function startAction(action) {
+      gameState.currentAction = action;
+      clearScreen(() => {
+        typeText('\n> Выберите товар (1-4): ', () => {
+          const btnRow = document.createElement('div');
+          btnRow.className = 'btn-row';
+          btnRow.innerHTML = `
+            <button class="btn" onclick="playSound(audio.click); selectAsset('usd')">Доллар ($)</button>
+            <button class="btn" onclick="playSound(audio.click); selectAsset('eur')">Евро (€)</button>
+            <button class="btn" onclick="playSound(audio.click); selectAsset('gold')">Золото</button>
+            <button class="btn" onclick="playSound(audio.click); selectAsset('oil')">Нефть</button>
+            <button class="btn" onclick="playSound(audio.click); showMenu()">Отмена</button>
+          `;
+          controls.innerHTML = '';
+          controls.appendChild(btnRow);
+        });
+      });
+    }
+
+    // Выбор актива
+    function selectAsset(asset) {
+      gameState.selectedAsset = asset;
+      clearScreen(() => {
+        if (gameState.currentAction === 'buy') {
+          const maxBuyQty = Math.floor(gameState.money / gameState.prices[asset]);
+          typeText(
+            `\n> Максимум можно купить: ${maxBuyQty} ${asset}\n` +
+            '> Введите количество: ',
+            () => showQuantitySlider(maxBuyQty)
+          );
+        } else if (gameState.currentAction === 'sell') {
+          const ownedQty = gameState.assets[asset];
+          if (ownedQty <= 0) {
+            typeText('\n> У вас нет этого товара!\n\n', showMenu);
+          } else {
+            typeText(
+              `\n> У вас есть: ${ownedQty} ${asset}\n` +
+              '> Введите количество для продажи: ',
+              () => showQuantitySlider(ownedQty)
+            );
+          }
+        }
+      });
+    }
+
+    // Ползунок для выбора количества
+    function showQuantitySlider(maxQty) {
+      controls.innerHTML = '';
+      const sliderContainer = document.createElement('div');
+      sliderContainer.className = 'slider-container';
+      
+      gameState.currentQty = 1; // Сброс текущего количества
+      const cursor = document.createElement('span');
+      cursor.className = 'slider-cursor';
+      cursor.textContent = '_';
+      
+      const updateDisplay = () => {
+        sliderContainer.innerHTML = `
+          <span>Количество: ${gameState.currentQty}</span>
+          <input type="range" min="1" max="${maxQty}" value="${gameState.currentQty}" 
+                 style="flex-grow: 1; margin: 0 10px;" 
+                 oninput="gameState.currentQty = this.value; this.nextElementSibling.nextElementSibling.textContent = this.value">
+          ${cursor.outerHTML}
+          <span>${gameState.currentQty}</span>
+          <button class="btn" onclick="confirmAction(gameState.currentQty)">OK</button>
+        `;
+      };
+      
+      updateDisplay();
+      controls.appendChild(sliderContainer);
+    }
+
+    // Подтверждение действия
+    function confirmAction(qty) {
+      qty = parseInt(qty);
+      const asset = gameState.selectedAsset;
+      
+      clearScreen(() => {
+        if (gameState.currentAction === 'buy') {
+          const cost = qty * gameState.prices[asset];
+          if (cost <= gameState.money) {
+            playSound(audio.buy);
+            gameState.money -= cost;
+            gameState.assets[asset] += qty;
+            gameState.inventory.push({
+              asset: asset,
+              qty: qty,
+              price: gameState.prices[asset],
+              day: gameState.day
+            });
+            typeText(`\n> Куплено: ${qty} ${asset} за ${cost.toFixed(2)}₽\n\n`, showMenu);
+          } else {
+            typeText('\n> Недостаточно средств!\n\n', showMenu);
+          }
+        } else if (gameState.currentAction === 'sell') {
+          const income = qty * gameState.prices[asset];
+          playSound(audio.sell);
+          gameState.money += income;
+          gameState.assets[asset] -= qty;
+          typeText(`\n> Продано: ${qty} ${asset} за ${income.toFixed(2)}₽\n\n`, showMenu);
+        }
+      });
+    }
+
+    // Следующий день
+    function nextDay() {
+      playSound(audio.dayStart);
+      gameState.day++;
+      updatePrices();
+      
+      clearScreen(() => {
+        // Случайные события
+        if (Math.random() < 0.3) {
+          const events = [
+            { msg: "> НОВОСТИ: Война на Ближнем Востоке! Цены на нефть растут.", effect: () => gameState.prices.oil *= 1.2 },
+            { msg: "> НОВОСТИ: Кризис в ЕС! Евро падает.", effect: () => gameState.prices.eur *= 0.8 },
+            { msg: "> НОВОСТИ: Новые санкции! Доллар дорожает.", effect: () => gameState.prices.usd *= 1.3 }
+          ];
+          const event = events[Math.floor(Math.random() * events.length)];
+          event.effect();
+          playSound(audio.news);
+          typeText(event.msg + '\n\n', showMenu);
+        } else {
+          typeText('> Рынок изменился...\n\n', showMenu);
+        }
+      });
+    }
+
+    // Покупка улучшений
+    function buyUpgrade(type) {
+      const cost = type === 'radar' ? 1500 : 3000;
+      if (gameState.money >= cost) {
+        playSound(audio.buy);
+        gameState.money -= cost;
+        gameState.upgrades[type] = true;
+        typeText(`\n> Улучшение "${type}" куплено!\n\n`, showMenu);
+      } else {
+        typeText('\n> Недостаточно средств!\n\n', showMenu);
+      }
+    }
+
+    // Статистика и барсетка
+    function showStats() {
+      let total = gameState.money;
+      Object.keys(gameState.assets).forEach(key => {
+        total += gameState.assets[key] * gameState.prices[key];
+      });
+      
+      let inventoryText = '';
+      if (gameState.upgrades.briefcase && gameState.inventory.length > 0) {
+        inventoryText = '\n> БАРСЕТКА (история покупок):\n';
+        gameState.inventory.forEach(item => {
+          const currentValue = item.qty * gameState.prices[item.asset];
+          const profit = currentValue - (item.qty * item.price);
+          inventoryText += `- День ${item.day}: ${item.qty} ${item.asset} ` +
+                          `(куплено за ${item.price.toFixed(2)}₽, ` +
+                          `теперь ${gameState.prices[item.asset].toFixed(2)}₽ | ` +
+                          `Прибыль: ${profit.toFixed(2)}₽)\n`;
+        });
+      }
+      
+      clearScreen(() => {
+        typeText(
+          `\n> ВАШ КАПИТАЛ: ${total.toFixed(2)}₽\n` +
+          `> Налчиные: ${gameState.money.toFixed(2)}₽\n` +
+          `> Активы:\n` +
+          `- Доллар: ${gameState.assets.usd} ($${(gameState.assets.usd * gameState.prices.usd).toFixed(2)})\n` +
+          `- Евро: ${gameState.assets.eur} (€${(gameState.assets.eur * gameState.prices.eur).toFixed(2)})\n` +
+          `- Золото: ${gameState.assets.gold} (${(gameState.assets.gold * gameState.prices.gold).toFixed(2)}₽)\n` +
+          `- Нефть: ${gameState.assets.oil} (${(gameState.assets.oil * gameState.prices.oil).toFixed(2)}₽)\n` +
+          inventoryText + '\n',
+          showMenu
+        );
+      });
+    }
+
+    // Запуск игры
+    function initGame() {
+      initAudio();
+      clearScreen(() => {
+        playSound(audio.typing);
+        typeText('> Инициализация системы...\n', () => {
+          setTimeout(() => {
+            playSound(audio.typing);
+            typeText('> Подключение к бирже...\n', () => {
+              setTimeout(() => {
+                playSound(audio.typing);
+                typeText('> Готово!\n\n', () => {
+                  controls.classList.remove('hidden');
+                  showMenu();
+                  gameState.gameActive = true;
+                });
+              }, 800);
+            });
+          }, 800);
+        });
+      });
+    }
+
+    // Автозапуск
+    window.onload = () => {
+      setTimeout(initGame, 500);
+    };
+  </script>
+</body>
+</html>
