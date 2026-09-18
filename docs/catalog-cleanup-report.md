@@ -1,17 +1,17 @@
 # SUNPOLE HUB Catalog Cleanup Report
 
-Snapshot for `v0.7.1-final-entry`.
+Snapshot for `v0.7.2-portfolio-intake`.
 
 ## Catalog counts
 
-- Total cards: 194
-- `main`: 6
+- Total cards: 199
+- `main`: 11
 - `experiment`: 18
 - `review`: 170
 - `archive`: 0
 - Cards with `canonicalOf`: 12
 - Cards with `versionOf`: 76
-- Cards without a real screenshot: 170
+- Cards without a real screenshot: 165
 - Cards with `needsReviewReason`: 185
 
 ## Current decision
