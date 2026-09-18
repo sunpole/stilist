@@ -17,7 +17,7 @@ hub-current.html
 ```
 
 `data/projects-hub.js` is the auto catalog used by the HUB. It currently tracks
-194 discovered project cards and includes service metadata for cleanup work:
+200 discovered project cards and includes service metadata for cleanup work:
 `canonicalOf`, `versionOf`, `hasRealScreenshot`, and `needsReviewReason`.
 
 Physical cleanup is intentionally postponed. Files are not deleted, moved, or

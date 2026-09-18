@@ -1,20 +1,21 @@
 window.SUNPOLE_HUB_VERSION = {
   name: "SUNPOLE HUB",
-  version: "0.7.0-auto-catalog",
-  codename: "Auto Catalog",
-  stage: "catalog-generation",
-  updatedAt: "2026-06-13",
+  version: "0.7.4-legacy-redirects",
+  codename: "Legacy Redirects",
+  stage: "project-migration",
+  updatedAt: "2026-09-18",
   status: "alpha",
-  description: "Автоматически пересобран полный каталог проектов SUNPOLE HUB на основе HTML-страниц репозитория.",
+  description: "Каталог с отдельно публикуемыми canonical-проектами и безопасно сохранёнными legacy-карточками.",
   changelogUrl: "docs/hub-version.html",
   repository: "sunpole/stilist",
   safeMode: true,
-  projectCount: 194,
+  projectCount: 200,
   scanSummary: {
-    main: 6,
+    main: 11,
     review: 170,
     experiment: 18,
-    withScreenshots: 168,
+    archive: 1,
+    withScreenshots: 174,
     withManifest: 4,
     withOpenGraph: 3
   },
@@ -27,9 +28,8 @@ window.SUNPOLE_HUB_VERSION = {
     "Файлы / Данные: 12"
 ],
   notes: [
-    "Builder v0.7.0 сканирует вероятные entrypoint HTML-файлы и исключает служебные HUB/admin/docs страницы.",
-    "Каталог data/projects-hub.js теперь можно воспроизвести командами scan + generate --write-data.",
-    "Автооценки и связи являются черновыми: проекты с низкой готовностью помечены как review или experiment.",
-    "Старые файлы проектов не удаляются и не переименовываются."
+    "Каждый canonical-проект имеет собственные локальную Git-папку, public GitHub repository и GitHub Pages страницу с одинаковым slug.",
+    "Legacy-карточки сохраняются как скрытые редиректные записи: они не удаляются до проверки обратных ссылок.",
+    "Публичная публикация блокируется при любом подтверждённом секрете или подозрительном файле."
   ]
 };
