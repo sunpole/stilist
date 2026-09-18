@@ -35788,8 +35788,8 @@ window.SUNPOLE_PROJECTS = [
     "path": "albion3/index.html",
     "launchUrl": "albion3/index.html",
     "category": "Нужно разобрать",
-    "status": "review",
-    "maturity": "draft",
+    "status": "archive",
+    "maturity": "redirect",
     "featured": false,
     "quality": {
       "grade": "B1",
@@ -35815,7 +35815,7 @@ window.SUNPOLE_PROJECTS = [
       "albion",
       "albion2"
     ],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
       "launch": "albion3/index.html",
       "hub": "hub-current.html",
@@ -35920,9 +35920,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ]
     },
-    "canonicalOf": null,
-    "hasRealScreenshot": false,
-    "needsReviewReason": "missing real project screenshot"
+    "canonicalOf": "260007",
+    "hasRealScreenshot": true,
+    "needsReviewReason": "migrated to canonical public repository 260007-albion-craft-calculator"
   },
   {
     "id": "ru",
@@ -39065,4 +39065,6 @@ window.SUNPOLE_PROJECTS = [
   {"id":"260005","title":"Алгоритм повелительного наклонения","path":"https://sunpole.github.io/260005-imperative-mood-algorithm/","launchUrl":"https://sunpole.github.io/260005-imperative-mood-algorithm/","category":"Обучение","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":81,"label":"Canonical public project"},"tags":["канонический","русский язык","обучение","грамматика","GitHub Pages"],"description":"Учебная страница с алгоритмом образования повелительного наклонения, правилами, исключениями и таблицами примеров.","note":"Canonical-проект №260005. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260005-imperative-mood-algorithm.png","fallbackImageUrl":"","icon":"📚","source":"canonical-public-repository","versionOf":null,"related":["ru"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260005-imperative-mood-algorithm/","hub":"hub-current.html","source":"https://github.com/sunpole/260005-imperative-mood-algorithm"},"metrics":{"readiness":84,"visual":78,"technical":62,"documentation":86,"repositorySharePercent":0},"tech":{"type":"static educational web page","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":40},{"name":"JavaScript","percent":20},{"name":"CSS","percent":40}]},"builder":{"file":"https://github.com/sunpole/260005-imperative-mood-algorithm","screenshots":["assets/hub/screenshots/260005-imperative-mood-algorithm.png"],"generatedAt":"2026-09-18T12:25:00Z","builderVersion":"canonical-projects-v0.7.9","needsHumanReview":false,"reasons":["credential scan clear","README and versioning present","GitHub Pages deployed","live interface screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
 ,
   {"id":"260006","title":"Simple Mobile Spreadsheet","path":"https://sunpole.github.io/260006-simple-mobile-spreadsheet/","launchUrl":"https://sunpole.github.io/260006-simple-mobile-spreadsheet/","category":"Файлы / Данные","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":82,"label":"Canonical public project"},"tags":["канонический","таблица","мобильный","калькулятор","GitHub Pages"],"description":"Минималистичная мобильная таблица с редактированием параметров и расчётом формул.","note":"Canonical-проект №260006. GitHub Pages и расчёт 10 × 5 = 50 проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260006-simple-mobile-spreadsheet.png","fallbackImageUrl":"","icon":"📊","source":"canonical-public-repository","versionOf":null,"related":["920"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260006-simple-mobile-spreadsheet/","hub":"hub-current.html","source":"https://github.com/sunpole/260006-simple-mobile-spreadsheet"},"metrics":{"readiness":85,"visual":78,"technical":70,"documentation":86,"repositorySharePercent":0},"tech":{"type":"static web utility","language":"en","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":35},{"name":"JavaScript","percent":35},{"name":"CSS","percent":30}]},"builder":{"file":"https://github.com/sunpole/260006-simple-mobile-spreadsheet","screenshots":["assets/hub/screenshots/260006-simple-mobile-spreadsheet.png"],"generatedAt":"2026-09-18T12:40:00Z","builderVersion":"canonical-projects-v0.8.0","needsHumanReview":false,"reasons":["credential scan clear","calculation verified","GitHub Pages deployed","live screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
+,
+  {"id":"260007","title":"Albion Craft Calculator","path":"https://sunpole.github.io/260007-albion-craft-calculator/","launchUrl":"https://sunpole.github.io/260007-albion-craft-calculator/","category":"Игры","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":84,"label":"Canonical public project"},"tags":["канонический","Albion Online","крафт","калькулятор","GitHub Pages"],"description":"Калькулятор ресурсов и стоимости крафта для Albion Online с интерактивными позициями и итоговой суммой.","note":"Canonical-проект №260007. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260007-albion-craft-calculator.png","fallbackImageUrl":"","icon":"⚒️","source":"canonical-public-repository","versionOf":null,"related":["albion3"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260007-albion-craft-calculator/","hub":"hub-current.html","source":"https://github.com/sunpole/260007-albion-craft-calculator"},"metrics":{"readiness":86,"visual":82,"technical":72,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static Vue web calculator","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":25},{"name":"JavaScript","percent":50},{"name":"CSS","percent":25}]},"builder":{"file":"https://github.com/sunpole/260007-albion-craft-calculator","screenshots":["assets/hub/screenshots/260007-albion-craft-calculator.png"],"generatedAt":"2026-09-18T13:35:00Z","builderVersion":"canonical-projects-v0.8.1","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","live interface screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
 ];

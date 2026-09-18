@@ -1,6 +1,6 @@
 window.SUNPOLE_HUB_VERSION = {
   name: "SUNPOLE HUB",
-  version: "0.8.0-canonical-project-260006",
+  version: "0.8.1-canonical-project-260007",
   codename: "Conflict-Free Redirects",
   stage: "project-migration",
   updatedAt: "2026-09-18",
@@ -9,15 +9,15 @@ window.SUNPOLE_HUB_VERSION = {
   changelogUrl: "docs/hub-version.html",
   repository: "sunpole/stilist",
   safeMode: true,
-  projectCount: 205,
+  projectCount: 206,
   scanSummary: {
-    main: 15,
-    review: 168,
+    main: 16,
+    review: 167,
     experiment: 16,
-    archive: 6,
-    withScreenshots: 177,
-    withManifest: 7,
-    withOpenGraph: 6
+    archive: 7,
+    withScreenshots: 178,
+    withManifest: 8,
+    withOpenGraph: 7
   },
   topCategories: [
     "Нужно разобрать: 52",
