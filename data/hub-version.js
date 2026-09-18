@@ -1,7 +1,7 @@
 window.SUNPOLE_HUB_VERSION = {
   name: "SUNPOLE HUB",
-  version: "0.8.1-canonical-project-260007",
-  codename: "Conflict-Free Redirects",
+  version: "0.8.2-canonical-project-260008",
+  codename: "Canonical Music Table",
   stage: "project-migration",
   updatedAt: "2026-09-18",
   status: "alpha",
@@ -9,13 +9,13 @@ window.SUNPOLE_HUB_VERSION = {
   changelogUrl: "docs/hub-version.html",
   repository: "sunpole/stilist",
   safeMode: true,
-  projectCount: 206,
+  projectCount: 207,
   scanSummary: {
-    main: 16,
+    main: 17,
     review: 167,
-    experiment: 16,
-    archive: 7,
-    withScreenshots: 178,
+    experiment: 14,
+    archive: 9,
+    withScreenshots: 179,
     withManifest: 8,
     withOpenGraph: 7
   },
