@@ -840,7 +840,7 @@ window.SUNPOLE_PROJECTS = [
     },
     "canonicalOf": null,
     "hasRealScreenshot": false,
-    "needsReviewReason": "missing real project screenshot"
+    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
   },
   {
     "id": "2025",
@@ -38023,8 +38023,8 @@ window.SUNPOLE_PROJECTS = [
     "path": "muz/index.html",
     "launchUrl": "muz/index.html",
     "category": "Нужно разобрать",
-    "status": "experiment",
-    "maturity": "draft",
+    "status": "archive",
+    "maturity": "migrated",
     "featured": false,
     "quality": {
       "grade": "C4",
@@ -38039,9 +38039,9 @@ window.SUNPOLE_PROJECTS = [
       "javascript",
       "css"
     ],
-    "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
-    "note": "Источник: muz/index.html; готовность 38/100",
-    "imageUrl": "",
+    "description": "Ранняя версия таблицы гамм, перенесённая в канонический публичный проект.",
+    "note": "Перенесён в canonical-проект №260008 18.09.2026.",
+    "imageUrl": "assets/hub/screenshots/260008-musical-scales-pentatonic.png",
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
@@ -38049,11 +38049,11 @@ window.SUNPOLE_PROJECTS = [
     "related": [
       "muz2"
     ],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
-      "launch": "muz/index.html",
+      "launch": "https://sunpole.github.io/260008-musical-scales-pentatonic/",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/muz/index.html"
+      "source": "https://github.com/sunpole/260008-musical-scales-pentatonic"
     },
     "metrics": {
       "readiness": 38,
@@ -38133,9 +38133,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ]
     },
-    "canonicalOf": null,
-    "hasRealScreenshot": false,
-    "needsReviewReason": "missing real project screenshot"
+    "canonicalOf": "260008",
+    "hasRealScreenshot": true,
+    "needsReviewReason": "migrated to canonical public repository 260008-musical-scales-pentatonic"
   },
   {
     "id": "muz2",
@@ -38143,8 +38143,8 @@ window.SUNPOLE_PROJECTS = [
     "path": "muz2/index.html",
     "launchUrl": "muz2/index.html",
     "category": "Нужно разобрать",
-    "status": "experiment",
-    "maturity": "draft",
+    "status": "archive",
+    "maturity": "migrated",
     "featured": false,
     "quality": {
       "grade": "C4",
@@ -38159,9 +38159,9 @@ window.SUNPOLE_PROJECTS = [
       "javascript",
       "css"
     ],
-    "description": "Проект найден автоматическим сканером. Требуется ручная проверка описания.",
-    "note": "Источник: muz2/index.html; готовность 38/100",
-    "imageUrl": "",
+    "description": "Уточнённая версия таблицы гамм, перенесённая в канонический публичный проект.",
+    "note": "Перенесён в canonical-проект №260008 18.09.2026.",
+    "imageUrl": "assets/hub/screenshots/260008-musical-scales-pentatonic.png",
     "fallbackImageUrl": "",
     "icon": "📦",
     "source": "hub-builder",
@@ -38169,11 +38169,11 @@ window.SUNPOLE_PROJECTS = [
     "related": [
       "muz"
     ],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
-      "launch": "muz2/index.html",
+      "launch": "https://sunpole.github.io/260008-musical-scales-pentatonic/",
       "hub": "hub-current.html",
-      "source": "https://github.com/sunpole/stilist/blob/main/muz2/index.html"
+      "source": "https://github.com/sunpole/260008-musical-scales-pentatonic"
     },
     "metrics": {
       "readiness": 38,
@@ -38253,9 +38253,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ]
     },
-    "canonicalOf": null,
-    "hasRealScreenshot": false,
-    "needsReviewReason": "older or alternative version; confirm canonical project; missing real project screenshot"
+    "canonicalOf": "260008",
+    "hasRealScreenshot": true,
+    "needsReviewReason": "migrated to canonical public repository 260008-musical-scales-pentatonic"
   },
   {
     "id": "root1",
@@ -39066,5 +39066,6 @@ window.SUNPOLE_PROJECTS = [
 ,
   {"id":"260006","title":"Simple Mobile Spreadsheet","path":"https://sunpole.github.io/260006-simple-mobile-spreadsheet/","launchUrl":"https://sunpole.github.io/260006-simple-mobile-spreadsheet/","category":"Файлы / Данные","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":82,"label":"Canonical public project"},"tags":["канонический","таблица","мобильный","калькулятор","GitHub Pages"],"description":"Минималистичная мобильная таблица с редактированием параметров и расчётом формул.","note":"Canonical-проект №260006. GitHub Pages и расчёт 10 × 5 = 50 проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260006-simple-mobile-spreadsheet.png","fallbackImageUrl":"","icon":"📊","source":"canonical-public-repository","versionOf":null,"related":["920"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260006-simple-mobile-spreadsheet/","hub":"hub-current.html","source":"https://github.com/sunpole/260006-simple-mobile-spreadsheet"},"metrics":{"readiness":85,"visual":78,"technical":70,"documentation":86,"repositorySharePercent":0},"tech":{"type":"static web utility","language":"en","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":35},{"name":"JavaScript","percent":35},{"name":"CSS","percent":30}]},"builder":{"file":"https://github.com/sunpole/260006-simple-mobile-spreadsheet","screenshots":["assets/hub/screenshots/260006-simple-mobile-spreadsheet.png"],"generatedAt":"2026-09-18T12:40:00Z","builderVersion":"canonical-projects-v0.8.0","needsHumanReview":false,"reasons":["credential scan clear","calculation verified","GitHub Pages deployed","live screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
 ,
-  {"id":"260007","title":"Albion Craft Calculator","path":"https://sunpole.github.io/260007-albion-craft-calculator/","launchUrl":"https://sunpole.github.io/260007-albion-craft-calculator/","category":"Игры","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":84,"label":"Canonical public project"},"tags":["канонический","Albion Online","крафт","калькулятор","GitHub Pages"],"description":"Калькулятор ресурсов и стоимости крафта для Albion Online с интерактивными позициями и итоговой суммой.","note":"Canonical-проект №260007. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260007-albion-craft-calculator.png","fallbackImageUrl":"","icon":"⚒️","source":"canonical-public-repository","versionOf":null,"related":["albion3"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260007-albion-craft-calculator/","hub":"hub-current.html","source":"https://github.com/sunpole/260007-albion-craft-calculator"},"metrics":{"readiness":86,"visual":82,"technical":72,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static Vue web calculator","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":25},{"name":"JavaScript","percent":50},{"name":"CSS","percent":25}]},"builder":{"file":"https://github.com/sunpole/260007-albion-craft-calculator","screenshots":["assets/hub/screenshots/260007-albion-craft-calculator.png"],"generatedAt":"2026-09-18T13:35:00Z","builderVersion":"canonical-projects-v0.8.1","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","live interface screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
+  {"id":"260007","title":"Albion Craft Calculator","path":"https://sunpole.github.io/260007-albion-craft-calculator/","launchUrl":"https://sunpole.github.io/260007-albion-craft-calculator/","category":"Игры","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":84,"label":"Canonical public project"},"tags":["канонический","Albion Online","крафт","калькулятор","GitHub Pages"],"description":"Калькулятор ресурсов и стоимости крафта для Albion Online с интерактивными позициями и итоговой суммой.","note":"Canonical-проект №260007. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260007-albion-craft-calculator.png","fallbackImageUrl":"","icon":"⚒️","source":"canonical-public-repository","versionOf":null,"related":["albion3"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260007-albion-craft-calculator/","hub":"hub-current.html","source":"https://github.com/sunpole/260007-albion-craft-calculator"},"metrics":{"readiness":86,"visual":82,"technical":72,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static Vue web calculator","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":25},{"name":"JavaScript","percent":50},{"name":"CSS","percent":25}]},"builder":{"file":"https://github.com/sunpole/260007-albion-craft-calculator","screenshots":["assets/hub/screenshots/260007-albion-craft-calculator.png"],"generatedAt":"2026-09-18T13:35:00Z","builderVersion":"canonical-projects-v0.8.1","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","live interface screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null},
+  {"id":"260008","title":"Таблица гамм и пентатоник","path":"https://sunpole.github.io/260008-musical-scales-pentatonic/","launchUrl":"https://sunpole.github.io/260008-musical-scales-pentatonic/","category":"Обучение","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":82,"label":"Canonical public project"},"tags":["канонический","музыка","гаммы","пентатоника","обучение","GitHub Pages"],"description":"Интерактивная таблица 30 мажорных и минорных гамм с отмеченными нотами пентатоники и сортировкой столбцов.","note":"Canonical-проект №260008. GitHub Pages, 30 строк таблицы и скриншот интерфейса проверены 18.09.2026.","imageUrl":"assets/hub/screenshots/260008-musical-scales-pentatonic.png","fallbackImageUrl":"","icon":"🎼","source":"canonical-public-repository","versionOf":null,"related":["muz","muz2"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260008-musical-scales-pentatonic/","hub":"hub-current.html","source":"https://github.com/sunpole/260008-musical-scales-pentatonic"},"metrics":{"readiness":84,"visual":76,"technical":70,"documentation":86,"repositorySharePercent":0},"tech":{"type":"static educational web page","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":35},{"name":"JavaScript","percent":35},{"name":"CSS","percent":30}]},"builder":{"file":"https://github.com/sunpole/260008-musical-scales-pentatonic","screenshots":["assets/hub/screenshots/260008-musical-scales-pentatonic.png"],"generatedAt":"2026-09-18T14:55:00Z","builderVersion":"canonical-projects-v0.8.2","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","30 scale rows verified","live interface screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
 ];
