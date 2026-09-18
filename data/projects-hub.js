@@ -218,9 +218,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ]
     },
-    "canonicalOf": "001",
+    "canonicalOf": "260001",
     "hasRealScreenshot": true,
-    "needsReviewReason": "migrated to canonical public repository 001-print-operations-calculator"
+    "needsReviewReason": "migrated to canonical public repository 260001-print-operations-calculator"
   },
   {
     "id": "350",
@@ -228,9 +228,9 @@ window.SUNPOLE_PROJECTS = [
     "path": "350/index.html",
     "launchUrl": "350/index.html",
     "category": "Полиграфия / Дизайн",
-    "status": "main",
-    "maturity": "ready",
-    "featured": true,
+    "status": "archive",
+    "maturity": "migrated",
+    "featured": false,
     "quality": {
       "grade": "B4",
       "stars": 4,
@@ -263,7 +263,7 @@ window.SUNPOLE_PROJECTS = [
       "81",
       "82"
     ],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
       "launch": "350/index.html",
       "hub": "hub-current.html",
@@ -416,9 +416,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ]
     },
-    "canonicalOf": null,
+    "canonicalOf": "260002",
     "hasRealScreenshot": true,
-    "needsReviewReason": null
+    "needsReviewReason": "migrated to canonical public repository 260002-mm-px-converter"
   },
   {
     "id": "pass",
@@ -39005,10 +39005,10 @@ window.SUNPOLE_PROJECTS = [
     "needsReviewReason": null
   },
   {
-    "id": "001",
+    "id": "260001",
     "title": "Калькулятор полиграфических операций",
-    "path": "https://sunpole.github.io/001-print-operations-calculator/",
-    "launchUrl": "https://sunpole.github.io/001-print-operations-calculator/",
+    "path": "https://sunpole.github.io/260001-print-operations-calculator/",
+    "launchUrl": "https://sunpole.github.io/260001-print-operations-calculator/",
     "category": "Полиграфия / Дизайн",
     "status": "main",
     "maturity": "released",
@@ -39016,18 +39016,46 @@ window.SUNPOLE_PROJECTS = [
     "quality": { "grade": "A2", "stars": 4, "score": 86, "label": "Canonical public project" },
     "tags": ["канонический", "полиграфия", "УФ-лак", "фольгирование", "PDF", "GitHub Pages"],
     "description": "Калькулятор шести операций УФ-лакирования и фольгирования с экспортом рапортички в PDF и TXT.",
-    "note": "Canonical-проект №001. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.",
-    "imageUrl": "assets/hub/screenshots/001-print-operations-calculator.png",
+    "note": "Canonical-проект №260001. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.",
+    "imageUrl": "assets/hub/screenshots/260001-print-operations-calculator.png",
     "fallbackImageUrl": "",
     "icon": "🖨️",
     "source": "canonical-public-repository",
     "versionOf": null,
     "related": ["350", "3501", "3502"],
     "isVisible": true,
-    "links": { "launch": "https://sunpole.github.io/001-print-operations-calculator/", "hub": "hub-current.html", "source": "https://github.com/sunpole/001-print-operations-calculator" },
+    "links": { "launch": "https://sunpole.github.io/260001-print-operations-calculator/", "hub": "hub-current.html", "source": "https://github.com/sunpole/260001-print-operations-calculator" },
     "metrics": { "readiness": 88, "visual": 86, "technical": 68, "documentation": 84, "repositorySharePercent": 0 },
     "tech": { "type": "static web utility", "language": "ru", "hasManifest": true, "hasOpenGraph": true, "hasScreenshot": true, "languages": [{ "name": "HTML", "percent": 25 }, { "name": "JavaScript", "percent": 50 }, { "name": "CSS", "percent": 25 }] },
-    "builder": { "file": "https://github.com/sunpole/001-print-operations-calculator", "screenshots": ["assets/hub/screenshots/001-print-operations-calculator.png"], "generatedAt": "2026-09-18T08:18:00Z", "builderVersion": "canonical-projects-v0.7.3", "needsHumanReview": false, "reasons": ["secret scan clear", "README and versioning present", "GitHub Pages deployed", "live interface screenshot verified"] },
+    "builder": { "file": "https://github.com/sunpole/260001-print-operations-calculator", "screenshots": ["assets/hub/screenshots/260001-print-operations-calculator.png"], "generatedAt": "2026-09-18T08:18:00Z", "builderVersion": "canonical-projects-v0.7.5", "needsHumanReview": false, "reasons": ["secret scan clear", "README and versioning present", "GitHub Pages deployed", "live interface screenshot verified", "conflict-free six-digit identifier"] },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
+  },
+  {
+    "id": "260002",
+    "title": "Конвертер мм ↔ пиксели",
+    "path": "https://sunpole.github.io/260002-mm-px-converter/",
+    "launchUrl": "https://sunpole.github.io/260002-mm-px-converter/",
+    "category": "Полиграфия / Дизайн",
+    "status": "main",
+    "maturity": "released",
+    "featured": true,
+    "quality": { "grade": "A3", "stars": 4, "score": 84, "label": "Canonical public project" },
+    "tags": ["канонический", "полиграфия", "дизайн", "PPI", "конвертер", "GitHub Pages"],
+    "description": "Перевод миллиметров в пиксели и обратно с настраиваемым PPI и режимом округления.",
+    "note": "Canonical-проект №260002. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.",
+    "imageUrl": "assets/hub/screenshots/260002-mm-px-converter.png",
+    "fallbackImageUrl": "",
+    "icon": "🖨️",
+    "source": "canonical-public-repository",
+    "versionOf": null,
+    "related": ["350", "350-index1", "3501", "3502"],
+    "isVisible": true,
+    "links": { "launch": "https://sunpole.github.io/260002-mm-px-converter/", "hub": "hub-current.html", "source": "https://github.com/sunpole/260002-mm-px-converter" },
+    "metrics": { "readiness": 86, "visual": 82, "technical": 68, "documentation": 84, "repositorySharePercent": 0 },
+    "tech": { "type": "static web utility", "language": "ru", "hasManifest": true, "hasOpenGraph": true, "hasScreenshot": true, "languages": [{ "name": "HTML", "percent": 30 }, { "name": "JavaScript", "percent": 45 }, { "name": "CSS", "percent": 25 }] },
+    "builder": { "file": "https://github.com/sunpole/260002-mm-px-converter", "screenshots": ["assets/hub/screenshots/260002-mm-px-converter.png"], "generatedAt": "2026-09-18T08:35:07Z", "builderVersion": "canonical-projects-v0.7.5", "needsHumanReview": false, "reasons": ["credential scan clear", "README and versioning present", "GitHub Pages deployed", "live interface screenshot verified", "conflict-free six-digit identifier"] },
     "canonicalOf": null,
     "hasRealScreenshot": true,
     "needsReviewReason": null

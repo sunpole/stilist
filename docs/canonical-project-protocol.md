@@ -7,13 +7,15 @@ one public `sunpole` GitHub repository. Their directory/repository name is the
 same:
 
 ```text
-C:\!CODE_CLUB\projects\NNN-slug
-https://github.com/sunpole/NNN-slug
-https://sunpole.github.io/NNN-slug/
+C:\!CODE_CLUB\projects\YYNNNN-slug
+https://github.com/sunpole/YYNNNN-slug
+https://sunpole.github.io/YYNNNN-slug/
 ```
 
-`NNN` is a three-digit identifier allocated when a project first enters the
-canonical portfolio. It expresses intake order only; it is not a quality rank.
+`YYNNNN` is a six-digit identifier: the two-digit intake year and a four-digit
+sequence within that year (for example, `260001`). It expresses intake order
+only; it is not a quality rank. The longer prefix prevents collisions with the
+existing short local numbering in `C:\!CODE_CLUB\new 2026`.
 
 ## One small batch
 
