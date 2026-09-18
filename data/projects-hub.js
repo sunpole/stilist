@@ -1,11 +1,11 @@
 window.SUNPOLE_HUB_META = {
   "name": "SUNPOLE HUB",
-  "version": "0.7.2-portfolio-intake",
+  "version": "0.7.3-canonical-projects",
   "updatedAt": "2026-09-18",
-  "theme": "portfolio-intake",
+  "theme": "canonical-projects",
   "repository": "sunpole/stilist",
   "homeUrl": "hub-current.html",
-  "projectCount": 199,
+  "projectCount": 200,
   "source": "tools/hub-builder/generate.js",
   "output": "data/projects-hub.js",
   "safeMode": true
@@ -18,9 +18,9 @@ window.SUNPOLE_PROJECTS = [
     "path": "3502/index.html",
     "launchUrl": "3502/index.html",
     "category": "Полиграфия / Дизайн",
-    "status": "main",
+    "status": "archive",
     "maturity": "ready",
-    "featured": true,
+    "featured": false,
     "quality": {
       "grade": "A1",
       "stars": 1,
@@ -53,7 +53,7 @@ window.SUNPOLE_PROJECTS = [
       "81",
       "82"
     ],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
       "launch": "3502/index.html",
       "hub": "hub-current.html",
@@ -218,9 +218,9 @@ window.SUNPOLE_PROJECTS = [
         }
       ]
     },
-    "canonicalOf": null,
+    "canonicalOf": "001",
     "hasRealScreenshot": true,
-    "needsReviewReason": null
+    "needsReviewReason": "migrated to canonical public repository 001-print-operations-calculator"
   },
   {
     "id": "350",
@@ -39000,6 +39000,34 @@ window.SUNPOLE_PROJECTS = [
     "metrics": { "readiness": 76, "visual": 55, "technical": 72, "documentation": 63, "repositorySharePercent": 0 },
     "tech": { "type": "static web utility", "language": "en", "hasManifest": false, "hasOpenGraph": false, "hasScreenshot": true, "languages": [{ "name": "HTML", "percent": 30 }, { "name": "JavaScript", "percent": 50 }, { "name": "CSS", "percent": 20 }] },
     "builder": { "file": "https://github.com/sunpole/uCode", "screenshots": ["assets/hub/screenshots/ucode.png"], "generatedAt": "2026-09-18T06:57:23Z", "builderVersion": "manual-github-audit", "needsHumanReview": false, "reasons": ["README, public source and live page verified"] },
+    "canonicalOf": null,
+    "hasRealScreenshot": true,
+    "needsReviewReason": null
+  },
+  {
+    "id": "001",
+    "title": "Калькулятор полиграфических операций",
+    "path": "https://sunpole.github.io/001-print-operations-calculator/",
+    "launchUrl": "https://sunpole.github.io/001-print-operations-calculator/",
+    "category": "Полиграфия / Дизайн",
+    "status": "main",
+    "maturity": "released",
+    "featured": true,
+    "quality": { "grade": "A2", "stars": 4, "score": 86, "label": "Canonical public project" },
+    "tags": ["канонический", "полиграфия", "УФ-лак", "фольгирование", "PDF", "GitHub Pages"],
+    "description": "Калькулятор шести операций УФ-лакирования и фольгирования с экспортом рапортички в PDF и TXT.",
+    "note": "Canonical-проект №001. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.",
+    "imageUrl": "assets/hub/screenshots/001-print-operations-calculator.png",
+    "fallbackImageUrl": "",
+    "icon": "🖨️",
+    "source": "canonical-public-repository",
+    "versionOf": null,
+    "related": ["350", "3501", "3502"],
+    "isVisible": true,
+    "links": { "launch": "https://sunpole.github.io/001-print-operations-calculator/", "hub": "hub-current.html", "source": "https://github.com/sunpole/001-print-operations-calculator" },
+    "metrics": { "readiness": 88, "visual": 86, "technical": 68, "documentation": 84, "repositorySharePercent": 0 },
+    "tech": { "type": "static web utility", "language": "ru", "hasManifest": true, "hasOpenGraph": true, "hasScreenshot": true, "languages": [{ "name": "HTML", "percent": 25 }, { "name": "JavaScript", "percent": 50 }, { "name": "CSS", "percent": 25 }] },
+    "builder": { "file": "https://github.com/sunpole/001-print-operations-calculator", "screenshots": ["assets/hub/screenshots/001-print-operations-calculator.png"], "generatedAt": "2026-09-18T08:18:00Z", "builderVersion": "canonical-projects-v0.7.3", "needsHumanReview": false, "reasons": ["secret scan clear", "README and versioning present", "GitHub Pages deployed", "live interface screenshot verified"] },
     "canonicalOf": null,
     "hasRealScreenshot": true,
     "needsReviewReason": null
