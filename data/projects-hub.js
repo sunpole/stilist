@@ -1,8 +1,8 @@
 window.SUNPOLE_HUB_META = {
   "name": "SUNPOLE HUB",
-  "version": "0.7.3-canonical-projects",
+  "version": "0.7.4-legacy-redirects",
   "updatedAt": "2026-09-18",
-  "theme": "canonical-projects",
+  "theme": "legacy-redirects",
   "repository": "sunpole/stilist",
   "homeUrl": "hub-current.html",
   "projectCount": 200,

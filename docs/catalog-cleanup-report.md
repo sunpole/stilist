@@ -1,6 +1,6 @@
 # SUNPOLE HUB Catalog Cleanup Report
 
-Snapshot for `v0.7.3-canonical-projects`.
+Snapshot for `v0.7.4-legacy-redirects`.
 
 ## Catalog counts
 

@@ -1,8 +1,8 @@
 window.SUNPOLE_HUB_VERSION = {
   name: "SUNPOLE HUB",
-  version: "0.7.3-canonical-projects",
-  codename: "Canonical Projects",
-  stage: "project-extraction",
+  version: "0.7.4-legacy-redirects",
+  codename: "Legacy Redirects",
+  stage: "project-migration",
   updatedAt: "2026-09-18",
   status: "alpha",
   description: "Каталог с отдельно публикуемыми canonical-проектами и безопасно сохранёнными legacy-карточками.",

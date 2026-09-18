@@ -29,8 +29,10 @@ canonical portfolio. It expresses intake order only; it is not a quality rank.
 3. If any secret or suspicious credential is found, mark the project as
    `blocked-secrets`, do not copy, commit, create a repository or publish it;
    report it to the owner after that pass.
-4. Copy rather than delete the legacy source. Keep the legacy card hidden with
-   `canonicalOf` until old links are verified.
+4. Copy rather than delete the legacy source. Replace the old public entry page
+   with a zero-delay legacy redirect: HTML meta refresh, a JavaScript redirect
+   and a visible canonical link must all target the new Pages URL. Keep the
+   legacy card hidden with `canonicalOf` until old links are verified.
 5. Add `README.md`, `VERSION`, `CHANGELOG.md`, `project.json`, `.gitignore`,
    a public GitHub Pages workflow and a real interface screenshot.
 6. Publish the new public repository and Pages site, verify the live interface
