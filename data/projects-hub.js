@@ -38263,8 +38263,8 @@ window.SUNPOLE_PROJECTS = [
     "path": "root1/index.html",
     "launchUrl": "root1/index.html",
     "category": "Нужно разобрать",
-    "status": "experiment",
-    "maturity": "draft",
+    "status": "archive",
+    "maturity": "redirect",
     "featured": false,
     "quality": {
       "grade": "C4",
@@ -38287,7 +38287,7 @@ window.SUNPOLE_PROJECTS = [
     "source": "hub-builder",
     "versionOf": null,
     "related": [],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
       "launch": "root1/index.html",
       "hub": "hub-current.html",
@@ -38361,9 +38361,9 @@ window.SUNPOLE_PROJECTS = [
       ],
       "relationReasons": []
     },
-    "canonicalOf": null,
-    "hasRealScreenshot": false,
-    "needsReviewReason": "missing real project screenshot"
+    "canonicalOf": "260004",
+    "hasRealScreenshot": true,
+    "needsReviewReason": "migrated to canonical public repository 260004-cascading-keyboard"
   },
   {
     "id": "wb",
@@ -39060,5 +39060,6 @@ window.SUNPOLE_PROJECTS = [
     "hasRealScreenshot": true,
     "needsReviewReason": null
   },
-  {"id":"260003","title":"Расчет раскладки изделий на печатном листе","path":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","launchUrl":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","category":"Полиграфия / Дизайн","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":85,"label":"Canonical public project"},"tags":["канонический","полиграфия","раскладка","печать","GitHub Pages"],"description":"Калькулятор раскладки прямоугольных и круглых изделий на печатном листе.","note":"Canonical-проект №260003; опубликованная страница и скриншот проверены 18.09.2026.","imageUrl":"assets/hub/screenshots/260003-print-sheet-layout-calculator.png","fallbackImageUrl":"","icon":"🖨️","source":"canonical-public-repository","versionOf":null,"related":["320"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","hub":"hub-current.html","source":"https://github.com/sunpole/260003-print-sheet-layout-calculator"},"metrics":{"readiness":87,"visual":86,"technical":70,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static web utility","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":25},{"name":"JavaScript","percent":45},{"name":"CSS","percent":30}]},"builder":{"file":"https://github.com/sunpole/260003-print-sheet-layout-calculator","screenshots":["assets/hub/screenshots/260003-print-sheet-layout-calculator.png"],"generatedAt":"2026-09-18T08:45:00Z","builderVersion":"canonical-projects-v0.7.7","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","live screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
+  {"id":"260003","title":"Расчет раскладки изделий на печатном листе","path":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","launchUrl":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","category":"Полиграфия / Дизайн","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":85,"label":"Canonical public project"},"tags":["канонический","полиграфия","раскладка","печать","GitHub Pages"],"description":"Калькулятор раскладки прямоугольных и круглых изделий на печатном листе.","note":"Canonical-проект №260003; опубликованная страница и скриншот проверены 18.09.2026.","imageUrl":"assets/hub/screenshots/260003-print-sheet-layout-calculator.png","fallbackImageUrl":"","icon":"🖨️","source":"canonical-public-repository","versionOf":null,"related":["320"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","hub":"hub-current.html","source":"https://github.com/sunpole/260003-print-sheet-layout-calculator"},"metrics":{"readiness":87,"visual":86,"technical":70,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static web utility","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":25},{"name":"JavaScript","percent":45},{"name":"CSS","percent":30}]},"builder":{"file":"https://github.com/sunpole/260003-print-sheet-layout-calculator","screenshots":["assets/hub/screenshots/260003-print-sheet-layout-calculator.png"],"generatedAt":"2026-09-18T08:45:00Z","builderVersion":"canonical-projects-v0.7.7","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","live screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null},
+  {"id":"260004","title":"Каскадная клавиатура","path":"https://sunpole.github.io/260004-cascading-keyboard/","launchUrl":"https://sunpole.github.io/260004-cascading-keyboard/","category":"Текст / Виджеты","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":80,"label":"Canonical public project"},"tags":["канонический","клавиатура","интерфейс","touch","GitHub Pages"],"description":"Интерактивная цифровая клавиатура с каскадным выбором дополнительных действий удержанием кнопки.","note":"Canonical-проект №260004. GitHub Pages и интерфейс проверены 18.09.2026; скриншот снят с опубликованной страницы.","imageUrl":"assets/hub/screenshots/260004-cascading-keyboard.png","fallbackImageUrl":"","icon":"⌨️","source":"canonical-public-repository","versionOf":null,"related":["root1"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260004-cascading-keyboard/","hub":"hub-current.html","source":"https://github.com/sunpole/260004-cascading-keyboard"},"metrics":{"readiness":82,"visual":80,"technical":62,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static web interaction","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":33},{"name":"JavaScript","percent":33},{"name":"CSS","percent":33}]},"builder":{"file":"https://github.com/sunpole/260004-cascading-keyboard","screenshots":["assets/hub/screenshots/260004-cascading-keyboard.png"],"generatedAt":"2026-09-18T12:20:00Z","builderVersion":"canonical-projects-v0.7.8","needsHumanReview":false,"reasons":["credential scan clear","README and versioning present","GitHub Pages deployed","live interface screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
 ];
