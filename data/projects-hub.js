@@ -1641,8 +1641,8 @@ window.SUNPOLE_PROJECTS = [
     "path": "320/index.html",
     "launchUrl": "320/index.html",
     "category": "Нужно разобрать",
-    "status": "review",
-    "maturity": "beta",
+    "status": "archive",
+    "maturity": "migrated",
     "featured": false,
     "quality": {
       "grade": "B3",
@@ -1666,7 +1666,7 @@ window.SUNPOLE_PROJECTS = [
     "source": "hub-builder",
     "versionOf": null,
     "related": [],
-    "isVisible": true,
+    "isVisible": false,
     "links": {
       "launch": "320/index.html",
       "hub": "hub-current.html",
@@ -1759,9 +1759,9 @@ window.SUNPOLE_PROJECTS = [
       ],
       "relationReasons": []
     },
-    "canonicalOf": null,
+    "canonicalOf": "260003",
     "hasRealScreenshot": true,
-    "needsReviewReason": "category needs manual review"
+    "needsReviewReason": "migrated to canonical public repository 260003-print-sheet-layout-calculator"
   },
   {
     "id": "370",
@@ -39059,5 +39059,6 @@ window.SUNPOLE_PROJECTS = [
     "canonicalOf": null,
     "hasRealScreenshot": true,
     "needsReviewReason": null
-  }
+  },
+  {"id":"260003","title":"Расчет раскладки изделий на печатном листе","path":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","launchUrl":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","category":"Полиграфия / Дизайн","status":"main","maturity":"released","featured":true,"quality":{"grade":"A3","stars":4,"score":85,"label":"Canonical public project"},"tags":["канонический","полиграфия","раскладка","печать","GitHub Pages"],"description":"Калькулятор раскладки прямоугольных и круглых изделий на печатном листе.","note":"Canonical-проект №260003; опубликованная страница и скриншот проверены 18.09.2026.","imageUrl":"assets/hub/screenshots/260003-print-sheet-layout-calculator.png","fallbackImageUrl":"","icon":"🖨️","source":"canonical-public-repository","versionOf":null,"related":["320"],"isVisible":true,"links":{"launch":"https://sunpole.github.io/260003-print-sheet-layout-calculator/","hub":"hub-current.html","source":"https://github.com/sunpole/260003-print-sheet-layout-calculator"},"metrics":{"readiness":87,"visual":86,"technical":70,"documentation":84,"repositorySharePercent":0},"tech":{"type":"static web utility","language":"ru","hasManifest":true,"hasOpenGraph":true,"hasScreenshot":true,"languages":[{"name":"HTML","percent":25},{"name":"JavaScript","percent":45},{"name":"CSS","percent":30}]},"builder":{"file":"https://github.com/sunpole/260003-print-sheet-layout-calculator","screenshots":["assets/hub/screenshots/260003-print-sheet-layout-calculator.png"],"generatedAt":"2026-09-18T08:45:00Z","builderVersion":"canonical-projects-v0.7.7","needsHumanReview":false,"reasons":["credential scan clear","GitHub Pages deployed","live screenshot verified"]},"canonicalOf":null,"hasRealScreenshot":true,"needsReviewReason":null}
 ];
